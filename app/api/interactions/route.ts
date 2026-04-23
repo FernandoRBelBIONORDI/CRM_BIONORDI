@@ -1,0 +1,49 @@
+import { NextResponse } from 'next/server';
+import db from '@/lib/db';
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const leadId = searchParams.get('lead_id');
+  if (!leadId) return NextResponse.json({ error: 'lead_id requerido' }, { status: 400 });
+
+  const rows = db.prepare(
+    `SELECT * FROM interacciones WHERE lead_id = ? ORDER BY fecha DESC`
+  ).all(leadId);
+  return NextResponse.json({ interacciones: rows });
+}
+
+export async function POST(req: Request) {
+  try {
+    const { lead_id, tipo, contenido, resultado } = await req.json();
+    if (!lead_id || !tipo || !contenido) {
+      return NextResponse.json({ error: 'lead_id, tipo y contenido son requeridos' }, { status: 400 });
+    }
+
+    const fecha = new Date().toISOString();
+
+    const { lastInsertRowid } = db.prepare(`
+      INSERT INTO interacciones (lead_id, tipo, contenido, fecha, resultado)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(lead_id, tipo, contenido, fecha, resultado || null);
+
+    // Actualizar fecha_ultimo_contacto del lead
+    db.prepare(
+      `UPDATE leads SET fecha_ultimo_contacto = ?, fecha_ultimo_cambio = ? WHERE id = ?`
+    ).run(fecha, fecha, lead_id);
+
+    return NextResponse.json({ success: true, id: lastInsertRowid });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { id } = await req.json();
+    if (!id) return NextResponse.json({ error: 'id requerido' }, { status: 400 });
+    db.prepare(`DELETE FROM interacciones WHERE id = ?`).run(id);
+    return NextResponse.json({ success: true });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}

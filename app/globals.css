@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-inter), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { @apply bg-gray-300 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-gray-400; }
+
+@layer components {
+  /* Restoring Original Bionordi classes mapped to Light Mode Taskly Theme */
+  .card { @apply bg-white rounded-3xl border-0 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)]; }
+  
+  .t-table { @apply w-full text-[13px] text-[#202538]; }
+  .t-table thead tr { @apply border-b-[1.5px] border-dotted border-gray-200 bg-transparent; }
+  .t-table thead th { @apply text-left px-4 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider; }
+  .t-table tbody tr { @apply border-b-[1.5px] border-dotted border-gray-100 hover:bg-gray-50/50 transition-colors cursor-pointer; }
+  .t-table tbody td { @apply px-4 py-4 align-middle text-[#3B3E4B] font-medium; }
+  .t-table .cell-ref { font-family: var(--font-mono), monospace; }
+  .mono { font-family: var(--font-mono), monospace; }
+
+  .pill { @apply inline-flex items-center justify-center gap-1 text-[11px] font-bold px-3 py-1.5 rounded-full tracking-tight; }
+  .pill-nuevo       { @apply bg-[#EEF3FC] text-[#5A85F1]; }
+  .pill-contactado  { @apply bg-[#FFFBEB] text-[#D97706]; }
+  .pill-seguimiento { @apply bg-[#FFF7ED] text-[#EA580C]; }
+  .pill-diagnostico { @apply bg-[#F5F3FF] text-[#7C3AED]; }
+  .pill-cliente     { @apply bg-[#EEF9F1] text-[#34A853]; }
+  .pill-sin_equipo  { @apply bg-[#F1F5F9] text-[#64748B]; }
+  .pill-descartado  { @apply bg-[#FEF2F2] text-[#DC2626]; }
+
+  .page-header { @apply flex items-center gap-4 px-8 py-6 bg-white border-b-0 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] rounded-3xl shrink-0 mt-4 mx-4 mb-2; }
+  .sec-label { @apply text-xs font-bold text-gray-400 uppercase tracking-wider; }
+  .inp { @apply bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none placeholder:text-gray-400 focus:border-[#5A85F1] focus:ring-2 focus:ring-[#5A85F1]/10 w-full text-[#202538] font-medium transition-all; }
+  .btn-primary { @apply flex items-center justify-center gap-2 bg-[#2D2F3C] text-white text-[12px] font-bold px-6 py-2.5 rounded-full hover:bg-[#1A1C24] transition-all transform hover:-translate-y-[1px] shadow-sm; }
+  .btn-ghost { @apply flex items-center gap-2 text-[12px] font-bold text-gray-500 px-4 py-2.5 rounded-full hover:bg-gray-50 transition-colors; }
+  .cfg-input { @apply bg-transparent text-sm outline-none text-[#202538] w-full placeholder:text-gray-400 font-medium; }
+}
+
+.leaflet-container {
+  background: #E5ECF6 !important;
+  font-family: var(--font-inter), system-ui, sans-serif !important;
+  border-radius: 20px;
+}
+.leaflet-popup-content-wrapper {
+  background: #FFFFFF !important;
+  border: 0 solid transparent !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+  color: #1E293B !important;
+}
+.leaflet-popup-tip { background: #FFFFFF !important; }
