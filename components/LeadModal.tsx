@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import {
@@ -51,7 +51,7 @@ const RES_OPTS = [
 const ESTADO_EQUIPO = [
   { value: "activo",    label: "Activo",    color: "#34A853" },
   { value: "en_falla",  label: "En falla",  color: "#EF4444" },
-  { value: "reparado",  label: "Reparado",  color: "#427DFA" },
+  { value: "reparado",  label: "Reparado",  color: "#4E60A9" },
   { value: "dado_baja", label: "Dado de baja", color: "#94A3B8" },
 ];
 
@@ -108,6 +108,8 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   const [savingNota, setSavingNota]   = useState(false);
   const [showEquipoForm, setShowEquipoForm] = useState(false);
   const [showQuote, setShowQuote]     = useState(false);
+  const [editWA, setEditWA]           = useState(false);
+  const [waVal, setWaVal]             = useState("");
   const [copiedTpl, setCopiedTpl]     = useState<number | null>(null);
   const [newEquipo, setNewEquipo]     = useState({ tipo: "", marca: "", modelo: "", num_serie: "", estado: "activo", notas: "" });
   const [savingEq, setSavingEq]       = useState(false);
@@ -118,6 +120,7 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
     setNota(lead.notas || "");
     setProxDate(lead.fecha_proximo_contacto?.slice(0, 10) || "");
     setStatus(lead.status_crm);
+    setWaVal(lead.whatsapp || "");
     setInts([]);
     setEquipos([]);
     loadInts(lead.id);
@@ -154,6 +157,13 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
     setNewCont("");
     await loadInts(lead.id);
     setAddingInt(false);
+  };
+
+  const saveWA = async () => {
+    if (!lead) return;
+    await fetch("/api/leads", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: lead.id, whatsapp: waVal.trim() || null }) });
+    onUpdate(lead.id, { whatsapp: waVal.trim() || undefined });
+    setEditWA(false);
   };
 
   const saveNota = async () => {
@@ -261,14 +271,16 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                 style={{ color: st.color, backgroundColor: st.bg }}>
                 {STATUS_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
-              {lead.telefono && (
-                <a href={`https://wa.me/52${lead.telefono.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-[12px] font-bold text-white bg-green-500 hover:bg-green-600 px-3 py-2 rounded-full transition-colors shadow-sm">
+              {(lead.whatsapp || lead.telefono) && (
+                <Link
+                  href={`/whatsapp?phone=${(lead.whatsapp || lead.telefono)!.replace(/\D/g, "")}`}
+                  onClick={onClose}
+                  className="flex items-center gap-1.5 text-[12px] font-bold text-white bg-[#25D366] hover:bg-[#1ebe5d] px-3 py-2 rounded-full transition-colors shadow-sm">
                   <MessageCircle size={13} strokeWidth={2.5} /> WhatsApp
-                </a>
+                </Link>
               )}
               <button onClick={() => setShowQuote(true)}
-                className="flex items-center gap-1.5 text-[12px] font-bold text-[#427DFA] bg-[#EEF3FC] hover:bg-[#427DFA] hover:text-white px-3 py-2 rounded-full transition-colors shadow-sm">
+                className="flex items-center gap-1.5 text-[12px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-2 rounded-full transition-colors shadow-sm">
                 <FileText size={13} /> Cotizar
               </button>
               <Link href={`/taller?nuevo=1&lead_id=${lead.id}`}
@@ -299,11 +311,44 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                       <div className="text-[10px] text-gray-400 font-medium">{label}</div>
                       {href
                         ? <a href={href.startsWith("http") ? href : `https://${href}`} target="_blank" rel="noopener noreferrer"
-                            className="text-[12px] font-bold text-[#427DFA] hover:underline truncate block">{val}</a>
+                            className="text-[12px] font-bold text-[#4E60A9] hover:underline truncate block">{val}</a>
                         : <div className="text-[12px] font-bold text-[#1E293B] truncate">{val || "—"}</div>}
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* WhatsApp editable */}
+              <div className="mt-2 flex items-center gap-2">
+                <MessageCircle size={13} className="text-[#22C55E] shrink-0" />
+                {editWA ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <input
+                      autoFocus
+                      value={waVal}
+                      onChange={e => setWaVal(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") saveWA(); if (e.key === "Escape") setEditWA(false); }}
+                      placeholder="52 55 1234 5678"
+                      className="flex-1 text-[12px] border border-[#22C55E]/40 rounded-lg px-3 py-1.5 outline-none focus:border-[#22C55E]/70 bg-white"
+                    />
+                    <button onClick={saveWA} className="text-[11px] font-bold text-white bg-[#22C55E] hover:bg-[#16A34A] px-3 py-1.5 rounded-lg transition-colors">
+                      Guardar
+                    </button>
+                    <button onClick={() => { setEditWA(false); setWaVal(lead.whatsapp || ""); }} className="text-[11px] text-gray-400 hover:text-gray-600 px-2 py-1.5">
+                      ✕
+                    </button>
+                  </div>
+                ) : lead.whatsapp ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <a href={`https://wa.me/${lead.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer"
+                      className="text-[12px] font-bold text-[#22C55E] hover:underline">{lead.whatsapp}</a>
+                    <button onClick={() => setEditWA(true)} className="text-[10px] text-gray-400 hover:text-gray-600 underline ml-1">editar</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setEditWA(true)} className="text-[12px] text-[#22C55E] hover:text-[#16A34A] font-semibold">
+                    + Agregar WhatsApp
+                  </button>
+                )}
               </div>
             </div>
 
@@ -312,7 +357,7 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Equipo del Cliente</h3>
                 <button onClick={() => setShowEquipoForm(p => !p)}
-                  className="flex items-center gap-1 text-[11px] font-bold text-[#427DFA] hover:text-[#2B5FD9] transition-colors">
+                  className="flex items-center gap-1 text-[11px] font-bold text-[#4E60A9] hover:text-[#2B5FD9] transition-colors">
                   <Plus size={12} /> Agregar
                 </button>
               </div>
@@ -322,27 +367,27 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                 <div className="bg-gray-50 rounded-xl p-3 mb-3 border border-gray-100 space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <input placeholder="Tipo de transductor *" value={newEquipo.tipo} onChange={e => setNewEquipo(p => ({ ...p, tipo: e.target.value }))}
-                      className="text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#427DFA]/40 col-span-2 placeholder:text-gray-400" />
+                      className="text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 col-span-2 placeholder:text-gray-400" />
                     <input placeholder="Marca" value={newEquipo.marca} onChange={e => setNewEquipo(p => ({ ...p, marca: e.target.value }))}
-                      className="text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#427DFA]/40 placeholder:text-gray-400" />
+                      className="text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 placeholder:text-gray-400" />
                     <input placeholder="Modelo" value={newEquipo.modelo} onChange={e => setNewEquipo(p => ({ ...p, modelo: e.target.value }))}
-                      className="text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#427DFA]/40 placeholder:text-gray-400" />
+                      className="text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 placeholder:text-gray-400" />
                     <input placeholder="No. serie" value={newEquipo.num_serie} onChange={e => setNewEquipo(p => ({ ...p, num_serie: e.target.value }))}
-                      className="text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#427DFA]/40 placeholder:text-gray-400" />
+                      className="text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 placeholder:text-gray-400" />
                     <select value={newEquipo.estado} onChange={e => setNewEquipo(p => ({ ...p, estado: e.target.value }))}
                       className="text-[12px] font-bold bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none cursor-pointer">
                       {ESTADO_EQUIPO.map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
                     </select>
                   </div>
                   <input placeholder="Notas (opcional)" value={newEquipo.notas} onChange={e => setNewEquipo(p => ({ ...p, notas: e.target.value }))}
-                    className="w-full text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#427DFA]/40 placeholder:text-gray-400" />
+                    className="w-full text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 placeholder:text-gray-400" />
                   <div className="flex gap-2 justify-end">
                     <button onClick={() => setShowEquipoForm(false)}
                       className="text-[11px] font-bold text-gray-400 hover:text-gray-600 px-3 py-1.5 rounded-lg transition-colors">
                       Cancelar
                     </button>
                     <button onClick={addEquipo} disabled={savingEq || !newEquipo.tipo.trim()}
-                      className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-[#427DFA] hover:bg-[#2B5FD9] px-4 py-1.5 rounded-lg transition-colors disabled:opacity-40">
+                      className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-[#4E60A9] hover:bg-[#2B5FD9] px-4 py-1.5 rounded-lg transition-colors disabled:opacity-40">
                       {savingEq ? <Activity size={11} className="animate-spin" /> : <Check size={11} />}
                       Guardar
                     </button>
@@ -389,9 +434,9 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
               <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Próximo Contacto</h3>
               <div className="flex items-center gap-3">
                 <div className={`flex items-center gap-2 flex-1 px-3 py-2.5 rounded-xl border ${proxVencida ? "border-red-200 bg-[#FEF2F2]" : proxHoy ? "border-blue-200 bg-[#EEF3FC]" : "border-gray-200 bg-gray-50"}`}>
-                  <Calendar size={14} className={proxVencida ? "text-[#DC2626]" : proxHoy ? "text-[#427DFA]" : "text-gray-400"} />
+                  <Calendar size={14} className={proxVencida ? "text-[#DC2626]" : proxHoy ? "text-[#4E60A9]" : "text-gray-400"} />
                   <input type="date" value={proxDate} onChange={e => saveProxDate(e.target.value)}
-                    className={`flex-1 bg-transparent outline-none text-[13px] font-bold ${proxVencida ? "text-[#DC2626]" : proxHoy ? "text-[#427DFA]" : "text-[#1E293B]"}`} />
+                    className={`flex-1 bg-transparent outline-none text-[13px] font-bold ${proxVencida ? "text-[#DC2626]" : proxHoy ? "text-[#4E60A9]" : "text-[#1E293B]"}`} />
                 </div>
                 {proxDate && (
                   <button onClick={() => saveProxDate("")}
@@ -408,10 +453,10 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
               <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Notas</h3>
               <textarea value={nota} onChange={e => setNota(e.target.value)} rows={3}
                 placeholder="Agrega notas de contexto, detalles del equipo, etc."
-                className="w-full text-[13px] font-medium text-[#1E293B] bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#427DFA]/40 focus:bg-white resize-none placeholder:text-gray-400 transition-all" />
+                className="w-full text-[13px] font-medium text-[#1E293B] bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#4E60A9]/40 focus:bg-white resize-none placeholder:text-gray-400 transition-all" />
               <div className="flex justify-end mt-2">
                 <button onClick={saveNota}
-                  className="flex items-center gap-1.5 text-[12px] font-bold text-[#427DFA] bg-[#EEF3FC] hover:bg-[#427DFA] hover:text-white px-4 py-2 rounded-full transition-colors">
+                  className="flex items-center gap-1.5 text-[12px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-4 py-2 rounded-full transition-colors">
                   {savingNota ? <Activity size={12} className="animate-spin" /> : <Check size={12} />}
                   Guardar nota
                 </button>
@@ -433,12 +478,12 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                             setCopiedTpl(i);
                             setTimeout(() => setCopiedTpl(null), 2000);
                           }}
-                          className="flex items-center gap-1 text-[10px] font-bold text-gray-400 hover:text-[#427DFA] transition-colors px-2 py-1 rounded-lg hover:bg-[#EEF3FC]">
+                          className="flex items-center gap-1 text-[10px] font-bold text-gray-400 hover:text-[#4E60A9] transition-colors px-2 py-1 rounded-lg hover:bg-[#EEF3FC]">
                           {copiedTpl === i ? <Check size={10} className="text-[#34A853]" /> : <MessageCircle size={10} />}
                           {copiedTpl === i ? "Copiado" : "Copiar"}
                         </button>
-                        {lead.telefono && (
-                          <a href={`https://wa.me/52${lead.telefono.replace(/\D/g, "")}?text=${encodeURIComponent(tpl.texto)}`}
+                        {(lead.whatsapp || lead.telefono) && (
+                          <a href={`https://wa.me/52${(lead.whatsapp || lead.telefono)!.replace(/\D/g, "")}?text=${encodeURIComponent(tpl.texto)}`}
                             target="_blank" rel="noopener noreferrer"
                             className="flex items-center gap-1 text-[10px] font-bold text-green-600 hover:text-white hover:bg-green-500 transition-colors px-2 py-1 rounded-lg bg-green-50">
                             <ExternalLink size={10} /> Enviar
@@ -472,9 +517,9 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                   <input value={newCont} onChange={e => setNewCont(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && addInt()}
                     placeholder="¿Qué pasó? (Enter para guardar)"
-                    className="flex-1 text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#427DFA]/40 placeholder:text-gray-400" />
+                    className="flex-1 text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 placeholder:text-gray-400" />
                   <button onClick={addInt} disabled={addingInt || !newCont.trim()}
-                    className="w-9 h-9 flex items-center justify-center bg-[#427DFA] text-white rounded-lg hover:bg-[#2B5FD9] transition-colors disabled:opacity-40">
+                    className="w-9 h-9 flex items-center justify-center bg-[#4E60A9] text-white rounded-lg hover:bg-[#2B5FD9] transition-colors disabled:opacity-40">
                     {addingInt ? <Activity size={13} className="animate-spin" /> : <Plus size={14} />}
                   </button>
                 </div>
@@ -498,7 +543,7 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-[11px] font-bold text-[#427DFA] bg-[#EEF3FC] px-2 py-0.5 rounded-full">{tipoLabel(i.tipo)}</span>
+                          <span className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-2 py-0.5 rounded-full">{tipoLabel(i.tipo)}</span>
                           {i.resultado && (
                             <span className={`text-[10px] font-bold uppercase tracking-wider ${resColor(i.resultado)}`}>
                               {i.resultado.replace(/_/g, " ")}

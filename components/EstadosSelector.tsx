@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Search, MapPin, X, ChevronRight } from "lucide-react";
@@ -53,43 +53,43 @@ export default function EstadosSelector({ leadsPorEstado, estadoSeleccionado, mu
           onClick={() => { onEstadoSelect(isSelected ? "" : estado); onMunicipioSelect?.(""); }}
           className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all text-left group ${
             isSelected
-              ? "bg-[#EEF3FC] border border-[#427DFA]/20"
+              ? "bg-[#EEF3FC] border border-[#4E60A9]/20"
               : count > 0
                 ? "hover:bg-[#F8FAFC] border border-transparent hover:border-gray-100"
                 : "opacity-40 border border-transparent hover:opacity-60"
           }`}
         >
           <div className="w-2 h-2 rounded-full shrink-0"
-            style={{ backgroundColor: isSelected ? "#427DFA" : count > 0 ? regionColor : "#E2E8F4" }} />
+            style={{ backgroundColor: isSelected ? "#4E60A9" : count > 0 ? regionColor : "#E2E8F4" }} />
           <div className="flex-1 min-w-0">
-            <div className={`text-[12px] font-semibold leading-tight truncate ${isSelected ? "text-[#427DFA]" : "text-[#1E293B]"}`}>
+            <div className={`text-[12px] font-semibold leading-tight truncate ${isSelected ? "text-[#4E60A9]" : "text-[#1E293B]"}`}>
               {estado}
             </div>
             {count > 0 && (
               <div className="w-full h-[3px] bg-gray-100 rounded-full mt-1 overflow-hidden">
                 <div className="h-full rounded-full transition-all"
-                  style={{ width: `${pct}%`, backgroundColor: isSelected ? "#427DFA" : regionColor, opacity: 0.5 + pct / 200 }} />
+                  style={{ width: `${pct}%`, backgroundColor: isSelected ? "#4E60A9" : regionColor, opacity: 0.5 + pct / 200 }} />
               </div>
             )}
           </div>
           {count > 0 && (
             <span className={`text-[10px] font-bold shrink-0 tabular-nums px-1.5 py-0.5 rounded-full ${
-              isSelected ? "bg-[#427DFA] text-white" : "bg-[#F1F5F9] text-[#64748B]"
+              isSelected ? "bg-[#4E60A9] text-white" : "bg-[#F1F5F9] text-[#64748B]"
             }`}>{count}</span>
           )}
           {municipios.length > 0 && isSelected
-            ? <ChevronRight size={12} className="text-[#427DFA] shrink-0 rotate-90" />
+            ? <ChevronRight size={12} className="text-[#4E60A9] shrink-0 rotate-90" />
             : isSelected ? null
             : null}
         </button>
 
         {/* Municipios desplegables */}
         {isSelected && municipios.length > 0 && (
-          <div className="ml-4 mt-1 mb-2 space-y-0.5 border-l-2 border-[#427DFA]/20 pl-2">
+          <div className="ml-4 mt-1 mb-2 space-y-0.5 border-l-2 border-[#4E60A9]/20 pl-2">
             <button
               onClick={() => onMunicipioSelect?.("")}
               className={`w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-bold transition-colors ${
-                !municipioSeleccionado ? "text-[#427DFA] bg-[#EEF3FC]" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+                !municipioSeleccionado ? "text-[#4E60A9] bg-[#EEF3FC]" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
               }`}
             >
               Todos los municipios
@@ -99,7 +99,7 @@ export default function EstadosSelector({ leadsPorEstado, estadoSeleccionado, mu
                 onClick={() => onMunicipioSelect?.(municipioSeleccionado === m ? "" : m)}
                 className={`w-full text-left px-2 py-1.5 rounded-lg text-[11px] transition-colors ${
                   municipioSeleccionado === m
-                    ? "font-bold text-[#427DFA] bg-[#EEF3FC]"
+                    ? "font-bold text-[#4E60A9] bg-[#EEF3FC]"
                     : "font-medium text-gray-500 hover:text-[#1E293B] hover:bg-gray-50"
                 }`}
               >
@@ -120,7 +120,7 @@ export default function EstadosSelector({ leadsPorEstado, estadoSeleccionado, mu
         <div className="relative">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar estado..."
-            className="w-full bg-[#F8FAFC] border border-gray-100 rounded-xl pl-8 pr-3 py-2 text-[12px] outline-none focus:border-[#427DFA]/40 focus:bg-white transition-all placeholder:text-gray-400" />
+            className="w-full bg-[#F8FAFC] border border-gray-100 rounded-xl pl-8 pr-3 py-2 text-[12px] outline-none focus:border-[#4E60A9]/40 focus:bg-white transition-all placeholder:text-gray-400" />
           {search && (
             <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
               <X size={12} />
@@ -133,16 +133,16 @@ export default function EstadosSelector({ leadsPorEstado, estadoSeleccionado, mu
       {(estadoSeleccionado || municipioSeleccionado) && !search && (
         <div className="mx-3 mb-2 px-3 py-2 bg-[#EEF3FC] rounded-xl flex items-center justify-between shrink-0">
           <div className="flex items-center gap-1.5">
-            <MapPin size={12} className="text-[#427DFA]" />
-            <span className="text-[11px] font-bold text-[#427DFA]">
+            <MapPin size={12} className="text-[#4E60A9]" />
+            <span className="text-[11px] font-bold text-[#4E60A9]">
               {municipioSeleccionado || estadoSeleccionado}
             </span>
             {!municipioSeleccionado && leadsPorEstado[estadoSeleccionado] && (
-              <span className="text-[10px] text-[#427DFA]/70">· {leadsPorEstado[estadoSeleccionado]} leads</span>
+              <span className="text-[10px] text-[#4E60A9]/70">· {leadsPorEstado[estadoSeleccionado]} leads</span>
             )}
           </div>
           <button onClick={() => { onEstadoSelect(""); onMunicipioSelect?.(""); }}
-            className="text-[#427DFA]/60 hover:text-[#427DFA] transition-colors">
+            className="text-[#4E60A9]/60 hover:text-[#4E60A9] transition-colors">
             <X size={12} />
           </button>
         </div>
@@ -177,7 +177,7 @@ export default function EstadosSelector({ leadsPorEstado, estadoSeleccionado, mu
       {/* Footer */}
       <div className="border-t border-gray-100 px-4 py-2.5 shrink-0 flex items-center justify-between">
         <span className="text-[11px] text-gray-400 font-medium">{estadosConLeads} estados con leads</span>
-        <span className="text-[11px] font-bold text-[#427DFA]">{totalLeads} total</span>
+        <span className="text-[11px] font-bold text-[#4E60A9]">{totalLeads} total</span>
       </div>
     </div>
   );

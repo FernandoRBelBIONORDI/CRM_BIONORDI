@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import MapsView from "@/components/MapsView";
@@ -49,7 +49,7 @@ export default function MapsPage() {
 
           {/* Capas */}
           <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2 shrink-0">
-            <Layers size={14} className="text-[#427DFA]"/>
+            <Layers size={14} className="text-[#4E60A9]"/>
             <span className="font-bold text-[13px] text-[#202538]">Etapas CRM</span>
           </div>
           <div className="flex-1 p-3 space-y-1.5 overflow-auto">
@@ -79,7 +79,7 @@ export default function MapsPage() {
               <LayoutGrid size={14}/> {heatmap ? "Ocultar heatmap" : "Mostrar heatmap"}
             </button>
             <button onClick={()=>setVisibleStatus(new Set(CAPAS.map(c=>c.key)))}
-              className="w-full text-[11px] font-bold text-gray-400 hover:text-[#427DFA] transition-colors py-1.5 text-center">
+              className="w-full text-[11px] font-bold text-gray-400 hover:text-[#4E60A9] transition-colors py-1.5 text-center">
               Mostrar todas las etapas
             </button>
           </div>

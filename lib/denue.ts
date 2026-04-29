@@ -152,13 +152,18 @@ export interface DenueLead {
   longitud: number | null;
 }
 
-export function searchDENUE(ciudad: string, nicho?: string): DenueLead[] {
+export function searchDENUE(ciudad: string, nicho?: string, limit = 60): DenueLead[] {
   const ciudadNorm = ciudad.toLowerCase();
+  // Priorizar: con teléfono, con email, luego por tamaño de personal ocupado
   const rows = db.prepare(`
     SELECT * FROM denue_leads
     WHERE LOWER(municipio) LIKE ? OR LOWER(entidad) LIKE ? OR LOWER(localidad) LIKE ?
-    LIMIT 100
-  `).all(`%${ciudadNorm}%`, `%${ciudadNorm}%`, `%${ciudadNorm}%`) as DenueLead[];
+    ORDER BY
+      CASE WHEN telefono IS NOT NULL AND telefono != '' THEN 0 ELSE 1 END,
+      CASE WHEN e_mail IS NOT NULL AND e_mail != '' THEN 0 ELSE 1 END,
+      CAST(per_ocu AS INTEGER) DESC
+    LIMIT ?
+  `).all(`%${ciudadNorm}%`, `%${ciudadNorm}%`, `%${ciudadNorm}%`, limit) as DenueLead[];
   return rows;
 }
 

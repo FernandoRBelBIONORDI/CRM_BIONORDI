@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { X, UserPlus, Activity } from "lucide-react";
@@ -21,7 +21,7 @@ interface Props {
 export default function NuevoLeadModal({ onClose, onCreated }: Props) {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    nombre: "", telefono: "", ciudad: "", estado_republica: "",
+    nombre: "", telefono: "", whatsapp: "", ciudad: "", estado_republica: "",
     nicho: nichos[0], notas: "", status_crm: "nuevo",
   });
 
@@ -50,7 +50,7 @@ export default function NuevoLeadModal({ onClose, onCreated }: Props) {
         <div className="px-8 py-6 flex items-center justify-between border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#EEF3FC] flex items-center justify-center">
-              <UserPlus size={18} className="text-[#427DFA]"/>
+              <UserPlus size={18} className="text-[#4E60A9]"/>
             </div>
             <div>
               <h3 className="font-bold text-[18px] text-[#202538] tracking-tight">Nuevo Lead Manual</h3>
@@ -77,12 +77,16 @@ export default function NuevoLeadModal({ onClose, onCreated }: Props) {
               <input value={form.telefono} onChange={set("telefono")} placeholder="10 dígitos" className="inp w-full"/>
             </div>
             <div>
-              <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Ciudad</label>
-              <input value={form.ciudad} onChange={set("ciudad")} placeholder="Ciudad de México" className="inp w-full"/>
+              <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">WhatsApp <span className="font-normal text-gray-400 normal-case">(si es diferente)</span></label>
+              <input value={form.whatsapp} onChange={set("whatsapp")} placeholder="52 55 0000 0000" className="inp w-full"/>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Ciudad</label>
+              <input value={form.ciudad} onChange={set("ciudad")} placeholder="Ciudad de México" className="inp w-full"/>
+            </div>
             <div>
               <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Estado</label>
               <select value={form.estado_republica} onChange={set("estado_republica")} className="inp w-full">
@@ -122,7 +126,7 @@ export default function NuevoLeadModal({ onClose, onCreated }: Props) {
               Cancelar
             </button>
             <button type="submit" disabled={saving || !form.nombre.trim()}
-              className="flex-1 py-3 rounded-xl text-[13px] font-bold text-white bg-[#427DFA] hover:bg-[#3668d6] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-[#427DFA]/20">
+              className="flex-1 py-3 rounded-xl text-[13px] font-bold text-white bg-[#4E60A9] hover:bg-[#3668d6] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-[#4E60A9]/20">
               {saving ? <><Activity size={14} className="animate-spin"/>Guardando...</> : <><UserPlus size={14}/>Crear Lead</>}
             </button>
           </div>

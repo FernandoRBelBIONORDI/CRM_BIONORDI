@@ -125,16 +125,22 @@ export async function GET() {
     ORDER BY o.fecha_compromiso ASC LIMIT 6
   `).all() as any[];
 
+  // Cotizaciones por tipo
+  const cotRows = db.prepare(`SELECT tipo, COUNT(*) as cnt FROM cotizaciones GROUP BY tipo`).all() as any[];
+  const cotPorTipo: Record<string, number> = {};
+  cotRows.forEach((r: any) => { cotPorTipo[r.tipo] = r.cnt; });
+
   // Últimas búsquedas
   const busquedas = db.prepare(`SELECT * FROM busquedas ORDER BY fecha DESC LIMIT 4`).all() as any[];
 
-  // IA pending
+  // IA pending — usa EXISTS en lugar de JOIN para evitar filas duplicadas por lead
   const iaPending = db.prepare(`
-    SELECT l.id, l.nombre, l.nicho, l.score_potencial, l.decisor_nombre
-    FROM leads l LEFT JOIN scripts s ON l.id = s.lead_id
-    WHERE l.status_crm NOT IN ('descartado', 'cliente', 'sin_equipo')
-      AND (l.decisor_nombre IS NULL OR l.decisor_nombre = '' OR s.id IS NULL)
-    ORDER BY l.score_potencial DESC, l.id DESC LIMIT 4
+    SELECT id, nombre, nicho, score_potencial, decisor_nombre
+    FROM leads
+    WHERE status_crm NOT IN ('descartado', 'cliente', 'sin_equipo')
+      AND (decisor_nombre IS NULL OR decisor_nombre = ''
+           OR NOT EXISTS (SELECT 1 FROM scripts WHERE scripts.lead_id = leads.id))
+    ORDER BY score_potencial DESC, id DESC LIMIT 4
   `).all() as any[];
 
   return NextResponse.json({
@@ -159,5 +165,6 @@ export async function GET() {
     },
     busquedas,
     taller: { metrics: tallerMetrics, ordenes: ordenesActivas },
+    cotizaciones: cotPorTipo,
   });
 }

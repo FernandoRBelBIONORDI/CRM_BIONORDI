@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { X, Wrench, Calendar, CheckCircle, Clock, DollarSign, User, FileText, ChevronRight, Trash2, Check, AlertTriangle } from "lucide-react";
@@ -146,7 +146,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
                     value={(form[field] as string) || ""}
                     onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
                     onBlur={e => saveField(field, e.target.value)}
-                    className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#427DFA]/40 focus:bg-white transition-all"
+                    className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white transition-all"
                   />
                 </div>
               ))}
@@ -163,7 +163,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
                   value={(form.falla_reportada as string) || ""}
                   onChange={e => setForm(p => ({ ...p, falla_reportada: e.target.value }))}
                   onBlur={e => saveField("falla_reportada", e.target.value)}
-                  rows={2} className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#427DFA]/40 focus:bg-white resize-none transition-all" />
+                  rows={2} className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#4E60A9]/40 focus:bg-white resize-none transition-all" />
               </div>
               <div>
                 <label className="text-[10px] font-bold text-gray-400 block mb-1">Diagnóstico técnico</label>
@@ -171,7 +171,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
                   value={(form.diagnostico as string) || ""}
                   onChange={e => setForm(p => ({ ...p, diagnostico: e.target.value }))}
                   onBlur={e => saveField("diagnostico", e.target.value)}
-                  rows={2} className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#427DFA]/40 focus:bg-white resize-none transition-all" />
+                  rows={2} className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#4E60A9]/40 focus:bg-white resize-none transition-all" />
               </div>
               <div>
                 <label className="text-[10px] font-bold text-gray-400 block mb-1">Notas técnicas internas</label>
@@ -179,7 +179,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
                   value={(form.notas_tecnicas as string) || ""}
                   onChange={e => setForm(p => ({ ...p, notas_tecnicas: e.target.value }))}
                   onBlur={e => saveField("notas_tecnicas", e.target.value)}
-                  rows={2} className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#427DFA]/40 focus:bg-white resize-none transition-all" />
+                  rows={2} className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#4E60A9]/40 focus:bg-white resize-none transition-all" />
               </div>
             </div>
           </div>
@@ -190,7 +190,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[10px] font-bold text-gray-400 block mb-1">Presupuesto (MXN)</label>
-                <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus-within:border-[#427DFA]/40 focus-within:bg-white transition-all">
+                <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus-within:border-[#4E60A9]/40 focus-within:bg-white transition-all">
                   <span className="text-[12px] text-gray-400 font-bold">$</span>
                   <input type="number" min={0}
                     value={form.presupuesto || ""}
@@ -201,7 +201,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
               </div>
               <div>
                 <label className="text-[10px] font-bold text-gray-400 block mb-1">Precio final (MXN)</label>
-                <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus-within:border-[#427DFA]/40 focus-within:bg-white transition-all">
+                <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus-within:border-[#4E60A9]/40 focus-within:bg-white transition-all">
                   <span className="text-[12px] text-gray-400 font-bold">$</span>
                   <input type="number" min={0}
                     value={form.precio_final || ""}
@@ -236,8 +236,9 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
                   <label className="text-[10px] font-bold text-gray-400 block mb-1">{label}</label>
                   <input type="date"
                     value={(form[field] as string)?.slice(0, 10) || ""}
-                    onChange={e => { setForm(p => ({ ...p, [field]: e.target.value })); saveField(field, e.target.value); }}
-                    className="w-full text-[12px] font-bold bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#427DFA]/40 cursor-pointer" />
+                    onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
+                    onBlur={e => saveField(field, e.target.value)}
+                    className="w-full text-[12px] font-bold bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 cursor-pointer" />
                 </div>
               ))}
               <div>
@@ -246,15 +247,16 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
                   value={(form.tecnico as string) || ""}
                   onChange={e => setForm(p => ({ ...p, tecnico: e.target.value }))}
                   onBlur={e => saveField("tecnico", e.target.value)}
-                  className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#427DFA]/40 focus:bg-white transition-all" />
+                  className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white transition-all" />
               </div>
               {form.status === "entregado" && (
                 <div>
                   <label className="text-[10px] font-bold text-gray-400 block mb-1">Fecha de entrega real</label>
                   <input type="date"
                     value={(form.fecha_entrega as string)?.slice(0, 10) || ""}
-                    onChange={e => { setForm(p => ({ ...p, fecha_entrega: e.target.value })); saveField("fecha_entrega", e.target.value); }}
-                    className="w-full text-[12px] font-bold bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#427DFA]/40 cursor-pointer" />
+                    onChange={e => setForm(p => ({ ...p, fecha_entrega: e.target.value }))}
+                    onBlur={e => saveField("fecha_entrega", e.target.value)}
+                    className="w-full text-[12px] font-bold bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 cursor-pointer" />
                 </div>
               )}
             </div>
@@ -263,9 +265,10 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-100 shrink-0 flex items-center justify-between bg-gray-50/50">
-          <button onClick={() => {
+          <button onClick={async () => {
             if (!window.confirm(`¿Eliminar orden ${orden.folio}?`)) return;
-            fetch("/api/ordenes", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: orden.id }) });
+            const res = await fetch("/api/ordenes", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: orden.id }) });
+            if (!res.ok) { alert("Error al eliminar la orden. Intenta de nuevo."); return; }
             onDelete(orden.id);
             onClose();
           }} className="flex items-center gap-1.5 text-[12px] font-bold text-gray-400 hover:text-[#DC2626] hover:bg-[#FEF2F2] px-3 py-2 rounded-full transition-colors">

@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
+import bcrypt from 'bcryptjs';
 
 // Inicializar la base de datos
 const dbFolderPath = path.join(process.cwd(), 'db');
@@ -36,6 +37,9 @@ const migrations = [
   `ALTER TABLE scripts ADD COLUMN version_usada TEXT`,
   `ALTER TABLE scripts ADD COLUMN fecha_envio TEXT`,
   `ALTER TABLE leads ADD COLUMN barrido_id INTEGER`,
+  `ALTER TABLE barridos ADD COLUMN fuente TEXT DEFAULT 'google'`,
+  `ALTER TABLE barridos ADD COLUMN especialidad TEXT`,
+  `ALTER TABLE barridos ADD COLUMN notas TEXT`,
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch { /* column already exists */ }
@@ -94,5 +98,116 @@ db.exec(`
     completado        INTEGER DEFAULT 0
   )
 `);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS catalogo_equipos (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    tipo          TEXT NOT NULL DEFAULT 'transductor',
+    marca         TEXT,
+    modelo        TEXT NOT NULL,
+    descripcion   TEXT,
+    imagen_path   TEXT,
+    fotos_json    TEXT,
+    brochure_path TEXT,
+    notas         TEXT,
+    activo        INTEGER DEFAULT 1,
+    fecha_alta    TEXT
+  )
+`);
+
+// Migrations para columnas nuevas del catálogo y cotizaciones
+for (const col of [
+  `ALTER TABLE catalogo_equipos ADD COLUMN fotos_json TEXT`,
+  `ALTER TABLE catalogo_equipos ADD COLUMN brochure_path TEXT`,
+  `ALTER TABLE cotizaciones ADD COLUMN pdf_path TEXT`,
+]) { try { db.exec(col); } catch {} }
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS cotizaciones (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    lead_id     INTEGER REFERENCES leads(id) ON DELETE SET NULL,
+    tipo        TEXT NOT NULL,
+    folio       TEXT,
+    monto_total REAL DEFAULT 0,
+    items_json  TEXT,
+    eq_tipo     TEXT,
+    eq_marca    TEXT,
+    eq_modelo   TEXT,
+    notas       TEXT,
+    status      TEXT DEFAULT 'enviada',
+    fecha       TEXT DEFAULT (datetime('now','localtime'))
+  )
+`);
+
+// Tablas auxiliares — creadas aquí para garantizar existencia independientemente
+// de si schema.sql fue ejecutado en la inicialización original
+db.exec(`
+  CREATE TABLE IF NOT EXISTS configuracion (
+    clave TEXT PRIMARY KEY,
+    valor TEXT
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS busquedas (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    nicho             TEXT,
+    ciudad            TEXT,
+    estado_republica  TEXT,
+    municipio         TEXT,
+    fecha             TEXT,
+    leads_encontrados INTEGER,
+    filtros_json      TEXT
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS interacciones (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    lead_id   INTEGER NOT NULL,
+    tipo      TEXT,
+    contenido TEXT,
+    resultado TEXT,
+    fecha     TEXT DEFAULT (datetime('now','localtime'))
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS scripts (
+    id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+    lead_id              INTEGER REFERENCES leads(id),
+    version_profesional  TEXT,
+    version_directa      TEXT,
+    version_problema_sol TEXT,
+    fecha_generacion     TEXT,
+    version_usada        TEXT,
+    enviado              INTEGER DEFAULT 0,
+    fecha_envio          TEXT
+  )
+`);
+
+// ── Tabla de usuarios (autenticación) ────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS usuarios (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre        TEXT NOT NULL,
+    email         TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    rol           TEXT DEFAULT 'operador',
+    activo        INTEGER DEFAULT 1,
+    created_at    TEXT DEFAULT (datetime('now','localtime'))
+  )
+`);
+
+// Seed: crear admin por defecto si no existe ningún usuario
+const hayUsuarios = db.prepare("SELECT COUNT(*) as c FROM usuarios").get() as { c: number };
+if (hayUsuarios.c === 0) {
+  const defaultHash = bcrypt.hashSync("Bionordi2025!", 10);
+  db.prepare(`
+    INSERT INTO usuarios (nombre, email, password_hash, rol)
+    VALUES (?, ?, ?, ?)
+  `).run("Administrador", "admin@bionordi.mx", defaultHash, "admin");
+  console.log("✓ Usuario admin creado: admin@bionordi.mx / Bionordi2025!");
+}
 
 export default db;

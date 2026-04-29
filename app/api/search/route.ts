@@ -54,8 +54,9 @@ export async function POST(req: Request) {
     // ETAPA 1A — Google Places
     const placesLeads = await searchGooglePlaces(nicho, ciudad, max_paginas || 3);
 
-    // ETAPA 1B — DENUE (cross-reference local)
-    const denueLeads = searchDENUE(ciudad, nicho);
+    // ETAPA 1B — DENUE (cross-reference local), respeta el mismo límite que Google
+    const denueLimit = (max_paginas || 3) * 20;
+    const denueLeads = searchDENUE(ciudad, nicho, denueLimit);
 
     let newAdded = 0;
 

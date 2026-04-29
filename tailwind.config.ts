@@ -19,8 +19,8 @@ const config: Config = {
         foreground: "#1E293B",
         muted: "#8B95A5",
         primary: {
-          DEFAULT: "#427DFA",
-          hover: "#5A82ED",
+          DEFAULT: "#4E60A9",
+          hover: "#3d4e8a",
         },
         success: {
           DEFAULT: "#34A853",

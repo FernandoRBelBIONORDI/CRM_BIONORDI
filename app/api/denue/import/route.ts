@@ -4,9 +4,8 @@ import { importDENUECSV, isDENUEImported } from '@/lib/denue';
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json().catch(() => ({}));
-    const csvRelPath = body.path || 'db/denue/conjunto_de_datos/denue_inegi_62_.csv';
-    const csvPath = path.join(process.cwd(), csvRelPath);
+    // Ruta fija — nunca controlada por el usuario (previene path traversal)
+    const csvPath = path.join(process.cwd(), 'db', 'denue', 'conjunto_de_datos', 'denue_inegi_62_.csv');
     const imported = importDENUECSV(csvPath);
     return NextResponse.json({ success: true, imported });
   } catch (e: any) {

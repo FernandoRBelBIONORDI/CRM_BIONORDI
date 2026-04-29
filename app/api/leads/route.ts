@@ -6,6 +6,10 @@ export async function GET(req: Request) {
   const status   = searchParams.get('status');
   const format   = searchParams.get('format');
   const ids      = searchParams.get('ids'); // "1,2,3" para exportar selección
+  const limitRaw  = parseInt(searchParams.get('limit')  || '', 10);
+  const offsetRaw = parseInt(searchParams.get('offset') || '', 10);
+  const limit    = !isNaN(limitRaw)  && limitRaw  > 0 ? limitRaw  : null;
+  const offset   = !isNaN(offsetRaw) && offsetRaw >= 0 ? offsetRaw : 0;
 
   let leads: any[] = [];
 
@@ -15,10 +19,17 @@ export async function GET(req: Request) {
     const placeholders = idList.map(() => '?').join(',');
     leads = db.prepare(`SELECT * FROM leads WHERE id IN (${placeholders}) ORDER BY id DESC`).all(...idList);
   } else if (status) {
-    leads = db.prepare('SELECT * FROM leads WHERE status_crm = ? ORDER BY id DESC').all(status);
+    const q = limit
+      ? `SELECT * FROM leads WHERE status_crm = ? ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
+      : 'SELECT * FROM leads WHERE status_crm = ? ORDER BY id DESC';
+    leads = db.prepare(q).all(status);
   } else {
-    leads = db.prepare('SELECT * FROM leads ORDER BY id DESC').all();
+    const q = limit
+      ? `SELECT * FROM leads ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
+      : 'SELECT * FROM leads ORDER BY id DESC';
+    leads = db.prepare(q).all();
   }
+  const total: number = (db.prepare('SELECT COUNT(*) as n FROM leads').get() as any).n;
 
   // Exportar CSV
   if (format === 'csv') {
@@ -47,7 +58,7 @@ export async function GET(req: Request) {
     });
   }
 
-  return NextResponse.json({ leads });
+  return NextResponse.json({ leads, total });
 }
 
 export async function POST(req: Request) {
@@ -93,15 +104,28 @@ export async function PATCH(req: Request) {
       }
     }
 
-    // Calcular keys DESPUÉS de posibles mutaciones del auto-reminder
-    const keys = Object.keys(updates);
+    // Whitelist de columnas permitidas — previene SQL injection
+    const COLS = new Set([
+      'nombre','telefono','correo','whatsapp','direccion','ciudad','municipio',
+      'estado_republica','nicho','status_crm','confianza_fuente','notas',
+      'fecha_seguimiento','fecha_proximo_contacto','score_potencial','prioridad',
+      'whatsapp_verificado','sitio_activo','fuente','sitio_web','barrido_id',
+    ]);
+    const safeUpdates = Object.fromEntries(
+      Object.entries(updates).filter(([k]) => COLS.has(k))
+    );
+    if (Object.keys(safeUpdates).length === 0)
+      return NextResponse.json({ success: true });
+
+    const keys = Object.keys(safeUpdates);
     const setString = keys.map(k => `${k} = @${k}`).join(', ');
 
     db.prepare(
       `UPDATE leads SET ${setString}, fecha_ultimo_cambio = @fecha_cambio WHERE id = @id`
-    ).run({ ...updates, fecha_cambio: new Date().toISOString(), id });
+    ).run({ ...safeUpdates, fecha_cambio: new Date().toISOString(), id });
 
-    return NextResponse.json({ success: true });
+    const updated = db.prepare(`SELECT * FROM leads WHERE id = ?`).get(id);
+    return NextResponse.json({ success: true, lead: updated });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
@@ -115,6 +139,7 @@ export async function DELETE(req: Request) {
     db.prepare(`DELETE FROM interacciones WHERE lead_id = ?`).run(id);
     db.prepare(`DELETE FROM scripts WHERE lead_id = ?`).run(id);
     db.prepare(`DELETE FROM equipos_cliente WHERE lead_id = ?`).run(id);
+    db.prepare(`DELETE FROM cotizaciones WHERE lead_id = ?`).run(id);
     return NextResponse.json({ success: true });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

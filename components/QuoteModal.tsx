@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { X, Printer, FileText, ChevronDown, ChevronUp } from "lucide-react";
@@ -61,8 +61,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-const inp = "w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#1E3A8A]/40 bg-white";
-const sel = "w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#1E3A8A]/40 bg-white appearance-none";
+const inp = "w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white";
+const sel = "w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white appearance-none";
 
 export default function QuoteModal({ lead, onClose }: Props) {
   const [bn, setBn] = useState<BionordiCfg>({
@@ -198,7 +198,7 @@ export default function QuoteModal({ lead, onClose }: Props) {
   .c { text-align: center; }
   .r { text-align: right; }
   .hdr { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; }
-  .logo { font-size: 34px; font-weight: 900; color: #1E3A8A; letter-spacing: -1px; line-height: 1; }
+  .logo { font-size: 34px; font-weight: 900; color: #4E60A9; letter-spacing: -1px; line-height: 1; }
   .logo span { color: #3B82F6; }
   .logo-sub { font-size: 10px; font-weight: 600; color: #64748B; margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
   .meta-box { text-align: right; }
@@ -206,14 +206,14 @@ export default function QuoteModal({ lead, onClose }: Props) {
   .meta-grid { display: grid; grid-template-columns: auto auto; gap: 4px 15px; justify-content: end; font-size: 11px; }
   .meta-lbl { font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; }
   .meta-val { color: #1E293B; font-weight: 600; }
-  .divider { height: 4px; background: linear-gradient(90deg, #1E3A8A, #3B82F6, #E2E8F0); border-radius: 4px; margin-bottom: 25px; }
+  .divider { height: 4px; background: linear-gradient(90deg, #4E60A9, #3B82F6, #E2E8F0); border-radius: 4px; margin-bottom: 25px; }
   .info-section { display: flex; gap: 20px; margin-bottom: 20px; }
   .info-card { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; }
-  .card-title { font-size: 10px; font-weight: 800; color: #1E3A8A; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 2px solid #E2E8F0; padding-bottom: 6px; }
+  .card-title { font-size: 10px; font-weight: 800; color: #4E60A9; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 2px solid #E2E8F0; padding-bottom: 6px; }
   .i-row { display: flex; margin-bottom: 5px; font-size: 11px; line-height: 1.4; }
   .i-lbl { width: 85px; color: #64748B; font-weight: 700; }
   .i-val { flex: 1; color: #1E293B; font-weight: 500; }
-  .eq-card { background: #fff; border: 1px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border-left: 4px solid #1E3A8A; }
+  .eq-card { background: #fff; border: 1px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border-left: 4px solid #4E60A9; }
   .eq-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
   .eq-item { display: flex; flex-direction: column; gap: 4px; }
   .eq-lbl { font-size: 9px; color: #64748B; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -238,22 +238,22 @@ export default function QuoteModal({ lead, onClose }: Props) {
   .totals-card { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; }
   .t-row { display: flex; justify-content: space-between; font-size: 12px; color: #64748B; margin-bottom: 8px; }
   .t-row .t-val { font-weight: 600; color: #1E293B; }
-  .t-row.final { border-top: 2px solid #E2E8F0; padding-top: 12px; margin-top: 4px; font-size: 16px; font-weight: 900; color: #1E3A8A; }
-  .t-row.final .t-val { color: #1E3A8A; }
+  .t-row.final { border-top: 2px solid #E2E8F0; padding-top: 12px; margin-top: 4px; font-size: 16px; font-weight: 900; color: #4E60A9; }
+  .t-row.final .t-val { color: #4E60A9; }
   .billing-instructions { flex: 1; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 16px; }
   .billing-instructions .card-title { color: #1D4ED8; border-bottom-color: #BFDBFE; }
-  .b-step { display: flex; gap: 8px; font-size: 10.5px; color: #1E3A8A; margin-bottom: 8px; line-height: 1.4; }
+  .b-step { display: flex; gap: 8px; font-size: 10.5px; color: #4E60A9; margin-bottom: 8px; line-height: 1.4; }
   .b-step strong { font-weight: 800; }
   .b-icon { font-weight: bold; color: #3B82F6; }
   .cond-section { margin-bottom: 20px; page-break-inside: avoid; }
-  .cond-title { font-size: 11px; font-weight: 800; color: #1E3A8A; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .cond-title { font-size: 11px; font-weight: 800; color: #4E60A9; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
   .cond-list { list-style: none; padding: 0; }
   .cond-list li { position: relative; padding-left: 14px; font-size: 10px; color: #475569; margin-bottom: 6px; line-height: 1.5; }
   .cond-list li::before { content: "•"; position: absolute; left: 0; color: #3B82F6; font-weight: bold; font-size: 14px; line-height: 1; top: -1px; }
   .signatures { margin-top: 40px; display: flex; justify-content: flex-end; page-break-inside: avoid; }
   .sig-box { text-align: center; width: 240px; }
   .sig-line { border-top: 2px solid #CBD5E1; margin-bottom: 10px; padding-top: 10px; }
-  .sig-name { font-size: 13px; font-weight: 800; color: #1E3A8A; }
+  .sig-name { font-size: 13px; font-weight: 800; color: #4E60A9; }
   .sig-role { font-size: 10px; font-weight: 600; color: #64748B; text-transform: uppercase; margin-top: 2px; }
   .footer { text-align: center; border-top: 1px solid #E2E8F0; padding-top: 15px; margin-top: 30px; font-size: 10px; color: #94A3B8; line-height: 1.6; }
   @media print { body { padding: 0; } .page { padding: 20px; box-shadow: none; } }
@@ -354,7 +354,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     <div class="sig-line">
       <div class="sig-name">${bn.representante}</div>
       <div class="sig-role">${bn.cargo}</div>
-      <div class="sig-role" style="color:#1E3A8A; font-weight:800; margin-top:4px;">${bn.razonSocial}</div>
+      <div class="sig-role" style="color:#4E60A9; font-weight:800; margin-top:4px;">${bn.razonSocial}</div>
     </div>
   </div>
 </div>
@@ -384,7 +384,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-[#EEF3FC] flex items-center justify-center">
-              <FileText size={16} className="text-[#1E3A8A]" />
+              <FileText size={16} className="text-[#4E60A9]" />
             </div>
             <div>
               <h3 className="font-bold text-[#1E293B] text-[15px] leading-tight">Generar Cotización</h3>
@@ -400,7 +400,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
           {/* ── Equipo ── */}
           <div className="px-6 pt-5 pb-4 border-b border-gray-100">
-            <div className="text-[10px] font-bold text-[#1E3A8A] uppercase tracking-widest mb-3">Equipo a reparar / valorar</div>
+            <div className="text-[10px] font-bold text-[#4E60A9] uppercase tracking-widest mb-3">Equipo a reparar / valorar</div>
             <div className="grid grid-cols-2 gap-3 mb-3">
               <Field label="Contacto / Dr.">
                 <input value={facContacto} onChange={e => setFacContacto(e.target.value)} placeholder="Dr. Nombre Apellido" className={inp} />
@@ -430,7 +430,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
           {/* ── Servicios ── */}
           <div className="px-6 py-4 space-y-4 border-b border-gray-100">
-            <div className="text-[10px] font-bold text-[#1E3A8A] uppercase tracking-widest">Servicios</div>
+            <div className="text-[10px] font-bold text-[#4E60A9] uppercase tracking-widest">Servicios</div>
             {CATS.map(cat => (
               <div key={cat}>
                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">{cat}</div>
@@ -439,12 +439,12 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                     const on = selected.has(s.id);
                     return (
                       <button key={s.id} onClick={() => toggle(s.id)}
-                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border text-left transition-all ${on ? "border-[#1E3A8A] bg-blue-50/60" : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"}`}>
-                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${on ? "bg-[#1E3A8A] border-[#1E3A8A]" : "border-gray-300"}`}>
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border text-left transition-all ${on ? "border-[#4E60A9] bg-blue-50/60" : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"}`}>
+                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${on ? "bg-[#4E60A9] border-[#4E60A9]" : "border-gray-300"}`}>
                           {on && <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                         </div>
                         <span className={`flex-1 text-[12px] font-medium ${on ? "text-[#1E293B]" : "text-gray-600"}`}>{s.nombre}</span>
-                        <span className={`text-[12px] font-bold tabular-nums ${on ? "text-[#1E3A8A]" : "text-gray-400"}`}>${s.precio.toLocaleString("es-MX")}</span>
+                        <span className={`text-[12px] font-bold tabular-nums ${on ? "text-[#4E60A9]" : "text-gray-400"}`}>${s.precio.toLocaleString("es-MX")}</span>
                       </button>
                     );
                   })}
@@ -456,7 +456,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           {/* ── Facturación (colapsable) ── */}
           <div className="px-6 py-4 border-b border-gray-100">
             <button onClick={() => setShowFact(p => !p)}
-              className="w-full flex items-center justify-between text-[10px] font-bold text-[#1E3A8A] uppercase tracking-widest">
+              className="w-full flex items-center justify-between text-[10px] font-bold text-[#4E60A9] uppercase tracking-widest">
               <span>Datos de facturación del cliente</span>
               {showFact ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
@@ -499,7 +499,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         <div className="px-6 py-4 border-t border-gray-100 space-y-3 shrink-0 bg-gray-50/60">
           <div className="flex items-center gap-4">
             <button onClick={() => setConIVA(p => !p)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${conIVA ? "bg-[#1E3A8A] border-[#1E3A8A] text-white" : "bg-white border-gray-200 text-gray-500"}`}>
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${conIVA ? "bg-[#4E60A9] border-[#4E60A9] text-white" : "bg-white border-gray-200 text-gray-500"}`}>
               IVA 16%
             </button>
             <div className="flex items-center gap-2">
@@ -515,14 +515,14 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
             <div className="text-right">
               {descuento > 0 && <div className="text-[10px] text-gray-400 line-through">${subtotal.toLocaleString("es-MX")}</div>}
               {conIVA && <div className="text-[10px] text-gray-400">+ IVA ${iva.toLocaleString("es-MX")}</div>}
-              <div className="text-[22px] font-extrabold text-[#1E3A8A] tabular-nums">${total.toLocaleString("es-MX")}</div>
+              <div className="text-[22px] font-extrabold text-[#4E60A9] tabular-nums">${total.toLocaleString("es-MX")}</div>
             </div>
           </div>
           <textarea value={notas} onChange={e => setNotas(e.target.value)} rows={2}
             placeholder="Notas adicionales (opcional)…"
-            className="w-full text-[12px] font-medium bg-white border border-gray-200 rounded-xl px-3 py-2.5 outline-none resize-none placeholder:text-gray-400 focus:border-[#1E3A8A]/30 transition-all" />
+            className="w-full text-[12px] font-medium bg-white border border-gray-200 rounded-xl px-3 py-2.5 outline-none resize-none placeholder:text-gray-400 focus:border-[#4E60A9]/30 transition-all" />
           <button onClick={generarPDF} disabled={selected.size === 0}
-            className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-white bg-[#1E3A8A] hover:bg-[#1e40af] py-3 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm">
+            className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-white bg-[#4E60A9] hover:bg-[#1e40af] py-3 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm">
             <Printer size={15} />
             {selected.size === 0 ? "Selecciona al menos un servicio" : `Generar PDF · ${selected.size} servicio${selected.size > 1 ? "s" : ""}`}
           </button>

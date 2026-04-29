@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
@@ -74,7 +74,7 @@ export default function MapaMexicoInner({ leadsPorEstado = {}, onEstadoSelect, e
         layer.on({
           mouseover(e) {
             const l = e.target as L.Path;
-            l.setStyle({ fillOpacity: 0.85, weight: 2.5, color: "#427DFA" });
+            l.setStyle({ fillOpacity: 0.85, weight: 2.5, color: "#4E60A9" });
           },
           mouseout() {
             geoLayer.resetStyle(layer);
@@ -122,7 +122,7 @@ function getEstadoStyle(
   const isSelected = seleccionado === nombre;
 
   let fillColor = "#F8FAFC";
-  if (count > 20)      fillColor = "#427DFA";
+  if (count > 20)      fillColor = "#4E60A9";
   else if (count > 10) fillColor = "#5A82ED";
   else if (count > 5)  fillColor = "#8CAAF5";
   else if (count > 0)  fillColor = "#C9DBF9";

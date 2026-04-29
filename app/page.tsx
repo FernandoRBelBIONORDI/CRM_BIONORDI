@@ -1,12 +1,14 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import {
   Search, Sparkles, ChevronRight, Play, Activity,
   AlertTriangle, Calendar, Clock, MessageCircle, Wrench,
-  TrendingUp, DollarSign, Flame, CheckCircle2
+  TrendingUp, DollarSign, Flame, CheckCircle2, Database, FileText,
 } from "lucide-react";
+import CotizacionManualModal from "@/components/CotizacionManualModal";
 
 interface DashData {
   metrics: { total:number; nuevo:number; contactado:number; seguimiento:number; diagnostico:number; cliente:number; descartado:number; };
@@ -21,6 +23,7 @@ interface DashData {
   };
   busquedas: any[];
   taller: { metrics: { activas:number; listas:number; vencidas:number }; ordenes:any[]; };
+  cotizaciones: { reparacion?:number; venta?:number; mantenimiento?:number; consumibles?:number; };
 }
 
 const STATUS_COLORS: Record<string,{color:string;bg:string;label:string}> = {
@@ -40,9 +43,69 @@ function fmt(n: number) {
   return new Intl.NumberFormat("es-MX", { style:"currency", currency:"MXN", maximumFractionDigits:0 }).format(n);
 }
 
+function SubCard({
+  icon: Icon, title, sub, color, bg, stats, cta, href, onClick,
+}: {
+  icon: any; title: string; sub: string; color: string; bg: string;
+  stats: { v: string|number; l: string; good?: boolean; urgent?: boolean }[];
+  cta: string; href?: string; onClick?: () => void;
+}) {
+  const [hov, setHov] = useState(false);
+  const inner = (
+    <>
+      <div className="flex items-start justify-between">
+        <div className="w-11 h-11 rounded-[13px] flex items-center justify-center border"
+          style={{ background: bg, borderColor: `${color}20` }}>
+          <Icon size={20} strokeWidth={2} style={{ color }} />
+        </div>
+        <ChevronRight size={16} style={{ color: hov ? color : "#CBD5E1", transition: "color .15s" }} />
+      </div>
+      <div>
+        <div className="text-[15px] font-extrabold text-[#1E293B] tracking-[-0.02em] leading-tight mb-0.5">{title}</div>
+        <div className="text-[11px] text-[#94A3B8]">{sub}</div>
+      </div>
+      <div className="flex gap-4 flex-wrap">
+        {stats.map((st, i) => (
+          <div key={i}>
+            <div className="text-[21px] font-black leading-none tracking-[-0.04em]"
+              style={{ color: st.urgent ? "#DC2626" : st.good ? "#059669" : color }}>
+              {st.v}
+            </div>
+            <div className="text-[10px] text-[#94A3B8] font-semibold mt-0.5">{st.l}</div>
+          </div>
+        ))}
+      </div>
+      <div className="text-[12px] font-bold px-3 py-1.5 rounded-[10px] w-fit transition-all duration-150"
+        style={{ background: hov ? color : bg, color: hov ? "#fff" : color }}>
+        {cta}
+      </div>
+    </>
+  );
+  const cls = `flex-1 rounded-[20px] p-5 flex flex-col gap-3.5 cursor-pointer transition-all duration-[180ms] border ${
+    hov ? "shadow-lg" : "shadow-[0_2px_10px_-3px_rgba(0,0,0,0.04)]"
+  }`;
+  const style = {
+    background: hov ? bg : "#fff",
+    borderColor: hov ? `${color}30` : "#E8EFF8",
+    boxShadow: hov ? `0 8px 28px -6px ${color}22` : undefined,
+  };
+  if (onClick) return (
+    <div className={cls} style={style} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} onClick={onClick}>
+      {inner}
+    </div>
+  );
+  return (
+    <Link href={href!} className={cls} style={style} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
+      {inner}
+    </Link>
+  );
+}
+
 export default function Dashboard() {
+  const { data: session } = useSession();
   const [data, setData] = useState<DashData|null>(null);
   const [loading, setLoading] = useState(true);
+  const [showCotizacion, setShowCotizacion] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -58,6 +121,7 @@ export default function Dashboard() {
   const al = data?.alerts   || { seguimiento7dias:[], diagnostico5dias:[] };
   const ng = data?.negocio  || { ingresosMes:0, otsPorCobrar:[], totalPorCobrar:0, leadsCalientes:[], conversionSemanal:[] };
   const taller = data?.taller || { metrics:{ activas:0, listas:0, vencidas:0 }, ordenes:[] };
+  const cot = data?.cotizaciones || {};
 
   const totalConvSemana = ng.conversionSemanal.reduce((s:number, r:any) => s + r.cnt, 0);
 
@@ -67,12 +131,12 @@ export default function Dashboard() {
       {/* ── Welcome ── */}
       <div className="flex justify-between items-end px-5 mt-3">
         <div>
-          <h1 className="text-[38px] font-medium text-[#202538] leading-tight tracking-[-1px]">Bienvenido, Fernando.</h1>
+          <h1 className="text-[38px] font-medium text-[#202538] leading-tight tracking-[-1px]">Bienvenido, {session?.user?.name?.split(" ")[0] ?? ""}.</h1>
           <p className="text-[#8B95A5] text-[13px] mt-1 font-medium tracking-tight">Panel de prospección y gestión de equipo biomédico.</p>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={load} title="Actualizar"
-            className={`w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 hover:text-[#427DFA] hover:scale-105 transition-all ${loading ? "animate-spin text-blue-400" : ""}`}>
+            className={`w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 hover:text-[#4E60A9] hover:scale-105 transition-all ${loading ? "animate-spin text-blue-400" : ""}`}>
             <Activity size={17} strokeWidth={2}/>
           </button>
           <Link href="/encontrar" className="h-[56px] w-[48px] bg-[#3B3E4B] rounded-[18px] flex items-center justify-center text-white shadow-md hover:bg-[#202538] transition-colors">
@@ -111,6 +175,43 @@ export default function Dashboard() {
           </Link>
         </div>
       </div>
+
+      {/* ── Sub-app cards ── */}
+      <div className="px-5 flex gap-4">
+        <SubCard
+          icon={Database} title="Ventas & CRM" sub="Pipeline, prospectos y seguimiento"
+          color="#4E60A9" bg="#EEF3FC" href="/crm"
+          stats={[
+            { v: m.total,       l: "Leads" },
+            { v: m.diagnostico, l: "En diagnóstico" },
+            { v: m.cliente,     l: "Clientes", good: true },
+          ]}
+          cta="Abrir CRM →"
+        />
+        <SubCard
+          icon={Wrench} title="Taller & Reparaciones" sub="Órdenes de trabajo activas"
+          color="#7C3AED" bg="#F5F3FF" href="/taller"
+          stats={[
+            { v: taller.metrics.activas, l: "Activas" },
+            { v: taller.metrics.listas,  l: "Listas",   good: taller.metrics.listas > 0 },
+            { v: taller.metrics.vencidas,l: "Vencidas",  urgent: taller.metrics.vencidas > 0 },
+          ]}
+          cta="Ver órdenes →"
+        />
+        <SubCard
+          icon={FileText} title="Cotizaciones" sub="Genera propuestas técnicas en PDF"
+          color="#059669" bg="#ECFDF5"
+          stats={[
+            { v: cot.reparacion  ?? 0, l: "Reparación" },
+            { v: cot.venta       ?? 0, l: "Venta" },
+            { v: cot.mantenimiento ?? 0, l: "Mantenimiento" },
+          ]}
+          cta="Nueva cotización →"
+          onClick={() => setShowCotizacion(true)}
+        />
+      </div>
+
+      {showCotizacion && <CotizacionManualModal onClose={() => setShowCotizacion(false)} />}
 
       {/* ── Pipeline Funnel ── */}
       <div className="px-5">
@@ -181,7 +282,7 @@ export default function Dashboard() {
                   ? <span className="bg-[#FEF2F2] text-[#DC2626] px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase">{q.followUps.length} fríos</span>
                   : null}
             </div>
-            <Link href="/crm" className="text-[11px] font-bold text-[#427DFA] hover:underline">Ver CRM →</Link>
+            <Link href="/crm" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver CRM →</Link>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto pr-1">
             {q.proximosSeguimientos.length === 0 && q.followUps.length === 0 ? (
@@ -200,25 +301,25 @@ export default function Dashboard() {
                   return (
                     <Link key={`p${l.id}`} href={`/crm?expand=${l.id}`} className="flex items-center justify-between p-3 px-4 border border-gray-100 rounded-2xl hover:border-blue-200 hover:bg-blue-50/30 transition-all group">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${vencido ? "bg-[#FEF2F2] text-[#DC2626]" : "bg-[#EEF3FC] text-[#427DFA]"}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${vencido ? "bg-[#FEF2F2] text-[#DC2626]" : "bg-[#EEF3FC] text-[#4E60A9]"}`}>
                           {vencido ? <AlertTriangle size={13}/> : <Calendar size={13}/>}
                         </div>
                         <div className="min-w-0">
                           <div className="font-bold text-[#1E293B] text-[12px] tracking-tight truncate">{l.nombre}</div>
-                          <div className={`text-[10px] font-bold ${vencido ? "text-[#DC2626]" : "text-[#427DFA]"}`}>
+                          <div className={`text-[10px] font-bold ${vencido ? "text-[#DC2626]" : "text-[#4E60A9]"}`}>
                             {vencido ? "Vencido" : "Hoy"} · {fecha?.toLocaleDateString("es-MX",{day:"2-digit",month:"short"}) || ""}
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                        {l.telefono && (
+                        {(l.whatsapp || l.telefono) && (
                           <button type="button"
-                            onClick={e=>{e.preventDefault();e.stopPropagation();window.open(`https://wa.me/52${String(l.telefono).replace(/\D/g,"")}`, "_blank");}}
+                            onClick={e=>{e.preventDefault();e.stopPropagation();window.open(`https://wa.me/52${String(l.whatsapp||l.telefono).replace(/\D/g,"")}`, "_blank");}}
                             className="w-6 h-6 flex items-center justify-center rounded-full bg-green-100 text-green-600 hover:bg-green-500 hover:text-white transition-colors">
                             <MessageCircle size={11}/>
                           </button>
                         )}
-                        <ChevronRight size={13} className="text-gray-300 group-hover:text-[#427DFA] transition-colors"/>
+                        <ChevronRight size={13} className="text-gray-300 group-hover:text-[#4E60A9] transition-colors"/>
                       </div>
                     </Link>
                   );
@@ -249,7 +350,7 @@ export default function Dashboard() {
               <h3 className="font-bold text-[16px] text-[#202538] tracking-tight">Top Prospectos</h3>
               <span className="bg-[#EEF3FC] text-[#5A82ED] px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase">Por Abordar</span>
             </div>
-            <Link href="/crm?status=nuevo" className="text-[11px] font-bold text-[#427DFA] hover:underline">Ver todos →</Link>
+            <Link href="/crm?status=nuevo" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver todos →</Link>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto pr-1">
             {q.topPriorities.length === 0 ? (
@@ -258,7 +359,7 @@ export default function Dashboard() {
                   <Search size={15} className="text-gray-400"/>
                 </div>
                 <p className="text-gray-400 text-[12px] font-medium text-center">Sin prospectos nuevos.<br/>Haz un barrido para empezar.</p>
-                <Link href="/encontrar" className="text-[11px] font-bold text-[#427DFA] bg-[#EEF3FC] px-4 py-1.5 rounded-full hover:bg-[#427DFA] hover:text-white transition-all mt-1">Buscar leads →</Link>
+                <Link href="/encontrar" className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-4 py-1.5 rounded-full hover:bg-[#4E60A9] hover:text-white transition-all mt-1">Buscar leads →</Link>
               </div>
             ) : q.topPriorities.map((l: any) => (
               <Link key={l.id} href={`/crm?expand=${l.id}`} className="flex items-center justify-between p-3 px-4 border border-gray-100 rounded-2xl hover:border-[#5A82ED]/30 hover:bg-[#F8FAFF] transition-all group">
@@ -283,7 +384,7 @@ export default function Dashboard() {
             <h3 className="font-bold text-[16px] text-[#202538] tracking-tight flex items-center gap-2">
               <Wrench size={14} className="text-[#7C3AED]"/> Taller
             </h3>
-            <Link href="/taller" className="text-[11px] font-bold text-[#427DFA] hover:underline">Ver taller →</Link>
+            <Link href="/taller" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver taller →</Link>
           </div>
           <div className="grid grid-cols-3 gap-2 mb-4 shrink-0">
             <div className="bg-[#EEF3FC] rounded-xl p-2.5 text-center">
@@ -394,7 +495,7 @@ export default function Dashboard() {
                   <span className="bg-[#ECFDF5] text-[#059669] px-2.5 py-0.5 rounded-full text-[10px] font-bold">{fmt(ng.totalPorCobrar)}</span>
                 )}
               </div>
-              <Link href="/taller" className="text-[11px] font-bold text-[#427DFA] hover:underline">Taller →</Link>
+              <Link href="/taller" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Taller →</Link>
             </div>
             <div className="flex-1 space-y-2 overflow-y-auto pr-1">
               {ng.otsPorCobrar.length === 0 ? (
@@ -426,19 +527,19 @@ export default function Dashboard() {
             <div className="flex justify-between items-center mb-4 shrink-0">
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-[16px] text-[#202538] tracking-tight flex items-center gap-2">
-                  <TrendingUp size={14} className="text-[#427DFA]"/> Esta Semana
+                  <TrendingUp size={14} className="text-[#4E60A9]"/> Esta Semana
                 </h3>
                 {totalConvSemana > 0 && (
-                  <span className="bg-[#EEF3FC] text-[#427DFA] px-2.5 py-0.5 rounded-full text-[10px] font-bold">{totalConvSemana} movimientos</span>
+                  <span className="bg-[#EEF3FC] text-[#4E60A9] px-2.5 py-0.5 rounded-full text-[10px] font-bold">{totalConvSemana} movimientos</span>
                 )}
               </div>
-              <Link href="/crm" className="text-[11px] font-bold text-[#427DFA] hover:underline">CRM →</Link>
+              <Link href="/crm" className="text-[11px] font-bold text-[#4E60A9] hover:underline">CRM →</Link>
             </div>
             <div className="flex-1 flex flex-col justify-center">
               {ng.conversionSemanal.length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-2 py-4">
                   <div className="w-9 h-9 rounded-full bg-[#EEF3FC] flex items-center justify-center">
-                    <TrendingUp size={14} className="text-[#427DFA]"/>
+                    <TrendingUp size={14} className="text-[#4E60A9]"/>
                   </div>
                   <p className="text-gray-400 text-[12px] font-medium text-center">Sin avances esta semana.<br/>Mueve leads en el funnel.</p>
                 </div>

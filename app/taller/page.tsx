@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Wrench, Plus, Activity, Search, X, ChevronRight, Clock, DollarSign, AlertTriangle, CheckCircle } from "lucide-react";
@@ -54,7 +54,7 @@ function NuevaOrdenModal({ onClose, onCreate }: { onClose: () => void; onCreate:
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-[#EEF3FC] flex items-center justify-center">
-              <Wrench size={16} className="text-[#427DFA]" />
+              <Wrench size={16} className="text-[#4E60A9]" />
             </div>
             <div>
               <h3 className="font-bold text-[15px] text-[#1E293B]">Nueva Orden de Trabajo</h3>
@@ -71,13 +71,13 @@ function NuevaOrdenModal({ onClose, onCreate }: { onClose: () => void; onCreate:
             <div className="relative mb-2">
               <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar cliente..."
-                className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl pl-8 pr-3 py-2.5 outline-none focus:border-[#427DFA]/40" />
+                className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl pl-8 pr-3 py-2.5 outline-none focus:border-[#4E60A9]/40" />
             </div>
             {q && leadsFiltered.length > 0 && (
               <div className="space-y-1 mb-2 max-h-40 overflow-y-auto">
                 {leadsFiltered.map(l => (
                   <button key={l.id} onClick={() => { setForm(p => ({ ...p, lead_id: String(l.id) })); setQ(l.nombre); }}
-                    className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-xl border transition-all text-[12px] ${form.lead_id === String(l.id) ? "border-[#427DFA] bg-[#EEF3FC] font-bold text-[#427DFA]" : "border-gray-200 hover:border-gray-300"}`}>
+                    className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-xl border transition-all text-[12px] ${form.lead_id === String(l.id) ? "border-[#4E60A9] bg-[#EEF3FC] font-bold text-[#4E60A9]" : "border-gray-200 hover:border-gray-300"}`}>
                     <span className="text-gray-300 text-[10px] mono">#{String(l.id).padStart(4, "0")}</span>
                     <span className="flex-1 font-medium">{l.nombre}</span>
                     <span className="text-gray-400 text-[10px]">{l.ciudad}</span>
@@ -93,19 +93,19 @@ function NuevaOrdenModal({ onClose, onCreate }: { onClose: () => void; onCreate:
             <div className="grid grid-cols-2 gap-2">
               <input placeholder="Tipo de transductor *" value={form.equipo_tipo}
                 onChange={e => setForm(p => ({ ...p, equipo_tipo: e.target.value }))}
-                className="col-span-2 text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#427DFA]/40 placeholder:text-gray-400" />
+                className="col-span-2 text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#4E60A9]/40 placeholder:text-gray-400" />
               <input placeholder="Marca" value={form.equipo_marca}
                 onChange={e => setForm(p => ({ ...p, equipo_marca: e.target.value }))}
-                className="text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#427DFA]/40 placeholder:text-gray-400" />
+                className="text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#4E60A9]/40 placeholder:text-gray-400" />
               <input placeholder="Modelo" value={form.equipo_modelo}
                 onChange={e => setForm(p => ({ ...p, equipo_modelo: e.target.value }))}
-                className="text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#427DFA]/40 placeholder:text-gray-400" />
+                className="text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#4E60A9]/40 placeholder:text-gray-400" />
               <input placeholder="No. serie" value={form.equipo_num_serie}
                 onChange={e => setForm(p => ({ ...p, equipo_num_serie: e.target.value }))}
-                className="text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#427DFA]/40 placeholder:text-gray-400" />
+                className="text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#4E60A9]/40 placeholder:text-gray-400" />
               <input placeholder="Técnico" value={form.tecnico}
                 onChange={e => setForm(p => ({ ...p, tecnico: e.target.value }))}
-                className="text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#427DFA]/40 placeholder:text-gray-400" />
+                className="text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#4E60A9]/40 placeholder:text-gray-400" />
             </div>
           </div>
 
@@ -114,7 +114,7 @@ function NuevaOrdenModal({ onClose, onCreate }: { onClose: () => void; onCreate:
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Falla reportada</label>
             <textarea placeholder="Descripción del problema según el cliente..." value={form.falla_reportada}
               onChange={e => setForm(p => ({ ...p, falla_reportada: e.target.value }))}
-              rows={2} className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#427DFA]/40 resize-none placeholder:text-gray-400" />
+              rows={2} className="w-full text-[12px] font-medium bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#4E60A9]/40 resize-none placeholder:text-gray-400" />
           </div>
 
           {/* Fechas + presupuesto */}
@@ -123,26 +123,26 @@ function NuevaOrdenModal({ onClose, onCreate }: { onClose: () => void; onCreate:
               <label className="text-[10px] font-bold text-gray-400 block mb-1">Fecha ingreso</label>
               <input type="date" value={form.fecha_ingreso}
                 onChange={e => setForm(p => ({ ...p, fecha_ingreso: e.target.value }))}
-                className="w-full text-[12px] font-bold bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#427DFA]/40 cursor-pointer" />
+                className="w-full text-[12px] font-bold bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#4E60A9]/40 cursor-pointer" />
             </div>
             <div>
               <label className="text-[10px] font-bold text-gray-400 block mb-1">Entrega comprometida</label>
               <input type="date" value={form.fecha_compromiso}
                 onChange={e => setForm(p => ({ ...p, fecha_compromiso: e.target.value }))}
-                className="w-full text-[12px] font-bold bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#427DFA]/40 cursor-pointer" />
+                className="w-full text-[12px] font-bold bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#4E60A9]/40 cursor-pointer" />
             </div>
             <div>
               <label className="text-[10px] font-bold text-gray-400 block mb-1">Presupuesto $</label>
               <input type="number" placeholder="0" value={form.presupuesto}
                 onChange={e => setForm(p => ({ ...p, presupuesto: e.target.value }))}
-                className="w-full text-[12px] font-bold bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#427DFA]/40" />
+                className="w-full text-[12px] font-bold bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#4E60A9]/40" />
             </div>
           </div>
         </div>
 
         <div className="px-6 py-4 border-t border-gray-100 shrink-0">
           <button onClick={submit} disabled={saving || !form.equipo_tipo.trim()}
-            className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-white bg-[#427DFA] hover:bg-[#2B5FD9] py-3 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-white bg-[#4E60A9] hover:bg-[#2B5FD9] py-3 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
             {saving ? <Activity size={14} className="animate-spin" /> : <Plus size={14} />}
             Crear Orden de Trabajo
           </button>
@@ -231,7 +231,7 @@ export default function TallerPage() {
         {/* Métricas */}
         <div className="pl-4 flex items-center gap-3">
           {[
-            { label: "Activas",     val: metrics.activas,      color: "#427DFA", bg: "#EEF3FC" },
+            { label: "Activas",     val: metrics.activas,      color: "#4E60A9", bg: "#EEF3FC" },
             { label: "Listas",      val: metrics.listas,       color: "#059669", bg: "#ECFDF5" },
             { label: "Vencidas",    val: metrics.vencidas,     color: "#DC2626", bg: "#FEF2F2" },
             { label: "Entregadas este mes", val: metrics.entregadasMes, color: "#34A853", bg: "#EEF9F1" },
@@ -242,7 +242,7 @@ export default function TallerPage() {
             </div>
           ))}
           <label className="flex items-center gap-2 ml-auto cursor-pointer text-[12px] font-bold text-gray-400">
-            <input type="checkbox" checked={showEntregadas} onChange={e => setShowEntregadas(e.target.checked)} className="accent-[#427DFA]" />
+            <input type="checkbox" checked={showEntregadas} onChange={e => setShowEntregadas(e.target.checked)} className="accent-[#4E60A9]" />
             Ver entregadas
           </label>
         </div>
@@ -252,7 +252,7 @@ export default function TallerPage() {
       <div className="flex-1 overflow-x-auto p-6 pt-2">
         {loading ? (
           <div className="h-full flex items-center justify-center">
-            <Activity size={24} className="animate-spin text-[#427DFA]" />
+            <Activity size={24} className="animate-spin text-[#4E60A9]" />
           </div>
         ) : (
           <div className="flex gap-4 h-full min-w-max">
@@ -273,44 +273,89 @@ export default function TallerPage() {
                       <div className="py-6 text-center text-[11px] text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">Sin órdenes</div>
                     )}
                     {colOrdenes.map(o => {
-                      const compFecha = o.fecha_compromiso ? new Date(o.fecha_compromiso + "T00:00:00") : null;
-                      const vencida = compFecha && compFecha < hoy && !["entregado", "cancelado"].includes(o.status);
-                      const diasRest = compFecha ? Math.ceil((compFecha.getTime() - hoy.getTime()) / 86400000) : null;
-                      const urgente = diasRest !== null && diasRest <= 1 && !vencida;
+                      const compFecha  = o.fecha_compromiso ? new Date(o.fecha_compromiso + "T00:00:00") : null;
+                      const ingFecha   = o.fecha_ingreso    ? new Date(o.fecha_ingreso    + "T00:00:00") : null;
+                      const vencida    = compFecha && compFecha < hoy && !["entregado", "cancelado"].includes(o.status);
+                      const diasRest   = compFecha ? Math.ceil((compFecha.getTime() - hoy.getTime()) / 86400000) : null;
+                      const urgente    = diasRest !== null && diasRest <= 1 && !vencida;
+                      const diasEnTaller = ingFecha ? Math.floor((hoy.getTime() - ingFecha.getTime()) / 86400000) : null;
+                      const monto      = o.precio_final || o.presupuesto;
+                      const isListo    = o.status === "listo";
 
                       return (
                         <div key={o.id}
                           onClick={() => setModalOrden(o)}
-                          className={`bg-white rounded-2xl p-3.5 shadow-sm border cursor-pointer hover:shadow-md transition-all ${vencida ? "border-red-200" : urgente ? "border-orange-200" : "border-gray-100 hover:border-gray-200"}`}>
+                          className="bg-white rounded-2xl p-3.5 cursor-pointer transition-all duration-[130ms] relative"
+                          style={{
+                            border: `1.5px solid ${vencida ? "#FECACA" : urgente ? "#FED7AA" : "#E8EFF8"}`,
+                            boxShadow: isListo
+                              ? "0 4px 14px -4px rgba(5,150,105,.15)"
+                              : "0 2px 8px -3px rgba(0,0,0,0.04)",
+                          }}
+                          onMouseEnter={e=>{
+                            (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)";
+                            (e.currentTarget as HTMLElement).style.boxShadow = "0 5px 18px -4px rgba(124,58,237,.14)";
+                          }}
+                          onMouseLeave={e=>{
+                            (e.currentTarget as HTMLElement).style.transform = "none";
+                            (e.currentTarget as HTMLElement).style.boxShadow = isListo
+                              ? "0 4px 14px -4px rgba(5,150,105,.15)"
+                              : "0 2px 8px -3px rgba(0,0,0,0.04)";
+                          }}>
 
-                          {/* Folio + alerta */}
+                          {/* Folio + estado + días */}
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-[10px] font-bold text-gray-300 mono">{o.folio}</span>
-                            {vencida && <AlertTriangle size={12} className="text-[#DC2626]" />}
-                            {urgente && !vencida && <Clock size={12} className="text-[#D97706]" />}
-                            {o.status === "listo" && <CheckCircle size={12} className="text-[#059669]" />}
+                            <span className="text-[10px] font-bold text-[#CBD5E1] font-mono">{o.folio}</span>
+                            <div className="flex items-center gap-1.5">
+                              {vencida   && <AlertTriangle size={12} className="text-[#DC2626]" />}
+                              {urgente && !vencida && <Clock size={12} className="text-[#D97706]" />}
+                              {isListo   && <CheckCircle  size={12} className="text-[#059669]" />}
+                              {diasEnTaller !== null && (
+                                <span className="text-[9px] font-bold text-[#CBD5E1]">{diasEnTaller}d</span>
+                              )}
+                            </div>
                           </div>
 
                           {/* Cliente */}
-                          <div className="font-bold text-[12px] text-[#1E293B] leading-tight mb-1 truncate">
+                          <div className="font-bold text-[13px] text-[#1E293B] leading-snug mb-1.5 truncate">
                             {o.lead_nombre || "Sin cliente"}
                           </div>
 
                           {/* Equipo */}
-                          <div className="text-[11px] text-gray-500 font-medium truncate mb-2">
-                            {[o.equipo_tipo, o.equipo_marca, o.equipo_modelo].filter(Boolean).join(" · ") || "—"}
+                          <div className="flex items-center gap-1.5 bg-[#F8FAFC] border border-[#F1F5F9] rounded-lg px-2 py-1.5 mb-2">
+                            <Wrench size={10} className="text-[#94A3B8] shrink-0" />
+                            <span className="text-[11px] font-semibold text-[#64748B] truncate">
+                              {[o.equipo_tipo, o.equipo_marca].filter(Boolean).join(" · ") || "—"}
+                            </span>
                           </div>
 
-                          {/* Footer */}
-                          <div className="flex items-center justify-between pt-2 border-t border-gray-50">
-                            {o.presupuesto ? (
-                              <span className="text-[11px] font-bold text-[#427DFA]">${o.presupuesto.toLocaleString("es-MX")}</span>
-                            ) : <span />}
-                            {compFecha ? (
-                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${vencida ? "bg-[#FEF2F2] text-[#DC2626]" : urgente ? "bg-[#FFFBEB] text-[#D97706]" : "bg-gray-100 text-gray-400"}`}>
-                                {compFecha.toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
-                              </span>
-                            ) : null}
+                          {/* Footer: técnico + monto + fecha */}
+                          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                            <div className="flex items-center gap-1.5">
+                              {o.equipo_marca && (
+                                <span className="text-[9px] font-bold text-[#94A3B8] bg-[#F1F5F9] px-1.5 py-0.5 rounded-md">{o.equipo_marca}</span>
+                              )}
+                              {(o as any).tecnico && (
+                                <span className="text-[10px] text-[#94A3B8] max-w-[80px] truncate">👷 {(o as any).tecnico}</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              {monto ? (
+                                <span className="text-[12px] font-extrabold"
+                                  style={{ color: isListo ? "#059669" : "#4E60A9" }}>
+                                  ${monto.toLocaleString("es-MX")}
+                                </span>
+                              ) : null}
+                              {compFecha ? (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                  style={{
+                                    background: vencida ? "#FEF2F2" : urgente ? "#FFFBEB" : "#F8FAFC",
+                                    color:      vencida ? "#DC2626" : urgente ? "#D97706" : "#94A3B8",
+                                  }}>
+                                  {vencida ? "Vencida" : compFecha.toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
+                                </span>
+                              ) : null}
+                            </div>
                           </div>
                         </div>
                       );

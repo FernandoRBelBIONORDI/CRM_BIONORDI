@@ -29,6 +29,7 @@ interface Lead {
   ciudad?: string;
   nicho?: string;
   telefono?: string;
+  whatsapp?: string;
   score_potencial?: number;
   status_crm: string;
   direccion?: string;
@@ -84,13 +85,15 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
       const coords = getCoordsForCity(lead.ciudad);
       if (!coords) continue;
 
-      // Jitter para evitar solapamiento de marcadores en misma ciudad
+      // Jitter circular para evitar solapamiento de marcadores en misma ciudad
       const key = `${coords[0].toFixed(2)}_${coords[1].toFixed(2)}`;
       coordMap[key] = coordMap[key] || [];
       coordMap[key].push(lead);
 
-      const jitter = coordMap[key].length * 0.008;
-      const pos: [number, number] = [coords[0] + jitter, coords[1] + jitter];
+      const idx   = coordMap[key].length - 1;
+      const angle = idx * 137.508 * (Math.PI / 180); // ángulo dorado → distribución uniforme
+      const r     = idx === 0 ? 0 : 0.01 + Math.floor(idx / 8) * 0.01;
+      const pos: [number, number] = [coords[0] + r * Math.sin(angle), coords[1] + r * Math.cos(angle)];
 
       const color  = STATUS_COLORS[lead.status_crm] || "#6B7280";
       const icon   = buildIcon(color);
@@ -106,7 +109,7 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
           <div style="color:#9CA3AF">${lead.nicho || ""} · ${lead.ciudad || ""}</div>
           ${scoreBar}
           <div style="margin-top:8px;display:flex;gap:6px">
-            ${lead.telefono ? `<a href="https://wa.me/52${lead.telefono.replace(/\D/g,'')}" target="_blank"
+            ${(lead.whatsapp || lead.telefono) ? `<a href="https://wa.me/52${(lead.whatsapp || lead.telefono)!.replace(/\D/g,'')}" target="_blank"
               style="background:#22C55E;color:#fff;padding:3px 8px;border-radius:4px;text-decoration:none;font-size:11px">WA</a>` : ""}
             <a href="/crm" style="background:#0EA5E9;color:#fff;padding:3px 8px;border-radius:4px;text-decoration:none;font-size:11px">CRM</a>
           </div>
@@ -175,14 +178,21 @@ const CIUDAD_COORDS: Record<string, [number, number]> = {
   "playa del carmen": [20.63, -87.08],
 };
 
+function cityHash(s: string): number {
+  let h = 0;
+  for (const c of s) h = (h * 31 + c.charCodeAt(0)) & 0x7fffffff;
+  return h;
+}
+
 function getCoordsForCity(city?: string): [number, number] | null {
   if (!city) return [23.5, -102.0];
   const key = city.toLowerCase().trim();
   for (const [k, v] of Object.entries(CIUDAD_COORDS)) {
     if (key.includes(k) || k.includes(key)) return v;
   }
-  // Fallback al centro de México con algo de variación
-  return [20 + Math.random() * 8, -98 - Math.random() * 12];
+  // Fallback determinista basado en el nombre de la ciudad
+  const h = cityHash(key);
+  return [20 + (h % 700) / 100, -98 - (h % 1100) / 100];
 }
 
 function scoreColor(s: number): string {

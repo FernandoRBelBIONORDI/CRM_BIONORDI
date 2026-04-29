@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, Fragment } from "react";
-import { Activity, Search, Download, MessageCircle, Sparkles, ChevronDown, ChevronUp, Copy, Check, ExternalLink, LayoutList, Kanban, Calendar, X, Trash2, SlidersHorizontal, UserPlus, FileText } from "lucide-react";
+import { Activity, Search, Download, MessageCircle, Sparkles, ChevronDown, ChevronUp, Copy, Check, ExternalLink, LayoutList, Kanban, Calendar, AlertTriangle, X, Trash2, SlidersHorizontal, UserPlus, FileText } from "lucide-react";
 import NuevoLeadModal from "@/components/NuevoLeadModal";
 import LeadModal from "@/components/LeadModal";
 import QuoteModal from "@/components/QuoteModal";
@@ -164,7 +164,7 @@ export default function CRMPage() {
     if(filterNicho && l.nicho !== filterNicho) return false;
     if(filterScore > 0 && (l.score_potencial||0) < filterScore) return false;
     if(q) {
-      const isIdMatch = String(l.id) === q;
+      const isIdMatch = String(l.id).includes(q);
       const isTextMatch = l.nombre.toLowerCase().includes(q.toLowerCase()) || l.ciudad?.toLowerCase().includes(q.toLowerCase());
       if(!isIdMatch && !isTextMatch) return false;
     }
@@ -199,10 +199,10 @@ export default function CRMPage() {
                 {STATUS_OPTS.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
               <button onClick={()=>setShowFilters(p=>!p)}
-                className={`flex items-center gap-1.5 px-4 py-[10px] rounded-full text-[12px] font-bold transition-all border ${showFilters || activeFilters > 0 ? "bg-[#EEF3FC] text-[#427DFA] border-[#427DFA]/20" : "bg-gray-50 text-gray-500 border-transparent hover:bg-white hover:border-gray-200"}`}>
+                className={`flex items-center gap-1.5 px-4 py-[10px] rounded-full text-[12px] font-bold transition-all border ${showFilters || activeFilters > 0 ? "bg-[#EEF3FC] text-[#4E60A9] border-[#4E60A9]/20" : "bg-gray-50 text-gray-500 border-transparent hover:bg-white hover:border-gray-200"}`}>
                 <SlidersHorizontal size={13}/>
                 Filtros
-                {activeFilters > 0 && <span className="w-4 h-4 bg-[#427DFA] text-white text-[9px] font-bold rounded-full flex items-center justify-center">{activeFilters}</span>}
+                {activeFilters > 0 && <span className="w-4 h-4 bg-[#4E60A9] text-white text-[9px] font-bold rounded-full flex items-center justify-center">{activeFilters}</span>}
               </button>
             </div>
           </div>
@@ -242,8 +242,8 @@ export default function CRMPage() {
               <span className="text-[12px] font-medium text-gray-500">Score mín:</span>
               <input type="range" min={0} max={10} step={1} value={filterScore}
                 onChange={e=>setFilterScore(Number(e.target.value))}
-                className="w-24 accent-[#427DFA]"/>
-              <span className="text-[12px] font-bold text-[#427DFA] w-6 text-center">{filterScore > 0 ? filterScore : "—"}</span>
+                className="w-24 accent-[#4E60A9]"/>
+              <span className="text-[12px] font-bold text-[#4E60A9] w-6 text-center">{filterScore > 0 ? filterScore : "—"}</span>
             </div>
             {activeFilters > 0 && (
               <button onClick={()=>{ setFilterNicho(""); setFilterScore(0); }}
@@ -266,7 +266,7 @@ export default function CRMPage() {
                     <input type="checkbox"
                       checked={filtered.length>0 && selectedIds.size===filtered.length}
                       onChange={toggleSelectAll}
-                      className="rounded accent-[#427DFA] w-3.5 h-3.5 cursor-pointer"/>
+                      className="rounded accent-[#4E60A9] w-3.5 h-3.5 cursor-pointer"/>
                   </th>
                   <th className="w-12">Ref</th>
                   <th>Razón Social</th>
@@ -296,16 +296,16 @@ export default function CRMPage() {
                   return (
                     <Fragment key={`f${lead.id}`}>
                       <tr onClick={()=>{ setExpanded(isExp?null:lead.id); if(!isExp) loadInts(lead.id); }}
-                          className={`transition-colors group ${isExp?'bg-blue-50/20 shadow-[inset_4px_0_0_#427DFA]':isSel?'bg-[#F0F5FF]':'hover:bg-gray-50/50'}`}>
+                          className={`transition-colors group ${isExp?'bg-blue-50/20 shadow-[inset_4px_0_0_#4E60A9]':isSel?'bg-[#F0F5FF]':'hover:bg-gray-50/50'}`}>
                         <td className="pl-4" onClick={e=>e.stopPropagation()}>
                           <input type="checkbox" checked={isSel} onChange={()=>toggleSelect(lead.id)}
-                            className="rounded accent-[#427DFA] w-3.5 h-3.5 cursor-pointer"/>
+                            className="rounded accent-[#4E60A9] w-3.5 h-3.5 cursor-pointer"/>
                         </td>
                         <td className="mono text-[11px] font-medium text-gray-400 tracking-wider">#{String(lead.id).padStart(4,"0")}</td>
                         <td>
                           <button onClick={e=>{ e.stopPropagation(); setModalLead(lead); }}
-                            className="text-left hover:text-[#427DFA] transition-colors group/name">
-                            <div className="font-bold text-[#1E293B] group-hover/name:text-[#427DFA] tracking-tight text-[13px] transition-colors">{lead.nombre}</div>
+                            className="text-left hover:text-[#4E60A9] transition-colors group/name">
+                            <div className="font-bold text-[#1E293B] group-hover/name:text-[#4E60A9] tracking-tight text-[13px] transition-colors">{lead.nombre}</div>
                             <div className="text-[11px] text-gray-400 mt-0.5 max-w-sm truncate">{lead.ciudad||"—"}</div>
                           </button>
                         </td>
@@ -328,7 +328,7 @@ export default function CRMPage() {
                         <td className="text-[12px] font-medium text-[#64748B] max-w-[140px] truncate">{lead.nicho||"—"}</td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
                           {proxFecha ? (
-                            <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-full ${proxVencida?"bg-[#FEF2F2] text-[#DC2626]":proxHoy?"bg-[#EEF3FC] text-[#427DFA]":"bg-gray-100 text-gray-500"}`}>
+                            <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-full ${proxVencida?"bg-[#FEF2F2] text-[#DC2626]":proxHoy?"bg-[#EEF3FC] text-[#4E60A9]":"bg-gray-100 text-gray-500"}`}>
                               <Calendar size={10}/>
                               {proxFecha.toLocaleDateString("es-MX",{day:"2-digit",month:"short"})}
                             </span>
@@ -338,7 +338,7 @@ export default function CRMPage() {
                           {lead.decisor_nombre
                             ? <div className="text-[12px] text-[#202538] font-bold">{lead.decisor_nombre}</div>
                             : <button onClick={()=>searchLinkedin(lead)}
-                                className="text-[11px] font-bold text-[#427DFA] bg-[#EEF3FC] hover:bg-[#427DFA] hover:text-white px-3 py-1.5 rounded-full transition-colors">+ Inferir</button>}
+                                className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-1.5 rounded-full transition-colors">+ Inferir</button>}
                         </td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
                           <div className="px-2">
@@ -352,19 +352,20 @@ export default function CRMPage() {
                         </td>
                         <td onClick={e=>e.stopPropagation()} className="pb-4 pt-4 pr-1">
                           <div className="flex items-center justify-end gap-1 px-2">
-                            {lead.telefono && (
-                              <a href={`https://wa.me/52${lead.telefono.replace(/\D/g,"")}`} target="_blank" rel="noopener noreferrer"
+                            {(lead.whatsapp || lead.telefono) && (
+                              <a href={`https://wa.me/52${(lead.whatsapp || lead.telefono)!.replace(/\D/g,"")}`} target="_blank" rel="noopener noreferrer"
                                 className="w-8 h-8 flex items-center justify-center rounded-full text-white bg-green-500 hover:bg-green-600 transition-all shadow-sm">
                                 <MessageCircle size={14} strokeWidth={2.5}/>
                               </a>
                             )}
                             <button onClick={()=>{ genScript(lead); setExpanded(lead.id); }}
-                              className="w-8 h-8 flex items-center justify-center rounded-full text-[#427DFA] bg-[#EEF3FC] hover:bg-[#427DFA] hover:text-white transition-all shadow-sm">
+                              disabled={loadScr !== null}
+                              className="w-8 h-8 flex items-center justify-center rounded-full text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
                               {loadScr===lead.id ? <Activity size={14} className="animate-spin"/> : <Sparkles size={14} fill="currentColor"/>}
                             </button>
                             <button onClick={e=>{ e.stopPropagation(); setQuoteLead(lead); }}
                               title="Generar cotización"
-                              className="w-8 h-8 flex items-center justify-center rounded-full text-[#427DFA] bg-[#EEF3FC] hover:bg-[#427DFA] hover:text-white transition-all shadow-sm">
+                              className="w-8 h-8 flex items-center justify-center rounded-full text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white transition-all shadow-sm">
                               <FileText size={14}/>
                             </button>
                             <button onClick={()=>setExpanded(isExp?null:lead.id)}
@@ -375,7 +376,7 @@ export default function CRMPage() {
                               const parts=[lead.nombre,lead.telefono||"",lead.correo||"",lead.sitio_web||""].filter(Boolean);
                               navigator.clipboard.writeText(parts.join(" | "));
                               setCopiedRow(lead.id); setTimeout(()=>setCopiedRow(null),1500);
-                            }} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-300 hover:text-[#427DFA] hover:bg-[#EEF3FC] transition-all ml-0.5 opacity-0 group-hover:opacity-100">
+                            }} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-300 hover:text-[#4E60A9] hover:bg-[#EEF3FC] transition-all ml-0.5 opacity-0 group-hover:opacity-100">
                               {copiedRow===lead.id?<Check size={13} className="text-[#34A853]"/>:<Copy size={13}/>}
                             </button>
                             <button onClick={()=>deleteLead(lead.id,lead.nombre)}
@@ -413,7 +414,7 @@ export default function CRMPage() {
                                 </div>
                                 {/* Próximo contacto */}
                                 <div className="mb-4 p-3 bg-white border border-gray-100 rounded-xl flex items-center gap-3 shadow-sm">
-                                  <Calendar size={14} className="text-[#427DFA] shrink-0" />
+                                  <Calendar size={14} className="text-[#4E60A9] shrink-0" />
                                   <div className="flex-1">
                                     <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Próximo contacto</div>
                                     <input
@@ -452,12 +453,12 @@ export default function CRMPage() {
                               </div>
 
                               <div className="p-8 py-6">
-                                <h3 className="text-[13px] font-bold text-[#427DFA] uppercase tracking-widest mb-4 flex items-center gap-1.5">
+                                <h3 className="text-[13px] font-bold text-[#4E60A9] uppercase tracking-widest mb-4 flex items-center gap-1.5">
                                   <Sparkles size={14} fill="currentColor"/> Script IA
                                 </h3>
                                 {!scripts[lead.id] ? (
                                   <button onClick={()=>genScript(lead)} disabled={loadScr===lead.id}
-                                    className="w-full py-8 border-2 border-dashed border-[#8CAAF5]/50 bg-[#EEF3FC]/50 rounded-2xl text-[12px] text-[#427DFA] font-bold hover:border-[#427DFA] transition-all flex flex-col items-center justify-center gap-2">
+                                    className="w-full py-8 border-2 border-dashed border-[#8CAAF5]/50 bg-[#EEF3FC]/50 rounded-2xl text-[12px] text-[#4E60A9] font-bold hover:border-[#4E60A9] transition-all flex flex-col items-center justify-center gap-2">
                                     {loadScr===lead.id ? <><Activity size={24} className="animate-spin mb-1"/>Generando...</> : <><Sparkles size={24} fill="currentColor" className="mb-1"/>Generar script con Claude AI</>}
                                   </button>
                                 ) : (
@@ -471,8 +472,8 @@ export default function CRMPage() {
                                             className="w-8 h-8 flex items-center justify-center text-[#202538] bg-gray-50 border border-gray-100 rounded-full hover:bg-gray-100 shadow-sm transition-all">
                                             {copied===k?<Check size={12}/>:<Copy size={12}/>}
                                           </button>
-                                          {lead.telefono && (
-                                            <a href={`https://wa.me/52${lead.telefono.replace(/\D/g,"")}?text=${encodeURIComponent(txt)}`}
+                                          {(lead.whatsapp || lead.telefono) && (
+                                            <a href={`https://wa.me/52${(lead.whatsapp || lead.telefono)!.replace(/\D/g,"")}?text=${encodeURIComponent(txt)}`}
                                               target="_blank" rel="noopener noreferrer"
                                               className="w-8 h-8 flex items-center justify-center text-white bg-green-500 rounded-full hover:bg-green-600 shadow-sm transition-all">
                                               <ExternalLink size={12}/>
@@ -501,70 +502,100 @@ export default function CRMPage() {
       ) : (
         /* ── KANBAN VIEW ── */
         <div className="flex-1 overflow-x-auto p-6 pt-4">
-          <div className="flex gap-4 h-full min-w-max">
+          <div className="flex gap-3 h-full min-w-max">
             {KANBAN_COLS.map(col=>{
               const st = S[col];
               const colLeads = filtered.filter(l=>l.status_crm===col);
               return (
-                <div key={col} className="w-64 flex flex-col gap-2">
+                <div key={col} style={{width:252}} className="flex flex-col gap-2 shrink-0">
                   {/* Column header */}
-                  <div className="flex items-center justify-between px-3 py-2 rounded-xl"
-                    style={{backgroundColor: st.bg}}>
-                    <span className="text-[12px] font-bold tracking-tight" style={{color:st.color}}>{st.label}</span>
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/60" style={{color:st.color}}>{colLeads.length}</span>
+                  <div className="flex items-center justify-between px-3 py-2 rounded-[13px] border"
+                    style={{backgroundColor: st.bg, borderColor: `${st.color}20`}}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full" style={{background: st.color}}/>
+                      <span className="text-[12px] font-extrabold" style={{color:st.color}}>{st.label}</span>
+                    </div>
+                    <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-white/70" style={{color:st.color}}>{colLeads.length}</span>
                   </div>
                   {/* Cards */}
-                  <div className="flex-1 overflow-y-auto space-y-2 pr-1 pb-4">
+                  <div className="flex-1 overflow-y-auto space-y-2 pb-4" style={{maxHeight:"calc(100vh - 230px)"}}>
                     {colLeads.length===0 && (
                       <div className="py-8 text-center text-[11px] text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">Sin leads</div>
                     )}
-                    {colLeads.map(lead=>(
-                      <div key={lead.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all cursor-pointer group">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div className="font-bold text-[12px] text-[#1E293B] leading-tight flex-1">{lead.nombre}</div>
-                          {lead.score_potencial && (
-                            <span className="text-[11px] font-extrabold tabular-nums shrink-0"
-                              style={{color:lead.score_potencial>=7?"#34A853":lead.score_potencial>=4?"#F59E0B":"#94A3B8"}}>
-                              {lead.score_potencial}/10
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-gray-400 mb-3 truncate">{lead.ciudad||"—"} · {lead.nicho||"—"}</div>
-                        {lead.decisor_nombre && (
-                          <div className="text-[10px] font-bold text-[#7C3AED] bg-[#F5F3FF] px-2 py-1 rounded-lg mb-2 truncate">
-                            👤 {lead.decisor_nombre}
+                    {colLeads.map(lead=>{
+                      const proxFecha = lead.fecha_proximo_contacto ? new Date(lead.fecha_proximo_contacto+"T00:00:00") : null;
+                      const hoy = new Date(); hoy.setHours(0,0,0,0);
+                      const venc = proxFecha && proxFecha < hoy;
+                      const sc = lead.score_potencial;
+                      const scoreColor = sc && sc>=7 ? "#059669" : sc && sc>=4 ? "#D97706" : "#94A3B8";
+                      const scoreBg   = sc && sc>=7 ? "#ECFDF5" : sc && sc>=4 ? "#FFFBEB" : "#F1F5F9";
+                      return (
+                        <div key={lead.id}
+                          onClick={()=>{ setModalLead(lead); loadInts(lead.id); }}
+                          className="bg-white rounded-2xl p-3.5 cursor-pointer group transition-all duration-[130ms]"
+                          style={{
+                            border: `1.5px solid ${venc ? "#FECACA" : "#E8EFF8"}`,
+                            boxShadow: "0 2px 8px -3px rgba(0,0,0,0.05)",
+                          }}
+                          onMouseEnter={e=>{
+                            (e.currentTarget as HTMLElement).style.boxShadow = "0 5px 18px -4px rgba(66,125,250,0.13)";
+                            (e.currentTarget as HTMLElement).style.borderColor = "#BFDBFE";
+                          }}
+                          onMouseLeave={e=>{
+                            (e.currentTarget as HTMLElement).style.boxShadow = "0 2px 8px -3px rgba(0,0,0,0.05)";
+                            (e.currentTarget as HTMLElement).style.borderColor = venc ? "#FECACA" : "#E8EFF8";
+                          }}>
+                          {/* Nombre + score */}
+                          <div className="flex items-start justify-between gap-2 mb-1.5">
+                            <div className="font-bold text-[13px] text-[#1E293B] leading-snug flex-1">{lead.nombre}</div>
+                            {sc && (
+                              <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full shrink-0"
+                                style={{color: scoreColor, background: scoreBg}}>
+                                {sc}/10
+                              </span>
+                            )}
                           </div>
-                        )}
-                        {/* Quick move buttons */}
-                        <div className="flex items-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {KANBAN_COLS.filter(c=>c!==col).map(c=>(
-                            <button key={c} onClick={()=>moveStatus(lead.id,c)}
-                              className="text-[9px] font-bold px-2 py-1 rounded-full transition-colors"
-                              style={{color:S[c].color, backgroundColor:S[c].bg}}>
-                              → {S[c].label}
-                            </button>
-                          ))}
-                        </div>
-                        {/* Actions */}
-                        <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-gray-100">
-                          {lead.telefono && (
-                            <a href={`https://wa.me/52${lead.telefono.replace(/\D/g,"")}`} target="_blank" rel="noopener noreferrer"
-                              className="w-7 h-7 flex items-center justify-center rounded-full text-white bg-green-500 hover:bg-green-600 transition-all">
-                              <MessageCircle size={12}/>
-                            </a>
+                          {/* Nicho + ciudad */}
+                          <div className="text-[11px] text-[#94A3B8] mb-2 truncate">{lead.nicho||"—"} · {lead.ciudad||"—"}</div>
+                          {/* Decisor */}
+                          {lead.decisor_nombre && (
+                            <div className="text-[11px] font-semibold text-[#7C3AED] bg-[#F5F3FF] px-2 py-1 rounded-lg mb-2 truncate">
+                              👤 {lead.decisor_nombre}
+                            </div>
                           )}
-                          <button onClick={()=>{ setView("table"); setExpanded(lead.id); setFilterS("todos"); loadInts(lead.id); genScript(lead); }}
-                            className="w-7 h-7 flex items-center justify-center rounded-full text-[#427DFA] bg-[#EEF3FC] hover:bg-[#427DFA] hover:text-white transition-all">
-                            <Sparkles size={12} fill="currentColor"/>
-                          </button>
-                          <button onClick={()=>setQuoteLead(lead)} title="Cotizar"
-                            className="w-7 h-7 flex items-center justify-center rounded-full text-[#427DFA] bg-[#EEF3FC] hover:bg-[#427DFA] hover:text-white transition-all">
-                            <FileText size={12}/>
-                          </button>
-                          <span className="text-[10px] text-gray-400 ml-auto">#{String(lead.id).padStart(4,"0")}</span>
+                          {/* Notas preview */}
+                          {lead.notas && (
+                            <div className="text-[11px] text-[#64748B] bg-[#F8FAFC] px-2.5 py-1.5 rounded-lg mb-2 leading-snug"
+                              style={{overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>
+                              {lead.notas}
+                            </div>
+                          )}
+                          {/* Footer: fecha + acciones */}
+                          <div className="flex items-center justify-between pt-2.5 border-t border-gray-100">
+                            {proxFecha ? (
+                              <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                style={{color: venc ? "#DC2626" : "#4E60A9", background: venc ? "#FEF2F2" : "#EEF3FC"}}>
+                                {venc ? <AlertTriangle size={9}/> : <Calendar size={9}/>}
+                                {venc ? "Vencido" : proxFecha.toLocaleDateString("es-MX",{day:"2-digit",month:"short"})}
+                              </span>
+                            ) : <span/>}
+                            <div className="flex gap-1.5">
+                              {(lead.whatsapp || lead.telefono) && (
+                                <a href={`https://wa.me/52${(lead.whatsapp || lead.telefono)!.replace(/\D/g,"")}`} target="_blank" rel="noopener noreferrer"
+                                  onClick={e=>e.stopPropagation()}
+                                  className="w-6 h-6 flex items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A] hover:bg-green-500 hover:text-white transition-colors">
+                                  <MessageCircle size={11}/>
+                                </a>
+                              )}
+                              <button onClick={e=>{e.stopPropagation();setQuoteLead(lead);}} title="Cotizar"
+                                className="w-6 h-6 flex items-center justify-center rounded-full bg-[#EEF3FC] text-[#4E60A9] hover:bg-[#4E60A9] hover:text-white transition-colors">
+                                <FileText size={11}/>
+                              </button>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -586,7 +617,7 @@ export default function CRMPage() {
           </select>
           {bulkStatus && (
             <button onClick={()=>bulkChangeStatus(bulkStatus)}
-              className="flex items-center gap-1.5 text-[12px] font-bold bg-[#427DFA] px-4 py-1.5 rounded-xl hover:bg-[#3668d6] transition-colors">
+              className="flex items-center gap-1.5 text-[12px] font-bold bg-[#4E60A9] px-4 py-1.5 rounded-xl hover:bg-[#3668d6] transition-colors">
               <Check size={13}/> Aplicar
             </button>
           )}
@@ -646,7 +677,7 @@ export default function CRMPage() {
                       <button onClick={()=>saveDecissor(linkedinOpen,r)} className="btn-primary px-4 py-2 font-bold text-[10px]">VINCULAR</button>
                     </div>
                   )) : <p className="text-[13px] text-gray-400 font-medium py-6 text-center italic bg-white rounded-xl">Sin resultados automáticos.</p>}
-                  <a href={linkedinData.google_search_url} target="_blank" rel="noopener noreferrer" className="text-[12px] font-bold text-[#427DFA] hover:underline block mt-4 text-center">Abrir Google ↗</a>
+                  <a href={linkedinData.google_search_url} target="_blank" rel="noopener noreferrer" className="text-[12px] font-bold text-[#4E60A9] hover:underline block mt-4 text-center">Abrir Google ↗</a>
                 </div>
               )}
             </div>

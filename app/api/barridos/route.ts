@@ -8,17 +8,28 @@ export async function GET() {
     FROM barridos b
     ORDER BY b.fecha DESC
     LIMIT 50
-  `).all();
-  return NextResponse.json({ barridos: rows });
+  `).all() as any[];
+
+  const barridos = rows.map(b => {
+    const statusBreakdown = db.prepare(`
+      SELECT status_crm, COUNT(*) as count
+      FROM leads WHERE barrido_id = ?
+      GROUP BY status_crm
+    `).all(b.id);
+    return { ...b, statusBreakdown };
+  });
+
+  return NextResponse.json({ barridos });
 }
 
 export async function POST(req: Request) {
-  const { nombre, nicho, estado, zonas, max_por_zona } = await req.json();
+  const { nombre, nicho, estado, zonas, max_por_zona, fuente, especialidad, notas } = await req.json();
   const fecha = new Date().toISOString();
   const { lastInsertRowid } = db.prepare(`
-    INSERT INTO barridos (nombre, nicho, estado, zonas_json, max_por_zona, fecha, completado)
-    VALUES (?, ?, ?, ?, ?, ?, 0)
-  `).run(nombre, nicho || null, estado || null, JSON.stringify(zonas || []), max_por_zona || 60, fecha);
+    INSERT INTO barridos (nombre, nicho, estado, zonas_json, max_por_zona, fecha, completado, fuente, especialidad, notas)
+    VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
+  `).run(nombre, nicho || null, estado || null, JSON.stringify(zonas || []), max_por_zona || 60, fecha,
+    fuente || 'google', especialidad || null, notas || null);
   return NextResponse.json({ id: Number(lastInsertRowid) });
 }
 

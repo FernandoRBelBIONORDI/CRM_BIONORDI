@@ -13,6 +13,13 @@ out/
 db/*.db
 db/*.db-shm
 db/*.db-wal
+crm.db
+
+# WhatsApp session tokens — sensitive auth data
+sessions/
+
+# User-uploaded files
+public/uploads/
 
 # Large DENUE data files (>100 MB, exceeds GitHub limit)
 db/denue/

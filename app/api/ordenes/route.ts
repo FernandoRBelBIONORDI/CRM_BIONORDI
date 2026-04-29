@@ -101,11 +101,17 @@ export async function PATCH(req: Request) {
     const { id, ...updates } = await req.json();
     if (!id) return NextResponse.json({ error: 'id requerido' }, { status: 400 });
 
-    const keys = Object.keys(updates);
-    if (keys.length === 0) return NextResponse.json({ success: true });
+    const COLS = new Set([
+      'equipo_tipo','equipo_marca','equipo_modelo','equipo_num_serie',
+      'falla_reportada','diagnostico','notas_tecnicas','tecnico',
+      'presupuesto','presupuesto_aprobado','precio_final','status',
+      'fecha_compromiso','fecha_entrega',
+    ]);
+    const safe = Object.fromEntries(Object.entries(updates).filter(([k]) => COLS.has(k)));
+    if (Object.keys(safe).length === 0) return NextResponse.json({ success: true });
 
-    const setStr = keys.map(k => `${k} = @${k}`).join(', ');
-    db.prepare(`UPDATE ordenes_trabajo SET ${setStr} WHERE id = @id`).run({ ...updates, id });
+    const setStr = Object.keys(safe).map(k => `${k} = @${k}`).join(', ');
+    db.prepare(`UPDATE ordenes_trabajo SET ${setStr} WHERE id = @id`).run({ ...safe, id });
 
     const orden = db.prepare(`
       SELECT o.*, l.nombre as lead_nombre, l.telefono as lead_telefono, l.ciudad as lead_ciudad
