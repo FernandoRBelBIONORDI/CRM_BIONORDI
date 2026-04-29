@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import db from '@/lib/db';
-import path from 'path';
-import fs from 'fs';
 
 export async function POST(req: Request) {
   try {
@@ -30,33 +28,9 @@ export async function POST(req: Request) {
       tls: { rejectUnauthorized: false },
     });
 
-    // Replace localhost image URLs with CID references and embed from filesystem
-    const publicDir = path.join(process.cwd(), 'public');
-    const inlineAttachments: nodemailer.Attachment[] = [];
-    const usedCids = new Set<string>();
-
-    const emailHtml = html.replace(
-      /src="https?:\/\/localhost(?::\d+)?\/([^"?#]+\.(png|jpg|jpeg|gif|svg|webp))"/gi,
-      (_match: string, filePath: string) => {
-        const absPath = path.join(publicDir, filePath);
-        if (!fs.existsSync(absPath)) return _match;
-        const cid = filePath.replace(/[^a-z0-9]/gi, '_') + '@bionordi';
-        if (!usedCids.has(cid)) {
-          usedCids.add(cid);
-          inlineAttachments.push({
-            filename: path.basename(filePath),
-            path: absPath,
-            cid,
-            contentDisposition: 'inline',
-          });
-        }
-        return `src="cid:${cid}"`;
-      }
-    );
-
     const plainText = textBody || html.replace(/<[^>]+>/g, " ").replace(/\s{2,}/g, " ").trim();
 
-    const fileAttachments = Array.isArray(attachments)
+    const mailAttachments = Array.isArray(attachments)
       ? attachments.map((a: { filename: string; content: string; type?: string }) => ({
           filename: a.filename,
           content: Buffer.from(a.content, 'base64'),
@@ -68,10 +42,10 @@ export async function POST(req: Request) {
       from: `"${cfg.smtp_from_name || 'Bionordi'}" <${cfg.smtp_from_email || cfg.smtp_user}>`,
       to,
       subject,
-      html: emailHtml,
+      html,
       text: plainText,
       replyTo: replyTo || cfg.smtp_from_email || cfg.smtp_user,
-      attachments: [...inlineAttachments, ...fileAttachments],
+      attachments: mailAttachments,
       headers: {
         "X-Mailer": "Bionordi CRM",
         "Message-ID": `<${Date.now()}.${Math.random().toString(36).slice(2)}@bionordi.mx>`,
