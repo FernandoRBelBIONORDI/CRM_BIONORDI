@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import db from '@/lib/db';
+import path from 'path';
+import fs from 'fs';
 
 export async function POST(req: Request) {
   try {
@@ -28,15 +30,33 @@ export async function POST(req: Request) {
       tls: { rejectUnauthorized: false },
     });
 
-    const GITHUB_ASSETS = "https://raw.githubusercontent.com/FernandoRBelBIONORDI/CRM_BIONORDI/main/public";
+    // Replace localhost image URLs with CID references and embed as inline attachments
+    const publicDir = path.join(process.cwd(), 'public');
+    const inlineAttachments: nodemailer.Attachment[] = [];
+    const usedCids = new Set<string>();
+
     const emailHtml = html.replace(
-      /src="https?:\/\/localhost(?::\d+)?\/([^"]+)"/gi,
-      `src="${GITHUB_ASSETS}/$1"`
+      /src="https?:\/\/localhost(?::\d+)?\/([^"?#]+\.(png|jpg|jpeg|gif|svg|webp))"/gi,
+      (_match: string, filePath: string) => {
+        const absPath = path.join(publicDir, filePath);
+        if (!fs.existsSync(absPath)) return _match;
+        const cid = filePath.replace(/[^a-z0-9]/gi, '_') + '@bionordi';
+        if (!usedCids.has(cid)) {
+          usedCids.add(cid);
+          inlineAttachments.push({
+            filename: path.basename(filePath),
+            path: absPath,
+            cid,
+            contentDisposition: 'inline',
+          });
+        }
+        return `src="cid:${cid}"`;
+      }
     );
 
     const plainText = textBody || html.replace(/<[^>]+>/g, " ").replace(/\s{2,}/g, " ").trim();
 
-    const mailAttachments = Array.isArray(attachments)
+    const fileAttachments = Array.isArray(attachments)
       ? attachments.map((a: { filename: string; content: string; type?: string }) => ({
           filename: a.filename,
           content: Buffer.from(a.content, 'base64'),
@@ -51,7 +71,7 @@ export async function POST(req: Request) {
       html: emailHtml,
       text: plainText,
       replyTo: replyTo || cfg.smtp_from_email || cfg.smtp_user,
-      attachments: mailAttachments,
+      attachments: [...inlineAttachments, ...fileAttachments],
       headers: {
         "X-Mailer": "Bionordi CRM",
         "Message-ID": `<${Date.now()}.${Math.random().toString(36).slice(2)}@bionordi.mx>`,
