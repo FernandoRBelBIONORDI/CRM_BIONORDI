@@ -32,7 +32,9 @@ function applyVars(tpl: string, v: Vars, standalone = false): string {
 }
 
 // ── Cromado compartido header/footer ─────────────────────────────────────────
-function chrome(body: string, remitente: string, origin = "") {
+const ASSETS = "https://raw.githubusercontent.com/FernandoRBelBIONORDI/CRM_BIONORDI/main/public";
+
+function chrome(body: string, remitente: string, origin = ASSETS) {
   return `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -389,7 +391,7 @@ export default function CorreoPage() {
 
   // Generar HTML final
   const buildHTML = useCallback(() => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const origin = "https://raw.githubusercontent.com/FernandoRBelBIONORDI/CRM_BIONORDI/main/public";
     if (tpl === "personalizado") return customHtml || "<p style='color:#94A3B8;font-family:sans-serif;padding:40px;text-align:center;'>Pega tu HTML aquí para ver la vista previa</p>";
     const activeTpl = TPLS[tpl as TplKey];
     const v = { ...vars, nombre_remitente: vars.nombre_remitente || remitente };
