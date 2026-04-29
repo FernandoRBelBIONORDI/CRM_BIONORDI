@@ -28,6 +28,12 @@ export async function POST(req: Request) {
       tls: { rejectUnauthorized: false },
     });
 
+    const GITHUB_ASSETS = "https://raw.githubusercontent.com/FernandoRBelBIONORDI/CRM_BIONORDI/main/public";
+    const emailHtml = html.replace(
+      /src="https?:\/\/localhost(?::\d+)?\/([^"]+)"/gi,
+      `src="${GITHUB_ASSETS}/$1"`
+    );
+
     const plainText = textBody || html.replace(/<[^>]+>/g, " ").replace(/\s{2,}/g, " ").trim();
 
     const mailAttachments = Array.isArray(attachments)
@@ -42,7 +48,7 @@ export async function POST(req: Request) {
       from: `"${cfg.smtp_from_name || 'Bionordi'}" <${cfg.smtp_from_email || cfg.smtp_user}>`,
       to,
       subject,
-      html,
+      html: emailHtml,
       text: plainText,
       replyTo: replyTo || cfg.smtp_from_email || cfg.smtp_user,
       attachments: mailAttachments,
