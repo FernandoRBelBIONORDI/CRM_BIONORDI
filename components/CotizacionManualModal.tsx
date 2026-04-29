@@ -760,7 +760,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     if (!emailTo.trim() || !canGenerar) return;
     setEmailStatus("sending"); setEmailMsg("");
 
-    const origin = window.location.origin;
+    const origin = "https://raw.githubusercontent.com/FernandoRBelBIONORDI/BIONORDI_IMAGENES/main/IMAGENES";
     const fecha    = new Date().toLocaleDateString("es-MX", { day:"2-digit", month:"long", year:"numeric" });
     const folioSuffix = tipo === "venta" ? "V" : tipo === "mantenimiento" ? "M" : tipo === "consumibles" ? "CS" : "C";
     const folio    = savedCot?.folio ?? `BNRD-${new Date().getFullYear().toString().slice(-2)}-${folioSuffix}-${Date.now().toString().slice(-4)}`;
