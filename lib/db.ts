@@ -5,7 +5,6 @@ import bcrypt from 'bcryptjs';
 
 const dbFolderPath = path.join(process.cwd(), 'db');
 const dbFilePath = path.join(dbFolderPath, 'bionordi.db');
-const schemaFilePath = path.join(dbFolderPath, 'schema.sql');
 
 if (!fs.existsSync(dbFolderPath)) {
   fs.mkdirSync(dbFolderPath, { recursive: true });
@@ -20,14 +19,41 @@ db.pragma('busy_timeout = 5000');
 const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
 
 if (!isBuild) {
-  // Aplicar esquema si la base de datos está vacía
-  const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='leads';").get();
-  if (!tableCheck) {
-    if (fs.existsSync(schemaFilePath)) {
-      const schema = fs.readFileSync(schemaFilePath, 'utf8');
-      db.exec(schema);
-    }
-  }
+  // Tabla principal — creada directamente para no depender de schema.sql
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS leads (
+      id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+      nombre                TEXT NOT NULL,
+      telefono              TEXT,
+      whatsapp              TEXT,
+      whatsapp_verificado   INTEGER DEFAULT 0,
+      correo                TEXT,
+      sitio_web             TEXT,
+      sitio_activo          INTEGER DEFAULT 0,
+      direccion             TEXT,
+      ciudad                TEXT,
+      municipio             TEXT,
+      estado_republica      TEXT,
+      nicho                 TEXT,
+      sub_nicho             TEXT,
+      tamano_estimado       TEXT,
+      nivel_socioeconomico  TEXT,
+      tiene_ultrasonido     TEXT,
+      score_potencial       INTEGER,
+      razon_score           TEXT,
+      fuente                TEXT,
+      confianza_fuente      TEXT,
+      google_place_id       TEXT UNIQUE,
+      status_crm            TEXT DEFAULT 'nuevo',
+      notas                 TEXT,
+      decisor_nombre        TEXT,
+      decisor_cargo         TEXT,
+      decisor_linkedin      TEXT,
+      fecha_extraccion      TEXT,
+      fecha_ultimo_contacto TEXT,
+      fecha_ultimo_cambio   TEXT
+    )
+  `);
 
   // Migrations — safe to re-run
   for (const sql of [
@@ -141,6 +167,22 @@ if (!isBuild) {
       valor TEXT
     )
   `);
+
+  // Seeds de configuración inicial
+  for (const [clave, valor] of [
+    ['nombre_representante', 'Fernando'],
+    ['empresa', 'Bionordi'],
+    ['servicios', 'Reparación de transductores de ultrasonido, mantenimiento de equipo médico'],
+    ['garantia', '6 meses'],
+    ['tiempo_entrega', '5-7 días hábiles'],
+    ['ciudad_base', 'Ciudad de México'],
+    ['zonas_cobertura', 'CDMX, EDOMEX, Querétaro, Puebla'],
+    ['metodologia_venta', 'Problema-Agitación-Solución'],
+    ['dias_alerta_seguimiento', '3'],
+    ['dias_alerta_diagnostico', '5'],
+  ]) {
+    db.prepare(`INSERT OR IGNORE INTO configuracion (clave, valor) VALUES (?, ?)`).run(clave, valor);
+  }
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS busquedas (
