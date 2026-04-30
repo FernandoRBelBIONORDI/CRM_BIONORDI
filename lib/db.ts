@@ -204,10 +204,9 @@ const hayUsuarios = db.prepare("SELECT COUNT(*) as c FROM usuarios").get() as { 
 if (hayUsuarios.c === 0) {
   const defaultHash = bcrypt.hashSync("Bionordi2025!", 10);
   db.prepare(`
-    INSERT INTO usuarios (nombre, email, password_hash, rol)
+    INSERT OR IGNORE INTO usuarios (nombre, email, password_hash, rol)
     VALUES (?, ?, ?, ?)
   `).run("Administrador", "admin@bionordi.mx", defaultHash, "admin");
-  console.log("✓ Usuario admin creado: admin@bionordi.mx / Bionordi2025!");
 }
 
 db.exec(`
