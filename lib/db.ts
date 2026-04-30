@@ -15,6 +15,7 @@ if (!fs.existsSync(dbFolderPath)) {
 // Abrir la conexión SQLite
 const db = new Database(dbFilePath, { verbose: process.env.NODE_ENV === 'development' ? console.log : undefined });
 db.pragma('journal_mode = WAL'); // Mejor rendimiento para Next.js
+db.pragma('busy_timeout = 5000'); // Evita SQLITE_BUSY con múltiples workers en build
 
 // Aplicar esquema si la base de datos está vacía
 const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='leads';").get();
