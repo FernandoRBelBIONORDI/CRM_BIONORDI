@@ -1,62 +1,71 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 
+const CSV_COLS = [
+  'id','nombre','telefono','whatsapp','correo','sitio_web',
+  'direccion','ciudad','municipio','estado_republica',
+  'nicho','sub_nicho','tamano_estimado','nivel_socioeconomico',
+  'tiene_ultrasonido','score_potencial','razon_score',
+  'fuente','confianza_fuente','status_crm',
+  'decisor_nombre','decisor_cargo','decisor_linkedin',
+  'notas','fecha_extraccion','fecha_ultimo_contacto',
+];
+function buildCsv(leads: any[]) {
+  const rows = leads.map(l =>
+    CSV_COLS.map(c => `"${String(l[c] ?? '').replace(/"/g, '""')}"`).join(',')
+  );
+  return new Response([CSV_COLS.join(','), ...rows].join('\n'), {
+    headers: {
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': 'attachment; filename="bionordi_leads.csv"',
+    },
+  });
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const status   = searchParams.get('status');
+  const ids      = searchParams.get('ids');
   const format   = searchParams.get('format');
-  const ids      = searchParams.get('ids'); // "1,2,3" para exportar selección
-  const limitRaw  = parseInt(searchParams.get('limit')  || '', 10);
-  const offsetRaw = parseInt(searchParams.get('offset') || '', 10);
-  const limit    = !isNaN(limitRaw)  && limitRaw  > 0 ? limitRaw  : null;
-  const offset   = !isNaN(offsetRaw) && offsetRaw >= 0 ? offsetRaw : 0;
+  const status   = searchParams.get('status') || '';
+  const q        = searchParams.get('q') || '';
+  const nicho    = searchParams.get('nicho') || '';
+  const minScore = Number(searchParams.get('min_score') || 0);
+  const limit    = Number(searchParams.get('limit') || 75);
+  const offset   = Number(searchParams.get('offset') || 0);
 
-  let leads: any[] = [];
-
+  // Exportar IDs seleccionados
   if (ids) {
     const idList = ids.split(',').map(Number).filter(Boolean);
-    if (idList.length === 0) return NextResponse.json({ leads: [] });
-    const placeholders = idList.map(() => '?').join(',');
-    leads = db.prepare(`SELECT * FROM leads WHERE id IN (${placeholders}) ORDER BY id DESC`).all(...idList);
-  } else if (status) {
-    const q = limit
-      ? `SELECT * FROM leads WHERE status_crm = ? ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
-      : 'SELECT * FROM leads WHERE status_crm = ? ORDER BY id DESC';
-    leads = db.prepare(q).all(status);
-  } else {
-    const q = limit
-      ? `SELECT * FROM leads ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
-      : 'SELECT * FROM leads ORDER BY id DESC';
-    leads = db.prepare(q).all();
+    if (!idList.length) return NextResponse.json({ leads: [], total: 0 });
+    const ph = idList.map(() => '?').join(',');
+    const leads = db.prepare(`SELECT * FROM leads WHERE id IN (${ph}) ORDER BY id ASC`).all(...idList) as any[];
+    if (format === 'csv') return buildCsv(leads);
+    return NextResponse.json({ leads, total: leads.length });
   }
-  const total: number = (db.prepare('SELECT COUNT(*) as n FROM leads').get() as any).n;
 
-  // Exportar CSV
-  if (format === 'csv') {
-    const cols = [
-      'id','nombre','telefono','whatsapp','correo','sitio_web',
-      'direccion','ciudad','municipio','estado_republica',
-      'nicho','sub_nicho','tamano_estimado','nivel_socioeconomico',
-      'tiene_ultrasonido','score_potencial','razon_score',
-      'fuente','confianza_fuente','status_crm',
-      'decisor_nombre','decisor_cargo','decisor_linkedin',
-      'notas','fecha_extraccion','fecha_ultimo_contacto'
-    ];
-    const header = cols.join(',');
-    const rows = leads.map(l =>
-      cols.map(c => {
-        const val = String(l[c] ?? '').replace(/"/g, '""');
-        return `"${val}"`;
-      }).join(',')
-    );
-    const csv = [header, ...rows].join('\n');
-    return new Response(csv, {
-      headers: {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': 'attachment; filename="bionordi_leads.csv"',
-      },
-    });
+  // Construcción dinámica de WHERE
+  const conds: string[] = [];
+  const params: any[] = [];
+  if (status && status !== 'todos') { conds.push('status_crm = ?'); params.push(status); }
+  if (q) {
+    conds.push('(LOWER(nombre) LIKE LOWER(?) OR LOWER(ciudad) LIKE LOWER(?) OR CAST(id AS TEXT) = ?)');
+    params.push(`%${q}%`, `%${q}%`, q);
   }
+  if (nicho) { conds.push('nicho = ?'); params.push(nicho); }
+  if (minScore > 0) { conds.push('score_potencial >= ?'); params.push(minScore); }
+
+  const where = conds.length ? `WHERE ${conds.join(' AND ')}` : '';
+  const total: number = (db.prepare(`SELECT COUNT(*) as n FROM leads ${where}`).get(...params) as any).n;
+
+  // CSV: todos los resultados sin límite
+  if (format === 'csv') {
+    const leads = db.prepare(`SELECT * FROM leads ${where} ORDER BY id ASC`).all(...params) as any[];
+    return buildCsv(leads);
+  }
+
+  const leads = db.prepare(
+    `SELECT * FROM leads ${where} ORDER BY id ASC LIMIT ${limit} OFFSET ${offset}`
+  ).all(...params) as any[];
 
   return NextResponse.json({ leads, total });
 }
@@ -140,6 +149,7 @@ export async function DELETE(req: Request) {
     db.prepare(`DELETE FROM scripts WHERE lead_id = ?`).run(id);
     db.prepare(`DELETE FROM equipos_cliente WHERE lead_id = ?`).run(id);
     db.prepare(`DELETE FROM cotizaciones WHERE lead_id = ?`).run(id);
+    db.prepare(`DELETE FROM ordenes_trabajo WHERE lead_id = ?`).run(id);
     return NextResponse.json({ success: true });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

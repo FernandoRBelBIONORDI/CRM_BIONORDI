@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import QuoteModal from "@/components/QuoteModal";
 import Link from "next/link";
+import { waLink } from "@/lib/ui";
 
 interface Lead {
   id: number; nombre: string; telefono?: string; whatsapp?: string; correo?: string; sitio_web?: string;
@@ -37,7 +38,7 @@ const TIPO_OPTS = [
   { value: "llamada",       label: "Llamada" },
   { value: "email",         label: "Email" },
   { value: "visita",        label: "Visita" },
-  { value: "nota",          label: "Nota interna" },
+  { value: "nota_interna",  label: "Nota interna" },
 ];
 const RES_OPTS = [
   { value: "sin_respuesta",     label: "Sin respuesta" },
@@ -129,11 +130,13 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
+      // No cerrar si hay un modal hijo abierto (QuoteModal u otros portals)
+      if (showQuote) return;
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) onClose();
     };
     if (lead) document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [lead]);
+  }, [lead, showQuote]);
 
   const loadInts = async (id: number) => {
     setLoadingInts(true);
@@ -271,13 +274,14 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                 style={{ color: st.color, backgroundColor: st.bg }}>
                 {STATUS_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
-              {(lead.whatsapp || lead.telefono) && (
-                <Link
-                  href={`/whatsapp?phone=${(lead.whatsapp || lead.telefono)!.replace(/\D/g, "")}`}
-                  onClick={onClose}
+              {waLink(lead.whatsapp || lead.telefono) && (
+                <a
+                  href={waLink(lead.whatsapp || lead.telefono)!}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-[12px] font-bold text-white bg-[#25D366] hover:bg-[#1ebe5d] px-3 py-2 rounded-full transition-colors shadow-sm">
                   <MessageCircle size={13} strokeWidth={2.5} /> WhatsApp
-                </Link>
+                </a>
               )}
               <button onClick={() => setShowQuote(true)}
                 className="flex items-center gap-1.5 text-[12px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-2 rounded-full transition-colors shadow-sm">
@@ -340,7 +344,7 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                   </div>
                 ) : lead.whatsapp ? (
                   <div className="flex items-center gap-2 flex-1">
-                    <a href={`https://wa.me/${lead.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer"
+                    <a href={waLink(lead.whatsapp)!} target="whatsapp_web"
                       className="text-[12px] font-bold text-[#22C55E] hover:underline">{lead.whatsapp}</a>
                     <button onClick={() => setEditWA(true)} className="text-[10px] text-gray-400 hover:text-gray-600 underline ml-1">editar</button>
                   </div>
@@ -482,8 +486,8 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                           {copiedTpl === i ? <Check size={10} className="text-[#34A853]" /> : <MessageCircle size={10} />}
                           {copiedTpl === i ? "Copiado" : "Copiar"}
                         </button>
-                        {(lead.whatsapp || lead.telefono) && (
-                          <a href={`https://wa.me/52${(lead.whatsapp || lead.telefono)!.replace(/\D/g, "")}?text=${encodeURIComponent(tpl.texto)}`}
+                        {waLink(lead.whatsapp || lead.telefono) && (
+                          <a href={waLink(lead.whatsapp || lead.telefono, tpl.texto)!}
                             target="_blank" rel="noopener noreferrer"
                             className="flex items-center gap-1 text-[10px] font-bold text-green-600 hover:text-white hover:bg-green-500 transition-colors px-2 py-1 rounded-lg bg-green-50">
                             <ExternalLink size={10} /> Enviar

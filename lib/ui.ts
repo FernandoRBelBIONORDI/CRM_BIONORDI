@@ -9,6 +9,16 @@ export function avatarColor(name: string) {
   return colors[Math.abs(h) % colors.length];
 }
 
+// Abre WhatsApp Web directamente en el navegador (cuenta vinculada al CRM)
+export function waLink(phone?: string | null, text?: string) {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return null;
+  const number = digits.startsWith("52") ? digits : `52${digits}`;
+  const base = `https://web.whatsapp.com/send?phone=${number}`;
+  return text ? `${base}&text=${encodeURIComponent(text)}` : base;
+}
+
 export function fmtDate(iso?: string) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });

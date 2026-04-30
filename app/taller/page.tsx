@@ -14,10 +14,11 @@ const COLS: { value: string; label: string; color: string; bg: string }[] = [
 ];
 
 // Modal para crear nueva OT
-function NuevaOrdenModal({ onClose, onCreate }: { onClose: () => void; onCreate: (o: Orden) => void }) {
+function NuevaOrdenModal({ onClose, onCreate, initialLeadId }: { onClose: () => void; onCreate: (o: Orden) => void; initialLeadId?: number }) {
   const [leads, setLeads] = useState<any[]>([]);
   const [form, setForm] = useState({
-    lead_id: "", equipo_tipo: "", equipo_marca: "", equipo_modelo: "",
+    lead_id: initialLeadId ? String(initialLeadId) : "",
+    equipo_tipo: "", equipo_marca: "", equipo_modelo: "",
     equipo_num_serie: "", falla_reportada: "", fecha_ingreso: new Date().toISOString().slice(0, 10),
     fecha_compromiso: "", tecnico: "", presupuesto: "",
   });
@@ -25,7 +26,15 @@ function NuevaOrdenModal({ onClose, onCreate }: { onClose: () => void; onCreate:
   const [q, setQ] = useState("");
 
   useEffect(() => {
-    fetch("/api/leads").then(r => r.json()).then(d => setLeads(d.leads || []));
+    fetch("/api/leads").then(r => r.json()).then(d => {
+      const allLeads = d.leads || [];
+      setLeads(allLeads);
+      // Pre-rellenar el nombre del lead en el buscador si viene del URL
+      if (initialLeadId) {
+        const lead = allLeads.find((l: any) => l.id === initialLeadId);
+        if (lead) setQ(lead.nombre);
+      }
+    });
   }, []);
 
   const leadsFiltered = leads.filter(l =>
@@ -157,6 +166,7 @@ export default function TallerPage() {
   const [loading, setLoading]       = useState(true);
   const [modalOrden, setModalOrden] = useState<Orden | null>(null);
   const [showNueva, setShowNueva]   = useState(false);
+  const [initialLeadId, setInitialLeadId] = useState<number | undefined>(undefined);
   const [q, setQ]                   = useState("");
   const [showEntregadas, setShowEntregadas] = useState(false);
 
@@ -164,7 +174,11 @@ export default function TallerPage() {
     fetchOrdenes();
     if (typeof window !== "undefined") {
       const sp = new URLSearchParams(window.location.search);
-      if (sp.get("nuevo") === "1") setShowNueva(true);
+      if (sp.get("nuevo") === "1") {
+        const leadIdParam = sp.get("lead_id");
+        if (leadIdParam) setInitialLeadId(Number(leadIdParam));
+        setShowNueva(true);
+      }
     }
   }, []);
 
@@ -371,8 +385,9 @@ export default function TallerPage() {
       {/* Modals */}
       {showNueva && (
         <NuevaOrdenModal
-          onClose={() => setShowNueva(false)}
+          onClose={() => { setShowNueva(false); setInitialLeadId(undefined); }}
           onCreate={o => setOrdenes(p => [o, ...p])}
+          initialLeadId={initialLeadId}
         />
       )}
       {modalOrden && (

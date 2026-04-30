@@ -5,6 +5,7 @@ import { Activity, Search, Download, Zap, MapPin, ArrowRight, UserPlus, Copy, Ch
          SlidersHorizontal, X, Globe, Square, CheckSquare, StopCircle, BookOpen,
          Trash2, Stethoscope } from "lucide-react";
 import nichos from "@/data/nichos_medicos.json";
+import { waLink } from "@/lib/ui";
 import municipiosData from "@/data/municipios_mexico.json";
 import NuevoLeadModal from "@/components/NuevoLeadModal";
 import { ESPECIALIDADES_DOCTORALIA } from "@/lib/doctoralia";
@@ -694,8 +695,8 @@ export default function EncontrarPage() {
                             <span className="text-[11px] font-bold text-gray-300 shrink-0">Tel</span>
                             <span className="text-[12px] font-semibold text-[#1E293B] truncate">{lead.telefono||"—"}</span>
                           </div>
-                          {(lead.whatsapp || lead.telefono) && (
-                            <a href={`https://wa.me/52${(lead.whatsapp || lead.telefono)!.replace(/\D/g,"")}`} target="_blank" rel="noopener noreferrer"
+                          {waLink(lead.whatsapp || lead.telefono) && (
+                            <a href={waLink(lead.whatsapp || lead.telefono)!} target="whatsapp_web"
                               className="shrink-0 flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-50 hover:bg-green-500 hover:text-white px-2 py-1 rounded-full transition-colors">
                               <ArrowRight size={9}/> WA
                             </a>

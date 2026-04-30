@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { waLink } from "@/lib/ui";
 import {
   Search, Download, Trash2, Edit2, Save, X, MessageCircle,
   Stethoscope, Globe, Database, Calendar, Users, UserCheck,
@@ -452,12 +453,13 @@ export default function BarridosPage() {
                             </select>
                           </td>
                           <td className="px-5 py-3">
-                            {(lead.whatsapp || lead.telefono) && (
-                              <Link
-                                href={`/whatsapp?phone=${(lead.whatsapp || lead.telefono)!.replace(/\D/g, "")}`}
+                            {waLink(lead.whatsapp || lead.telefono) && (
+                              <a
+                                href={waLink(lead.whatsapp || lead.telefono)!}
+                                target="whatsapp_web"
                                 className="flex items-center gap-1 text-[10px] font-bold text-[#25D366] hover:bg-green-50 px-2 py-1 rounded-full transition-all">
                                 <MessageCircle size={10} /> WA
-                              </Link>
+                              </a>
                             )}
                           </td>
                         </tr>

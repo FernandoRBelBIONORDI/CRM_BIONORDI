@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
+import { waLink as buildWaLink } from "@/lib/ui";
 import { Activity, Sparkles, Copy, Check, ExternalLink, RefreshCw, Send, CheckCircle2, Search, Calendar, ChevronRight } from "lucide-react";
 
 interface Lead { id:number; nombre:string; telefono?:string; ciudad?:string; nicho?:string; decisor_nombre?:string; status_crm:string; notas?:string; }
@@ -40,10 +41,7 @@ export default function EnvioPage() {
     setLoadingScr(false);
   };
 
-  const waLink = (lead:Lead, text:string) => {
-    const ph = lead.telefono?.replace(/\D/g,"");
-    return ph ? `https://wa.me/52${ph}?text=${encodeURIComponent(text)}` : "#";
-  };
+  const waLink = (lead:Lead, text:string) => buildWaLink(lead.telefono, text) ?? "#";
 
   const markSent = async (lead:Lead, followUpDate?:string) => {
     await fetch("/api/leads",{method:"PATCH",headers:{"Content-Type":"application/json"},
@@ -172,7 +170,7 @@ export default function EnvioPage() {
                       {copied===k ? <><Check size={11} className="text-green-500"/>Copiado</> : <><Copy size={11}/>Copiar</>}
                     </button>
                     {activeLead?.telefono && (
-                      <a href={waLink(activeLead,current)} target="_blank" rel="noopener noreferrer"
+                      <a href={waLink(activeLead,current)} target="whatsapp_web"
                         onClick={()=>fetch("/api/script",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({lead_id:activeLead!.id,tipo:k})})}
                         className="flex items-center gap-1.5 text-[11px] font-bold bg-white border border-green-200 rounded-full px-3 py-1.5 text-green-600 hover:bg-green-50 transition-all">
                         <ExternalLink size={11}/>Abrir WA
@@ -233,13 +231,13 @@ export default function EnvioPage() {
                       <div className="space-y-2">
                         {/* WA links */}
                         <div className="flex gap-1.5">
-                          <a href={`https://wa.me/52${ph}?text=${encodeURIComponent(defaultMsg)}`}
+                          <a href={buildWaLink(lead.telefono, defaultMsg) ?? "#"}
                             target="_blank" rel="noopener noreferrer"
                             className="flex-1 text-center text-[11px] font-bold text-gray-500 bg-gray-50 border border-gray-200 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">
                             WA Genérico
                           </a>
                           {scripts && activeLead?.id===lead.id && (
-                            <a href={`https://wa.me/52${ph}?text=${encodeURIComponent(scrText)}`}
+                            <a href={buildWaLink(lead.telefono, scrText) ?? "#"}
                               target="_blank" rel="noopener noreferrer"
                               className="flex-1 text-center text-[11px] font-bold text-white bg-[#34A853] py-1.5 rounded-lg hover:bg-[#2E964A] transition-colors flex items-center justify-center gap-1 shadow-sm">
                               <Sparkles size={10} fill="currentColor"/> Script

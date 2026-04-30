@@ -9,6 +9,7 @@ import {
   TrendingUp, DollarSign, Flame, CheckCircle2, Database, FileText,
 } from "lucide-react";
 import CotizacionManualModal from "@/components/CotizacionManualModal";
+import { waLink } from "@/lib/ui";
 
 interface DashData {
   metrics: { total:number; nuevo:number; contactado:number; seguimiento:number; diagnostico:number; cliente:number; descartado:number; };
@@ -109,8 +110,13 @@ export default function Dashboard() {
 
   const load = async () => {
     setLoading(true);
-    try { setData(await (await fetch("/api/dashboard")).json()); }
-    catch(e) {}
+    try {
+      // Ejecutar auto-move como acción explícita, no como efecto secundario del GET
+      await fetch("/api/dashboard/automove", { method: "POST" });
+      setData(await (await fetch("/api/dashboard")).json());
+    } catch(e) {
+      console.error("Error cargando dashboard:", e);
+    }
     setLoading(false);
   };
 
@@ -312,9 +318,9 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                        {(l.whatsapp || l.telefono) && (
+                        {waLink(l.whatsapp || l.telefono) && (
                           <button type="button"
-                            onClick={e=>{e.preventDefault();e.stopPropagation();window.open(`https://wa.me/52${String(l.whatsapp||l.telefono).replace(/\D/g,"")}`, "_blank");}}
+                            onClick={e=>{e.preventDefault();e.stopPropagation();window.open(waLink(l.whatsapp||l.telefono)!, "whatsapp_web");}}
                             className="w-6 h-6 flex items-center justify-center rounded-full bg-green-100 text-green-600 hover:bg-green-500 hover:text-white transition-colors">
                             <MessageCircle size={11}/>
                           </button>

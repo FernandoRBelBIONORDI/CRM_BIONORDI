@@ -8,6 +8,10 @@ export async function middleware(request: NextRequest) {
   // Rutas públicas — siempre permitidas
   if (
     pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/webhooks/whatsapp") ||
+    pathname.startsWith("/api/webhooks/waha") ||
+    pathname.startsWith("/privacidad") ||
+    pathname.startsWith("/eliminar-datos") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||

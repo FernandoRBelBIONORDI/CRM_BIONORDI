@@ -1,10 +1,11 @@
 ﻿"use client";
 
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState, Fragment, useRef } from "react";
 import { Activity, Search, Download, MessageCircle, Sparkles, ChevronDown, ChevronUp, Copy, Check, ExternalLink, LayoutList, Kanban, Calendar, AlertTriangle, X, Trash2, SlidersHorizontal, UserPlus, FileText } from "lucide-react";
 import NuevoLeadModal from "@/components/NuevoLeadModal";
 import LeadModal from "@/components/LeadModal";
 import QuoteModal from "@/components/QuoteModal";
+import { waLink } from "@/lib/ui";
 
 interface Lead {
   id:number; nombre:string; telefono?:string; whatsapp?:string; correo?:string; sitio_web?:string;
@@ -33,6 +34,10 @@ const KANBAN_COLS = ["nuevo","contactado","seguimiento","diagnostico","cliente"]
 export default function CRMPage() {
   const [leads, setLeads]         = useState<Lead[]>([]);
   const [loading, setLoading]     = useState(true);
+  const [total, setTotal]         = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const tableRef    = useRef<HTMLDivElement>(null);
+  const savedScroll = useRef<number | null>(null);
   const [q, setQ]                 = useState("");
   const [filterS, setFilterS]     = useState("todos");
   const [filterNicho, setFilterNicho] = useState("");
@@ -69,25 +74,60 @@ export default function CRMPage() {
         setPendingModal(eid);
       }
     }
-    fetchLeads();
   },[]);
 
-  const fetchLeads = async () => {
-    setLoading(true);
-    const d = await fetch("/api/leads").then(r=>r.json());
-    if(d.leads) {
-      setLeads(d.leads);
-      setPendingModal(prev=>{ if(prev) { const l=d.leads.find((x:Lead)=>x.id===prev); if(l) setModalLead(l); return null; } return prev; });
-    }
-    setLoading(false);
+  // Re-fetch cuando cambian filtros; debounce de 300ms solo para búsqueda de texto
+  useEffect(()=>{
+    let cancelled = false;
+    const delay = q ? 300 : 0;
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      const p = new URLSearchParams();
+      if (filterS !== 'todos') p.set('status', filterS);
+      if (q.trim()) p.set('q', q.trim());
+      if (filterNicho) p.set('nicho', filterNicho);
+      if (filterScore > 0) p.set('min_score', String(filterScore));
+      p.set('limit', '75');
+      const d = await fetch(`/api/leads?${p}`).then(r=>r.json());
+      if (!cancelled && d.leads) {
+        setLeads(d.leads);
+        setTotal(d.total || 0);
+        setPendingModal(prev=>{ if(prev){ const l=d.leads.find((x:Lead)=>x.id===prev); if(l) setModalLead(l); return null; } return prev; });
+      }
+      if (!cancelled) setLoading(false);
+    }, delay);
+    return ()=>{ cancelled=true; clearTimeout(timer); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[filterS, q, filterNicho, filterScore]);
+
+  const loadMore = async () => {
+    if (loadingMore) return;
+    savedScroll.current = tableRef.current?.scrollTop ?? null;
+    setLoadingMore(true);
+    const p = new URLSearchParams();
+    if (filterS !== 'todos') p.set('status', filterS);
+    if (q.trim()) p.set('q', q.trim());
+    if (filterNicho) p.set('nicho', filterNicho);
+    if (filterScore > 0) p.set('min_score', String(filterScore));
+    p.set('limit', '75');
+    p.set('offset', String(leads.length));
+    const d = await fetch(`/api/leads?${p}`).then(r=>r.json());
+    if (d.leads) { setLeads(prev=>[...prev, ...d.leads]); setTotal(d.total || 0); }
+    setLoadingMore(false);
   };
+
+  useEffect(() => {
+    if (savedScroll.current !== null && tableRef.current) {
+      tableRef.current.scrollTop = savedScroll.current;
+      savedScroll.current = null;
+    }
+  }, [leads]);
 
   const patchLead = async (id:number, upd:Record<string,any>) => {
     await fetch("/api/leads",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,...upd})});
   };
 
   const loadInts = async (id:number) => {
-    if(ints[id]) return;
     const d = await fetch(`/api/interactions?lead_id=${id}`).then(r=>r.json());
     setInts(p=>({...p,[id]:d.interacciones||[]}));
   };
@@ -98,7 +138,6 @@ export default function CRMPage() {
     setNewCont("");
     const d = await fetch(`/api/interactions?lead_id=${lead_id}`).then(r=>r.json());
     setInts(p=>({...p,[lead_id]:d.interacciones||[]}));
-    fetchLeads();
   };
 
   const genScript = async (lead:Lead) => {
@@ -139,7 +178,7 @@ export default function CRMPage() {
   };
 
   const toggleSelect = (id:number) => setSelectedIds(p=>{ const n=new Set(p); n.has(id)?n.delete(id):n.add(id); return n; });
-  const toggleSelectAll = () => setSelectedIds(selectedIds.size===filtered.length ? new Set() : new Set(filtered.map(l=>l.id)));
+  const toggleSelectAll = () => setSelectedIds(selectedIds.size===leads.length ? new Set() : new Set(leads.map(l=>l.id)));
 
   const bulkChangeStatus = async (status:string) => {
     if(!status) return;
@@ -158,19 +197,6 @@ export default function CRMPage() {
   };
 
   const nichosUnicos = [...new Set(leads.map(l=>l.nicho).filter(Boolean))] as string[];
-
-  const filtered = leads.filter(l=>{
-    if(filterS!=="todos" && l.status_crm!==filterS) return false;
-    if(filterNicho && l.nicho !== filterNicho) return false;
-    if(filterScore > 0 && (l.score_potencial||0) < filterScore) return false;
-    if(q) {
-      const isIdMatch = String(l.id).includes(q);
-      const isTextMatch = l.nombre.toLowerCase().includes(q.toLowerCase()) || l.ciudad?.toLowerCase().includes(q.toLowerCase());
-      if(!isIdMatch && !isTextMatch) return false;
-    }
-    return true;
-  });
-
   const activeFilters = (filterNicho ? 1 : 0) + (filterScore > 0 ? 1 : 0);
 
   return (
@@ -183,7 +209,7 @@ export default function CRMPage() {
             <div>
               <h1 className="text-[28px] font-medium text-[#202538] leading-tight tracking-[-0.03em]">CRM Central</h1>
               <p className="text-[#8B95A5] text-[13px] font-medium tracking-tight mt-0.5">
-                {filtered.length} leads{activeFilters > 0 ? ` · ${activeFilters} filtro${activeFilters>1?"s":""} activo${activeFilters>1?"s":""}` : ""}
+                {total} leads{leads.length < total ? ` · mostrando ${leads.length}` : ""}{activeFilters > 0 ? ` · ${activeFilters} filtro${activeFilters>1?"s":""} activo${activeFilters>1?"s":""}` : ""}
               </p>
             </div>
             <div className="h-8 w-[1.5px] bg-gray-200 ml-2"></div>
@@ -191,14 +217,14 @@ export default function CRMPage() {
               <div className="relative">
                 <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Nombre o ciudad..."
-                  className="inp pl-10 w-44 rounded-full py-[10px]" />
+                  className="inp pl-10 w-44 rounded-full py-[10px]" suppressHydrationWarning />
               </div>
-              <select value={filterS} onChange={e=>setFilterS(e.target.value)}
+              <select value={filterS} onChange={e=>setFilterS(e.target.value)} suppressHydrationWarning
                 className="inp w-auto rounded-full py-[10px] bg-gray-50 border-transparent hover:bg-white hover:border-gray-200 cursor-pointer text-gray-600 transition-all">
                 <option value="todos">Todos</option>
                 {STATUS_OPTS.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
-              <button onClick={()=>setShowFilters(p=>!p)}
+              <button onClick={()=>setShowFilters(p=>!p)} suppressHydrationWarning
                 className={`flex items-center gap-1.5 px-4 py-[10px] rounded-full text-[12px] font-bold transition-all border ${showFilters || activeFilters > 0 ? "bg-[#EEF3FC] text-[#4E60A9] border-[#4E60A9]/20" : "bg-gray-50 text-gray-500 border-transparent hover:bg-white hover:border-gray-200"}`}>
                 <SlidersHorizontal size={13}/>
                 Filtros
@@ -209,22 +235,22 @@ export default function CRMPage() {
 
           <div className="flex items-center gap-3">
             <div className="flex items-center bg-white border border-gray-200 rounded-full p-1 gap-1 shadow-sm">
-              <button onClick={()=>setView("table")}
+              <button onClick={()=>setView("table")} suppressHydrationWarning
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold transition-all ${view==="table"?"bg-[#2D2F3C] text-white shadow-sm":"text-gray-400 hover:text-gray-600"}`}>
                 <LayoutList size={13}/> Tabla
               </button>
-              <button onClick={()=>setView("kanban")}
+              <button onClick={()=>setView("kanban")} suppressHydrationWarning
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold transition-all ${view==="kanban"?"bg-[#2D2F3C] text-white shadow-sm":"text-gray-400 hover:text-gray-600"}`}>
                 <Kanban size={13}/> Kanban
               </button>
             </div>
-            <button onClick={()=>setShowNuevoLead(true)} className="btn-primary">
+            <button onClick={()=>setShowNuevoLead(true)} className="btn-primary" suppressHydrationWarning>
               <UserPlus size={14}/> Nuevo Lead
             </button>
             <button onClick={()=>{
               const ids = selectedIds.size > 0 ? [...selectedIds].join(",") : "";
               window.open(`/api/leads?format=csv${ids?`&ids=${ids}`:""}`, "_blank");
-            }} className="btn-ghost">
+            }} className="btn-ghost" suppressHydrationWarning>
               <Download size={14}/> {selectedIds.size > 0 ? `CSV (${selectedIds.size})` : "CSV"}
             </button>
           </div>
@@ -258,13 +284,13 @@ export default function CRMPage() {
       {view === "table" ? (
         /* ── TABLE VIEW ── */
         <div className="flex-1 overflow-hidden p-6 pt-4 flex flex-col">
-          <div className="card overflow-auto flex-1 p-2 pb-[40px]">
+          <div ref={tableRef} className="card overflow-auto flex-1 p-2 pb-[40px]">
             <table className="t-table">
               <thead>
                 <tr>
                   <th className="w-10 pl-4">
                     <input type="checkbox"
-                      checked={filtered.length>0 && selectedIds.size===filtered.length}
+                      checked={leads.length>0 && selectedIds.size===leads.length}
                       onChange={toggleSelectAll}
                       className="rounded accent-[#4E60A9] w-3.5 h-3.5 cursor-pointer"/>
                   </th>
@@ -274,17 +300,18 @@ export default function CRMPage() {
                   <th className="w-20 text-center">Score</th>
                   <th>Nicho</th>
                   <th className="w-28 text-center">Próx. Contacto</th>
-                  <th className="w-48 text-center">Notas</th>
+                  <th className="w-36 text-center">Decisor</th>
+                  <th className="w-48 text-center">Notas rápidas</th>
                   <th className="w-32 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {loading && (
-                  <tr><td colSpan={9} className="py-32 text-center text-[13px] font-medium text-gray-400">
+                  <tr><td colSpan={10} className="py-32 text-center text-[13px] font-medium text-gray-400">
                     <Activity size={18} className="inline animate-spin mr-2 text-blue-500"/>Cargando pipeline...
                   </td></tr>
                 )}
-                {!loading && filtered.map(lead=>{
+                {!loading && leads.map(lead=>{
                   const st    = S[lead.status_crm] || S.nuevo;
                   const isExp = expanded === lead.id;
                   const isSel = selectedIds.has(lead.id);
@@ -352,8 +379,8 @@ export default function CRMPage() {
                         </td>
                         <td onClick={e=>e.stopPropagation()} className="pb-4 pt-4 pr-1">
                           <div className="flex items-center justify-end gap-1 px-2">
-                            {(lead.whatsapp || lead.telefono) && (
-                              <a href={`https://wa.me/52${(lead.whatsapp || lead.telefono)!.replace(/\D/g,"")}`} target="_blank" rel="noopener noreferrer"
+                            {waLink(lead.whatsapp || lead.telefono) && (
+                              <a href={waLink(lead.whatsapp || lead.telefono)!} target="whatsapp_web"
                                 className="w-8 h-8 flex items-center justify-center rounded-full text-white bg-green-500 hover:bg-green-600 transition-all shadow-sm">
                                 <MessageCircle size={14} strokeWidth={2.5}/>
                               </a>
@@ -390,7 +417,7 @@ export default function CRMPage() {
                       {/* Expansion Row */}
                       {isExp && (
                         <tr className="bg-[#FAFBFD] border-x-0 shadow-inner">
-                          <td colSpan={9} className="p-0">
+                          <td colSpan={10} className="p-0">
                             <div className="grid grid-cols-2 divide-x divide-gray-200">
                               <div className="p-8 py-6">
                                 <h3 className="text-[13px] font-bold text-gray-400 uppercase tracking-widest mb-4">Registro de Interacciones</h3>
@@ -459,7 +486,7 @@ export default function CRMPage() {
                                 {!scripts[lead.id] ? (
                                   <button onClick={()=>genScript(lead)} disabled={loadScr===lead.id}
                                     className="w-full py-8 border-2 border-dashed border-[#8CAAF5]/50 bg-[#EEF3FC]/50 rounded-2xl text-[12px] text-[#4E60A9] font-bold hover:border-[#4E60A9] transition-all flex flex-col items-center justify-center gap-2">
-                                    {loadScr===lead.id ? <><Activity size={24} className="animate-spin mb-1"/>Generando...</> : <><Sparkles size={24} fill="currentColor" className="mb-1"/>Generar script con Claude AI</>}
+                                    {loadScr===lead.id ? <><Activity size={24} className="animate-spin mb-1"/>Generando...</> : <><Sparkles size={24} fill="currentColor" className="mb-1"/>Generar script con IA</>}
                                   </button>
                                 ) : (
                                   <div className="space-y-3 max-h-[220px] overflow-y-auto pr-2">
@@ -472,8 +499,8 @@ export default function CRMPage() {
                                             className="w-8 h-8 flex items-center justify-center text-[#202538] bg-gray-50 border border-gray-100 rounded-full hover:bg-gray-100 shadow-sm transition-all">
                                             {copied===k?<Check size={12}/>:<Copy size={12}/>}
                                           </button>
-                                          {(lead.whatsapp || lead.telefono) && (
-                                            <a href={`https://wa.me/52${(lead.whatsapp || lead.telefono)!.replace(/\D/g,"")}?text=${encodeURIComponent(txt)}`}
+                                          {waLink(lead.whatsapp || lead.telefono) && (
+                                            <a href={waLink(lead.whatsapp || lead.telefono, txt)!}
                                               target="_blank" rel="noopener noreferrer"
                                               className="w-8 h-8 flex items-center justify-center text-white bg-green-500 rounded-full hover:bg-green-600 shadow-sm transition-all">
                                               <ExternalLink size={12}/>
@@ -492,8 +519,20 @@ export default function CRMPage() {
                     </Fragment>
                   );
                 })}
-                {!loading && filtered.length===0 && (
-                  <tr><td colSpan={9} className="py-32 text-center text-[14px] font-medium text-gray-400">Sin resultados para la búsqueda actual.</td></tr>
+                {!loading && leads.length===0 && (
+                  <tr><td colSpan={10} className="py-32 text-center text-[14px] font-medium text-gray-400">Sin resultados para la búsqueda actual.</td></tr>
+                )}
+                {!loading && leads.length < total && (
+                  <tr>
+                    <td colSpan={10} className="py-4 text-center border-t border-dashed border-gray-200">
+                      <button onClick={loadMore} disabled={loadingMore}
+                        className="text-[12px] font-bold text-gray-400 hover:text-[#4E60A9] transition-colors disabled:opacity-50">
+                        {loadingMore
+                          ? <span className="flex items-center justify-center gap-1.5"><Activity size={12} className="animate-spin"/>Cargando...</span>
+                          : `↓ Cargar más · ${total - leads.length} restantes`}
+                      </button>
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
@@ -505,7 +544,7 @@ export default function CRMPage() {
           <div className="flex gap-3 h-full min-w-max">
             {KANBAN_COLS.map(col=>{
               const st = S[col];
-              const colLeads = filtered.filter(l=>l.status_crm===col);
+              const colLeads = leads.filter(l=>l.status_crm===col);
               return (
                 <div key={col} style={{width:252}} className="flex flex-col gap-2 shrink-0">
                   {/* Column header */}
@@ -580,8 +619,8 @@ export default function CRMPage() {
                               </span>
                             ) : <span/>}
                             <div className="flex gap-1.5">
-                              {(lead.whatsapp || lead.telefono) && (
-                                <a href={`https://wa.me/52${(lead.whatsapp || lead.telefono)!.replace(/\D/g,"")}`} target="_blank" rel="noopener noreferrer"
+                              {waLink(lead.whatsapp || lead.telefono) && (
+                                <a href={waLink(lead.whatsapp || lead.telefono)!} target="whatsapp_web"
                                   onClick={e=>e.stopPropagation()}
                                   className="w-6 h-6 flex items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A] hover:bg-green-500 hover:text-white transition-colors">
                                   <MessageCircle size={11}/>

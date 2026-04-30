@@ -210,4 +210,19 @@ if (hayUsuarios.c === 0) {
   console.log("✓ Usuario admin creado: admin@bionordi.mx / Bionordi2025!");
 }
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS wa_messages (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    wamid       TEXT UNIQUE,
+    phone       TEXT NOT NULL,
+    direction   TEXT NOT NULL CHECK(direction IN ('inbound','outbound')),
+    body        TEXT NOT NULL,
+    timestamp   INTEGER NOT NULL,
+    status      TEXT DEFAULT 'sent',
+    lead_id     INTEGER REFERENCES leads(id) ON DELETE SET NULL,
+    created_at  TEXT DEFAULT (datetime('now','localtime'))
+  )
+`);
+try { db.exec(`CREATE INDEX IF NOT EXISTS idx_wa_messages_phone ON wa_messages(phone)`); } catch {}
+
 export default db;

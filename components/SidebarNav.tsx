@@ -58,7 +58,7 @@ function NavItem({
     return (
       <button onClick={onClick} title={collapsed ? label : undefined}
         onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-        className={cls} style={{ background: bg, fontFamily: "inherit" }}>
+        className={cls} style={{ background: bg, fontFamily: "inherit" }} suppressHydrationWarning>
         {inner}
       </button>
     );
@@ -133,7 +133,7 @@ export default function SidebarNav() {
           {collapsed && (
             <img src="/ISOTIPO.png" alt="Bionordi" className="w-8 h-8 shrink-0 object-contain" />
           )}
-          <button onClick={toggle}
+          <button onClick={toggle} suppressHydrationWarning
             className="w-6 h-6 rounded-md border border-[#E2E8F4] bg-[#F8FAFC] flex items-center justify-center text-[#94A3B8] hover:text-[#475569] transition-colors cursor-pointer shrink-0">
             {collapsed
               ? <ChevronRight size={12} strokeWidth={2.5} />
@@ -149,7 +149,7 @@ export default function SidebarNav() {
           <NavItem href={crmBadge > 0 ? "/crm?status=seguimiento" : "/crm"} icon={Database} label="CRM" active={is("/crm")} collapsed={collapsed} color="#4E60A9" badge={crmBadge} />
           <NavItem href="/barridos"   icon={FolderOpen} label="Barridos"   active={is("/barridos")}     collapsed={collapsed} color="#4E60A9" />
           <NavItem href="/clientes"   icon={Users}      label="Clientes"   active={is("/clientes")}     collapsed={collapsed} color="#4E60A9" />
-          <NavItem href="/whatsapp"   icon={MessageCircle} label="WhatsApp" active={is("/whatsapp")}   collapsed={collapsed} color="#25D366" />
+          <NavItem onClick={() => window.open('https://web.whatsapp.com', 'whatsapp_web')} icon={MessageCircle} label="WhatsApp" active={false} collapsed={collapsed} color="#25D366" />
           <NavItem href="/correo"     icon={Mail}          label="Correo"   active={is("/correo")}      collapsed={collapsed} color="#0EA5E9" />
           <Section label="Taller"    collapsed={collapsed} />
           <NavItem href="/taller"     icon={Wrench}   label="Órdenes"     active={is("/taller")}       collapsed={collapsed} color="#7C3AED" badge={tallerBadge} />
@@ -176,6 +176,7 @@ export default function SidebarNav() {
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             title="Cerrar sesión"
+            suppressHydrationWarning
             className="w-7 h-7 rounded-lg flex items-center justify-center text-[#94A3B8] hover:text-[#EF4444] hover:bg-red-50 transition-colors cursor-pointer shrink-0">
             <LogOut size={14} strokeWidth={2} />
           </button>

@@ -21,14 +21,13 @@ interface Lead {
 }
 
 const STATUS_COLOR: Record<string, { bg: string; text: string; label: string }> = {
-  nuevo:        { bg: "#EFF6FF", text: "#1D4ED8", label: "Nuevo" },
-  contactado:   { bg: "#ECFDF5", text: "#065F46", label: "Contactado" },
-  interesado:   { bg: "#F0FDF4", text: "#166534", label: "Interesado" },
-  propuesta:    { bg: "#FFF7ED", text: "#9A3412", label: "Propuesta" },
-  negociacion:  { bg: "#FDF4FF", text: "#6B21A8", label: "Negociación" },
-  cliente:      { bg: "#F0FDF4", text: "#14532D", label: "Cliente" },
-  perdido:      { bg: "#FEF2F2", text: "#991B1B", label: "Perdido" },
-  descartado:   { bg: "#F8FAFC", text: "#64748B", label: "Descartado" },
+  nuevo:        { bg: "#EEF3FC", text: "#5A85F1", label: "Nuevo" },
+  contactado:   { bg: "#FFFBEB", text: "#D97706", label: "Contactado" },
+  seguimiento:  { bg: "#FFF7ED", text: "#EA580C", label: "Seguimiento" },
+  diagnostico:  { bg: "#F5F3FF", text: "#7C3AED", label: "Diagnóstico" },
+  cliente:      { bg: "#EEF9F1", text: "#34A853", label: "Cliente" },
+  sin_equipo:   { bg: "#F1F5F9", text: "#64748B", label: "Sin equipo" },
+  descartado:   { bg: "#FEF2F2", text: "#DC2626", label: "Descartado" },
 };
 
 

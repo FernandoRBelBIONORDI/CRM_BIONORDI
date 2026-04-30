@@ -25,13 +25,7 @@ export async function GET() {
   const diasDiagnostico = parseInt(cfg['dias_alerta_diagnostico'] || '5', 10);
   const diasSeguimientoAlert = 7;
 
-  // Auto-move: contactados sin movimiento por N días → seguimiento
-  const autoMoveCutoff = new Date(now.getTime() - diasSeguimiento * 24 * 60 * 60 * 1000).toISOString();
-  db.prepare(`
-    UPDATE leads SET status_crm = 'seguimiento', fecha_ultimo_cambio = ?
-    WHERE status_crm = 'contactado'
-      AND (fecha_ultimo_cambio < ? OR fecha_ultimo_cambio IS NULL)
-  `).run(now.toISOString(), autoMoveCutoff);
+  // Auto-move movido a POST /api/dashboard/automove — no se ejecuta en GET
 
   // 1. Top Priorities
   const topPriorities = db.prepare(`
@@ -150,7 +144,8 @@ export async function GET() {
       contactado: metrics['contactado'] || 0,
       seguimiento: metrics['seguimiento'] || 0,
       diagnostico: metrics['diagnostico'] || 0,
-      cliente: cierresMes,
+      cliente: metrics['cliente'] || 0,
+      cierresMes,
       descartado: metrics['descartado'] || 0,
       sin_equipo: metrics['sin_equipo'] || 0,
     },

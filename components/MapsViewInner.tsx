@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { waLink } from "@/lib/ui";
 
 const STATUS_COLORS: Record<string, string> = {
   nuevo:       "#4F46E5",
@@ -109,7 +110,7 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
           <div style="color:#9CA3AF">${lead.nicho || ""} · ${lead.ciudad || ""}</div>
           ${scoreBar}
           <div style="margin-top:8px;display:flex;gap:6px">
-            ${(lead.whatsapp || lead.telefono) ? `<a href="https://wa.me/52${(lead.whatsapp || lead.telefono)!.replace(/\D/g,'')}" target="_blank"
+            ${waLink(lead.whatsapp || lead.telefono) ? `<a href="${waLink(lead.whatsapp || lead.telefono)}" target="whatsapp_web"
               style="background:#22C55E;color:#fff;padding:3px 8px;border-radius:4px;text-decoration:none;font-size:11px">WA</a>` : ""}
             <a href="/crm" style="background:#0EA5E9;color:#fff;padding:3px 8px;border-radius:4px;text-decoration:none;font-size:11px">CRM</a>
           </div>

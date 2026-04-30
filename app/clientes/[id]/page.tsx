@@ -8,7 +8,7 @@ import {
   Star, Calendar, Building2, Clock, CheckCircle2, XCircle,
   AlertCircle, Edit2, Save, X, FileDown,
 } from "lucide-react";
-import { initials, avatarColor, fmtDate, fmtDatetime } from "@/lib/ui";
+import { initials, avatarColor, fmtDate, fmtDatetime, waLink } from "@/lib/ui";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -250,13 +250,15 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                     <Phone size={13} /><span>{lead.telefono}</span>
                   </a>
                 )}
-                {(lead.whatsapp || lead.telefono) && (
-                  <Link
-                    href={`/whatsapp?phone=${(lead.whatsapp || lead.telefono)!.replace(/\D/g, "")}`}
+                {waLink(lead.whatsapp || lead.telefono) && (
+                  <a
+                    href={waLink(lead.whatsapp || lead.telefono)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-[12px] font-bold text-white bg-[#25D366] hover:bg-[#1ebe5d] px-3 py-1.5 rounded-full transition-colors shadow-sm"
                   >
                     <MessageCircle size={13} /><span>WhatsApp</span>
-                  </Link>
+                  </a>
                 )}
                 {lead.correo && (
                   <a href={`mailto:${lead.correo}`} className="flex items-center gap-1.5 text-[12px] text-gray-600 hover:text-[#4E60A9] transition-colors">
