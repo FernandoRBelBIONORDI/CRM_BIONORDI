@@ -46,32 +46,35 @@ const SCIAN_MEDICOS = [
   '623112', // Asilos y residencias para ancianos del sector público
 ];
 
-// Inicializar tabla DENUE si no existe
-db.exec(`
-  CREATE TABLE IF NOT EXISTS denue_leads (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    nom_estab   TEXT,
-    cod_act     TEXT,
-    nombre_act  TEXT,
-    per_ocu     TEXT,
-    telefono    TEXT,
-    e_mail      TEXT,
-    www         TEXT,
-    municipio   TEXT,
-    entidad     TEXT,
-    localidad   TEXT,
-    latitud     REAL,
-    longitud    REAL,
-    importado   TEXT
-  )
-`);
+function ensureDenueTable() {
+  db?.exec(`
+    CREATE TABLE IF NOT EXISTS denue_leads (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      nom_estab   TEXT,
+      cod_act     TEXT,
+      nombre_act  TEXT,
+      per_ocu     TEXT,
+      telefono    TEXT,
+      e_mail      TEXT,
+      www         TEXT,
+      municipio   TEXT,
+      entidad     TEXT,
+      localidad   TEXT,
+      latitud     REAL,
+      longitud    REAL,
+      importado   TEXT
+    )
+  `);
+}
 
 export function isDENUEImported(): boolean {
+  ensureDenueTable();
   const row = db.prepare('SELECT COUNT(*) as cnt FROM denue_leads').get() as any;
   return row.cnt > 0;
 }
 
 export function importDENUECSV(csvPath: string): number {
+  ensureDenueTable();
   if (!fs.existsSync(csvPath)) return 0;
 
   const content = fs.readFileSync(csvPath, 'utf8');
@@ -153,6 +156,7 @@ export interface DenueLead {
 }
 
 export function searchDENUE(ciudad: string, nicho?: string, limit = 60): DenueLead[] {
+  ensureDenueTable();
   const ciudadNorm = ciudad.toLowerCase();
   // Priorizar: con teléfono, con email, luego por tamaño de personal ocupado
   const rows = db.prepare(`
