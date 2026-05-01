@@ -6,20 +6,22 @@ import bcrypt from 'bcryptjs';
 const dbFolderPath = path.join(process.cwd(), 'db');
 const dbFilePath = path.join(dbFolderPath, 'bionordi.db');
 
-if (!fs.existsSync(dbFolderPath)) {
-  fs.mkdirSync(dbFolderPath, { recursive: true });
-}
-
-const db = new Database(dbFilePath, { verbose: process.env.NODE_ENV === 'development' ? console.log : undefined });
-db.pragma('busy_timeout = 30000'); // PRIMERO — sin esto, journal_mode falla con SQLITE_BUSY
-db.pragma('journal_mode = WAL');
-
-// Durante el build de Next.js (31 workers en paralelo) no escribimos nada en la DB.
-// Toda la inicialización ocurre en runtime, cuando solo hay un proceso.
+// Durante el build los 31 workers de Next.js importan este módulo en paralelo.
+// No abrimos la DB en absoluto durante el build — solo en runtime (un solo proceso).
 const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
 
+// eslint-disable-next-line prefer-const
+let db: Database.Database = null as unknown as Database.Database;
+
 if (!isBuild) {
-  // Tabla principal — creada directamente para no depender de schema.sql
+  if (!fs.existsSync(dbFolderPath)) {
+    fs.mkdirSync(dbFolderPath, { recursive: true });
+  }
+
+  db = new Database(dbFilePath, { verbose: process.env.NODE_ENV === 'development' ? console.log : undefined });
+  db.pragma('busy_timeout = 30000');
+  db.pragma('journal_mode = WAL');
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS leads (
       id                    INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,7 +57,6 @@ if (!isBuild) {
     )
   `);
 
-  // Migrations — safe to re-run
   for (const sql of [
     `ALTER TABLE leads ADD COLUMN fecha_proximo_contacto TEXT`,
     `ALTER TABLE leads ADD COLUMN prioridad INTEGER DEFAULT 0`,
@@ -168,7 +169,6 @@ if (!isBuild) {
     )
   `);
 
-  // Seeds de configuración inicial
   for (const [clave, valor] of [
     ['nombre_representante', 'Fernando'],
     ['empresa', 'Bionordi'],
