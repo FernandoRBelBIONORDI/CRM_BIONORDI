@@ -11,8 +11,8 @@ if (!fs.existsSync(dbFolderPath)) {
 }
 
 const db = new Database(dbFilePath, { verbose: process.env.NODE_ENV === 'development' ? console.log : undefined });
+db.pragma('busy_timeout = 30000'); // PRIMERO — sin esto, journal_mode falla con SQLITE_BUSY
 db.pragma('journal_mode = WAL');
-db.pragma('busy_timeout = 5000');
 
 // Durante el build de Next.js (31 workers en paralelo) no escribimos nada en la DB.
 // Toda la inicialización ocurre en runtime, cuando solo hay un proceso.
