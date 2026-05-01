@@ -6,23 +6,20 @@ import bcrypt from 'bcryptjs';
 const dbFolderPath = path.join(process.cwd(), 'db');
 const dbFilePath = path.join(dbFolderPath, 'bionordi.db');
 
-// Durante el build los 31 workers de Next.js importan este módulo en paralelo.
-// No abrimos la DB en absoluto durante el build — solo en runtime (un solo proceso).
-const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
+let _db: Database.Database | null = null;
 
-// eslint-disable-next-line prefer-const
-let db: Database.Database = null as unknown as Database.Database;
+function initDb(): Database.Database {
+  if (_db) return _db;
 
-if (!isBuild) {
   if (!fs.existsSync(dbFolderPath)) {
     fs.mkdirSync(dbFolderPath, { recursive: true });
   }
 
-  db = new Database(dbFilePath, { verbose: process.env.NODE_ENV === 'development' ? console.log : undefined });
-  db.pragma('busy_timeout = 30000');
-  db.pragma('journal_mode = WAL');
+  _db = new Database(dbFilePath, { verbose: process.env.NODE_ENV === 'development' ? console.log : undefined });
+  _db.pragma('busy_timeout = 30000');
+  _db.pragma('journal_mode = WAL');
 
-  db.exec(`
+  _db.exec(`
     CREATE TABLE IF NOT EXISTS leads (
       id                    INTEGER PRIMARY KEY AUTOINCREMENT,
       nombre                TEXT NOT NULL,
@@ -67,9 +64,9 @@ if (!isBuild) {
     `ALTER TABLE barridos ADD COLUMN fuente TEXT DEFAULT 'google'`,
     `ALTER TABLE barridos ADD COLUMN especialidad TEXT`,
     `ALTER TABLE barridos ADD COLUMN notas TEXT`,
-  ]) { try { db.exec(sql); } catch { /* column already exists */ } }
+  ]) { try { _db.exec(sql); } catch { /* column already exists */ } }
 
-  db.exec(`
+  _db.exec(`
     CREATE TABLE IF NOT EXISTS ordenes_trabajo (
       id                    INTEGER PRIMARY KEY AUTOINCREMENT,
       folio                 TEXT NOT NULL UNIQUE,
@@ -93,7 +90,7 @@ if (!isBuild) {
     )
   `);
 
-  db.exec(`
+  _db.exec(`
     CREATE TABLE IF NOT EXISTS equipos_cliente (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       lead_id     INTEGER NOT NULL,
@@ -107,7 +104,7 @@ if (!isBuild) {
     )
   `);
 
-  db.exec(`
+  _db.exec(`
     CREATE TABLE IF NOT EXISTS barridos (
       id                INTEGER PRIMARY KEY AUTOINCREMENT,
       nombre            TEXT NOT NULL,
@@ -123,7 +120,7 @@ if (!isBuild) {
     )
   `);
 
-  db.exec(`
+  _db.exec(`
     CREATE TABLE IF NOT EXISTS catalogo_equipos (
       id            INTEGER PRIMARY KEY AUTOINCREMENT,
       tipo          TEXT NOT NULL DEFAULT 'transductor',
@@ -143,9 +140,9 @@ if (!isBuild) {
     `ALTER TABLE catalogo_equipos ADD COLUMN fotos_json TEXT`,
     `ALTER TABLE catalogo_equipos ADD COLUMN brochure_path TEXT`,
     `ALTER TABLE cotizaciones ADD COLUMN pdf_path TEXT`,
-  ]) { try { db.exec(col); } catch {} }
+  ]) { try { _db.exec(col); } catch {} }
 
-  db.exec(`
+  _db.exec(`
     CREATE TABLE IF NOT EXISTS cotizaciones (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       lead_id     INTEGER REFERENCES leads(id) ON DELETE SET NULL,
@@ -162,7 +159,7 @@ if (!isBuild) {
     )
   `);
 
-  db.exec(`
+  _db.exec(`
     CREATE TABLE IF NOT EXISTS configuracion (
       clave TEXT PRIMARY KEY,
       valor TEXT
@@ -181,10 +178,10 @@ if (!isBuild) {
     ['dias_alerta_seguimiento', '3'],
     ['dias_alerta_diagnostico', '5'],
   ]) {
-    db.prepare(`INSERT OR IGNORE INTO configuracion (clave, valor) VALUES (?, ?)`).run(clave, valor);
+    _db.prepare(`INSERT OR IGNORE INTO configuracion (clave, valor) VALUES (?, ?)`).run(clave, valor);
   }
 
-  db.exec(`
+  _db.exec(`
     CREATE TABLE IF NOT EXISTS busquedas (
       id                INTEGER PRIMARY KEY AUTOINCREMENT,
       nicho             TEXT,
@@ -197,7 +194,7 @@ if (!isBuild) {
     )
   `);
 
-  db.exec(`
+  _db.exec(`
     CREATE TABLE IF NOT EXISTS interacciones (
       id        INTEGER PRIMARY KEY AUTOINCREMENT,
       lead_id   INTEGER NOT NULL,
@@ -208,7 +205,7 @@ if (!isBuild) {
     )
   `);
 
-  db.exec(`
+  _db.exec(`
     CREATE TABLE IF NOT EXISTS scripts (
       id                   INTEGER PRIMARY KEY AUTOINCREMENT,
       lead_id              INTEGER REFERENCES leads(id),
@@ -222,7 +219,7 @@ if (!isBuild) {
     )
   `);
 
-  db.exec(`
+  _db.exec(`
     CREATE TABLE IF NOT EXISTS usuarios (
       id            INTEGER PRIMARY KEY AUTOINCREMENT,
       nombre        TEXT NOT NULL,
@@ -234,16 +231,14 @@ if (!isBuild) {
     )
   `);
 
-  const hayUsuarios = db.prepare("SELECT COUNT(*) as c FROM usuarios").get() as { c: number };
+  const hayUsuarios = _db.prepare("SELECT COUNT(*) as c FROM usuarios").get() as { c: number };
   if (hayUsuarios.c === 0) {
     const defaultHash = bcrypt.hashSync("Bionordi2025!", 10);
-    db.prepare(`
-      INSERT OR IGNORE INTO usuarios (nombre, email, password_hash, rol)
-      VALUES (?, ?, ?, ?)
-    `).run("Administrador", "admin@bionordi.mx", defaultHash, "admin");
+    _db.prepare(`INSERT OR IGNORE INTO usuarios (nombre, email, password_hash, rol) VALUES (?, ?, ?, ?)`)
+      .run("Administrador", "admin@bionordi.mx", defaultHash, "admin");
   }
 
-  db.exec(`
+  _db.exec(`
     CREATE TABLE IF NOT EXISTS wa_messages (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       wamid       TEXT UNIQUE,
@@ -256,7 +251,19 @@ if (!isBuild) {
       created_at  TEXT DEFAULT (datetime('now','localtime'))
     )
   `);
-  try { db.exec(`CREATE INDEX IF NOT EXISTS idx_wa_messages_phone ON wa_messages(phone)`); } catch {}
+  try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_wa_messages_phone ON wa_messages(phone)`); } catch {}
+
+  return _db;
 }
+
+// Proxy lazy: la DB solo se abre en la primera consulta real, nunca al importar el módulo.
+// Esto evita SQLITE_BUSY con los 31 workers del build de Next.js.
+const db = new Proxy({} as Database.Database, {
+  get(_, prop: string) {
+    const database = initDb();
+    const value = (database as any)[prop];
+    return typeof value === 'function' ? value.bind(database) : value;
+  },
+});
 
 export default db;
