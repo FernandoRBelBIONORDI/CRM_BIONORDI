@@ -4,14 +4,15 @@ import { authOptions } from '@/lib/auth';
 import db from '@/lib/db';
 import bcrypt from 'bcryptjs';
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if ((session?.user as any)?.role !== 'admin')
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
 
   try {
     const { nombre, email, password, rol, activo } = await req.json();
-    const id = Number(params.id);
+    const { id: rawId } = await params;
+    const id = Number(rawId);
 
     if (password) {
       const hash = bcrypt.hashSync(password, 10);
@@ -36,12 +37,13 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if ((session?.user as any)?.role !== 'admin')
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
 
-  const id = Number(params.id);
+  const { id: rawId } = await params;
+  const id = Number(rawId);
   const me = (session?.user as any)?.id;
   if (me && Number(me) === id)
     return NextResponse.json({ error: 'No puedes eliminar tu propia cuenta' }, { status: 400 });
