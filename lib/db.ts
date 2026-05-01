@@ -3,6 +3,61 @@ import path from 'path';
 import fs from 'fs';
 import bcrypt from 'bcryptjs';
 
+const CATALOGO_SEED = [
+  // ── TRANSDUCTORES ────────────────────────────────────────────────────────────
+  // SonoSite
+  { tipo: 'transductor', marca: 'SonoSite', modelo: 'L38e',  descripcion: 'Transductor lineal 10-5 MHz. Ideal para partes blandas, vascular y musculoesquelético.', notas: '$17,400 MXN' },
+  { tipo: 'transductor', marca: 'SonoSite', modelo: 'P21x',  descripcion: 'Transductor phased array / sectorial 5-1 MHz. Cardiología y abdomen profundo.', notas: '$22,040 MXN' },
+  // Mindray
+  { tipo: 'transductor', marca: 'Mindray',  modelo: '7L4s',   descripcion: 'Transductor lineal. Partes blandas, tiroides y vascular.', notas: '$34,800 MXN' },
+  { tipo: 'transductor', marca: 'Mindray',  modelo: '2P-2s',  descripcion: 'Transductor phased array 2 MHz. Ecocardiografía y abdomen.', notas: '$31,320 MXN' },
+  { tipo: 'transductor', marca: 'Mindray',  modelo: 'P4-2s',  descripcion: 'Transductor phased array 4-2 MHz. Cardiología pediátrica.', notas: '$40,600 MXN' },
+  { tipo: 'transductor', marca: 'Mindray',  modelo: 'P4-2',   descripcion: 'Transductor phased array 4-2 MHz. Cardiología general.', notas: '$52,200 MXN' },
+  { tipo: 'transductor', marca: 'Mindray',  modelo: 'Sp5-1s', descripcion: 'Transductor phased array 5-1 MHz. Ecocardiografía.', notas: '$52,200 MXN' },
+  { tipo: 'transductor', marca: 'Mindray',  modelo: 'P7-3s',  descripcion: 'Transductor phased array 7-3 MHz. Cardiología pediátrica avanzada.', notas: '$52,200 MXN' },
+  { tipo: 'transductor', marca: 'Mindray',  modelo: '7L-4P',  descripcion: 'Transductor lineal. Musculoesquelético y tejidos superficiales.', notas: '$32,480 MXN' },
+  { tipo: 'transductor', marca: 'Mindray',  modelo: '7L-5P',  descripcion: 'Transductor lineal de alta frecuencia. Vascular y partes blandas.', notas: '$32,481 MXN' },
+  { tipo: 'transductor', marca: 'Mindray',  modelo: '3C-5A',  descripcion: 'Transductor convex 3-5 MHz. Abdomen general y obstetricia.', notas: '$52,200 MXN' },
+  { tipo: 'transductor', marca: 'Mindray',  modelo: '7L-4A',  descripcion: 'Transductor lineal. Accesos vasculares guiados por imagen.', notas: '$45,240 MXN' },
+  { tipo: 'transductor', marca: 'Mindray',  modelo: 'L13-3',  descripcion: 'Transductor lineal de banda ancha 13-3 MHz. Alta resolución para partes blandas.', notas: '$58,000 MXN' },
+  // Alpinion
+  { tipo: 'transductor', marca: 'Alpinion', modelo: 'EC3-10', descripcion: 'Transductor endocavitario. Ginecología y urología.', notas: '$58,000 MXN' },
+  { tipo: 'transductor', marca: 'Alpinion', modelo: 'SC1-6H', descripcion: 'Transductor convex. Abdomen y obstetricia general.', notas: '$58,000 MXN' },
+  { tipo: 'transductor', marca: 'Alpinion', modelo: 'L3-12H', descripcion: 'Transductor lineal 3-12 MHz. Partes blandas y vascular.', notas: '$58,000 MXN' },
+  // Chison
+  { tipo: 'transductor', marca: 'Chison',   modelo: 'D3C60L', descripcion: 'Transductor convex 3.5 MHz. Abdomen y obstetricia.', notas: '$23,200 MXN' },
+
+  // ── EQUIPOS DE ULTRASONIDO ────────────────────────────────────────────────────
+  { tipo: 'ultrasonido', marca: 'GE Healthcare', modelo: 'Voluson 4D',    descripcion: 'Ultrasonido 4D para obstetricia avanzada. Imagen de alta definición.', notas: '$850,000 MXN' },
+  { tipo: 'ultrasonido', marca: 'Mindray',       modelo: 'M9',            descripcion: 'Ultrasonido premium portátil con IA integrada. Multiparamétrico.', notas: '$275,000 MXN' },
+  { tipo: 'ultrasonido', marca: 'Mindray',       modelo: 'Z50',           descripcion: 'Ultrasonido de carrito de gama media. Abdomen, obstetricia y cardiología.', notas: '$195,000 MXN' },
+  { tipo: 'ultrasonido', marca: 'Mindray',       modelo: 'DC-60 Exp',     descripcion: 'Ultrasonido diagnóstico de alto desempeño con Doppler color avanzado.', notas: '$420,000 MXN' },
+  { tipo: 'ultrasonido', marca: 'Mindray',       modelo: 'DC-30',         descripcion: 'Ultrasonido de carrito compacto. General y obstetricia.', notas: '$148,000 MXN' },
+  { tipo: 'ultrasonido', marca: 'Mindray',       modelo: 'M5',            descripcion: 'Ultrasonido portátil compacto para urgencias y consultorios.', notas: '$128,000 MXN' },
+  { tipo: 'ultrasonido', marca: 'Mindray',       modelo: 'M7',            descripcion: 'Ultrasonido portátil avanzado con Doppler color y modo M.', notas: '$168,000 MXN' },
+  { tipo: 'ultrasonido', marca: 'Mindray',       modelo: 'MX7',           descripcion: 'Ultrasonido portátil de alta gama con inteligencia artificial.', notas: '$315,000 MXN' },
+  { tipo: 'ultrasonido', marca: 'Mindray',       modelo: 'DP-50 Exp',     descripcion: 'Ultrasonido básico de carrito para consultorios generales.', notas: '$92,000 MXN' },
+
+  // ── ELECTROCARDIÓGRAFOS ───────────────────────────────────────────────────────
+  { tipo: 'electrocardiografo', marca: 'Diagnóstico', modelo: 'ECG 3 Canales',  descripcion: 'Electrocardiógrafo de 3 canales con impresión térmica.', notas: '$17,999 MXN' },
+  { tipo: 'electrocardiografo', marca: 'Diagnóstico', modelo: 'ECG 12 Canales', descripcion: 'Electrocardiógrafo de 12 canales con análisis automático.', notas: '$35,599 MXN' },
+
+  // ── MONITORES ────────────────────────────────────────────────────────────────
+  { tipo: 'monitor', marca: 'Mindray', modelo: 'BC-30',                    descripcion: 'Monitor de signos vitales: SpO₂, NIBP, ECG, temperatura.', notas: '$28,500 MXN' },
+  { tipo: 'monitor', marca: 'Mindray', modelo: 'Monitor Multiparamétrico', descripcion: 'Monitor escalable a capnografía. UCI y hospitalización.', notas: '$49,999 MXN' },
+
+  // ── DESFIBRILADORES ──────────────────────────────────────────────────────────
+  { tipo: 'desfibrilador', marca: 'General', modelo: 'DEA / AED Automático', descripcion: 'Desfibrilador automático externo para emergencias cardíacas.', notas: '$35,000 MXN' },
+
+  // ── ELECTROCAUTERIO ──────────────────────────────────────────────────────────
+  { tipo: 'electrocauterio', marca: 'General', modelo: 'Monopolar/Bipolar 350W', descripcion: 'Electrocauterio monopolar y bipolar de 350 W. Cirugía general.', notas: '$45,999 MXN' },
+  { tipo: 'electrocauterio', marca: 'General', modelo: 'Monopolar 100W',         descripcion: 'Electrocauterio monopolar 100 W para procedimientos menores.', notas: '$21,999 MXN' },
+
+  // ── RADIOLOGÍA ───────────────────────────────────────────────────────────────
+  { tipo: 'radiologia', marca: 'General', modelo: 'Rayos X Digital Portátil', descripcion: 'Sistema de rayos X digital portátil. Sensor flat panel incluido.', notas: '$580,000 MXN' },
+  { tipo: 'radiologia', marca: 'General', modelo: 'Tomógrafo 16 Cortes',      descripcion: 'Tomógrafo computarizado de 16 cortes para diagnóstico avanzado.', notas: '$2,800,000 MXN' },
+];
+
 const dbFolderPath = path.join(process.cwd(), 'db');
 const dbFilePath = path.join(dbFolderPath, 'bionordi.db');
 
@@ -145,6 +200,19 @@ function initDb(): Database.Database {
     `ALTER TABLE catalogo_equipos ADD COLUMN brochure_path TEXT`,
     `ALTER TABLE cotizaciones ADD COLUMN pdf_path TEXT`,
   ]) { try { _db.exec(col); } catch {} }
+
+  // Seed del catálogo — solo si está vacío
+  const catCount = (_db.prepare("SELECT COUNT(*) as n FROM catalogo_equipos").get() as any).n;
+  if (catCount === 0) {
+    const insertCat = _db.prepare(`
+      INSERT INTO catalogo_equipos (tipo, marca, modelo, descripcion, notas, activo, fecha_alta)
+      VALUES (@tipo, @marca, @modelo, @descripcion, @notas, 1, date('now'))
+    `);
+    const seedCatalogo = _db.transaction(() => {
+      for (const item of CATALOGO_SEED) insertCat.run(item);
+    });
+    seedCatalogo();
+  }
 
   _db.exec(`
     CREATE TABLE IF NOT EXISTS cotizaciones (
