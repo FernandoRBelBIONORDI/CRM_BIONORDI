@@ -1,10 +1,12 @@
 ﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 import {
   X, Phone, Mail, Globe, MapPin, Calendar, MessageCircle, Sparkles,
   Activity, Check, ChevronDown, Clock, Trash2, Plus, ExternalLink,
-  Tag, BarChart2, Building2, User, Wrench, FileText, ClipboardList
+  Tag, BarChart2, Building2, User, Wrench, FileText, ClipboardList,
+  UserCheck, ArrowRight
 } from "lucide-react";
 import QuoteModal from "@/components/QuoteModal";
 import Link from "next/link";
@@ -17,10 +19,12 @@ interface Lead {
   score_potencial?: number; status_crm: string; notas?: string;
   decisor_nombre?: string; decisor_cargo?: string;
   fecha_ultimo_cambio?: string; fecha_proximo_contacto?: string;
-  fuente?: string; confianza_fuente?: string;
+  fuente?: string; confianza_fuente?: string; asignado_a?: string;
 }
-interface Interaccion { id: number; tipo: string; contenido: string; fecha: string; resultado?: string; }
+interface Interaccion { id: number; tipo: string; contenido: string; fecha: string; resultado?: string; usuario_nombre?: string; }
 interface Equipo { id: number; tipo: string; marca?: string; modelo?: string; num_serie?: string; estado: string; notas?: string; fecha_alta: string; }
+interface Cotizacion { id: number; tipo: string; folio?: string; monto_total: number; status: string; fecha: string; eq_tipo?: string; eq_marca?: string; eq_modelo?: string; }
+interface UsuarioOpt { id: number; nombre: string; }
 
 const S: Record<string, { label: string; color: string; bg: string }> = {
   nuevo:       { label: "Nuevo",       color: "#5A85F1", bg: "#EEF3FC" },
@@ -96,12 +100,18 @@ interface Props {
 }
 
 export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) {
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as any)?.role === "admin";
+
   const [ints, setInts]               = useState<Interaccion[]>([]);
   const [equipos, setEquipos]         = useState<Equipo[]>([]);
+  const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
+  const [usuarios, setUsuarios]       = useState<UsuarioOpt[]>([]);
   const [loadingInts, setLoadingInts] = useState(false);
   const [nota, setNota]               = useState("");
   const [proxDate, setProxDate]       = useState("");
   const [status, setStatus]           = useState("");
+  const [asignadoA, setAsignadoA]     = useState("");
   const [newTipo, setNewTipo]         = useState("mensaje_wa");
   const [newRes, setNewRes]           = useState("sin_respuesta");
   const [newCont, setNewCont]         = useState("");
@@ -114,6 +124,7 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   const [copiedTpl, setCopiedTpl]     = useState<number | null>(null);
   const [newEquipo, setNewEquipo]     = useState({ tipo: "", marca: "", modelo: "", num_serie: "", estado: "activo", notas: "" });
   const [savingEq, setSavingEq]       = useState(false);
+  const [creatingOT, setCreatingOT]   = useState<number | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -121,12 +132,20 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
     setNota(lead.notas || "");
     setProxDate(lead.fecha_proximo_contacto?.slice(0, 10) || "");
     setStatus(lead.status_crm);
+    setAsignadoA(lead.asignado_a || "");
     setWaVal(lead.whatsapp || "");
     setInts([]);
     setEquipos([]);
+    setCotizaciones([]);
     loadInts(lead.id);
     loadEquipos(lead.id);
+    loadCotizaciones(lead.id);
   }, [lead?.id]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    fetch("/api/usuarios").then(r => r.json()).then(d => setUsuarios(d.usuarios || []));
+  }, [isAdmin]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -148,6 +167,54 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   const loadEquipos = async (id: number) => {
     const d = await fetch(`/api/equipos?lead_id=${id}`).then(r => r.json());
     setEquipos(d.equipos || []);
+  };
+
+  const loadCotizaciones = async (id: number) => {
+    const d = await fetch(`/api/cotizaciones?lead_id=${id}`).then(r => r.json());
+    setCotizaciones(d.cotizaciones || []);
+  };
+
+  const updateCotStatus = async (cotId: number, newStatus: string) => {
+    await fetch(`/api/cotizaciones/${cotId}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    setCotizaciones(p => p.map(c => c.id === cotId ? { ...c, status: newStatus } : c));
+  };
+
+  const createOTFromCot = async (cot: Cotizacion) => {
+    if (!lead) return;
+    setCreatingOT(cot.id);
+    const res = await fetch("/api/ordenes", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lead_id: lead.id,
+        cotizacion_id: cot.id,
+        equipo_tipo: cot.eq_tipo || "",
+        equipo_marca: cot.eq_marca || "",
+        equipo_modelo: cot.eq_modelo || "",
+        falla_reportada: `Cotización ${cot.folio || `#${cot.id}`} aprobada`,
+        presupuesto: cot.monto_total,
+        presupuesto_aprobado: 1,
+        fecha_ingreso: new Date().toISOString().slice(0, 10),
+        status: "recibido",
+      }),
+    });
+    const data = await res.json();
+    setCreatingOT(null);
+    if (data.orden?.folio) {
+      alert(`Orden creada: ${data.orden.folio}`);
+    }
+  };
+
+  const saveAsignadoA = async (val: string) => {
+    if (!lead) return;
+    setAsignadoA(val);
+    await fetch("/api/leads", {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: lead.id, asignado_a: val || null }),
+    });
+    onUpdate(lead.id, { asignado_a: val || undefined });
   };
 
   const addInt = async () => {
@@ -266,6 +333,22 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                 <X size={16} />
               </button>
             </div>
+
+            {/* Asignado a */}
+            {(isAdmin || asignadoA) && (
+              <div className="mt-2 flex items-center gap-2">
+                <UserCheck size={12} className="text-gray-400 shrink-0" />
+                {isAdmin ? (
+                  <select value={asignadoA} onChange={e => saveAsignadoA(e.target.value)}
+                    className="text-[11px] font-semibold text-gray-500 bg-transparent border-0 outline-none cursor-pointer">
+                    <option value="">Sin asignar</option>
+                    {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
+                  </select>
+                ) : (
+                  <span className="text-[11px] font-semibold text-gray-500">{asignadoA || "Sin asignar"}</span>
+                )}
+              </div>
+            )}
 
             {/* Status selector */}
             <div className="mt-3 flex items-center gap-2">
@@ -501,6 +584,60 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
               </div>
             </div>
 
+            {/* Cotizaciones */}
+            {cotizaciones.length > 0 && (
+              <div className="px-6 py-4 border-b border-gray-100">
+                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Cotizaciones</h3>
+                <div className="space-y-2">
+                  {cotizaciones.map(cot => {
+                    const isAprobada = cot.status === "aprobada";
+                    const isRechazada = cot.status === "rechazada";
+                    return (
+                      <div key={cot.id} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[12px] font-bold text-[#1E293B]">{cot.folio || `#${cot.id}`}</span>
+                            <span className="text-[11px] text-gray-400">{cot.tipo}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              isAprobada ? "bg-green-50 text-green-700" :
+                              isRechazada ? "bg-red-50 text-red-500" :
+                              "bg-[#FFFBEB] text-[#D97706]"}`}>
+                              {cot.status}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-gray-400 mt-0.5">
+                            ${cot.monto_total?.toLocaleString("es-MX") || "0"} · {cot.fecha?.slice(0, 10)}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {!isAprobada && !isRechazada && (
+                            <>
+                              <button onClick={() => updateCotStatus(cot.id, "aprobada")}
+                                className="text-[10px] font-bold text-green-700 bg-green-50 hover:bg-green-100 px-2 py-1 rounded-lg transition-colors">
+                                Aprobar
+                              </button>
+                              <button onClick={() => updateCotStatus(cot.id, "rechazada")}
+                                className="text-[10px] font-bold text-red-500 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-lg transition-colors">
+                                Rechazar
+                              </button>
+                            </>
+                          )}
+                          {isAprobada && (
+                            <button onClick={() => createOTFromCot(cot)} disabled={creatingOT === cot.id}
+                              className="flex items-center gap-1 text-[10px] font-bold text-[#7C3AED] bg-[#F5F3FF] hover:bg-[#7C3AED] hover:text-white px-2 py-1 rounded-lg transition-colors disabled:opacity-50">
+                              {creatingOT === cot.id
+                                ? <Activity size={10} className="animate-spin" />
+                                : <><ClipboardList size={10} /> Crear OT</>}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Historial de interacciones */}
             <div className="px-6 py-4 border-b border-gray-100">
               <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Historial de Contacto</h3>
@@ -555,6 +692,11 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                           )}
                         </div>
                         <p className="text-[12px] font-medium text-[#1E293B] leading-relaxed">{i.contenido}</p>
+                        {i.usuario_nombre && (
+                          <span className="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1">
+                            <User size={9} /> {i.usuario_nombre}
+                          </span>
+                        )}
                       </div>
                       <button onClick={() => deleteInt(i.id)}
                         className="w-6 h-6 flex items-center justify-center rounded-full text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100 shrink-0">

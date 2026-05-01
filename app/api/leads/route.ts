@@ -26,12 +26,13 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const ids      = searchParams.get('ids');
   const format   = searchParams.get('format');
-  const status   = searchParams.get('status') || '';
-  const q        = searchParams.get('q') || '';
-  const nicho    = searchParams.get('nicho') || '';
-  const minScore = Number(searchParams.get('min_score') || 0);
-  const limit    = Number(searchParams.get('limit') || 75);
-  const offset   = Number(searchParams.get('offset') || 0);
+  const status      = searchParams.get('status') || '';
+  const q           = searchParams.get('q') || '';
+  const nicho       = searchParams.get('nicho') || '';
+  const minScore    = Number(searchParams.get('min_score') || 0);
+  const asignadoA   = searchParams.get('asignado_a') || '';
+  const limit       = Number(searchParams.get('limit') || 75);
+  const offset      = Number(searchParams.get('offset') || 0);
 
   // Exportar IDs seleccionados
   if (ids) {
@@ -53,6 +54,7 @@ export async function GET(req: Request) {
   }
   if (nicho) { conds.push('nicho = ?'); params.push(nicho); }
   if (minScore > 0) { conds.push('score_potencial >= ?'); params.push(minScore); }
+  if (asignadoA) { conds.push('asignado_a = ?'); params.push(asignadoA); }
 
   const where = conds.length ? `WHERE ${conds.join(' AND ')}` : '';
   const total: number = (db.prepare(`SELECT COUNT(*) as n FROM leads ${where}`).get(...params) as any).n;
@@ -118,7 +120,7 @@ export async function PATCH(req: Request) {
       'nombre','telefono','correo','whatsapp','direccion','ciudad','municipio',
       'estado_republica','nicho','status_crm','confianza_fuente','notas',
       'fecha_seguimiento','fecha_proximo_contacto','score_potencial','prioridad',
-      'whatsapp_verificado','sitio_activo','fuente','sitio_web','barrido_id',
+      'whatsapp_verificado','sitio_activo','fuente','sitio_web','barrido_id','asignado_a',
     ]);
     const safeUpdates = Object.fromEntries(
       Object.entries(updates).filter(([k]) => COLS.has(k))

@@ -64,6 +64,10 @@ function initDb(): Database.Database {
     `ALTER TABLE barridos ADD COLUMN fuente TEXT DEFAULT 'google'`,
     `ALTER TABLE barridos ADD COLUMN especialidad TEXT`,
     `ALTER TABLE barridos ADD COLUMN notas TEXT`,
+    `ALTER TABLE leads ADD COLUMN asignado_a TEXT`,
+    `ALTER TABLE interacciones ADD COLUMN usuario_id INTEGER`,
+    `ALTER TABLE interacciones ADD COLUMN usuario_nombre TEXT`,
+    `ALTER TABLE ordenes_trabajo ADD COLUMN cotizacion_id INTEGER`,
   ]) { try { _db.exec(sql); } catch { /* column already exists */ } }
 
   _db.exec(`

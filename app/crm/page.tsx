@@ -1,7 +1,8 @@
 ﻿"use client";
 
 import { useEffect, useState, Fragment, useRef } from "react";
-import { Activity, Search, Download, MessageCircle, Sparkles, ChevronDown, ChevronUp, Copy, Check, ExternalLink, LayoutList, Kanban, Calendar, AlertTriangle, X, Trash2, SlidersHorizontal, UserPlus, FileText } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { Activity, Search, Download, MessageCircle, Sparkles, ChevronDown, ChevronUp, Copy, Check, ExternalLink, LayoutList, Kanban, Calendar, AlertTriangle, X, Trash2, SlidersHorizontal, UserPlus, FileText, UserCheck } from "lucide-react";
 import NuevoLeadModal from "@/components/NuevoLeadModal";
 import LeadModal from "@/components/LeadModal";
 import QuoteModal from "@/components/QuoteModal";
@@ -13,7 +14,7 @@ interface Lead {
   nicho?:string; tamano_estimado?:string; score_potencial?:number;
   status_crm:string; notas?:string; decisor_nombre?:string;
   decisor_cargo?:string; decisor_linkedin?:string; fecha_ultimo_cambio?:string;
-  fecha_proximo_contacto?:string;
+  fecha_proximo_contacto?:string; asignado_a?:string;
 }
 interface Interaccion { id:number; tipo:string; contenido:string; fecha:string; resultado?:string; }
 interface Scripts { profesional:string; directo:string; problema_solucion:string; }
@@ -32,6 +33,9 @@ const STATUS_OPTS = Object.entries(S).map(([k,v])=>({value:k, label:v.label}));
 const KANBAN_COLS = ["nuevo","contactado","seguimiento","diagnostico","cliente"];
 
 export default function CRMPage() {
+  const { data: session } = useSession();
+  const myName = session?.user?.name || "";
+
   const [leads, setLeads]         = useState<Lead[]>([]);
   const [loading, setLoading]     = useState(true);
   const [total, setTotal]         = useState(0);
@@ -42,6 +46,7 @@ export default function CRMPage() {
   const [filterS, setFilterS]     = useState("todos");
   const [filterNicho, setFilterNicho] = useState("");
   const [filterScore, setFilterScore] = useState(0);
+  const [filterMios, setFilterMios]   = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [view, setView]           = useState<"table"|"kanban">("table");
   const [expanded, setExpanded]   = useState<number|null>(null);
@@ -87,6 +92,7 @@ export default function CRMPage() {
       if (q.trim()) p.set('q', q.trim());
       if (filterNicho) p.set('nicho', filterNicho);
       if (filterScore > 0) p.set('min_score', String(filterScore));
+      if (filterMios && myName) p.set('asignado_a', myName);
       p.set('limit', '75');
       const d = await fetch(`/api/leads?${p}`).then(r=>r.json());
       if (!cancelled && d.leads) {
@@ -98,7 +104,7 @@ export default function CRMPage() {
     }, delay);
     return ()=>{ cancelled=true; clearTimeout(timer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[filterS, q, filterNicho, filterScore]);
+  },[filterS, q, filterNicho, filterScore, filterMios, myName]);
 
   const loadMore = async () => {
     if (loadingMore) return;
@@ -109,6 +115,7 @@ export default function CRMPage() {
     if (q.trim()) p.set('q', q.trim());
     if (filterNicho) p.set('nicho', filterNicho);
     if (filterScore > 0) p.set('min_score', String(filterScore));
+    if (filterMios && myName) p.set('asignado_a', myName);
     p.set('limit', '75');
     p.set('offset', String(leads.length));
     const d = await fetch(`/api/leads?${p}`).then(r=>r.json());
@@ -229,6 +236,10 @@ export default function CRMPage() {
                 <SlidersHorizontal size={13}/>
                 Filtros
                 {activeFilters > 0 && <span className="w-4 h-4 bg-[#4E60A9] text-white text-[9px] font-bold rounded-full flex items-center justify-center">{activeFilters}</span>}
+              </button>
+              <button onClick={()=>setFilterMios(p=>!p)} suppressHydrationWarning
+                className={`flex items-center gap-1.5 px-4 py-[10px] rounded-full text-[12px] font-bold transition-all border ${filterMios ? "bg-[#EEF3FC] text-[#4E60A9] border-[#4E60A9]/20" : "bg-gray-50 text-gray-500 border-transparent hover:bg-white hover:border-gray-200"}`}>
+                <UserCheck size={13}/> Mis leads
               </button>
             </div>
           </div>

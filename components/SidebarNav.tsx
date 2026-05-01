@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import {
   Home, Search, Database, Wrench, FileText,
-  Settings, ChevronLeft, ChevronRight, Layers, Users, MessageCircle, Map, FolderOpen, Mail, LogOut,
+  Settings, ChevronLeft, ChevronRight, Layers, Users, MessageCircle, Map, FolderOpen, Mail, LogOut, UserCog,
 } from "lucide-react";
 
 function Section({ label, collapsed }: { label: string; collapsed: boolean }) {
@@ -75,6 +75,7 @@ function NavItem({
 export default function SidebarNav() {
   const path = usePathname();
   const { data: session } = useSession();
+  const isAdmin = (session?.user as any)?.role === "admin";
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [crmBadge, setCrmBadge] = useState(0);
@@ -158,6 +159,9 @@ export default function SidebarNav() {
           <NavItem href="/catalogo"   icon={Layers}   label="Catálogo"    active={is("/catalogo")}     collapsed={collapsed} color="#059669" />
           <NavItem href="/maps"       icon={Map}      label="Mapa leads"  active={is("/maps")}         collapsed={collapsed} color="#0E7490" />
           <NavItem href="/configuracion" icon={Settings} label="Config"   active={is("/configuracion")} collapsed={collapsed} />
+          {isAdmin && (
+            <NavItem href="/usuarios" icon={UserCog} label="Usuarios" active={is("/usuarios")} collapsed={collapsed} />
+          )}
         </nav>
 
         {/* Avatar + Logout */}
