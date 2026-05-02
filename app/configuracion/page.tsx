@@ -12,9 +12,8 @@ interface Config {
   fact_razon_social:string; fact_rfc:string; fact_banco:string;
   fact_cuenta:string; fact_clabe:string; fact_direccion_fiscal:string;
   fact_correo_facturacion:string; fact_cargo_representante:string;
-  // SMTP
-  smtp_host:string; smtp_port:string; smtp_secure:string;
-  smtp_user:string; smtp_pass:string;
+  // Resend
+  resend_api_key:string;
   smtp_from_name:string; smtp_from_email:string;
 }
 
@@ -31,9 +30,8 @@ const DEFAULTS:Config = {
   fact_direccion_fiscal:"Ciudad de México, CDMX",
   fact_correo_facturacion:"contacto@bionordi.mx",
   fact_cargo_representante:"Director General",
-  // SMTP
-  smtp_host:"", smtp_port:"587", smtp_secure:"false",
-  smtp_user:"", smtp_pass:"",
+  // Resend
+  resend_api_key:"",
   smtp_from_name:"Bionordi", smtp_from_email:"",
 };
 
@@ -73,25 +71,24 @@ export default function ConfiguracionPage() {
     } catch { setDenueMsg("Error — verifica data/denue_medico.csv"); setDenueStatus("error"); }
   };
 
-  const handleTestSMTP = async () => {
+  const handleTestEmail = async () => {
     setTestStatus("sending"); setTestMsg("");
-    // Guarda primero para que el servidor use los datos actuales
     await fetch("/api/config", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(config) });
     const res = await fetch("/api/email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        to: config.smtp_user,
-        subject: "✅ Prueba SMTP — Bionordi CRM",
+        to: config.smtp_from_email,
+        subject: "✅ Prueba de correo — Bionordi CRM",
         html: `<div style="font-family:sans-serif;padding:32px;max-width:500px;">
-          <h2 style="color:#4E60A9;">¡Conexión SMTP funcionando!</h2>
-          <p style="color:#475569;">El servidor de correo está configurado correctamente en el CRM de Bionordi.</p>
-          <p style="color:#94A3B8;font-size:12px;">Host: ${config.smtp_host} · Puerto: ${config.smtp_port}</p>
+          <h2 style="color:#4E60A9;">¡Correo funcionando!</h2>
+          <p style="color:#475569;">El envío de correos está configurado correctamente en el CRM de Bionordi.</p>
+          <p style="color:#94A3B8;font-size:12px;">Enviado vía Resend API</p>
         </div>`,
       }),
     });
     const data = await res.json();
-    if (data.success) { setTestStatus("ok"); setTestMsg("Correo de prueba enviado a " + config.smtp_user); }
+    if (data.success) { setTestStatus("ok"); setTestMsg("Correo de prueba enviado a " + config.smtp_from_email); }
     else { setTestStatus("error"); setTestMsg(data.error || "Error desconocido"); }
   };
 
@@ -222,56 +219,41 @@ export default function ConfiguracionPage() {
             </Field>
           </Section>
 
-          {/* SMTP */}
-          <Section icon={<Mail size={15} className="text-[#0EA5E9]"/>} title="Correo SMTP — Envío de Cotizaciones">
-            <p className="text-xs text-[#94A3B8]">
-              Usa Gmail con <strong>Contraseña de aplicación</strong> (Cuenta → Seguridad → Verificación en 2 pasos → Contraseñas de app),
-              o cualquier servidor SMTP corporativo.
-            </p>
-            <div className="grid grid-cols-3 gap-4">
-              <Field label="Servidor SMTP" hint="Ej: smtp.gmail.com">
-                <input value={config.smtp_host} onChange={set("smtp_host")} placeholder="smtp.gmail.com" className="inp"/>
-              </Field>
-              <Field label="Puerto" hint="587 = TLS · 465 = SSL">
-                <input value={config.smtp_port} onChange={set("smtp_port")} placeholder="587" type="number" className="inp"/>
-              </Field>
-              <Field label="Conexión segura">
-                <select value={config.smtp_secure} onChange={e => setConfig(p => ({...p, smtp_secure: e.target.value}))}
-                  className="inp appearance-none">
-                  <option value="false">STARTTLS (puerto 587)</option>
-                  <option value="true">SSL/TLS (puerto 465)</option>
-                </select>
-              </Field>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Usuario (correo)">
-                <input value={config.smtp_user} onChange={set("smtp_user")} placeholder="tucuenta@gmail.com" className="inp"/>
-              </Field>
-              <Field label="Contraseña / App Password">
-                <div className="relative">
-                  <input
-                    value={config.smtp_pass}
-                    onChange={set("smtp_pass")}
-                    type={showPass ? "text" : "password"}
-                    placeholder="••••••••••••••••"
-                    className="inp pr-9"/>
-                  <button type="button" onClick={() => setShowPass(p => !p)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#64748B]">
-                    {showPass ? <EyeOff size={13}/> : <Eye size={13}/>}
-                  </button>
-                </div>
-              </Field>
+          {/* Resend */}
+          <Section icon={<Mail size={15} className="text-[#0EA5E9]"/>} title="Correo — Envío de Cotizaciones">
+            <div className="flex items-start gap-3 p-3 bg-[#F0F9FF] rounded-xl border border-[#BAE6FD]">
+              <Mail size={14} className="mt-0.5 text-[#0EA5E9] shrink-0"/>
+              <div className="text-xs text-[#0369A1] leading-relaxed">
+                El envío de correos usa <strong>Resend</strong> (gratis hasta 3,000 correos/mes).
+                Para activarlo: <strong>1)</strong> Crea cuenta en <strong>resend.com</strong> →
+                <strong> 2)</strong> Agrega y verifica tu dominio (ej: <em>bionordi.com</em>) →
+                <strong> 3)</strong> Copia el API Key y pégalo abajo.
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Nombre del remitente">
                 <input value={config.smtp_from_name} onChange={set("smtp_from_name")} placeholder="Bionordi" className="inp"/>
               </Field>
-              <Field label="Correo remitente" hint="Si es distinto al usuario">
+              <Field label="Correo remitente" hint="Debe ser del dominio verificado en Resend">
                 <input value={config.smtp_from_email} onChange={set("smtp_from_email")} placeholder="cotizaciones@bionordi.mx" className="inp"/>
               </Field>
             </div>
+            <Field label="API Key de Resend" hint="Empieza con re_...  —  la encuentras en resend.com → API Keys">
+              <div className="relative">
+                <input
+                  value={config.resend_api_key}
+                  onChange={set("resend_api_key")}
+                  type={showPass ? "text" : "password"}
+                  placeholder="re_xxxxxxxxxxxxxxxxxxxx"
+                  className="inp pr-9"/>
+                <button type="button" onClick={() => setShowPass(p => !p)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#64748B]">
+                  {showPass ? <EyeOff size={13}/> : <Eye size={13}/>}
+                </button>
+              </div>
+            </Field>
             <div className="flex items-center gap-3 pt-1">
-              <button onClick={handleTestSMTP} disabled={testStatus === "sending" || !config.smtp_host || !config.smtp_user || !config.smtp_pass}
+              <button onClick={handleTestEmail} disabled={testStatus === "sending" || !config.resend_api_key || !config.smtp_from_email}
                 className="flex items-center gap-2 px-4 py-2 bg-[#0EA5E9] hover:bg-[#0284C7] disabled:opacity-40 text-white text-[12px] font-bold rounded-xl transition-colors">
                 {testStatus === "sending" ? <><Activity size={13} className="animate-spin"/>Enviando prueba…</> : <><Mail size={13}/>Enviar correo de prueba</>}
               </button>
