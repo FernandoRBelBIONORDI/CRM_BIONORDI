@@ -2,9 +2,9 @@
 
 import { useEffect, useState, Fragment, useRef } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Activity, Search, Download, MessageCircle, Sparkles, ChevronDown, ChevronUp, Copy, Check, ExternalLink, LayoutList, Kanban, Calendar, AlertTriangle, X, Trash2, SlidersHorizontal, UserPlus, FileText, UserCheck, Users } from "lucide-react";
 import NuevoLeadModal from "@/components/NuevoLeadModal";
-import LeadModal from "@/components/LeadModal";
 import QuoteModal from "@/components/QuoteModal";
 import { waLink } from "@/lib/ui";
 
@@ -35,6 +35,7 @@ const KANBAN_COLS = ["nuevo","contactado","seguimiento","diagnostico","cliente"]
 export default function CRMPage() {
   const { data: session } = useSession();
   const myName = session?.user?.name || "";
+  const router = useRouter();
 
   const [leads, setLeads]         = useState<Lead[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -62,8 +63,6 @@ export default function CRMPage() {
   const [showNuevoLead, setShowNuevoLead] = useState(false);
   const [selectedIds, setSelectedIds]   = useState<Set<number>>(new Set());
   const [bulkStatus, setBulkStatus]     = useState("");
-  const [modalLead, setModalLead]       = useState<Lead|null>(null);
-  const [pendingModal, setPendingModal] = useState<number|null>(null);
   const [quoteLead, setQuoteLead]       = useState<Lead|null>(null);
 
   useEffect(()=>{
@@ -77,8 +76,7 @@ export default function CRMPage() {
       if(sp.has("q")) setQ(sp.get("q") || "");
       if(sp.has("expand")) {
         const eid = parseInt(sp.get("expand")!);
-        setFilterS("todos");
-        setPendingModal(eid);
+        if (eid) router.push(`/clientes/${eid}`);
       }
     }
   },[]);
@@ -100,7 +98,6 @@ export default function CRMPage() {
       if (!cancelled && d.leads) {
         setLeads(d.leads);
         setTotal(d.total || 0);
-        setPendingModal(prev=>{ if(prev){ const l=d.leads.find((x:Lead)=>x.id===prev); if(l) setModalLead(l); return null; } return prev; });
       }
       if (!cancelled) setLoading(false);
     }, delay);
@@ -330,7 +327,7 @@ export default function CRMPage() {
                         </td>
                         <td className="mono text-[11px] font-medium text-gray-400 tracking-wider">#{String(lead.id).padStart(4,"0")}</td>
                         <td>
-                          <button onClick={e=>{ e.stopPropagation(); setModalLead(lead); }}
+                          <button onClick={e=>{ e.stopPropagation(); router.push(`/clientes/${lead.id}`); }}
                             className="text-left hover:text-[#4E60A9] transition-colors group/name">
                             <div className="font-bold text-[#1E293B] group-hover/name:text-[#4E60A9] tracking-tight text-[13px] transition-colors">{lead.nombre}</div>
                             <div className="text-[11px] text-gray-400 mt-0.5 max-w-sm truncate">{lead.ciudad||"—"}</div>
@@ -565,7 +562,7 @@ export default function CRMPage() {
                       const venc = proxFecha && proxFecha < hoy;
                       return (
                         <div key={lead.id}
-                          onClick={()=>{ setModalLead(lead); loadInts(lead.id); }}
+                          onClick={()=>router.push(`/clientes/${lead.id}`)}
                           className="bg-white rounded-2xl p-3.5 cursor-pointer group transition-all duration-[130ms]"
                           style={{
                             border: `1.5px solid ${venc ? "#FECACA" : "#E8EFF8"}`,
@@ -695,7 +692,7 @@ export default function CRMPage() {
                       const venc = proxFecha && proxFecha < hoy;
                       return (
                         <div key={lead.id}
-                          onClick={()=>{setModalLead(lead);loadInts(lead.id);}}
+                          onClick={()=>router.push(`/clientes/${lead.id}`)}
                           className="bg-white rounded-xl border p-3 cursor-pointer hover:shadow-md transition-all"
                           style={{borderColor: venc?"#FECACA":"#E8EFF8"}}>
                           <div className="flex items-start justify-between gap-1 mb-1">
@@ -757,14 +754,6 @@ export default function CRMPage() {
 
       {/* Quote Modal */}
       {quoteLead && <QuoteModal lead={quoteLead} onClose={() => setQuoteLead(null)} />}
-
-      {/* Lead Detail Modal */}
-      <LeadModal
-        lead={modalLead}
-        onClose={()=>setModalLead(null)}
-        onUpdate={(id, upd)=>setLeads(p=>p.map(l=>l.id===id?{...l,...upd}:l))}
-        onDelete={(id)=>{ setLeads(p=>p.filter(l=>l.id!==id)); }}
-      />
 
       {/* Nuevo Lead Modal */}
       {showNuevoLead && (
