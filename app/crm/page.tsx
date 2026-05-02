@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Fragment, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { Activity, Search, Download, MessageCircle, Sparkles, ChevronDown, ChevronUp, Copy, Check, ExternalLink, LayoutList, Kanban, Calendar, AlertTriangle, X, Trash2, SlidersHorizontal, UserPlus, FileText, UserCheck } from "lucide-react";
+import { Activity, Search, Download, MessageCircle, Sparkles, ChevronDown, ChevronUp, Copy, Check, ExternalLink, LayoutList, Kanban, Calendar, AlertTriangle, X, Trash2, SlidersHorizontal, UserPlus, FileText, UserCheck, Users } from "lucide-react";
 import NuevoLeadModal from "@/components/NuevoLeadModal";
 import LeadModal from "@/components/LeadModal";
 import QuoteModal from "@/components/QuoteModal";
@@ -47,8 +47,10 @@ export default function CRMPage() {
   const [filterNicho, setFilterNicho] = useState("");
   const [filterScore, setFilterScore] = useState(0);
   const [filterMios, setFilterMios]   = useState(false);
+  const [filterAgente, setFilterAgente] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [view, setView]           = useState<"table"|"kanban">("table");
+  const [view, setView]           = useState<"table"|"kanban"|"agente">("table");
+  const [usuarios, setUsuarios]   = useState<{id:number;nombre:string}[]>([]);
   const [expanded, setExpanded]   = useState<number|null>(null);
   const [ints, setInts]           = useState<Record<number,Interaccion[]>>({});
   const [scripts, setScripts]     = useState<Record<number,Scripts>>({});
@@ -67,6 +69,10 @@ export default function CRMPage() {
   const [modalLead, setModalLead]       = useState<Lead|null>(null);
   const [pendingModal, setPendingModal] = useState<number|null>(null);
   const [quoteLead, setQuoteLead]       = useState<Lead|null>(null);
+
+  useEffect(()=>{
+    fetch("/api/usuarios").then(r=>r.json()).then(d=>setUsuarios(d.usuarios||[])).catch(()=>{});
+  },[]);
 
   useEffect(()=>{
     if(typeof window !== "undefined") {
@@ -92,7 +98,8 @@ export default function CRMPage() {
       if (q.trim()) p.set('q', q.trim());
       if (filterNicho) p.set('nicho', filterNicho);
       if (filterScore > 0) p.set('min_score', String(filterScore));
-      if (filterMios && myName) p.set('asignado_a', myName);
+      if (filterAgente) p.set('asignado_a', filterAgente);
+      else if (filterMios && myName) p.set('asignado_a', myName);
       p.set('limit', '75');
       const d = await fetch(`/api/leads?${p}`).then(r=>r.json());
       if (!cancelled && d.leads) {
@@ -104,7 +111,7 @@ export default function CRMPage() {
     }, delay);
     return ()=>{ cancelled=true; clearTimeout(timer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[filterS, q, filterNicho, filterScore, filterMios, myName]);
+  },[filterS, q, filterNicho, filterScore, filterMios, filterAgente, myName]);
 
   const loadMore = async () => {
     if (loadingMore) return;
@@ -115,7 +122,8 @@ export default function CRMPage() {
     if (q.trim()) p.set('q', q.trim());
     if (filterNicho) p.set('nicho', filterNicho);
     if (filterScore > 0) p.set('min_score', String(filterScore));
-    if (filterMios && myName) p.set('asignado_a', myName);
+    if (filterAgente) p.set('asignado_a', filterAgente);
+    else if (filterMios && myName) p.set('asignado_a', myName);
     p.set('limit', '75');
     p.set('offset', String(leads.length));
     const d = await fetch(`/api/leads?${p}`).then(r=>r.json());
@@ -204,7 +212,7 @@ export default function CRMPage() {
   };
 
   const nichosUnicos = [...new Set(leads.map(l=>l.nicho).filter(Boolean))] as string[];
-  const activeFilters = (filterNicho ? 1 : 0) + (filterScore > 0 ? 1 : 0);
+  const activeFilters = (filterNicho ? 1 : 0) + (filterScore > 0 ? 1 : 0) + (filterAgente ? 1 : 0);
 
   return (
     <div className="h-full flex flex-col font-sans relative">
@@ -254,6 +262,10 @@ export default function CRMPage() {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold transition-all ${view==="kanban"?"bg-[#2D2F3C] text-white shadow-sm":"text-gray-400 hover:text-gray-600"}`}>
                 <Kanban size={13}/> Kanban
               </button>
+              <button onClick={()=>setView("agente")} suppressHydrationWarning
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold transition-all ${view==="agente"?"bg-[#2D2F3C] text-white shadow-sm":"text-gray-400 hover:text-gray-600"}`}>
+                <Users size={13}/> Por agente
+              </button>
             </div>
             <button onClick={()=>setShowNuevoLead(true)} className="btn-primary" suppressHydrationWarning>
               <UserPlus size={14}/> Nuevo Lead
@@ -275,6 +287,11 @@ export default function CRMPage() {
               <option value="">Todos los nichos</option>
               {nichosUnicos.map(n=><option key={n} value={n}>{n}</option>)}
             </select>
+            <select value={filterAgente} onChange={e=>setFilterAgente(e.target.value)}
+              className="inp w-auto rounded-full py-2 bg-white text-[12px] font-medium text-gray-600 border-gray-200">
+              <option value="">Todos los agentes</option>
+              {usuarios.map(u=><option key={u.id} value={u.nombre}>{u.nombre}</option>)}
+            </select>
             <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-2">
               <span className="text-[12px] font-medium text-gray-500">Score mín:</span>
               <input type="range" min={0} max={10} step={1} value={filterScore}
@@ -283,7 +300,7 @@ export default function CRMPage() {
               <span className="text-[12px] font-bold text-[#4E60A9] w-6 text-center">{filterScore > 0 ? filterScore : "—"}</span>
             </div>
             {activeFilters > 0 && (
-              <button onClick={()=>{ setFilterNicho(""); setFilterScore(0); }}
+              <button onClick={()=>{ setFilterNicho(""); setFilterScore(0); setFilterAgente(""); }}
                 className="flex items-center gap-1.5 text-[12px] font-bold text-red-400 hover:text-red-600 bg-red-50 px-3 py-2 rounded-full transition-colors">
                 <X size={12}/> Limpiar filtros
               </button>
@@ -310,6 +327,7 @@ export default function CRMPage() {
                   <th className="w-40 text-center">Estado CRM</th>
                   <th className="w-20 text-center">Score</th>
                   <th>Nicho</th>
+                  <th className="w-28 text-center">Agente</th>
                   <th className="w-28 text-center">Próx. Contacto</th>
                   <th className="w-36 text-center">Decisor</th>
                   <th className="w-48 text-center">Notas rápidas</th>
@@ -318,7 +336,7 @@ export default function CRMPage() {
               </thead>
               <tbody>
                 {loading && (
-                  <tr><td colSpan={10} className="py-32 text-center text-[13px] font-medium text-gray-400">
+                  <tr><td colSpan={11} className="py-32 text-center text-[13px] font-medium text-gray-400">
                     <Activity size={18} className="inline animate-spin mr-2 text-blue-500"/>Cargando pipeline...
                   </td></tr>
                 )}
@@ -364,6 +382,14 @@ export default function CRMPage() {
                           ) : <span className="text-[#CBD5E1]">—</span>}
                         </td>
                         <td className="text-[12px] font-medium text-[#64748B] max-w-[140px] truncate">{lead.nicho||"—"}</td>
+                        <td className="text-center" onClick={e=>e.stopPropagation()}>
+                          {lead.asignado_a ? (
+                            <button onClick={()=>setFilterAgente(lead.asignado_a!)}
+                              className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-[#EEF3FC] text-[#4E60A9] hover:bg-[#4E60A9] hover:text-white transition-colors">
+                              <Users size={9}/>{lead.asignado_a}
+                            </button>
+                          ) : <span className="text-gray-300 text-[11px]">—</span>}
+                        </td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
                           {proxFecha ? (
                             <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-full ${proxVencida?"bg-[#FEF2F2] text-[#DC2626]":proxHoy?"bg-[#EEF3FC] text-[#4E60A9]":"bg-gray-100 text-gray-500"}`}>
@@ -428,7 +454,7 @@ export default function CRMPage() {
                       {/* Expansion Row */}
                       {isExp && (
                         <tr className="bg-[#FAFBFD] border-x-0 shadow-inner">
-                          <td colSpan={10} className="p-0">
+                          <td colSpan={11} className="p-0">
                             <div className="grid grid-cols-2 divide-x divide-gray-200">
                               <div className="p-8 py-6">
                                 <h3 className="text-[13px] font-bold text-gray-400 uppercase tracking-widest mb-4">Registro de Interacciones</h3>
@@ -531,11 +557,11 @@ export default function CRMPage() {
                   );
                 })}
                 {!loading && leads.length===0 && (
-                  <tr><td colSpan={10} className="py-32 text-center text-[14px] font-medium text-gray-400">Sin resultados para la búsqueda actual.</td></tr>
+                  <tr><td colSpan={11} className="py-32 text-center text-[14px] font-medium text-gray-400">Sin resultados para la búsqueda actual.</td></tr>
                 )}
                 {!loading && leads.length < total && (
                   <tr>
-                    <td colSpan={10} className="py-4 text-center border-t border-dashed border-gray-200">
+                    <td colSpan={11} className="py-4 text-center border-t border-dashed border-gray-200">
                       <button onClick={loadMore} disabled={loadingMore}
                         className="text-[12px] font-bold text-gray-400 hover:text-[#4E60A9] transition-colors disabled:opacity-50">
                         {loadingMore
@@ -549,7 +575,7 @@ export default function CRMPage() {
             </table>
           </div>
         </div>
-      ) : (
+      ) : view === "kanban" ? (
         /* ── KANBAN VIEW ── */
         <div className="flex-1 overflow-x-auto p-6 pt-4">
           <div className="flex gap-3 h-full min-w-max">
@@ -607,6 +633,12 @@ export default function CRMPage() {
                           </div>
                           {/* Nicho + ciudad */}
                           <div className="text-[11px] text-[#94A3B8] mb-2 truncate">{lead.nicho||"—"} · {lead.ciudad||"—"}</div>
+                          {/* Agente asignado */}
+                          {lead.asignado_a && (
+                            <div className="flex items-center gap-1 text-[10px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-2 py-0.5 rounded-lg mb-2">
+                              <Users size={9}/>{lead.asignado_a}
+                            </div>
+                          )}
                           {/* Decisor */}
                           {lead.decisor_nombre && (
                             <div className="text-[11px] font-semibold text-[#7C3AED] bg-[#F5F3FF] px-2 py-1 rounded-lg mb-2 truncate">
@@ -651,6 +683,86 @@ export default function CRMPage() {
               );
             })}
           </div>
+        </div>
+      ) : (
+        /* ── POR AGENTE VIEW ── */
+        <div className="flex-1 overflow-y-auto p-6 pt-4 space-y-8">
+          {loading ? (
+            <div className="flex items-center justify-center h-40 text-[13px] font-medium text-gray-400">
+              <Activity size={18} className="inline animate-spin mr-2 text-blue-500"/>Cargando pipeline...
+            </div>
+          ) : (() => {
+            const grupos = new Map<string, Lead[]>();
+            for (const lead of leads) {
+              const agente = lead.asignado_a || "Sin asignar";
+              if (!grupos.has(agente)) grupos.set(agente, []);
+              grupos.get(agente)!.push(lead);
+            }
+            const entries = [...grupos.entries()].sort((a,b)=>
+              a[0]==="Sin asignar" ? 1 : b[0]==="Sin asignar" ? -1 : a[0].localeCompare(b[0])
+            );
+            if (entries.length === 0) return (
+              <div className="flex flex-col items-center justify-center h-60 gap-2 text-gray-400">
+                <Users size={28} strokeWidth={1.5}/>
+                <p className="text-[13px] font-medium">Sin leads que mostrar</p>
+              </div>
+            );
+            return entries.map(([agente, agLeads])=>{
+              const sinAsignar = agente === "Sin asignar";
+              return (
+                <div key={agente}>
+                  {/* Cabecera del agente */}
+                  <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-extrabold shrink-0 ${sinAsignar?"bg-gray-100 text-gray-400":"bg-[#EEF3FC] text-[#4E60A9]"}`}>
+                      {sinAsignar ? "—" : agente[0]?.toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="text-[15px] font-extrabold text-[#1E293B]">{agente}</div>
+                      <div className="text-[11px] text-gray-400">{agLeads.length} lead{agLeads.length!==1?"s":""}</div>
+                    </div>
+                    <button onClick={()=>setFilterAgente(sinAsignar?"":agente)}
+                      className="ml-auto text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-3 py-1 rounded-full hover:bg-[#4E60A9] hover:text-white transition-colors">
+                      Ver solo estos
+                    </button>
+                  </div>
+                  {/* Grid de leads */}
+                  <div className="grid grid-cols-5 gap-2">
+                    {agLeads.map(lead=>{
+                      const st = S[lead.status_crm] || S.nuevo;
+                      const proxFecha = lead.fecha_proximo_contacto ? new Date(lead.fecha_proximo_contacto+"T00:00:00") : null;
+                      const hoy = new Date(); hoy.setHours(0,0,0,0);
+                      const venc = proxFecha && proxFecha < hoy;
+                      return (
+                        <div key={lead.id}
+                          onClick={()=>{setModalLead(lead);loadInts(lead.id);}}
+                          className="bg-white rounded-xl border p-3 cursor-pointer hover:shadow-md transition-all"
+                          style={{borderColor: venc?"#FECACA":"#E8EFF8"}}>
+                          <div className="flex items-start justify-between gap-1 mb-1">
+                            <div className="font-bold text-[12px] text-[#1E293B] leading-snug flex-1 line-clamp-2">{lead.nombre}</div>
+                            {lead.score_potencial && (
+                              <span className="text-[10px] font-extrabold shrink-0 tabular-nums"
+                                style={{color:lead.score_potencial>=7?"#059669":lead.score_potencial>=4?"#D97706":"#94A3B8"}}>
+                                {lead.score_potencial}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-gray-400 truncate mb-2">{lead.nicho||"—"} · {lead.ciudad||"—"}</div>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{color:st.color,background:st.bg}}>
+                            {st.label}
+                          </span>
+                          {venc && (
+                            <div className="flex items-center gap-1 text-[9px] font-bold text-red-500 mt-1.5">
+                              <AlertTriangle size={9}/> Vencido
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            });
+          })()}
         </div>
       )}
 

@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Plus, Pencil, Trash2, X, ImageIcon, Search, FileText, ExternalLink, Camera, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, X, ImageIcon, Search, FileText, ExternalLink, Camera, Upload, RefreshCw, CheckCircle, AlertCircle } from "lucide-react";
 
 interface Equipo {
   id: number;
@@ -244,12 +244,17 @@ function EquipoModal({ equipo, onSave, onClose }: {
 
 // ─── Página principal ─────────────────────────────────────────────────────────
 
+type SyncResult = { activados: number; desactivados: number; insertados: number; actualizados: number; fuente: string };
+
 export default function CatalogoPage() {
-  const [equipos,  setEquipos]  = useState<Equipo[]>([]);
-  const [loading,  setLoading]  = useState(true);
-  const [modal,    setModal]    = useState<"new" | Equipo | null>(null);
-  const [query,    setQuery]    = useState("");
-  const [tipoFilt, setTipoFilt] = useState("todos");
+  const [equipos,    setEquipos]    = useState<Equipo[]>([]);
+  const [loading,    setLoading]    = useState(true);
+  const [modal,      setModal]      = useState<"new" | Equipo | null>(null);
+  const [query,      setQuery]      = useState("");
+  const [tipoFilt,   setTipoFilt]   = useState("todos");
+  const [syncing,    setSyncing]    = useState(false);
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
+  const [syncError,  setSyncError]  = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -257,6 +262,23 @@ export default function CatalogoPage() {
     const data = await res.json();
     setEquipos(data.equipos || []);
     setLoading(false);
+  };
+
+  const handleSync = async () => {
+    setSyncing(true);
+    setSyncResult(null);
+    setSyncError(null);
+    try {
+      const res = await fetch("/api/catalogo/sync", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al sincronizar");
+      setSyncResult(data);
+      await load();
+    } catch (e: any) {
+      setSyncError(e.message);
+    } finally {
+      setSyncing(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
@@ -291,11 +313,41 @@ export default function CatalogoPage() {
           <h1 className="text-[18px] font-extrabold text-[#1E293B] tracking-tight">Catálogo de Equipos</h1>
           <p className="text-[11px] text-gray-400 mt-0.5">{equipos.length} equipos registrados</p>
         </div>
-        <button onClick={() => setModal("new")}
-          className="flex items-center gap-2 px-4 py-2 bg-[#4E60A9] hover:bg-[#1e40af] text-white text-[12px] font-bold rounded-xl transition-colors">
-          <Plus size={14}/> Agregar equipo
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={handleSync} disabled={syncing}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 hover:border-[#4E60A9]/40 hover:text-[#4E60A9] text-[12px] font-bold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-white">
+            <RefreshCw size={13} className={syncing ? "animate-spin" : ""}/>
+            {syncing ? "Sincronizando…" : "Sincronizar sitio"}
+          </button>
+          <button onClick={() => setModal("new")}
+            className="flex items-center gap-2 px-4 py-2 bg-[#4E60A9] hover:bg-[#1e40af] text-white text-[12px] font-bold rounded-xl transition-colors">
+            <Plus size={14}/> Agregar equipo
+          </button>
+        </div>
       </div>
+
+      {/* Banner resultado sync */}
+      {syncResult && (
+        <div className="mx-8 mt-3 flex items-center gap-3 px-4 py-2.5 bg-green-50 border border-green-200 rounded-xl text-[11px] text-green-700 shrink-0">
+          <CheckCircle size={14} className="shrink-0"/>
+          <span>
+            Sincronizado con <strong>bionordi.com</strong> —{" "}
+            {syncResult.insertados > 0 && <span>{syncResult.insertados} nuevos · </span>}
+            {syncResult.activados > 0  && <span>{syncResult.activados} activados · </span>}
+            {syncResult.desactivados > 0 && <span>{syncResult.desactivados} desactivados · </span>}
+            {syncResult.actualizados > 0 && <span>{syncResult.actualizados} precios actualizados</span>}
+            {syncResult.fuente === 'fallback' && <span className="ml-1 text-green-500">(inventario local)</span>}
+          </span>
+          <button onClick={() => setSyncResult(null)} className="ml-auto text-green-400 hover:text-green-600"><X size={12}/></button>
+        </div>
+      )}
+      {syncError && (
+        <div className="mx-8 mt-3 flex items-center gap-3 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl text-[11px] text-red-700 shrink-0">
+          <AlertCircle size={14} className="shrink-0"/>
+          <span>{syncError}</span>
+          <button onClick={() => setSyncError(null)} className="ml-auto text-red-400 hover:text-red-600"><X size={12}/></button>
+        </div>
+      )}
 
       {/* Filtros */}
       <div className="px-8 py-3 flex gap-3 items-center border-b border-[#E8EFF8] bg-white shrink-0">
