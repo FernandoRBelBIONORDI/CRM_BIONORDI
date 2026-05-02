@@ -383,12 +383,17 @@ export default function CRMPage() {
                         </td>
                         <td className="text-[12px] font-medium text-[#64748B] max-w-[140px] truncate">{lead.nicho||"—"}</td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
-                          {lead.asignado_a ? (
-                            <button onClick={()=>setFilterAgente(lead.asignado_a!)}
-                              className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-[#EEF3FC] text-[#4E60A9] hover:bg-[#4E60A9] hover:text-white transition-colors">
-                              <Users size={9}/>{lead.asignado_a}
-                            </button>
-                          ) : <span className="text-gray-300 text-[11px]">—</span>}
+                          <select
+                            value={lead.asignado_a || ""}
+                            onChange={e => {
+                              const val = e.target.value;
+                              patchLead(lead.id, { asignado_a: val || null });
+                              setLeads(p => p.map(l => l.id === lead.id ? { ...l, asignado_a: val || undefined } : l));
+                            }}
+                            className={`text-[10px] font-bold px-2 py-1 rounded-full border-0 outline-none cursor-pointer appearance-none text-center transition-colors ${lead.asignado_a ? "bg-[#EEF3FC] text-[#4E60A9]" : "bg-gray-100 text-gray-400"}`}>
+                            <option value="">Sin asignar</option>
+                            {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
+                          </select>
                         </td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
                           {proxFecha ? (
@@ -634,11 +639,19 @@ export default function CRMPage() {
                           {/* Nicho + ciudad */}
                           <div className="text-[11px] text-[#94A3B8] mb-2 truncate">{lead.nicho||"—"} · {lead.ciudad||"—"}</div>
                           {/* Agente asignado */}
-                          {lead.asignado_a && (
-                            <div className="flex items-center gap-1 text-[10px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-2 py-0.5 rounded-lg mb-2">
-                              <Users size={9}/>{lead.asignado_a}
-                            </div>
-                          )}
+                          <div onClick={e=>e.stopPropagation()} className="mb-2">
+                            <select
+                              value={lead.asignado_a || ""}
+                              onChange={e => {
+                                const val = e.target.value;
+                                patchLead(lead.id, { asignado_a: val || null });
+                                setLeads(p => p.map(l => l.id === lead.id ? { ...l, asignado_a: val || undefined } : l));
+                              }}
+                              className={`w-full text-[10px] font-bold px-2 py-0.5 rounded-lg border-0 outline-none cursor-pointer appearance-none transition-colors ${lead.asignado_a ? "bg-[#EEF3FC] text-[#4E60A9]" : "bg-gray-50 text-gray-400"}`}>
+                              <option value="">Sin asignar</option>
+                              {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
+                            </select>
+                          </div>
                           {/* Decisor */}
                           {lead.decisor_nombre && (
                             <div className="text-[11px] font-semibold text-[#7C3AED] bg-[#F5F3FF] px-2 py-1 rounded-lg mb-2 truncate">

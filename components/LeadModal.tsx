@@ -334,21 +334,15 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
               </button>
             </div>
 
-            {/* Asignado a */}
-            {(isAdmin || asignadoA) && (
-              <div className="mt-2 flex items-center gap-2">
-                <UserCheck size={12} className="text-gray-400 shrink-0" />
-                {isAdmin ? (
-                  <select value={asignadoA} onChange={e => saveAsignadoA(e.target.value)}
-                    className="text-[11px] font-semibold text-gray-500 bg-transparent border-0 outline-none cursor-pointer">
-                    <option value="">Sin asignar</option>
-                    {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
-                  </select>
-                ) : (
-                  <span className="text-[11px] font-semibold text-gray-500">{asignadoA || "Sin asignar"}</span>
-                )}
-              </div>
-            )}
+            {/* Asignado a — accesible para todos los usuarios */}
+            <div className="mt-2 flex items-center gap-2">
+              <UserCheck size={12} className="text-gray-400 shrink-0" />
+              <select value={asignadoA} onChange={e => saveAsignadoA(e.target.value)}
+                className="text-[11px] font-semibold text-gray-500 bg-transparent border-0 outline-none cursor-pointer">
+                <option value="">Sin asignar</option>
+                {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
+              </select>
+            </div>
 
             {/* Status selector */}
             <div className="mt-3 flex items-center gap-2">

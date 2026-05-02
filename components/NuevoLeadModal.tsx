@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, UserPlus, Activity } from "lucide-react";
 import nichos from "@/data/nichos_medicos.json";
 
@@ -20,10 +20,15 @@ interface Props {
 
 export default function NuevoLeadModal({ onClose, onCreated }: Props) {
   const [saving, setSaving] = useState(false);
+  const [usuarios, setUsuarios] = useState<{id:number;nombre:string}[]>([]);
   const [form, setForm] = useState({
     nombre: "", telefono: "", whatsapp: "", ciudad: "", estado_republica: "",
-    nicho: nichos[0], notas: "", status_crm: "nuevo",
+    nicho: nichos[0], notas: "", status_crm: "nuevo", asignado_a: "",
   });
+
+  useEffect(() => {
+    fetch("/api/usuarios").then(r=>r.json()).then(d=>setUsuarios(d.usuarios||[])).catch(()=>{});
+  }, []);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>) =>
     setForm(p => ({ ...p, [k]: e.target.value }));
@@ -109,6 +114,13 @@ export default function NuevoLeadModal({ onClose, onCreated }: Props) {
                 {[["nuevo","Nuevo"],["contactado","Contactado"],["seguimiento","Seguimiento"],["diagnostico","Diagnóstico"],["cliente","Cliente"]].map(([v,l])=>
                   <option key={v} value={v}>{l}</option>
                 )}
+              </select>
+            </div>
+            <div>
+              <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Asignar a</label>
+              <select value={form.asignado_a} onChange={set("asignado_a")} className="inp w-full">
+                <option value="">Sin asignar</option>
+                {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
               </select>
             </div>
           </div>

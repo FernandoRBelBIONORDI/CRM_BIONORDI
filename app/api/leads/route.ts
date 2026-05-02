@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { enrichLead } from '@/lib/claude';
 
 const CSV_COLS = [
   'id','nombre','telefono','whatsapp','correo','sitio_web',
@@ -77,19 +78,42 @@ export async function POST(req: Request) {
     const data = await req.json();
     const now = new Date().toISOString();
     const result = db.prepare(`
-      INSERT INTO leads (nombre, telefono, ciudad, estado_republica, nicho, notas, status_crm, fuente, confianza_fuente, fecha_extraccion, fecha_ultimo_cambio)
-      VALUES (@nombre, @telefono, @ciudad, @estado_republica, @nicho, @notas, @status_crm, 'manual', 'media', @now, @now)
+      INSERT INTO leads (nombre, telefono, whatsapp, ciudad, estado_republica, nicho, notas, status_crm, asignado_a, fuente, confianza_fuente, fecha_extraccion, fecha_ultimo_cambio)
+      VALUES (@nombre, @telefono, @whatsapp, @ciudad, @estado_republica, @nicho, @notas, @status_crm, @asignado_a, 'manual', 'media', @now, @now)
     `).run({
       nombre:           data.nombre || "Sin nombre",
       telefono:         data.telefono || null,
+      whatsapp:         data.whatsapp || null,
       ciudad:           data.ciudad || null,
       estado_republica: data.estado_republica || null,
       nicho:            data.nicho || null,
       notas:            data.notas || null,
       status_crm:       data.status_crm || "nuevo",
+      asignado_a:       data.asignado_a || null,
       now,
     });
-    const lead = db.prepare(`SELECT * FROM leads WHERE id = ?`).get(result.lastInsertRowid);
+    const leadId = result.lastInsertRowid as number;
+    const lead = db.prepare(`SELECT * FROM leads WHERE id = ?`).get(leadId) as any;
+
+    // Enriquecimiento AI en segundo plano — no bloquea la respuesta
+    enrichLead(lead).then(enrichment => {
+      if (!enrichment) return;
+      db.prepare(`
+        UPDATE leads SET
+          sub_nicho = ?, tiene_ultrasonido = ?, tamano_estimado = ?,
+          nivel_socioeconomico = ?, score_potencial = ?, razon_score = ?
+        WHERE id = ?
+      `).run(
+        enrichment.tipo_especialidad_medica,
+        enrichment.tiene_equipo_ultrasonido,
+        enrichment.tamano_estimado,
+        enrichment.nivel_socioeconomico_zona,
+        enrichment.score_potencial_biomed,
+        enrichment.razon_score,
+        leadId,
+      );
+    }).catch(() => {});
+
     return NextResponse.json({ success: true, lead });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
