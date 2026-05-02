@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import dns from 'dns';
 import db from '@/lib/db';
+
+async function resolveIPv4(hostname: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    dns.lookup(hostname, { family: 4 }, (err, address) => {
+      if (err) reject(err);
+      else resolve(address);
+    });
+  });
+}
 
 export async function POST(req: Request) {
   try {
@@ -20,12 +30,18 @@ export async function POST(req: Request) {
       }, { status: 422 });
     }
 
+    // Railway blocks outbound IPv6 — resolve hostname to IPv4 before connecting
+    const smtpHost = await resolveIPv4(cfg.smtp_host);
+
     const transporter = nodemailer.createTransport({
-      host: cfg.smtp_host,
+      host: smtpHost,
       port: Number(cfg.smtp_port || 587),
       secure: cfg.smtp_secure === 'true',
       auth: { user: cfg.smtp_user, pass: cfg.smtp_pass },
-      tls: { rejectUnauthorized: false },
+      tls: {
+        rejectUnauthorized: false,
+        servername: cfg.smtp_host, // keep original hostname for TLS SNI
+      },
     });
 
     const plainText = textBody || html.replace(/<[^>]+>/g, " ").replace(/\s{2,}/g, " ").trim();
