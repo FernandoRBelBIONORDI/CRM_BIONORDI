@@ -40,6 +40,30 @@
   .page-header { @apply flex items-center gap-4 px-8 py-6 bg-white border-b-0 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] rounded-3xl shrink-0 mt-4 mx-4 mb-2; }
   .sec-label { @apply text-xs font-bold text-gray-400 uppercase tracking-wider; }
   .inp { @apply bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none placeholder:text-gray-400 focus:border-[#5A85F1] focus:ring-2 focus:ring-[#5A85F1]/10 w-full text-[#202538] font-medium transition-all; }
+
+  /* Select nativo con flecha personalizada — aplica a select.inp y .sel */
+  .sel {
+    @apply bg-white border border-gray-200 rounded-xl px-4 py-2.5 font-medium text-[#202538] outline-none transition-all w-full;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+  .sel:focus { @apply border-[#5A85F1] ring-2 ring-[#5A85F1]/10; }
+
+  select.inp {
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
   .btn-primary { @apply flex items-center justify-center gap-2 bg-[#2D2F3C] text-white text-[12px] font-bold px-6 py-2.5 rounded-full hover:bg-[#1A1C24] transition-all transform hover:-translate-y-[1px] shadow-sm; }
   .btn-ghost { @apply flex items-center gap-2 text-[12px] font-bold text-gray-500 px-4 py-2.5 rounded-full hover:bg-gray-50 transition-colors; }
   .cfg-input { @apply bg-transparent text-sm outline-none text-[#202538] w-full placeholder:text-gray-400 font-medium; }

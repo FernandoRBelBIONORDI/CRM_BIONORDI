@@ -334,12 +334,15 @@ export default function CRMPage() {
                           </button>
                         </td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
-                          <select value={lead.status_crm}
-                            onChange={e=>moveStatus(lead.id, e.target.value)}
-                            className="text-[11px] font-bold px-3 py-[6px] rounded-full outline-none cursor-pointer border-0 appearance-none text-center shadow-sm w-[110px]"
-                            style={{color:st.color, backgroundColor:st.bg}}>
-                            {STATUS_OPTS.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
-                          </select>
+                          <div className="relative inline-flex items-center">
+                            <select value={lead.status_crm}
+                              onChange={e=>moveStatus(lead.id, e.target.value)}
+                              className="text-[11px] font-bold pl-3 pr-7 py-[6px] rounded-full outline-none cursor-pointer border-0 appearance-none text-center shadow-sm w-[118px]"
+                              style={{color:st.color, backgroundColor:st.bg}}>
+                              {STATUS_OPTS.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
+                            </select>
+                            <ChevronDown size={10} className="absolute right-2 pointer-events-none opacity-60" style={{color:st.color}}/>
+                          </div>
                         </td>
                         <td className="text-[12px] font-medium text-[#64748B] max-w-[140px] truncate">{lead.nicho||"—"}</td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
@@ -351,17 +354,20 @@ export default function CRMPage() {
                               <Users size={9}/> Tomar
                             </button>
                           ) : (
-                            <select
-                              value={lead.asignado_a || ""}
-                              onChange={e => {
-                                const val = e.target.value;
-                                patchLead(lead.id, { asignado_a: val || null });
-                                setLeads(p => p.map(l => l.id === lead.id ? { ...l, asignado_a: val || undefined } : l));
-                              }}
-                              className={`text-[10px] font-bold px-2 py-1 rounded-full border-0 outline-none cursor-pointer appearance-none text-center transition-colors ${lead.asignado_a===myName?"bg-green-50 text-green-700":"bg-[#EEF3FC] text-[#4E60A9]"}`}>
-                              <option value="">Sin asignar</option>
-                              {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
-                            </select>
+                            <div className="relative inline-flex items-center">
+                              <select
+                                value={lead.asignado_a || ""}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  patchLead(lead.id, { asignado_a: val || null });
+                                  setLeads(p => p.map(l => l.id === lead.id ? { ...l, asignado_a: val || undefined } : l));
+                                }}
+                                className={`text-[10px] font-bold pl-2 pr-6 py-1 rounded-full border-0 outline-none cursor-pointer appearance-none text-center transition-colors ${lead.asignado_a===myName?"bg-green-50 text-green-700":"bg-[#EEF3FC] text-[#4E60A9]"}`}>
+                                <option value="">Sin asignar</option>
+                                {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
+                              </select>
+                              <ChevronDown size={9} className={`absolute right-1.5 pointer-events-none ${lead.asignado_a===myName?"text-green-600":"text-[#4E60A9]"}`}/>
+                            </div>
                           )}
                         </td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
@@ -590,17 +596,20 @@ export default function CRMPage() {
                                 <Users size={9}/> Tomar
                               </button>
                             ) : (
-                              <select
-                                value={lead.asignado_a}
-                                onChange={e => {
-                                  const val = e.target.value;
-                                  patchLead(lead.id, { asignado_a: val || null });
-                                  setLeads(p => p.map(l => l.id === lead.id ? { ...l, asignado_a: val || undefined } : l));
-                                }}
-                                className={`w-full text-[10px] font-bold px-2 py-0.5 rounded-lg border-0 outline-none cursor-pointer appearance-none transition-colors ${lead.asignado_a===myName?"bg-green-50 text-green-700":"bg-[#EEF3FC] text-[#4E60A9]"}`}>
-                                <option value="">Sin asignar</option>
-                                {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
-                              </select>
+                              <div className="relative">
+                                <select
+                                  value={lead.asignado_a}
+                                  onChange={e => {
+                                    const val = e.target.value;
+                                    patchLead(lead.id, { asignado_a: val || null });
+                                    setLeads(p => p.map(l => l.id === lead.id ? { ...l, asignado_a: val || undefined } : l));
+                                  }}
+                                  className={`w-full text-[10px] font-bold pl-2 pr-6 py-0.5 rounded-lg border-0 outline-none cursor-pointer appearance-none transition-colors ${lead.asignado_a===myName?"bg-green-50 text-green-700":"bg-[#EEF3FC] text-[#4E60A9]"}`}>
+                                  <option value="">Sin asignar</option>
+                                  {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
+                                </select>
+                                <ChevronDown size={9} className={`absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none ${lead.asignado_a===myName?"text-green-600":"text-[#4E60A9]"}`}/>
+                              </div>
                             )}
                           </div>
                           {/* Notas preview */}

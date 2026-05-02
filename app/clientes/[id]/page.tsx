@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Phone, Mail, MapPin, Globe, MessageCircle,
-  FileText, Wrench, Package, Plus, Trash2,
+  FileText, Wrench, Package, Plus, Trash2, ChevronDown,
   Star, Calendar, Building2, Clock, CheckCircle2, XCircle,
   Edit2, Save, X, FileDown, Users, UserCheck,
   ExternalLink, Check, ClipboardList, Activity,
@@ -135,7 +135,7 @@ function waTemplates(lead: Lead) {
   ];
 }
 
-const sel = "w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white";
+const sel = "sel text-[12px]";
 const inp = "w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white";
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -386,11 +386,14 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                     <p className="text-[13px] text-gray-500 mt-0.5">{lead.sub_nicho || lead.nicho}</p>
                   </div>
                   {/* Status selector */}
-                  <select value={statusEdit} onChange={e => changeStatus(e.target.value)}
-                    className="text-[12px] font-bold px-4 py-2 rounded-full outline-none cursor-pointer border-0 appearance-none shadow-sm shrink-0"
-                    style={{ color: st.text, backgroundColor: st.bg }}>
-                    {STATUS_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </select>
+                  <div className="relative inline-flex items-center shrink-0">
+                    <select value={statusEdit} onChange={e => changeStatus(e.target.value)}
+                      className="text-[12px] font-bold pl-3 pr-7 py-2 rounded-full outline-none cursor-pointer border-0 appearance-none shadow-sm"
+                      style={{ color: st.text, backgroundColor: st.bg }}>
+                      {STATUS_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                    <ChevronDown size={11} className="absolute right-2 pointer-events-none opacity-60" style={{ color: st.text }} />
+                  </div>
                 </div>
 
                 {/* Asignado a */}
@@ -402,11 +405,14 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                       <Users size={10} /> Tomar este lead
                     </button>
                   ) : (
-                    <select value={asignadoA} onChange={e => saveAsignadoA(e.target.value)}
-                      className={`text-[11px] font-bold bg-transparent border-0 outline-none cursor-pointer ${asignadoA === myName ? "text-green-600" : "text-[#4E60A9]"}`}>
-                      <option value="">Sin asignar</option>
-                      {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
-                    </select>
+                    <div className="relative inline-flex items-center">
+                      <select value={asignadoA} onChange={e => saveAsignadoA(e.target.value)}
+                        className={`text-[11px] font-bold bg-transparent border-0 outline-none cursor-pointer appearance-none pr-4 ${asignadoA === myName ? "text-green-600" : "text-[#4E60A9]"}`}>
+                        <option value="">Sin asignar</option>
+                        {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
+                      </select>
+                      <ChevronDown size={9} className={`absolute right-0 pointer-events-none ${asignadoA === myName ? "text-green-500" : "text-[#4E60A9]"}`} />
+                    </div>
                   )}
                 </div>
 
@@ -557,7 +563,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                       <input placeholder="No. serie" value={newEquipo.num_serie} onChange={e => setNewEquipo(p => ({ ...p, num_serie: e.target.value }))}
                         className="text-[12px] bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none placeholder:text-gray-400" />
                       <select value={newEquipo.estado} onChange={e => setNewEquipo(p => ({ ...p, estado: e.target.value }))}
-                        className="text-[12px] font-bold bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none cursor-pointer">
+                        className="sel text-[12px] font-bold">
                         {ESTADO_EQUIPO.map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
                       </select>
                     </div>
