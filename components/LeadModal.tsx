@@ -6,7 +6,7 @@ import {
   X, Phone, Mail, Globe, MapPin, Calendar, MessageCircle, Sparkles,
   Activity, Check, ChevronDown, Clock, Trash2, Plus, ExternalLink,
   Tag, BarChart2, Building2, User, Wrench, FileText, ClipboardList,
-  UserCheck, ArrowRight
+  UserCheck, ArrowRight, Users
 } from "lucide-react";
 import QuoteModal from "@/components/QuoteModal";
 import Link from "next/link";
@@ -102,6 +102,7 @@ interface Props {
 export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) {
   const { data: session } = useSession();
   const isAdmin = (session?.user as any)?.role === "admin";
+  const myName = session?.user?.name || "";
 
   const [ints, setInts]               = useState<Interaccion[]>([]);
   const [equipos, setEquipos]         = useState<Equipo[]>([]);
@@ -334,14 +335,21 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
               </button>
             </div>
 
-            {/* Asignado a — accesible para todos los usuarios */}
+            {/* Asignado a */}
             <div className="mt-2 flex items-center gap-2">
               <UserCheck size={12} className="text-gray-400 shrink-0" />
-              <select value={asignadoA} onChange={e => saveAsignadoA(e.target.value)}
-                className="text-[11px] font-semibold text-gray-500 bg-transparent border-0 outline-none cursor-pointer">
-                <option value="">Sin asignar</option>
-                {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
-              </select>
+              {!asignadoA ? (
+                <button onClick={() => saveAsignadoA(myName)}
+                  className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-1 rounded-full transition-colors flex items-center gap-1">
+                  <Users size={10}/> Tomar este lead
+                </button>
+              ) : (
+                <select value={asignadoA} onChange={e => saveAsignadoA(e.target.value)}
+                  className={`text-[11px] font-bold bg-transparent border-0 outline-none cursor-pointer ${asignadoA===myName?"text-green-600":"text-[#4E60A9]"}`}>
+                  <option value="">Sin asignar</option>
+                  {usuarios.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
+                </select>
+              )}
             </div>
 
             {/* Status selector */}

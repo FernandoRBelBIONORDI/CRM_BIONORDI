@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Activity, Search, Download, Zap, MapPin, ArrowRight, UserPlus, Copy, Check,
          SlidersHorizontal, X, Globe, Square, CheckSquare, StopCircle, BookOpen,
-         Trash2, Stethoscope } from "lucide-react";
+         Trash2, Stethoscope, UserCheck, Users } from "lucide-react";
+import { useSession } from "next-auth/react";
 import nichos from "@/data/nichos_medicos.json";
 import { waLink } from "@/lib/ui";
 import municipiosData from "@/data/municipios_mexico.json";
@@ -17,6 +18,7 @@ interface Lead {
   fuente?:string; confianza_fuente?:string; score_potencial?:number;
   razon_score?:string; tiene_ultrasonido?:string; tamano_estimado?:string;
   whatsapp_verificado?:number; sitio_activo?:number; status_crm?:string;
+  asignado_a?:string;
 }
 
 interface ZonaProgress {
@@ -74,6 +76,8 @@ const GRUPOS_ESP = (() => {
 })();
 
 export default function EncontrarPage() {
+  const { data: session } = useSession();
+  const myName = session?.user?.name || "";
   const [mounted, setMounted]       = useState(false);
   const [nicho, setNicho]           = useState(nichos[0]);
   const [loading, setLoading]       = useState(false);
@@ -244,6 +248,17 @@ export default function EncontrarPage() {
   const patchStatus = async (id:number, status:string) => {
     await fetch("/api/leads",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,status_crm:status})});
     setLeads(p=>p.map(l=>l.id===id?{...l,status_crm:status}:l));
+  };
+
+  const tomarLead = async (id:number) => {
+    if (!myName) return;
+    await fetch("/api/leads",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,asignado_a:myName})});
+    setLeads(p=>p.map(l=>l.id===id?{...l,asignado_a:myName}:l));
+  };
+
+  const liberarLead = async (id:number) => {
+    await fetch("/api/leads",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,asignado_a:null})});
+    setLeads(p=>p.map(l=>l.id===id?{...l,asignado_a:undefined}:l));
   };
 
   const visible = leads.filter((l:any)=>{
@@ -733,6 +748,31 @@ export default function EncontrarPage() {
                         )}
                       </div>
 
+                      {/* Asignación */}
+                      <div className="px-4 pb-2">
+                        {lead.asignado_a ? (
+                          <div className={`flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl ${lead.asignado_a===myName?"bg-green-50 border border-green-200":"bg-[#EEF3FC] border border-[#4E60A9]/20"}`}>
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <UserCheck size={11} className={lead.asignado_a===myName?"text-green-600":"text-[#4E60A9]"}/>
+                              <span className={`text-[11px] font-bold truncate ${lead.asignado_a===myName?"text-green-700":"text-[#4E60A9]"}`}>
+                                {lead.asignado_a===myName?"Tuyo":"→ "+lead.asignado_a}
+                              </span>
+                            </div>
+                            {lead.asignado_a===myName && (
+                              <button suppressHydrationWarning onClick={()=>liberarLead(lead.id)}
+                                className="text-[9px] font-bold text-gray-400 hover:text-red-500 transition-colors shrink-0">
+                                Liberar
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <button suppressHydrationWarning onClick={()=>tomarLead(lead.id)} disabled={!myName}
+                            className="w-full flex items-center justify-center gap-1.5 text-[11px] font-bold bg-[#EEF3FC] text-[#4E60A9] hover:bg-[#4E60A9] hover:text-white px-3 py-1.5 rounded-xl transition-colors disabled:opacity-40 border border-[#4E60A9]/20">
+                            <Users size={11}/> Tomar este lead
+                          </button>
+                        )}
+                      </div>
+
                       <div className="px-4 pb-4 flex items-center justify-between gap-2">
                         <select value={lead.status_crm||"nuevo"} onChange={e=>patchStatus(lead.id,e.target.value)}
                           className="text-[11px] font-bold px-3 py-1.5 rounded-full outline-none cursor-pointer border-0 appearance-none shadow-sm flex-1 max-w-[120px] text-center"
@@ -740,7 +780,7 @@ export default function EncontrarPage() {
                           {STATUS_OPTS.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
                         </select>
                         <button suppressHydrationWarning onClick={()=>handleEnrich(lead.id)} disabled={enrichId===lead.id}
-                          className="flex items-center gap-1.5 text-[11px] font-bold bg-[#EEF3FC] text-[#4E60A9] hover:bg-[#4E60A9] hover:text-white px-3 py-1.5 rounded-full transition-colors disabled:opacity-50 shrink-0">
+                          className="flex items-center gap-1.5 text-[11px] font-bold bg-gray-50 text-gray-400 hover:bg-gray-100 px-3 py-1.5 rounded-full transition-colors disabled:opacity-50 shrink-0">
                           {enrichId===lead.id?<Activity size={11} className="animate-spin"/>:<Zap size={11} fill="currentColor"/>}
                           Perfil AI
                         </button>
