@@ -59,8 +59,7 @@ export default function CRMPage() {
   const [newCont, setNewCont]     = useState("");
   const [newTipo, setNewTipo]     = useState("mensaje_wa");
   const [newRes, setNewRes]       = useState("sin_respuesta");
-  const [linkedinOpen, setLinkedinOpen] = useState<number|null>(null);
-  const [linkedinData, setLinkedinData] = useState<any>(null);
+  const [enrichingId, setEnrichingId] = useState<number|null>(null);
   const [copied, setCopied]       = useState<string|null>(null);
   const [copiedRow, setCopiedRow] = useState<number|null>(null);
   const [showNuevoLead, setShowNuevoLead] = useState(false);
@@ -163,16 +162,13 @@ export default function CRMPage() {
     setLoadScr(null);
   };
 
-  const searchLinkedin = async (lead:Lead) => {
-    setLinkedinOpen(lead.id); setLinkedinData(null);
-    const d = await fetch("/api/linkedin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({lead_id:lead.id,nombre_empresa:lead.nombre})}).then(r=>r.json());
-    setLinkedinData(d);
-  };
-
-  const saveDecissor = async (lead_id:number, r:any) => {
-    await fetch("/api/linkedin",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({lead_id,...r})});
-    setLeads(p=>p.map(l=>l.id===lead_id?{...l,decisor_nombre:r.nombre,decisor_cargo:r.cargo,decisor_linkedin:r.linkedin}:l));
-    setLinkedinOpen(null);
+  const handleEnrich = async (lead: Lead) => {
+    setEnrichingId(lead.id);
+    const d = await fetch("/api/enrich",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:lead.id})}).then(r=>r.json());
+    if (d.enrichment) {
+      setLeads(p=>p.map(l=>l.id===lead.id?{...l,score_potencial:d.enrichment.score_potencial_biomed,razon_score:d.enrichment.razon_score}:l));
+    }
+    setEnrichingId(null);
   };
 
   const copyText = (key:string,text:string) => {
@@ -373,13 +369,20 @@ export default function CRMPage() {
                             {STATUS_OPTS.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
                           </select>
                         </td>
-                        <td className="text-center">
+                        <td className="text-center" onClick={e=>e.stopPropagation()}>
                           {lead.score_potencial ? (
                             <span className="text-[14px] font-extrabold tabular-nums"
                               style={{color:lead.score_potencial>=7?"#34A853":lead.score_potencial>=4?"#F59E0B":"#94A3B8"}}>
                               {lead.score_potencial.toFixed(1)}
                             </span>
-                          ) : <span className="text-[#CBD5E1]">—</span>}
+                          ) : enrichingId===lead.id ? (
+                            <Activity size={12} className="inline animate-spin text-[#4E60A9]"/>
+                          ) : (
+                            <button onClick={()=>handleEnrich(lead)}
+                              className="text-[10px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-2 py-1 rounded-full transition-colors">
+                              Analizar
+                            </button>
+                          )}
                         </td>
                         <td className="text-[12px] font-medium text-[#64748B] max-w-[140px] truncate">{lead.nicho||"—"}</td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
@@ -415,8 +418,10 @@ export default function CRMPage() {
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
                           {lead.decisor_nombre
                             ? <div className="text-[12px] text-[#202538] font-bold">{lead.decisor_nombre}</div>
-                            : <button onClick={()=>searchLinkedin(lead)}
-                                className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-1.5 rounded-full transition-colors">+ Inferir</button>}
+                            : <a href={`https://www.google.com/search?q=${encodeURIComponent(lead.nombre+" director OR gerente OR dueño site:linkedin.com")}`}
+                                target="_blank" rel="noopener noreferrer"
+                                className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-1.5 rounded-full transition-colors inline-block">
+                                Buscar ↗</a>}
                         </td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
                           <div className="px-2">
@@ -844,39 +849,6 @@ export default function CRMPage() {
         />
       )}
 
-      {/* LinkedIn Modal */}
-      {linkedinOpen!==null && (
-        <div className="fixed inset-0 bg-white/40 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-[28px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] w-full max-w-lg overflow-hidden border border-gray-100">
-            <div className="px-8 py-6 flex items-center justify-between border-b border-gray-100">
-              <h3 className="font-bold text-[18px] text-[#202538] tracking-tight">Buscar Decisor</h3>
-              <button onClick={()=>{setLinkedinOpen(null);setLinkedinData(null);}} className="text-gray-400 hover:text-red-500 text-lg transition-colors p-1">✕</button>
-            </div>
-            <div className="p-8 pb-10 bg-[#FAFCFF]">
-              {!linkedinData ? (
-                <div className="py-8 text-center text-[13px] font-medium text-gray-400 flex flex-col items-center gap-3">
-                  <Activity size={24} className="animate-spin text-blue-500"/>Buscando en LinkedIn...
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {linkedinData.resultados?.length>0 ? linkedinData.resultados.map((r:any,i:number)=>(
-                    <div key={i} className="flex items-start gap-4 p-4 bg-white border border-gray-100 shadow-sm rounded-2xl hover:border-blue-200 transition-colors">
-                      <div className="w-10 h-10 rounded-full bg-[#EEF3FC] flex items-center justify-center text-sm font-bold text-blue-500 shrink-0">{r.nombre?.[0]}</div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-bold text-[#1E293B] text-[14px]">{r.nombre}</div>
-                        <div className="text-[12px] font-medium text-gray-500 mt-0.5">{r.cargo}</div>
-                        <a href={r.linkedin} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold text-blue-500 hover:underline block truncate mt-1">{r.linkedin}</a>
-                      </div>
-                      <button onClick={()=>saveDecissor(linkedinOpen,r)} className="btn-primary px-4 py-2 font-bold text-[10px]">VINCULAR</button>
-                    </div>
-                  )) : <p className="text-[13px] text-gray-400 font-medium py-6 text-center italic bg-white rounded-xl">Sin resultados automáticos.</p>}
-                  <a href={linkedinData.google_search_url} target="_blank" rel="noopener noreferrer" className="text-[12px] font-bold text-[#4E60A9] hover:underline block mt-4 text-center">Abrir Google ↗</a>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
