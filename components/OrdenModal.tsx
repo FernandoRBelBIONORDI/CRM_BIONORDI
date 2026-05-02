@@ -1,11 +1,12 @@
 ﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, Wrench, Calendar, CheckCircle, Clock, DollarSign, User, FileText, ChevronRight, Trash2, Check, AlertTriangle } from "lucide-react";
+import { X, Wrench, Calendar, CheckCircle, Clock, DollarSign, User, FileText, ChevronRight, Trash2, Check, AlertTriangle, Link2 } from "lucide-react";
 
 export interface Orden {
   id: number; folio: string; lead_id?: number;
   lead_nombre?: string; lead_telefono?: string; lead_ciudad?: string;
+  cotizacion_id?: number; cotizacion_folio?: string; cotizacion_monto?: number; cotizacion_tipo?: string;
   equipo_tipo?: string; equipo_marca?: string; equipo_modelo?: string; equipo_num_serie?: string;
   falla_reportada?: string; diagnostico?: string; notas_tecnicas?: string; tecnico?: string;
   presupuesto?: number; presupuesto_aprobado?: number; precio_final?: number;
@@ -113,6 +114,20 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
               </button>
             ))}
           </div>
+
+          {/* Cotización de origen */}
+          {form.cotizacion_folio && (
+            <div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-3 py-2 rounded-xl">
+              <Link2 size={11} />
+              <span>Cotización de origen:</span>
+              <span className="font-mono">{form.cotizacion_folio}</span>
+              {form.cotizacion_monto != null && (
+                <span className="ml-auto font-bold text-[#1E293B]">
+                  ${form.cotizacion_monto.toLocaleString("es-MX")}
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Alerta compromiso */}
           {comprVencida && (

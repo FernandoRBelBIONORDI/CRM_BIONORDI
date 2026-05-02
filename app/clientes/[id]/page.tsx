@@ -46,8 +46,9 @@ interface Equipo {
 }
 
 interface Orden {
-  id: number; folio: string; lead_id?: number; equipo_tipo?: string;
-  equipo_marca?: string; equipo_modelo?: string; falla_reportada?: string;
+  id: number; folio: string; lead_id?: number;
+  cotizacion_id?: number; cotizacion_folio?: string; cotizacion_monto?: number;
+  equipo_tipo?: string; equipo_marca?: string; equipo_modelo?: string; falla_reportada?: string;
   diagnostico?: string; presupuesto?: number; precio_final?: number;
   status: string; fecha_ingreso?: string; fecha_entrega?: string;
   fecha_creacion?: string;
@@ -808,7 +809,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                         </td>
                         <td className="px-5 py-3 text-[11px] text-gray-400">{fmtDate(c.fecha)}</td>
                         <td className="px-5 py-3" onClick={e => e.stopPropagation()}>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             {!isAprobada && !isRechazada && (
                               <>
                                 <button onClick={() => updateCotStatus(c.id, "aprobada")}
@@ -817,12 +818,19 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                                   className="text-[10px] font-bold text-red-500 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-lg">Rechazar</button>
                               </>
                             )}
-                            {isAprobada && (
-                              <button onClick={() => createOTFromCot(c)} disabled={creatingOT === c.id}
-                                className="flex items-center gap-1 text-[10px] font-bold text-[#7C3AED] bg-[#F5F3FF] hover:bg-[#7C3AED] hover:text-white px-2 py-1 rounded-lg disabled:opacity-50">
-                                {creatingOT === c.id ? <Activity size={10} className="animate-spin" /> : <><ClipboardList size={10} /> Crear OT</>}
-                              </button>
-                            )}
+                            {isAprobada && (() => {
+                              const otLinked = ordenes.find(o => o.cotizacion_id === c.id);
+                              return otLinked ? (
+                                <span className="flex items-center gap-1 text-[10px] font-bold text-[#7C3AED] bg-[#F5F3FF] px-2 py-1 rounded-lg font-mono">
+                                  <ClipboardList size={10} /> {otLinked.folio}
+                                </span>
+                              ) : (
+                                <button onClick={() => createOTFromCot(c)} disabled={creatingOT === c.id}
+                                  className="flex items-center gap-1 text-[10px] font-bold text-[#7C3AED] bg-[#F5F3FF] hover:bg-[#7C3AED] hover:text-white px-2 py-1 rounded-lg disabled:opacity-50">
+                                  {creatingOT === c.id ? <Activity size={10} className="animate-spin" /> : <><ClipboardList size={10} /> Crear OT</>}
+                                </button>
+                              );
+                            })()}
                             {c.pdf_path && (
                               <a href={c.pdf_path} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
                                 className="text-[#4E60A9] hover:text-[#3d4e8a] transition-colors"><FileDown size={14} /></a>
@@ -862,7 +870,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-100">
-                    {["Folio", "Equipo", "Falla", "Precio final", "Status", "Ingreso", "Entrega"].map(h => (
+                    {["Folio", "Cotización", "Equipo", "Falla", "Precio final", "Status", "Ingreso", "Entrega"].map(h => (
                       <th key={h} className="px-5 py-3 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
@@ -873,10 +881,19 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                     return (
                       <tr key={o.id} className="hover:bg-[#F8FAFC] transition-colors">
                         <td className="px-5 py-3 text-[12px] font-mono font-bold text-gray-600">{o.folio}</td>
+                        <td className="px-5 py-3">
+                          {o.cotizacion_folio ? (
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-2 py-1 rounded-lg font-mono w-fit">
+                              <FileText size={9} /> {o.cotizacion_folio}
+                            </span>
+                          ) : (
+                            <span className="text-[11px] text-gray-300">—</span>
+                          )}
+                        </td>
                         <td className="px-5 py-3 text-[12px] text-gray-700">
                           {[o.equipo_tipo, o.equipo_marca, o.equipo_modelo].filter(Boolean).join(" ") || "—"}
                         </td>
-                        <td className="px-5 py-3 text-[11px] text-gray-500 max-w-[200px] truncate">{o.falla_reportada || "—"}</td>
+                        <td className="px-5 py-3 text-[11px] text-gray-500 max-w-[180px] truncate">{o.falla_reportada || "—"}</td>
                         <td className="px-5 py-3 text-[13px] font-bold text-[#1E293B]">{$f(o.precio_final)}</td>
                         <td className="px-5 py-3">
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: so.bg, color: so.text }}>{so.label}</span>
