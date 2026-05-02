@@ -224,22 +224,11 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                 <div>
                   <h1 className="text-[20px] font-extrabold text-[#1E293B] leading-tight">{lead.nombre}</h1>
                   <p className="text-[13px] text-gray-500 mt-0.5">{lead.sub_nicho || lead.nicho}</p>
-                  {lead.decisor_nombre && (
-                    <p className="text-[12px] text-gray-400 mt-0.5">
-                      Contacto: <span className="font-semibold text-[#1E293B]">{lead.decisor_nombre}</span>
-                      {lead.decisor_cargo && <span className="text-gray-400"> · {lead.decisor_cargo}</span>}
-                    </p>
-                  )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="px-3 py-1 rounded-full text-[12px] font-bold" style={{ background: st.bg, color: st.text }}>
                     {st.label}
                   </span>
-                  {lead.score_potencial != null && (
-                    <span className="px-3 py-1 rounded-full text-[12px] font-bold bg-amber-50 text-amber-700">
-                      Score {lead.score_potencial}/10
-                    </span>
-                  )}
                 </div>
               </div>
 

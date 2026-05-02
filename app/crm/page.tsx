@@ -45,7 +45,6 @@ export default function CRMPage() {
   const [q, setQ]                 = useState("");
   const [filterS, setFilterS]     = useState("todos");
   const [filterNicho, setFilterNicho] = useState("");
-  const [filterScore, setFilterScore] = useState(0);
   const [filterMios, setFilterMios]   = useState(false);
   const [filterAgente, setFilterAgente] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -55,11 +54,9 @@ export default function CRMPage() {
   const [ints, setInts]           = useState<Record<number,Interaccion[]>>({});
   const [scripts, setScripts]     = useState<Record<number,Scripts>>({});
   const [loadScr, setLoadScr]     = useState<number|null>(null);
-  const [editNota, setEditNota]   = useState<Record<number,string>>({});
   const [newCont, setNewCont]     = useState("");
   const [newTipo, setNewTipo]     = useState("mensaje_wa");
   const [newRes, setNewRes]       = useState("sin_respuesta");
-  const [enrichingId, setEnrichingId] = useState<number|null>(null);
   const [copied, setCopied]       = useState<string|null>(null);
   const [copiedRow, setCopiedRow] = useState<number|null>(null);
   const [showNuevoLead, setShowNuevoLead] = useState(false);
@@ -96,7 +93,6 @@ export default function CRMPage() {
       if (filterS !== 'todos') p.set('status', filterS);
       if (q.trim()) p.set('q', q.trim());
       if (filterNicho) p.set('nicho', filterNicho);
-      if (filterScore > 0) p.set('min_score', String(filterScore));
       if (filterAgente) p.set('asignado_a', filterAgente);
       else if (filterMios && myName) p.set('asignado_a', myName);
       p.set('limit', '75');
@@ -110,7 +106,7 @@ export default function CRMPage() {
     }, delay);
     return ()=>{ cancelled=true; clearTimeout(timer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[filterS, q, filterNicho, filterScore, filterMios, filterAgente, myName]);
+  },[filterS, q, filterNicho, filterMios, filterAgente, myName]);
 
   const loadMore = async () => {
     if (loadingMore) return;
@@ -120,7 +116,6 @@ export default function CRMPage() {
     if (filterS !== 'todos') p.set('status', filterS);
     if (q.trim()) p.set('q', q.trim());
     if (filterNicho) p.set('nicho', filterNicho);
-    if (filterScore > 0) p.set('min_score', String(filterScore));
     if (filterAgente) p.set('asignado_a', filterAgente);
     else if (filterMios && myName) p.set('asignado_a', myName);
     p.set('limit', '75');
@@ -162,15 +157,6 @@ export default function CRMPage() {
     setLoadScr(null);
   };
 
-  const handleEnrich = async (lead: Lead) => {
-    setEnrichingId(lead.id);
-    const d = await fetch("/api/enrich",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:lead.id})}).then(r=>r.json());
-    if (d.enrichment) {
-      setLeads(p=>p.map(l=>l.id===lead.id?{...l,score_potencial:d.enrichment.score_potencial_biomed,razon_score:d.enrichment.razon_score}:l));
-    }
-    setEnrichingId(null);
-  };
-
   const copyText = (key:string,text:string) => {
     navigator.clipboard.writeText(text);
     setCopied(key); setTimeout(()=>setCopied(null),1500);
@@ -208,7 +194,7 @@ export default function CRMPage() {
   };
 
   const nichosUnicos = [...new Set(leads.map(l=>l.nicho).filter(Boolean))] as string[];
-  const activeFilters = (filterNicho ? 1 : 0) + (filterScore > 0 ? 1 : 0) + (filterAgente ? 1 : 0);
+  const activeFilters = (filterNicho ? 1 : 0) + (filterAgente ? 1 : 0);
 
   return (
     <div className="h-full flex flex-col font-sans relative">
@@ -288,15 +274,8 @@ export default function CRMPage() {
               <option value="">Todos los agentes</option>
               {usuarios.map(u=><option key={u.id} value={u.nombre}>{u.nombre}</option>)}
             </select>
-            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-2">
-              <span className="text-[12px] font-medium text-gray-500">Score mín:</span>
-              <input type="range" min={0} max={10} step={1} value={filterScore}
-                onChange={e=>setFilterScore(Number(e.target.value))}
-                className="w-24 accent-[#4E60A9]"/>
-              <span className="text-[12px] font-bold text-[#4E60A9] w-6 text-center">{filterScore > 0 ? filterScore : "—"}</span>
-            </div>
             {activeFilters > 0 && (
-              <button onClick={()=>{ setFilterNicho(""); setFilterScore(0); setFilterAgente(""); }}
+              <button onClick={()=>{ setFilterNicho(""); setFilterAgente(""); }}
                 className="flex items-center gap-1.5 text-[12px] font-bold text-red-400 hover:text-red-600 bg-red-50 px-3 py-2 rounded-full transition-colors">
                 <X size={12}/> Limpiar filtros
               </button>
@@ -321,18 +300,15 @@ export default function CRMPage() {
                   <th className="w-12">Ref</th>
                   <th>Razón Social</th>
                   <th className="w-40 text-center">Estado CRM</th>
-                  <th className="w-20 text-center">Score</th>
                   <th>Nicho</th>
                   <th className="w-28 text-center">Agente</th>
                   <th className="w-28 text-center">Próx. Contacto</th>
-                  <th className="w-36 text-center">Decisor</th>
-                  <th className="w-48 text-center">Notas rápidas</th>
                   <th className="w-32 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {loading && (
-                  <tr><td colSpan={11} className="py-32 text-center text-[13px] font-medium text-gray-400">
+                  <tr><td colSpan={8} className="py-32 text-center text-[13px] font-medium text-gray-400">
                     <Activity size={18} className="inline animate-spin mr-2 text-blue-500"/>Cargando pipeline...
                   </td></tr>
                 )}
@@ -340,7 +316,6 @@ export default function CRMPage() {
                   const st    = S[lead.status_crm] || S.nuevo;
                   const isExp = expanded === lead.id;
                   const isSel = selectedIds.has(lead.id);
-                  const nota  = editNota[lead.id] ?? lead.notas ?? "";
                   const proxFecha = lead.fecha_proximo_contacto ? new Date(lead.fecha_proximo_contacto) : null;
                   const hoy = new Date(); hoy.setHours(0,0,0,0);
                   const proxVencida = proxFecha && proxFecha < hoy;
@@ -368,21 +343,6 @@ export default function CRMPage() {
                             style={{color:st.color, backgroundColor:st.bg}}>
                             {STATUS_OPTS.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
                           </select>
-                        </td>
-                        <td className="text-center" onClick={e=>e.stopPropagation()}>
-                          {lead.score_potencial ? (
-                            <span className="text-[14px] font-extrabold tabular-nums"
-                              style={{color:lead.score_potencial>=7?"#34A853":lead.score_potencial>=4?"#F59E0B":"#94A3B8"}}>
-                              {lead.score_potencial.toFixed(1)}
-                            </span>
-                          ) : enrichingId===lead.id ? (
-                            <Activity size={12} className="inline animate-spin text-[#4E60A9]"/>
-                          ) : (
-                            <button onClick={()=>handleEnrich(lead)}
-                              className="text-[10px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-2 py-1 rounded-full transition-colors">
-                              Analizar
-                            </button>
-                          )}
                         </td>
                         <td className="text-[12px] font-medium text-[#64748B] max-w-[140px] truncate">{lead.nicho||"—"}</td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
@@ -414,24 +374,6 @@ export default function CRMPage() {
                               {proxFecha.toLocaleDateString("es-MX",{day:"2-digit",month:"short"})}
                             </span>
                           ) : <span className="text-gray-300 text-[11px]">—</span>}
-                        </td>
-                        <td className="text-center" onClick={e=>e.stopPropagation()}>
-                          {lead.decisor_nombre
-                            ? <div className="text-[12px] text-[#202538] font-bold">{lead.decisor_nombre}</div>
-                            : <a href={`https://www.google.com/search?q=${encodeURIComponent(lead.nombre+" director OR gerente OR dueño site:linkedin.com")}`}
-                                target="_blank" rel="noopener noreferrer"
-                                className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-1.5 rounded-full transition-colors inline-block">
-                                Buscar ↗</a>}
-                        </td>
-                        <td className="text-center" onClick={e=>e.stopPropagation()}>
-                          <div className="px-2">
-                            <input value={nota}
-                              onChange={e=>setEditNota(p=>({...p,[lead.id]:e.target.value}))}
-                              onBlur={()=>patchLead(lead.id,{notas:nota})}
-                              placeholder="Añadir seguimiento..."
-                              className="w-full text-[12px] px-3 py-2 bg-gray-50 border border-gray-100 placeholder:text-gray-400 focus:bg-white focus:border-blue-300 rounded-lg outline-none text-[#202538] font-medium"
-                              onClick={e=>e.stopPropagation()} />
-                          </div>
                         </td>
                         <td onClick={e=>e.stopPropagation()} className="pb-4 pt-4 pr-1">
                           <div className="flex items-center justify-end gap-1 px-2">
@@ -473,7 +415,7 @@ export default function CRMPage() {
                       {/* Expansion Row */}
                       {isExp && (
                         <tr className="bg-[#FAFBFD] border-x-0 shadow-inner">
-                          <td colSpan={11} className="p-0">
+                          <td colSpan={8} className="p-0">
                             <div className="grid grid-cols-2 divide-x divide-gray-200">
                               <div className="p-8 py-6">
                                 <h3 className="text-[13px] font-bold text-gray-400 uppercase tracking-widest mb-4">Registro de Interacciones</h3>
@@ -576,11 +518,11 @@ export default function CRMPage() {
                   );
                 })}
                 {!loading && leads.length===0 && (
-                  <tr><td colSpan={11} className="py-32 text-center text-[14px] font-medium text-gray-400">Sin resultados para la búsqueda actual.</td></tr>
+                  <tr><td colSpan={8} className="py-32 text-center text-[14px] font-medium text-gray-400">Sin resultados para la búsqueda actual.</td></tr>
                 )}
                 {!loading && leads.length < total && (
                   <tr>
-                    <td colSpan={11} className="py-4 text-center border-t border-dashed border-gray-200">
+                    <td colSpan={8} className="py-4 text-center border-t border-dashed border-gray-200">
                       <button onClick={loadMore} disabled={loadingMore}
                         className="text-[12px] font-bold text-gray-400 hover:text-[#4E60A9] transition-colors disabled:opacity-50">
                         {loadingMore
@@ -621,9 +563,6 @@ export default function CRMPage() {
                       const proxFecha = lead.fecha_proximo_contacto ? new Date(lead.fecha_proximo_contacto+"T00:00:00") : null;
                       const hoy = new Date(); hoy.setHours(0,0,0,0);
                       const venc = proxFecha && proxFecha < hoy;
-                      const sc = lead.score_potencial;
-                      const scoreColor = sc && sc>=7 ? "#059669" : sc && sc>=4 ? "#D97706" : "#94A3B8";
-                      const scoreBg   = sc && sc>=7 ? "#ECFDF5" : sc && sc>=4 ? "#FFFBEB" : "#F1F5F9";
                       return (
                         <div key={lead.id}
                           onClick={()=>{ setModalLead(lead); loadInts(lead.id); }}
@@ -640,16 +579,8 @@ export default function CRMPage() {
                             (e.currentTarget as HTMLElement).style.boxShadow = "0 2px 8px -3px rgba(0,0,0,0.05)";
                             (e.currentTarget as HTMLElement).style.borderColor = venc ? "#FECACA" : "#E8EFF8";
                           }}>
-                          {/* Nombre + score */}
-                          <div className="flex items-start justify-between gap-2 mb-1.5">
-                            <div className="font-bold text-[13px] text-[#1E293B] leading-snug flex-1">{lead.nombre}</div>
-                            {sc && (
-                              <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full shrink-0"
-                                style={{color: scoreColor, background: scoreBg}}>
-                                {sc}/10
-                              </span>
-                            )}
-                          </div>
+                          {/* Nombre */}
+                          <div className="font-bold text-[13px] text-[#1E293B] leading-snug mb-1.5">{lead.nombre}</div>
                           {/* Nicho + ciudad */}
                           <div className="text-[11px] text-[#94A3B8] mb-2 truncate">{lead.nicho||"—"} · {lead.ciudad||"—"}</div>
                           {/* Agente asignado */}
@@ -675,12 +606,6 @@ export default function CRMPage() {
                               </select>
                             )}
                           </div>
-                          {/* Decisor */}
-                          {lead.decisor_nombre && (
-                            <div className="text-[11px] font-semibold text-[#7C3AED] bg-[#F5F3FF] px-2 py-1 rounded-lg mb-2 truncate">
-                              👤 {lead.decisor_nombre}
-                            </div>
-                          )}
                           {/* Notas preview */}
                           {lead.notas && (
                             <div className="text-[11px] text-[#64748B] bg-[#F8FAFC] px-2.5 py-1.5 rounded-lg mb-2 leading-snug"

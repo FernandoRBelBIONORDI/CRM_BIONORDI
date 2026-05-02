@@ -320,12 +320,6 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-[11px] font-bold text-gray-400 mono">#{String(lead.id).padStart(4, "0")}</span>
-                  {lead.score_potencial && (
-                    <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full"
-                      style={{ color: lead.score_potencial >= 7 ? "#34A853" : lead.score_potencial >= 4 ? "#D97706" : "#94A3B8", backgroundColor: lead.score_potencial >= 7 ? "#EEF9F1" : lead.score_potencial >= 4 ? "#FFFBEB" : "#F1F5F9" }}>
-                      ★ {lead.score_potencial.toFixed(1)}
-                    </span>
-                  )}
                 </div>
                 <h2 className="text-[20px] font-bold text-[#1E293B] tracking-tight leading-tight truncate">{lead.nombre}</h2>
                 {lead.ciudad && <p className="text-[12px] text-gray-400 font-medium mt-0.5">{lead.ciudad}{lead.estado_republica ? `, ${lead.estado_republica}` : ""}</p>}
@@ -392,7 +386,6 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                   { icon: Globe,    label: "Sitio web", val: lead.sitio_web, href: lead.sitio_web },
                   { icon: Tag,      label: "Nicho",     val: lead.nicho },
                   { icon: Building2,label: "Tamaño",    val: lead.tamano_estimado },
-                  { icon: User,     label: "Decisor",   val: lead.decisor_nombre ? `${lead.decisor_nombre}${lead.decisor_cargo ? ` · ${lead.decisor_cargo}` : ""}` : undefined },
                 ].map(({ icon: Icon, label, val, href }) => (
                   <div key={label} className={`flex items-start gap-2 p-2 rounded-lg ${val ? "bg-gray-50" : "opacity-0 pointer-events-none"}`}>
                     <Icon size={13} className="text-gray-400 mt-0.5 shrink-0" />
