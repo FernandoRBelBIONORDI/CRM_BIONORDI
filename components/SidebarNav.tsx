@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import {
   Home, Search, Database, Wrench, FileText,
-  Settings, ChevronLeft, ChevronRight, Layers, Users, MessageCircle, Map, FolderOpen, Mail, LogOut, UserCog,
+  Settings, ChevronLeft, ChevronRight, Layers, Users, MessageCircle, Map, FolderOpen, Mail, LogOut, UserCog, CalendarDays,
 } from "lucide-react";
 
 function Section({ label, collapsed }: { label: string; collapsed: boolean }) {
@@ -155,6 +155,7 @@ export default function SidebarNav() {
           <NavItem href={crmBadge > 0 ? "/crm?status=seguimiento" : "/crm"} icon={Database} label="CRM" active={is("/crm")} collapsed={collapsed} color="#4E60A9" badge={crmBadge} />
           <NavItem href="/barridos"   icon={FolderOpen} label="Barridos"   active={is("/barridos")}     collapsed={collapsed} color="#4E60A9" />
           <NavItem href="/clientes"   icon={Users}      label="Clientes"   active={is("/clientes")}     collapsed={collapsed} color="#4E60A9" />
+          <NavItem href="/agenda"     icon={CalendarDays} label="Agenda"    active={is("/agenda")}       collapsed={collapsed} color="#0EA5E9" badge={(() => { const hoy = new Date().toISOString().slice(0, 10); return agenda.filter(e => e.fecha_proximo_contacto?.slice(0,10) <= hoy).length || undefined; })()} />
           <NavItem onClick={() => window.open('https://web.whatsapp.com', 'whatsapp_web')} icon={MessageCircle} label="WhatsApp" active={false} collapsed={collapsed} color="#25D366" />
           <NavItem href="/correo"     icon={Mail}          label="Correo"   active={is("/correo")}      collapsed={collapsed} color="#0EA5E9" />
           <Section label="Taller"    collapsed={collapsed} />
@@ -168,40 +169,35 @@ export default function SidebarNav() {
             <NavItem href="/usuarios" icon={UserCog} label="Usuarios" active={is("/usuarios")} collapsed={collapsed} />
           )}
 
-          {/* Agenda widget */}
-          {!collapsed && (
+          {/* Próximos seguimientos */}
+          {!collapsed && agenda.length > 0 && (
             <div className="mt-3 mx-1 mb-1">
-              <div className="px-2.5 pt-2 pb-1.5">
-                <span className="text-[9px] font-extrabold tracking-[0.12em] text-[#CBD5E1] uppercase">Agenda · 14 días</span>
+              <div className="px-2.5 pt-1 pb-1.5 flex items-center justify-between">
+                <span className="text-[9px] font-extrabold tracking-[0.12em] text-[#CBD5E1] uppercase">Próximos</span>
+                <Link href="/agenda" className="text-[9px] font-bold text-[#4E60A9] hover:underline">Ver todo</Link>
               </div>
-              <div className="rounded-xl border border-[#E8EFF8] bg-[#F8FAFC] overflow-hidden">
-                {agenda.length === 0 ? (
-                  <div className="px-3 py-3 text-[11px] text-[#94A3B8] text-center italic">Sin eventos próximos</div>
-                ) : (
-                  <div>
-                    {agenda.slice(0, 5).map((ev, i) => {
-                      const fecha = new Date(ev.fecha_proximo_contacto + "T00:00:00");
-                      const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
-                      const esHoy = fecha.toDateString() === hoy.toDateString();
-                      const vencido = fecha < hoy;
-                      return (
-                        <div key={i} className={`flex items-center gap-2 px-3 py-2 ${i < Math.min(agenda.length, 5) - 1 ? "border-b border-[#E8EFF8]" : ""}`}>
-                          <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${vencido ? "bg-red-400" : esHoy ? "bg-[#4E60A9]" : "bg-[#94A3B8]"}`} />
-                          <div className="flex-1 min-w-0">
-                            <div className="text-[11px] font-bold text-[#334155] truncate">{ev.lead_nombre}</div>
-                            <div className={`text-[10px] font-medium ${vencido ? "text-red-400" : esHoy ? "text-[#4E60A9]" : "text-[#94A3B8]"}`}>
-                              {esHoy ? "Hoy" : vencido ? "Vencido" : fecha.toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
-                            </div>
-                          </div>
+              <div className="rounded-xl border border-[#E8EFF8] bg-[#F8FAFC] overflow-hidden divide-y divide-[#E8EFF8]">
+                {agenda.slice(0, 4).map((ev, i) => {
+                  const fecha   = new Date(ev.fecha_proximo_contacto + "T00:00:00");
+                  const hoy     = new Date(); hoy.setHours(0, 0, 0, 0);
+                  const esHoy   = fecha.toDateString() === hoy.toDateString();
+                  const vencido = fecha < hoy;
+                  return (
+                    <div key={i} className="flex items-center gap-2 px-2.5 py-2">
+                      <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${vencido ? "bg-red-400" : esHoy ? "bg-[#4E60A9]" : "bg-[#94A3B8]"}`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[10px] font-bold text-[#334155] truncate">{ev.lead_nombre}</div>
+                        <div className={`text-[9px] font-semibold ${vencido ? "text-red-400" : esHoy ? "text-[#4E60A9]" : "text-[#94A3B8]"}`}>
+                          {esHoy ? "Hoy" : vencido ? "Vencido" : fecha.toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
                         </div>
-                      );
-                    })}
-                    {agenda.length > 5 && (
-                      <div className="px-3 py-1.5 border-t border-[#E8EFF8] text-center">
-                        <span className="text-[10px] font-bold text-[#4E60A9]">+{agenda.length - 5} más</span>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  );
+                })}
+                {agenda.length > 4 && (
+                  <Link href="/agenda" className="block px-2.5 py-1.5 text-center text-[9px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] transition-colors">
+                    +{agenda.length - 4} más
+                  </Link>
                 )}
               </div>
             </div>
