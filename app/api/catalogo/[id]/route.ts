@@ -3,6 +3,26 @@ import db from '@/lib/db';
 import fs from 'fs';
 import path from 'path';
 
+const DB_UPLOADS = path.join(process.cwd(), 'db', 'uploads');
+
+function deleteUploadedFile(storedPath: string) {
+  try {
+    // Supports both new format (/api/file/subfolder/file) and old (/uploads/subfolder/file)
+    let rel: string;
+    if (storedPath.startsWith('/api/file/')) {
+      rel = storedPath.replace(/^\/api\/file\//, '');
+    } else if (storedPath.startsWith('/uploads/')) {
+      // old format — files may no longer exist (public/ is ephemeral on Railway)
+      rel = storedPath.replace(/^\/uploads\//, '');
+    } else {
+      return;
+    }
+    const abs = path.join(DB_UPLOADS, rel);
+    if (!abs.startsWith(DB_UPLOADS)) return; // path traversal guard
+    if (fs.existsSync(abs)) fs.unlinkSync(abs);
+  } catch {}
+}
+
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: rawId } = await params;
   const id = Number(rawId);
@@ -34,20 +54,11 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const id = Number(rawId);
   const equipo = db.prepare('SELECT imagen_path, fotos_json, brochure_path FROM catalogo_equipos WHERE id = ?').get(id) as any;
 
-  const pathsToDelete: string[] = [];
-  if (equipo?.imagen_path) pathsToDelete.push(equipo.imagen_path);
-  if (equipo?.brochure_path) pathsToDelete.push(equipo.brochure_path);
+  if (equipo?.imagen_path) deleteUploadedFile(equipo.imagen_path);
+  if (equipo?.brochure_path) deleteUploadedFile(equipo.brochure_path);
   if (equipo?.fotos_json) {
-    try { pathsToDelete.push(...JSON.parse(equipo.fotos_json)); } catch {}
-  }
-
-  const uploadsDir = path.resolve(process.cwd(), 'public', 'uploads');
-  for (const p of pathsToDelete) {
     try {
-      const abs = path.resolve(process.cwd(), 'public', p.replace(/^\//, ''));
-      // Previene path traversal: solo eliminar dentro de public/uploads
-      if (!abs.startsWith(uploadsDir)) continue;
-      if (fs.existsSync(abs)) fs.unlinkSync(abs);
+      for (const p of JSON.parse(equipo.fotos_json)) deleteUploadedFile(p);
     } catch {}
   }
 
