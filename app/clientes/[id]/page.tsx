@@ -636,27 +636,27 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
               {/* Mensajes rápidos WA */}
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                 <h3 className="text-[13px] font-extrabold text-[#1E293B] mb-3">Mensajes rápidos WA</h3>
-                <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
                   {waTemplates(lead).map((tpl, i) => (
-                    <div key={i} className="bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
-                      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
-                        <span className="text-[11px] font-bold text-[#1E293B]">{tpl.label}</span>
-                        <div className="flex items-center gap-1.5">
-                          <button onClick={() => { navigator.clipboard.writeText(tpl.texto); setCopiedTpl(i); setTimeout(() => setCopiedTpl(null), 2000); }}
-                            className="flex items-center gap-1 text-[10px] font-bold text-gray-400 hover:text-[#4E60A9] transition-colors px-2 py-1 rounded-lg hover:bg-[#EEF3FC]">
-                            {copiedTpl === i ? <Check size={10} className="text-[#34A853]" /> : <MessageCircle size={10} />}
-                            {copiedTpl === i ? "Copiado" : "Copiar"}
-                          </button>
-                          {waLink(lead.whatsapp || lead.telefono) && (
-                            <a href={waLink(lead.whatsapp || lead.telefono, tpl.texto)!}
-                              target="_blank" rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-[10px] font-bold text-green-600 hover:text-white hover:bg-green-500 transition-colors px-2 py-1 rounded-lg bg-green-50">
-                              <ExternalLink size={10} /> Enviar
-                            </a>
-                          )}
-                        </div>
+                    <div key={i} className="bg-gray-50 rounded-xl border border-gray-100 overflow-hidden flex flex-col">
+                      <div className="px-2.5 pt-2 pb-1.5 border-b border-gray-100">
+                        <span className="text-[11px] font-bold text-[#1E293B] block truncate">{tpl.label}</span>
                       </div>
-                      <p className="px-3 py-2 text-[11px] text-gray-500 leading-relaxed whitespace-pre-wrap line-clamp-2">{tpl.texto}</p>
+                      <p className="px-2.5 py-2 text-[10px] text-gray-500 leading-relaxed whitespace-pre-wrap line-clamp-3 flex-1">{tpl.texto}</p>
+                      <div className="px-2.5 pb-2 pt-1 border-t border-gray-100 flex items-center gap-1.5 justify-end">
+                        <button onClick={() => { navigator.clipboard.writeText(tpl.texto); setCopiedTpl(i); setTimeout(() => setCopiedTpl(null), 2000); }}
+                          className="flex items-center gap-0.5 text-[9px] font-bold text-gray-400 hover:text-[#4E60A9] transition-colors px-1.5 py-1 rounded-lg hover:bg-[#EEF3FC]">
+                          {copiedTpl === i ? <Check size={9} className="text-[#34A853]" /> : <MessageCircle size={9} />}
+                          {copiedTpl === i ? "Copiado" : "Copiar"}
+                        </button>
+                        {waLink(lead.whatsapp || lead.telefono) && (
+                          <a href={waLink(lead.whatsapp || lead.telefono, tpl.texto)!}
+                            target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-0.5 text-[9px] font-bold text-green-600 hover:text-white hover:bg-green-500 transition-colors px-1.5 py-1 rounded-lg bg-green-50">
+                            <ExternalLink size={9} /> Enviar
+                          </a>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
