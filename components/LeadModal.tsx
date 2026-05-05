@@ -38,12 +38,13 @@ const S: Record<string, { label: string; color: string; bg: string }> = {
 const STATUS_OPTS = Object.entries(S).map(([k, v]) => ({ value: k, label: v.label }));
 
 const TIPO_OPTS = [
-  { value: "mensaje_wa",    label: "WhatsApp" },
-  { value: "llamada",       label: "Llamada" },
-  { value: "email",         label: "Email" },
-  { value: "visita",        label: "Visita" },
-  { value: "nota_interna",  label: "Nota interna" },
+  { value: "mensaje_wa",       label: "WhatsApp" },
+  { value: "llamada",          label: "Llamada" },
+  { value: "email",            label: "Email" },
+  { value: "visita_presencial", label: "Visita presencial" },
+  { value: "nota_interna",     label: "Nota interna" },
 ];
+const MATERIALES_OPTS = ["Tríptico", "Folleto", "Tarjeta de presentación", "Catálogo", "Muestra"];
 const RES_OPTS = [
   { value: "sin_respuesta",     label: "Sin respuesta" },
   { value: "interesado",        label: "Interesado" },
@@ -126,6 +127,8 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   const [newEquipo, setNewEquipo]     = useState({ tipo: "", marca: "", modelo: "", num_serie: "", estado: "activo", notas: "" });
   const [savingEq, setSavingEq]       = useState(false);
   const [creatingOT, setCreatingOT]   = useState<number | null>(null);
+  const [visitaMateriales, setVisitaMateriales] = useState<string[]>([]);
+  const [visitaProxima, setVisitaProxima]       = useState("");
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -219,13 +222,37 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   };
 
   const addInt = async () => {
-    if (!newCont.trim() || !lead) return;
+    if (!lead) return;
+    let contenido = newCont.trim();
+
+    if (newTipo === "visita_presencial") {
+      const parts: string[] = ["Visita presencial realizada."];
+      if (visitaMateriales.length > 0) parts.push(`Materiales entregados: ${visitaMateriales.join(", ")}.`);
+      if (contenido) parts.push(contenido);
+      contenido = parts.join("\n");
+      if (!contenido.trim()) return;
+    } else {
+      if (!contenido) return;
+    }
+
     setAddingInt(true);
     await fetch("/api/interactions", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ lead_id: lead.id, tipo: newTipo, contenido: newCont, resultado: newRes }),
+      body: JSON.stringify({ lead_id: lead.id, tipo: newTipo, contenido, resultado: newRes }),
     });
+
+    if (newTipo === "visita_presencial" && visitaProxima) {
+      await fetch("/api/leads", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: lead.id, fecha_proximo_contacto: visitaProxima }),
+      });
+      onUpdate(lead.id, { fecha_proximo_contacto: visitaProxima });
+      setProxDate(visitaProxima);
+    }
+
     setNewCont("");
+    setVisitaMateriales([]);
+    setVisitaProxima("");
     await loadInts(lead.id);
     setAddingInt(false);
   };
@@ -548,32 +575,32 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
             {/* WhatsApp Templates */}
             <div className="px-6 py-4 border-b border-gray-100">
               <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Mensajes Rápidos WA</h3>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 {waTemplates(lead).map((tpl, i) => (
-                  <div key={i} className="bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
-                    <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
-                      <span className="text-[11px] font-bold text-[#1E293B]">{tpl.label}</span>
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(tpl.texto);
-                            setCopiedTpl(i);
-                            setTimeout(() => setCopiedTpl(null), 2000);
-                          }}
-                          className="flex items-center gap-1 text-[10px] font-bold text-gray-400 hover:text-[#4E60A9] transition-colors px-2 py-1 rounded-lg hover:bg-[#EEF3FC]">
-                          {copiedTpl === i ? <Check size={10} className="text-[#34A853]" /> : <MessageCircle size={10} />}
-                          {copiedTpl === i ? "Copiado" : "Copiar"}
-                        </button>
-                        {waLink(lead.whatsapp || lead.telefono) && (
-                          <a href={waLink(lead.whatsapp || lead.telefono, tpl.texto)!}
-                            target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-[10px] font-bold text-green-600 hover:text-white hover:bg-green-500 transition-colors px-2 py-1 rounded-lg bg-green-50">
-                            <ExternalLink size={10} /> Enviar
-                          </a>
-                        )}
-                      </div>
+                  <div key={i} className="bg-gray-50 rounded-xl border border-gray-100 overflow-hidden flex flex-col">
+                    <div className="px-2.5 pt-2 pb-1.5 border-b border-gray-100">
+                      <span className="text-[11px] font-bold text-[#1E293B] block truncate">{tpl.label}</span>
                     </div>
-                    <p className="px-3 py-2 text-[11px] text-gray-500 font-medium leading-relaxed whitespace-pre-wrap line-clamp-3">{tpl.texto}</p>
+                    <p className="px-2.5 py-2 text-[10px] text-gray-500 font-medium leading-relaxed whitespace-pre-wrap line-clamp-3 flex-1">{tpl.texto}</p>
+                    <div className="px-2.5 pb-2 pt-1 border-t border-gray-100 flex items-center gap-1.5 justify-end">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(tpl.texto);
+                          setCopiedTpl(i);
+                          setTimeout(() => setCopiedTpl(null), 2000);
+                        }}
+                        className="flex items-center gap-0.5 text-[9px] font-bold text-gray-400 hover:text-[#4E60A9] transition-colors px-1.5 py-1 rounded-lg hover:bg-[#EEF3FC]">
+                        {copiedTpl === i ? <Check size={9} className="text-[#34A853]" /> : <MessageCircle size={9} />}
+                        {copiedTpl === i ? "Copiado" : "Copiar"}
+                      </button>
+                      {waLink(lead.whatsapp || lead.telefono) && (
+                        <a href={waLink(lead.whatsapp || lead.telefono, tpl.texto)!}
+                          target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-0.5 text-[9px] font-bold text-green-600 hover:text-white hover:bg-green-500 transition-colors px-1.5 py-1 rounded-lg bg-green-50">
+                          <ExternalLink size={9} /> Enviar
+                        </a>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -640,7 +667,7 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
               {/* Add interaction */}
               <div className="bg-gray-50 rounded-xl p-3 mb-4 border border-gray-100">
                 <div className="flex gap-2 mb-2">
-                  <select value={newTipo} onChange={e => setNewTipo(e.target.value)}
+                  <select value={newTipo} onChange={e => { setNewTipo(e.target.value); setVisitaMateriales([]); setVisitaProxima(""); }}
                     className="text-[11px] font-bold bg-white border border-gray-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer flex-1">
                     {TIPO_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
@@ -649,12 +676,40 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                     {RES_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
                 </div>
+
+                {/* Extra fields for visita presencial */}
+                {newTipo === "visita_presencial" && (
+                  <div className="mb-2 space-y-2 bg-white rounded-lg p-2.5 border border-gray-200">
+                    <div>
+                      <label className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest block mb-1.5">Materiales entregados</label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {MATERIALES_OPTS.map(m => (
+                          <label key={m} className="flex items-center gap-1.5 text-[11px] font-medium text-gray-600 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={visitaMateriales.includes(m)}
+                              onChange={e => setVisitaMateriales(p => e.target.checked ? [...p, m] : p.filter(x => x !== m))}
+                              className="w-3.5 h-3.5 rounded accent-[#4E60A9] cursor-pointer"
+                            />
+                            {m}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest block mb-1">Próxima visita agendada</label>
+                      <input type="date" value={visitaProxima} onChange={e => setVisitaProxima(e.target.value)}
+                        className="w-full text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-[#4E60A9]/40" />
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex gap-2">
                   <input value={newCont} onChange={e => setNewCont(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && addInt()}
-                    placeholder="¿Qué pasó? (Enter para guardar)"
+                    placeholder={newTipo === "visita_presencial" ? "Observaciones de la visita (opcional)" : "¿Qué pasó? (Enter para guardar)"}
                     className="flex-1 text-[12px] font-medium bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 placeholder:text-gray-400" />
-                  <button onClick={addInt} disabled={addingInt || !newCont.trim()}
+                  <button onClick={addInt} disabled={addingInt || (newTipo !== "visita_presencial" && !newCont.trim())}
                     className="w-9 h-9 flex items-center justify-center bg-[#4E60A9] text-white rounded-lg hover:bg-[#2B5FD9] transition-colors disabled:opacity-40">
                     {addingInt ? <Activity size={13} className="animate-spin" /> : <Plus size={14} />}
                   </button>

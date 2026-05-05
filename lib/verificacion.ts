@@ -15,7 +15,7 @@ export async function verifyContact(lead: {
     const cleanPhone = lead.telefono.replace(/\D/g, '');
     // Asumimos que si tiene 10 o 12 dígitos, es un WA válido como fallback
     if (cleanPhone.length >= 10) {
-      result.whatsapp_verificado = 1; 
+      result.whatsapp_verificado = 1;
     }
   }
 
@@ -31,7 +31,7 @@ export async function verifyContact(lead: {
       const id = setTimeout(() => controller.abort(), 3000);
       const res = await fetch(url, { method: 'HEAD', signal: controller.signal });
       clearTimeout(id);
-      
+
       if (res.ok) {
         result.sitio_activo = 1;
       }

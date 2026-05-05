@@ -80,6 +80,7 @@ export default function SidebarNav() {
   const [mounted, setMounted] = useState(false);
   const [crmBadge, setCrmBadge] = useState(0);
   const [tallerBadge, setTallerBadge] = useState(0);
+  const [agenda, setAgenda] = useState<any[]>([]);
 
   useEffect(() => {
     setMounted(true);
@@ -107,6 +108,10 @@ export default function SidebarNav() {
         const listas = (d.ordenes || []).filter((o: any) => o.status === "listo").length;
         setTallerBadge(listas);
       }).catch(() => {});
+    fetch("/api/agenda?days=14")
+      .then(r => r.json())
+      .then(d => setAgenda(d.agenda || []))
+      .catch(() => {});
   }, []);
 
   const is = (href: string) => href === "/" ? path === "/" : path.startsWith(href);
@@ -161,6 +166,45 @@ export default function SidebarNav() {
           <NavItem href="/configuracion" icon={Settings} label="Config"   active={is("/configuracion")} collapsed={collapsed} />
           {isAdmin && (
             <NavItem href="/usuarios" icon={UserCog} label="Usuarios" active={is("/usuarios")} collapsed={collapsed} />
+          )}
+
+          {/* Agenda widget */}
+          {!collapsed && (
+            <div className="mt-3 mx-1 mb-1">
+              <div className="px-2.5 pt-2 pb-1.5">
+                <span className="text-[9px] font-extrabold tracking-[0.12em] text-[#CBD5E1] uppercase">Agenda · 14 días</span>
+              </div>
+              <div className="rounded-xl border border-[#E8EFF8] bg-[#F8FAFC] overflow-hidden">
+                {agenda.length === 0 ? (
+                  <div className="px-3 py-3 text-[11px] text-[#94A3B8] text-center italic">Sin eventos próximos</div>
+                ) : (
+                  <div>
+                    {agenda.slice(0, 5).map((ev, i) => {
+                      const fecha = new Date(ev.fecha_proximo_contacto + "T00:00:00");
+                      const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+                      const esHoy = fecha.toDateString() === hoy.toDateString();
+                      const vencido = fecha < hoy;
+                      return (
+                        <div key={i} className={`flex items-center gap-2 px-3 py-2 ${i < Math.min(agenda.length, 5) - 1 ? "border-b border-[#E8EFF8]" : ""}`}>
+                          <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${vencido ? "bg-red-400" : esHoy ? "bg-[#4E60A9]" : "bg-[#94A3B8]"}`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[11px] font-bold text-[#334155] truncate">{ev.lead_nombre}</div>
+                            <div className={`text-[10px] font-medium ${vencido ? "text-red-400" : esHoy ? "text-[#4E60A9]" : "text-[#94A3B8]"}`}>
+                              {esHoy ? "Hoy" : vencido ? "Vencido" : fecha.toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {agenda.length > 5 && (
+                      <div className="px-3 py-1.5 border-t border-[#E8EFF8] text-center">
+                        <span className="text-[10px] font-bold text-[#4E60A9]">+{agenda.length - 5} más</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </nav>
 
