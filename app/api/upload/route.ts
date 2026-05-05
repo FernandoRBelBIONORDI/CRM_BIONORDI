@@ -34,6 +34,7 @@ export async function POST(req: Request) {
       isPdf: ext === 'pdf',
     });
   } catch (e: any) {
+    console.error('[upload] ERROR:', e);
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }

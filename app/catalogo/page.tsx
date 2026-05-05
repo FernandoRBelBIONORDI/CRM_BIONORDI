@@ -54,6 +54,7 @@ async function uploadFile(file: File, subfolder = "equipos"): Promise<string> {
   form.append("subfolder", subfolder);
   const res = await fetch("/api/upload", { method: "POST", body: form });
   const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
   return data.path || "";
 }
 
@@ -75,48 +76,64 @@ function EquipoModal({ equipo, onSave, onClose }: {
   const [brochure, setBrochure] = useState(equipo?.brochure_path || "");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadErr, setUploadErr] = useState("");
+  const [saveErr, setSaveErr] = useState("");
 
   const diagramaRef = useRef<HTMLInputElement>(null);
   const fotosRef = useRef<HTMLInputElement>(null);
   const brochureRef = useRef<HTMLInputElement>(null);
 
-  const handleDiagrama = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const doUpload = async (fn: () => Promise<void>) => {
+    setUploadErr("");
+    setUploading(true);
+    try {
+      await fn();
+    } catch (e: any) {
+      setUploadErr(e.message || "Error al subir archivo");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDiagrama = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     setImgPreview(URL.createObjectURL(file));
-    setUploading(true);
-    setImgPath(await uploadFile(file));
-    setUploading(false);
+    doUpload(async () => setImgPath(await uploadFile(file)));
   };
 
-  const handleFotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    setUploading(true);
-    const paths = await Promise.all(files.map(f => uploadFile(f)));
-    setFotos(prev => [...prev, ...paths.filter(Boolean)]);
-    setUploading(false);
-    e.target.value = "";
+  const handleFotos = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []); if (!files.length) return;
+    doUpload(async () => {
+      const paths = await Promise.all(files.map(f => uploadFile(f)));
+      setFotos(prev => [...prev, ...paths.filter(Boolean)]);
+      e.target.value = "";
+    });
   };
 
-  const handleBrochure = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBrochure = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
-    setUploading(true);
-    setBrochure(await uploadFile(file, "brochures"));
-    setUploading(false);
+    doUpload(async () => setBrochure(await uploadFile(file, "brochures")));
   };
 
   const removeFoto = (idx: number) => setFotos(prev => prev.filter((_, i) => i !== idx));
 
   const handleSave = async () => {
     if (!modelo.trim()) return;
+    setSaveErr("");
     setSaving(true);
-    const body = { tipo, marca, modelo, descripcion, imagen_path: imgPath, fotos_json: fotos, brochure_path: brochure, notas };
-    const res = equipo
-      ? await fetch(`/api/catalogo/${equipo.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
-      : await fetch("/api/catalogo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    const data = await res.json();
-    setSaving(false);
-    if (data.equipo) onSave(data.equipo);
+    try {
+      const body = { tipo, marca, modelo, descripcion, imagen_path: imgPath, fotos_json: fotos, brochure_path: brochure, notas };
+      const res = equipo
+        ? await fetch(`/api/catalogo/${equipo.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+        : await fetch("/api/catalogo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      if (data.equipo) onSave(data.equipo);
+    } catch (e: any) {
+      setSaveErr(e.message || "Error al guardar");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -233,7 +250,19 @@ function EquipoModal({ equipo, onSave, onClose }: {
           </Field>
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/60 shrink-0">
+        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/60 shrink-0 space-y-2">
+          {uploadErr && (
+            <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              <AlertCircle size={13} className="text-red-500 shrink-0" />
+              <span className="text-[11px] text-red-600 font-medium">Error al subir: {uploadErr}</span>
+            </div>
+          )}
+          {saveErr && (
+            <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              <AlertCircle size={13} className="text-red-500 shrink-0" />
+              <span className="text-[11px] text-red-600 font-medium">Error al guardar: {saveErr}</span>
+            </div>
+          )}
           <button onClick={handleSave} disabled={!modelo.trim() || saving || uploading}
             className="w-full py-2.5 bg-[#4E60A9] hover:bg-[#1e40af] text-white text-[13px] font-bold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
             {uploading ? "Subiendo archivos…" : saving ? "Guardando…" : equipo ? "Guardar cambios" : "Agregar al catálogo"}
