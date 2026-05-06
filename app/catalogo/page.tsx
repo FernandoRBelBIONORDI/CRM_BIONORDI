@@ -49,10 +49,12 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 async function uploadFile(file: File, subfolder = "equipos"): Promise<string> {
-  const form = new FormData();
-  form.append("file", file);
-  form.append("subfolder", subfolder);
-  const res = await fetch("/api/upload", { method: "POST", body: form });
+  const params = new URLSearchParams({ subfolder, filename: file.name });
+  const res = await fetch(`/api/upload?${params}`, {
+    method: "POST",
+    body: file,
+    headers: { "Content-Type": "application/octet-stream" },
+  });
   const data = await res.json();
   if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
   return data.path || "";

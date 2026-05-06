@@ -27,6 +27,8 @@ const securityHeaders = [
 
 const nextConfig = {
   serverExternalPackages: ["better-sqlite3"],
+  // Allow up to 25 MB through middleware (default 10 MB truncates file uploads)
+  middlewareClientMaxBodySize: 25 * 1024 * 1024,
   async headers() {
     return [
       {
