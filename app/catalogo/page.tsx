@@ -49,11 +49,19 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 async function uploadFile(file: File, subfolder = "equipos"): Promise<string> {
-  const params = new URLSearchParams({ subfolder, filename: file.name });
-  const res = await fetch(`/api/upload?${params}`, {
+  // Encode as base64 JSON — avoids Next.js 16 multipart body interception
+  const ab = await file.arrayBuffer();
+  const bytes = new Uint8Array(ab);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 8192) {
+    binary += String.fromCharCode(...(bytes.slice(i, i + 8192) as any));
+  }
+  const base64 = btoa(binary);
+
+  const res = await fetch("/api/upload", {
     method: "POST",
-    body: file,
-    headers: { "Content-Type": "application/octet-stream" },
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ subfolder, filename: file.name, data: base64 }),
   });
   const data = await res.json();
   if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
