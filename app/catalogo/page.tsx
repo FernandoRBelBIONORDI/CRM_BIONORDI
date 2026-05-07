@@ -286,21 +286,21 @@ function ShareModal({ equipo, onClose }: { equipo: Equipo; onClose: () => void }
     setStatus("loading");
     setErrorMsg("");
     try {
-      const res = await fetch(equipo.brochure_path || "");
-      if (!res.ok) throw new Error("No se pudo obtener el PDF");
-      const blob = await res.blob();
+      const res = await fetch(equipo.brochure_path || "", { cache: "no-store" });
+      if (!res.ok) throw new Error(`Error al obtener el PDF (${res.status})`);
+
+      const arrayBuffer = await res.arrayBuffer();
+      if (arrayBuffer.byteLength === 0) throw new Error("El archivo PDF está vacío");
+
       const filename = (equipo.brochure_path || "").split("/").pop() || "brochure.pdf";
+      const blob = new Blob([arrayBuffer], { type: "application/pdf" });
       const file = new File([blob], filename, { type: "application/pdf" });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: `Brochure ${nombre}`,
-        });
+        await navigator.share({ files: [file], title: `Brochure ${nombre}` });
         setStatus("done");
         setTimeout(() => setStatus("idle"), 2000);
       } else {
-        // Fallback: descarga directa
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
         a.download = filename;

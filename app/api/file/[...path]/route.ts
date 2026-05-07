@@ -35,10 +35,16 @@ export async function GET(
   const mime = MIME[ext] || 'application/octet-stream';
   const buffer = fs.readFileSync(filePath);
 
+  // PDFs: no-store so browsers always fetch fresh bytes for sharing/download
+  const cacheControl = ext === 'pdf'
+    ? 'no-store'
+    : 'public, max-age=31536000, immutable';
+
   return new NextResponse(buffer, {
     headers: {
       'Content-Type': mime,
-      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Content-Length': String(buffer.length),
+      'Cache-Control': cacheControl,
     },
   });
 }
