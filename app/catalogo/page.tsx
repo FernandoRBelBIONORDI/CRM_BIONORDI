@@ -278,60 +278,96 @@ function EquipoModal({ equipo, onSave, onClose }: {
 // ─── Modal compartir brochure ─────────────────────────────────────────────────
 
 function ShareModal({ equipo, onClose }: { equipo: Equipo; onClose: () => void }) {
-  const [copied, setCopied] = useState(false);
-  const url = typeof window !== "undefined"
-    ? `${window.location.origin}${equipo.brochure_path}`
-    : equipo.brochure_path || "";
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+  const nombre = [equipo.marca, equipo.modelo].filter(Boolean).join(" ");
 
-  const copy = async () => {
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const shareFile = async () => {
+    setStatus("loading");
+    setErrorMsg("");
+    try {
+      const res = await fetch(equipo.brochure_path || "");
+      if (!res.ok) throw new Error("No se pudo obtener el PDF");
+      const blob = await res.blob();
+      const filename = (equipo.brochure_path || "").split("/").pop() || "brochure.pdf";
+      const file = new File([blob], filename, { type: "application/pdf" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `Brochure ${nombre}`,
+        });
+        setStatus("done");
+        setTimeout(() => setStatus("idle"), 2000);
+      } else {
+        // Fallback: descarga directa
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        setStatus("done");
+        setTimeout(() => setStatus("idle"), 2000);
+      }
+    } catch (e: any) {
+      if (e?.name !== "AbortError") {
+        setErrorMsg(e.message || "Error al compartir");
+        setStatus("error");
+      } else {
+        setStatus("idle");
+      }
+    }
   };
 
-  const waMsg = encodeURIComponent(
-    `Te comparto el brochure del ${[equipo.marca, equipo.modelo].filter(Boolean).join(" ")}:\n${url}`
+  const WaIcon = () => (
+    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white shrink-0">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.554 4.103 1.523 5.826L.057 23.882l6.206-1.438A11.947 11.947 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 01-5.012-1.374l-.36-.214-3.724.862.893-3.618-.235-.372A9.818 9.818 0 012.182 12C2.182 6.573 6.573 2.182 12 2.182S21.818 6.573 21.818 12 17.427 21.818 12 21.818z"/>
+    </svg>
   );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-[420px] p-6 flex flex-col gap-4">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-[380px] p-6 flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-bold text-[14px] text-[#1E293B]">Compartir brochure</h3>
-            <p className="text-[11px] text-gray-400 mt-0.5">
-              {[equipo.marca, equipo.modelo].filter(Boolean).join(" ")}
-            </p>
+            <p className="text-[11px] text-gray-400 mt-0.5">{nombre}</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
             <X size={15} />
           </button>
         </div>
 
-        {/* URL */}
-        <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5">
-          <FileText size={13} className="text-gray-400 shrink-0" />
-          <span className="flex-1 text-[11px] text-gray-600 truncate font-mono">{url}</span>
-          <button onClick={copy}
-            className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-colors ${copied ? "bg-green-100 text-green-700" : "bg-white border border-gray-200 text-gray-500 hover:border-[#4E60A9]/40 hover:text-[#4E60A9]"}`}>
-            {copied ? <><Check size={11} /> Copiado</> : <><Copy size={11} /> Copiar</>}
-          </button>
-        </div>
-
-        {/* Acciones */}
         <div className="flex flex-col gap-2">
-          <a href={`https://wa.me/?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-white text-[13px] font-bold transition-colors"
+          {/* Compartir archivo — Web Share API / descarga */}
+          <button
+            onClick={shareFile}
+            disabled={status === "loading"}
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-white text-[13px] font-bold transition-colors disabled:opacity-60"
             style={{ backgroundColor: "#25D366" }}>
-            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.554 4.103 1.523 5.826L.057 23.882l6.206-1.438A11.947 11.947 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 01-5.012-1.374l-.36-.214-3.724.862.893-3.618-.235-.372A9.818 9.818 0 012.182 12C2.182 6.573 6.573 2.182 12 2.182S21.818 6.573 21.818 12 17.427 21.818 12 21.818z"/></svg>
-            Enviar por WhatsApp
-          </a>
+            {status === "loading" ? (
+              <><RefreshCw size={14} className="animate-spin" /> Preparando PDF…</>
+            ) : status === "done" ? (
+              <><Check size={14} /> ¡Compartido!</>
+            ) : (
+              <><WaIcon /> Enviar PDF por WhatsApp</>
+            )}
+          </button>
+
+          {errorMsg && (
+            <p className="text-[11px] text-red-500 text-center px-2">{errorMsg}</p>
+          )}
+
           <a href={equipo.brochure_path || ""} target="_blank"
             className="flex items-center justify-center gap-2 w-full py-2 rounded-xl border border-gray-200 text-gray-600 text-[12px] font-bold hover:border-[#4E60A9]/40 hover:text-[#4E60A9] transition-colors">
             <ExternalLink size={13} /> Abrir PDF
           </a>
         </div>
+
+        <p className="text-[10px] text-gray-400 text-center -mt-1">
+          Descarga el PDF y abre el panel de compartir del sistema para elegir WhatsApp
+        </p>
       </div>
     </div>
   );
