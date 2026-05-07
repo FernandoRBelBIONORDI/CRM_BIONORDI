@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 import fs from 'fs';
 import path from 'path';
 
@@ -6,10 +7,13 @@ const UPLOAD_ROOT = path.join(process.cwd(), 'db', 'uploads');
 const ALLOWED = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf']);
 const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
 
-// Accepts { subfolder, filename, data: base64 } as JSON.
-// Avoids multipart/form-data which Next.js 16 middleware truncates/corrupts.
+// This route is excluded from middleware to avoid Next.js 16 body truncation.
+// Auth is validated here directly.
 export async function POST(req: Request) {
   try {
+    const token = await getToken({ req: req as any, secret: process.env.NEXTAUTH_SECRET });
+    if (!token) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+
     const body = await req.json();
     const { subfolder: rawSub = 'equipos', filename = 'file', data } = body;
 
