@@ -7,9 +7,8 @@ const UPLOAD_ROOT = path.join(process.cwd(), 'db', 'uploads');
 const ALLOWED = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf']);
 const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
 
-// Bypasses middleware (see middleware.ts) so Next.js 16 never buffers the body.
-// Receives raw binary (Content-Type: application/octet-stream).
-// subfolder and filename come as query params.
+// Middleware bypassed (middleware.ts) — auth checked here via getToken.
+// Body: raw binary (application/octet-stream). subfolder + filename as query params.
 export async function POST(req: Request) {
   try {
     const token = await getToken({ req: req as any, secret: process.env.NEXTAUTH_SECRET });
@@ -24,26 +23,13 @@ export async function POST(req: Request) {
     if (!ALLOWED.has(ext))
       return NextResponse.json({ error: `Tipo no permitido (.${ext})` }, { status: 400 });
 
-    if (!req.body)
-      return NextResponse.json({ error: 'Sin body' }, { status: 400 });
-
-    // Stream the body directly — avoids Next.js 16 body size limit on req.json() / req.arrayBuffer()
-    const chunks: Buffer[] = [];
-    let totalSize = 0;
-    const reader = req.body.getReader();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      totalSize += value.length;
-      if (totalSize > MAX_BYTES)
-        return NextResponse.json({ error: 'Archivo demasiado grande (máx 20 MB)' }, { status: 413 });
-      chunks.push(Buffer.from(value));
-    }
-
-    const buffer = Buffer.concat(chunks);
-    if (buffer.length === 0)
+    const ab = await req.arrayBuffer();
+    if (ab.byteLength === 0)
       return NextResponse.json({ error: 'Archivo vacío' }, { status: 400 });
+    if (ab.byteLength > MAX_BYTES)
+      return NextResponse.json({ error: 'Archivo demasiado grande (máx 20 MB)' }, { status: 413 });
+
+    const buffer = Buffer.from(ab);
 
     const originalBase = String(filename)
       .replace(/\.[^.]+$/, '')
