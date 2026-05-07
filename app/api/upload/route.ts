@@ -45,7 +45,13 @@ export async function POST(req: Request) {
     if (buffer.length === 0)
       return NextResponse.json({ error: 'Archivo vacío' }, { status: 400 });
 
-    const newFilename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const originalBase = String(filename)
+      .replace(/\.[^.]+$/, '')
+      .replace(/[^a-z0-9_.-]/gi, '-')
+      .replace(/-{2,}/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 60) || 'file';
+    const newFilename = `${Date.now()}-${originalBase}.${ext}`;
     const uploadDir = path.join(UPLOAD_ROOT, subfolder);
     if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
     fs.writeFileSync(path.join(uploadDir, newFilename), buffer);
