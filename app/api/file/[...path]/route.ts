@@ -33,17 +33,22 @@ export async function GET(
 
   const ext = filePath.split('.').pop()?.toLowerCase() || '';
   const mime = MIME[ext] || 'application/octet-stream';
-  const buffer = fs.readFileSync(filePath);
+  const nodeBuffer = fs.readFileSync(filePath);
 
-  // PDFs: no-store so browsers always fetch fresh bytes for sharing/download
+  // Copy into a fresh standalone ArrayBuffer — avoids Node.js pool byteOffset issues with NextResponse
+  const ab = nodeBuffer.buffer.slice(
+    nodeBuffer.byteOffset,
+    nodeBuffer.byteOffset + nodeBuffer.byteLength,
+  );
+
   const cacheControl = ext === 'pdf'
     ? 'no-store'
     : 'public, max-age=31536000, immutable';
 
-  return new NextResponse(buffer, {
+  return new NextResponse(ab as ArrayBuffer, {
     headers: {
       'Content-Type': mime,
-      'Content-Length': String(buffer.length),
+      'Content-Length': String(nodeBuffer.length),
       'Cache-Control': cacheControl,
     },
   });
