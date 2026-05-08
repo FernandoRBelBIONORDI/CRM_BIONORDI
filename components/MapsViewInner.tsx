@@ -15,25 +15,12 @@ const STATUS_COLORS: Record<string, string> = {
   descartado:  "#DC2626",
 };
 
-function buildIcon(color: string, precise: boolean): L.DivIcon {
-  if (precise) {
-    // Pin real — más grande y con puntero
-    return L.divIcon({
-      html: `<div style="position:relative;width:18px;height:18px">
-        <div style="width:18px;height:18px;background:${color};border-radius:50%;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,0.35)"></div>
-        <div style="position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:6px solid ${color}"></div>
-      </div>`,
-      className: "",
-      iconSize: [18, 24],
-      iconAnchor: [9, 24],
-    });
-  }
-  // Ciudad aproximada — círculo pequeño semitransparente
+function buildIcon(color: string): L.DivIcon {
   return L.divIcon({
-    html: `<div style="width:11px;height:11px;background:${color};border-radius:50%;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,0.2);opacity:0.7"></div>`,
+    html: `<div style="width:13px;height:13px;background:${color};border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.25)"></div>`,
     className: "",
-    iconSize: [11, 11],
-    iconAnchor: [5, 5],
+    iconSize: [13, 13],
+    iconAnchor: [6, 6],
   });
 }
 
@@ -47,8 +34,6 @@ interface Lead {
   score_potencial?: number;
   status_crm: string;
   direccion?: string;
-  lat?: number;
-  lng?: number;
 }
 
 interface Props {
@@ -87,7 +72,6 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
     };
   }, []);
 
-  // Actualizar marcadores cuando cambian leads o filtros
   useEffect(() => {
     if (!markersRef.current || !mapRef.current) return;
     markersRef.current.clearLayers();
@@ -97,42 +81,30 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
     for (const lead of leads) {
       if (!visibleStatus.has(lead.status_crm)) continue;
 
-      // Coordenadas precisas guardadas, o inferir desde ciudad
-      const precise = !!(lead.lat && lead.lng);
-      let pos: [number, number];
+      const coords = getCoordsForCity(lead.ciudad);
+      if (!coords) continue;
 
-      if (precise) {
-        pos = [lead.lat!, lead.lng!];
-      } else {
-        const coords = getCoordsForCity(lead.ciudad);
-        if (!coords) continue;
-        // Jitter circular para evitar solapamiento en misma ciudad
-        const key = `${coords[0].toFixed(2)}_${coords[1].toFixed(2)}`;
-        coordMap[key] = coordMap[key] || [];
-        coordMap[key].push(lead);
-        const idx   = coordMap[key].length - 1;
-        const angle = idx * 137.508 * (Math.PI / 180);
-        const r     = idx === 0 ? 0 : 0.01 + Math.floor(idx / 8) * 0.01;
-        pos = [coords[0] + r * Math.sin(angle), coords[1] + r * Math.cos(angle)];
-      }
+      const key = `${coords[0].toFixed(2)}_${coords[1].toFixed(2)}`;
+      coordMap[key] = coordMap[key] || [];
+      coordMap[key].push(lead);
+
+      const idx   = coordMap[key].length - 1;
+      const angle = idx * 137.508 * (Math.PI / 180);
+      const r     = idx === 0 ? 0 : 0.01 + Math.floor(idx / 8) * 0.01;
+      const pos: [number, number] = [coords[0] + r * Math.sin(angle), coords[1] + r * Math.cos(angle)];
 
       const color  = STATUS_COLORS[lead.status_crm] || "#6B7280";
-      const icon   = buildIcon(color, precise);
+      const icon   = buildIcon(color);
       const marker = L.marker(pos, { icon });
 
       const scoreBar = lead.score_potencial
         ? `<div style="margin-top:4px"><span style="color:${scoreColor(lead.score_potencial)};font-weight:bold">${lead.score_potencial}/10</span> potencial</div>`
         : "";
 
-      const preciseTag = precise
-        ? `<span style="background:#D1FAE5;color:#065F46;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px">GPS ✓</span>`
-        : `<span style="background:#FEF3C7;color:#92400E;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px">aprox.</span>`;
-
       marker.bindPopup(`
-        <div style="font-family:monospace;font-size:12px;min-width:190px">
-          <div style="font-weight:700;font-size:13px;margin-bottom:4px">${lead.nombre}${preciseTag}</div>
+        <div style="font-family:monospace;font-size:12px;min-width:180px">
+          <div style="font-weight:700;font-size:13px;margin-bottom:4px">${lead.nombre}</div>
           <div style="color:#9CA3AF">${lead.nicho || ""} · ${lead.ciudad || ""}</div>
-          ${lead.direccion ? `<div style="color:#6B7280;font-size:11px;margin-top:2px">${lead.direccion}</div>` : ""}
           ${scoreBar}
           <div style="margin-top:8px;display:flex;gap:6px">
             ${waLink(lead.whatsapp || lead.telefono) ? `<a href="${waLink(lead.whatsapp || lead.telefono)}" target="whatsapp_web"
@@ -140,9 +112,8 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
             <a href="/clientes/${lead.id}" style="background:#0EA5E9;color:#fff;padding:3px 8px;border-radius:4px;text-decoration:none;font-size:11px">Ver lead</a>
           </div>
         </div>
-      `, { maxWidth: 260 });
+      `, { maxWidth: 240 });
 
-      // Heatmap: círculo grande semitransparente
       if (heatmap) {
         L.circle(pos, {
           radius: 8000,
@@ -160,7 +131,6 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
   return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
 }
 
-// Mapa simple ciudad → coordenadas aproximadas
 const CIUDAD_COORDS: Record<string, [number, number]> = {
   "ciudad de méxico": [19.43, -99.13],
   "cdmx":             [19.43, -99.13],
@@ -216,7 +186,6 @@ function getCoordsForCity(city?: string): [number, number] | null {
   for (const [k, v] of Object.entries(CIUDAD_COORDS)) {
     if (key.includes(k) || k.includes(key)) return v;
   }
-  // Fallback determinista basado en el nombre de la ciudad
   const h = cityHash(key);
   return [20 + (h % 700) / 100, -98 - (h % 1100) / 100];
 }

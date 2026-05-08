@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import MapsView from "@/components/MapsView";
-import { Layers, Map as MapIcon, LayoutGrid, Navigation, CheckCircle } from "lucide-react";
+import { Layers, Map as MapIcon, LayoutGrid } from "lucide-react";
 
 const CAPAS = [
   { key:"nuevo",       label:"Nuevo",       color:"#5A85F1", bg:"#EEF3FC" },
@@ -17,22 +17,10 @@ export default function MapsPage() {
   const [leads, setLeads]                 = useState<any[]>([]);
   const [visibleStatus, setVisibleStatus] = useState<Set<string>>(new Set(CAPAS.map(c=>c.key)));
   const [heatmap, setHeatmap]             = useState(false);
-  const [geocoding, setGeocoding]         = useState(false);
-  const [geoResult, setGeoResult]         = useState<{ok:number;fail:number;total:number}|null>(null);
 
-  const loadLeads = () =>
+  useEffect(()=>{
     fetch("/api/leads").then(r=>r.json()).then(d=>{ if(d.leads) setLeads(d.leads); });
-
-  useEffect(()=>{ loadLeads(); },[]);
-
-  const geocodeAll = async () => {
-    setGeocoding(true); setGeoResult(null);
-    const res = await fetch("/api/geocode", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ all: true }) });
-    const data = await res.json();
-    setGeoResult(data);
-    setGeocoding(false);
-    await loadLeads(); // refrescar marcadores
-  };
+  },[]);
 
   const toggleStatus = (key:string) => setVisibleStatus(prev=>{
     const n=new Set(prev); n.has(key)?n.delete(key):n.add(key); return n;
@@ -86,17 +74,6 @@ export default function MapsPage() {
 
           {/* Opciones */}
           <div className="border-t border-gray-100 p-4 space-y-2 shrink-0">
-            <button onClick={geocodeAll} disabled={geocoding}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl transition-all font-bold text-[12px] border bg-[#EEF3FC] text-[#4E60A9] border-[#4E60A9]/20 hover:bg-[#4E60A9] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed">
-              <Navigation size={14} className={geocoding ? "animate-pulse" : ""} />
-              {geocoding ? "Geocodificando…" : "Geocodificar todos"}
-            </button>
-            {geoResult && (
-              <div className="flex items-center gap-1.5 text-[10px] font-bold text-green-700 bg-green-50 rounded-lg px-2.5 py-1.5">
-                <CheckCircle size={11} />
-                {geoResult.ok} geocodificados · {geoResult.fail} sin resultado de {geoResult.total}
-              </div>
-            )}
             <button onClick={()=>setHeatmap(p=>!p)}
               className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl transition-all font-bold text-[12px] border ${heatmap?"bg-[#FFF7ED] text-[#EA580C] border-orange-200":"bg-gray-50 text-gray-500 border-gray-100 hover:bg-white hover:text-[#202538]"}`}>
               <LayoutGrid size={14}/> {heatmap ? "Ocultar heatmap" : "Mostrar heatmap"}
