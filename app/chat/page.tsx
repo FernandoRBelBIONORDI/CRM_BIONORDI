@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, Suspense } from "react";
 import { MessageCircle, QrCode, Search, Send, Activity, Info, Phone, ArrowLeft, Paperclip, ImageIcon, FileText, CheckCheck, Check, User, Building2, CalendarDays, Zap } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 interface Chat {
   chat_id: string;
@@ -27,7 +27,8 @@ interface Message {
 }
 
 function ChatContent() {
-  const { data: session } = useSession();
+  useSession();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialChatId = searchParams.get('chatId');
 
@@ -438,7 +439,7 @@ function ChatContent() {
               
               <div className="p-6">
                 <button 
-                  onClick={() => activeChat.lead_id ? window.open(`/clientes/${activeChat.lead_id}`, '_blank') : alert('Este contacto no es un lead todavía.')}
+                  onClick={() => activeChat.lead_id ? router.push(`/clientes/${activeChat.lead_id}`) : alert('Este contacto no es un lead todavía.')}
                   disabled={!activeChat.lead_id}
                   className="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[12px] py-2.5 rounded-xl transition-colors border border-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed">
                   Ver Ficha Completa
