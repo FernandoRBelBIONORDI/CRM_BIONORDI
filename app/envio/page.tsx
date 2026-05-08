@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { waLink as buildWaLink } from "@/lib/ui";
@@ -20,7 +20,7 @@ export default function EnvioPage() {
   const [copied, setCopied]         = useState<string|null>(null);
   const [editedScripts, setEditedScripts] = useState<Record<string,string>>({});
   const [editing, setEditing]       = useState<string|null>(null);
-  // Sent tracking: lead_id → { sent, followUpDate }
+  // Sent tracking: lead_id ? { sent, followUpDate }
   const [sent, setSent]             = useState<Record<number,{done:boolean;date:string}>>({});
 
   useEffect(()=>{ fetchLeads(); },[filterS]);
@@ -80,7 +80,7 @@ export default function EnvioPage() {
 
       <div className="flex-1 flex overflow-hidden p-6 pt-4 gap-[24px]">
 
-        {/* 01 — Selección */}
+        {/* 01  Selección */}
         <div className="w-[320px] shrink-0 card flex flex-col overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
             <h3 className="font-bold text-[14px] text-[#202538] flex items-center gap-2">
@@ -121,7 +121,7 @@ export default function EnvioPage() {
           </div>
         </div>
 
-        {/* 02 — Scripts IA */}
+        {/* 02  Scripts IA */}
         <div className="flex-1 card flex flex-col overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
             <h3 className="font-bold text-[14px] text-[#202538] flex items-center gap-2">
@@ -148,7 +148,7 @@ export default function EnvioPage() {
                 <div className="w-16 h-16 rounded-[20px] bg-[#EEF3FC] flex items-center justify-center">
                   <Sparkles size={28} className="text-[#4E60A9]" fill="currentColor"/>
                 </div>
-                <p className="text-[13px] font-bold text-[#202538]">Selecciona un lead y presiona ✦ para generar su script.</p>
+                <p className="text-[13px] font-bold text-[#202538]">Selecciona un lead y presiona ? para generar su script.</p>
               </div>
             )}
             {scripts && Object.entries(scripts).map(([k,txt])=>{
@@ -170,7 +170,7 @@ export default function EnvioPage() {
                       {copied===k ? <><Check size={11} className="text-green-500"/>Copiado</> : <><Copy size={11}/>Copiar</>}
                     </button>
                     {activeLead?.telefono && (
-                      <a href={waLink(activeLead,current)} target="whatsapp_web"
+                      <a href={waLink(activeLead,current)} 
                         onClick={()=>fetch("/api/script",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({lead_id:activeLead!.id,tipo:k})})}
                         className="flex items-center gap-1.5 text-[11px] font-bold bg-white border border-green-200 rounded-full px-3 py-1.5 text-green-600 hover:bg-green-50 transition-all">
                         <ExternalLink size={11}/>Abrir WA
@@ -192,7 +192,7 @@ export default function EnvioPage() {
           </div>
         </div>
 
-        {/* 03 — Envío + Cierre */}
+        {/* 03  Envío + Cierre */}
         <div className="w-[300px] shrink-0 card flex flex-col overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
             <h3 className="font-bold text-[14px] text-[#202538] flex items-center gap-2">

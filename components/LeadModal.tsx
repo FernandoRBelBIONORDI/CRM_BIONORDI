@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
@@ -68,27 +68,27 @@ function waTemplates(lead: Lead) {
     {
       etapa: "nuevo",
       label: "Primer contacto",
-      texto: `Hola, buenos días. Le contacto de parte de *Bionordi*, empresa especializada en reparación de transductores de ultrasonido médico.\n\nNos dedicamos a devolver la funcionalidad a equipos que presentan fallas, con garantía de 6 meses y tiempo de entrega de 5–7 días hábiles.\n\n¿Actualmente cuentan con algún transductor fuera de servicio o con fallas? Con gusto le brindamos diagnóstico sin costo.\n\nQuedo a sus órdenes. 🩺`,
+      texto: `Hola, buenos días. Le contacto de parte de *Bionordi*, empresa especializada en reparación de transductores de ultrasonido médico.\n\nNos dedicamos a devolver la funcionalidad a equipos que presentan fallas, con garantía de 6 meses y tiempo de entrega de 57 días hábiles.\n\n¿Actualmente cuentan con algún transductor fuera de servicio o con fallas? Con gusto le brindamos diagnóstico sin costo.\n\nQuedo a sus órdenes. ??`,
     },
     {
       etapa: "contactado",
       label: "Seguimiento (sin respuesta)",
-      texto: `Hola, buen día. Le escribo nuevamente de *Bionordi*.\n\nHace unos días le contacté sobre nuestro servicio de reparación de transductores de ultrasonido. ¿Tuvieron oportunidad de revisarlo?\n\nEntendemos que el tiempo es valioso; si lo prefieren puedo agendar una llamada rápida de 5 minutos para resolver sus dudas.\n\n¿Les viene bien esta semana? 🙏`,
+      texto: `Hola, buen día. Le escribo nuevamente de *Bionordi*.\n\nHace unos días le contacté sobre nuestro servicio de reparación de transductores de ultrasonido. ¿Tuvieron oportunidad de revisarlo?\n\nEntendemos que el tiempo es valioso; si lo prefieren puedo agendar una llamada rápida de 5 minutos para resolver sus dudas.\n\n¿Les viene bien esta semana? ??`,
     },
     {
       etapa: "seguimiento",
       label: "Cotización enviada",
-      texto: `Hola, buenos días. Le escribo de *Bionordi* para dar seguimiento a la cotización que les enviamos.\n\n¿Tuvieron oportunidad de revisarla? Con gusto aclaro cualquier punto o ajusto según sus necesidades.\n\nRecuerden que el diagnóstico es sin costo y trabajamos con garantía de 6 meses en todas nuestras reparaciones. ✅`,
+      texto: `Hola, buenos días. Le escribo de *Bionordi* para dar seguimiento a la cotización que les enviamos.\n\n¿Tuvieron oportunidad de revisarla? Con gusto aclaro cualquier punto o ajusto según sus necesidades.\n\nRecuerden que el diagnóstico es sin costo y trabajamos con garantía de 6 meses en todas nuestras reparaciones. ?`,
     },
     {
       etapa: "diagnostico",
       label: "Diagnóstico en proceso",
-      texto: `Hola, buenos días. Le informamos que el transductor de *${nombre}* ya se encuentra en nuestro taller en proceso de diagnóstico.\n\nEn cuanto tengamos el informe técnico completo le compartimos los detalles y el presupuesto para su aprobación.\n\nCualquier duda, aquí estamos. 🔧`,
+      texto: `Hola, buenos días. Le informamos que el transductor de *${nombre}* ya se encuentra en nuestro taller en proceso de diagnóstico.\n\nEn cuanto tengamos el informe técnico completo le compartimos los detalles y el presupuesto para su aprobación.\n\nCualquier duda, aquí estamos. ??`,
     },
     {
       etapa: "cliente",
       label: "Seguimiento post-venta (6 meses)",
-      texto: `Hola, buen día. Le contactamos de *Bionordi*.\n\nHan pasado aproximadamente 6 meses desde que realizamos la reparación de su transductor. Esperamos que el equipo haya funcionado sin inconvenientes. 😊\n\n¿Cuentan actualmente con algún transductor con fallas o que requiera mantenimiento preventivo? Con gusto les atendemos con la misma calidad y garantía.\n\nQuedo a sus órdenes.`,
+      texto: `Hola, buen día. Le contactamos de *Bionordi*.\n\nHan pasado aproximadamente 6 meses desde que realizamos la reparación de su transductor. Esperamos que el equipo haya funcionado sin inconvenientes. ??\n\n¿Cuentan actualmente con algún transductor con fallas o que requiera mantenimiento preventivo? Con gusto les atendemos con la misma calidad y garantía.\n\nQuedo a sus órdenes.`,
     },
   ].filter(t => !["diagnostico", "cliente"].includes(t.etapa) || t.etapa === lead.status_crm || t.etapa === "cliente");
 }
@@ -163,19 +163,24 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
 
   const loadInts = async (id: number) => {
     setLoadingInts(true);
-    const d = await fetch(`/api/interactions?lead_id=${id}`).then(r => r.json());
-    setInts(d.interacciones || []);
-    setLoadingInts(false);
+    try {
+      const d = await fetch(`/api/interactions?lead_id=${id}`).then(r => r.json());
+      setInts(d.interacciones || []);
+    } catch {} finally { setLoadingInts(false); }
   };
 
   const loadEquipos = async (id: number) => {
-    const d = await fetch(`/api/equipos?lead_id=${id}`).then(r => r.json());
-    setEquipos(d.equipos || []);
+    try {
+      const d = await fetch(`/api/equipos?lead_id=${id}`).then(r => r.json());
+      setEquipos(d.equipos || []);
+    } catch {}
   };
 
   const loadCotizaciones = async (id: number) => {
-    const d = await fetch(`/api/cotizaciones?lead_id=${id}`).then(r => r.json());
-    setCotizaciones(d.cotizaciones || []);
+    try {
+      const d = await fetch(`/api/cotizaciones?lead_id=${id}`).then(r => r.json());
+      setCotizaciones(d.cotizaciones || []);
+    } catch {}
   };
 
   const updateCotStatus = async (cotId: number, newStatus: string) => {
@@ -421,7 +426,7 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                       {href
                         ? <a href={href.startsWith("http") ? href : `https://${href}`} target="_blank" rel="noopener noreferrer"
                             className="text-[12px] font-bold text-[#4E60A9] hover:underline truncate block">{val}</a>
-                        : <div className="text-[12px] font-bold text-[#1E293B] truncate">{val || "—"}</div>}
+                        : <div className="text-[12px] font-bold text-[#1E293B] truncate">{val || ""}</div>}
                     </div>
                   </div>
                 ))}
@@ -444,12 +449,12 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                       Guardar
                     </button>
                     <button onClick={() => { setEditWA(false); setWaVal(lead.whatsapp || ""); }} className="text-[11px] text-gray-400 hover:text-gray-600 px-2 py-1.5">
-                      ✕
+                      ?
                     </button>
                   </div>
                 ) : lead.whatsapp ? (
                   <div className="flex items-center gap-2 flex-1">
-                    <a href={waLink(lead.whatsapp)!} target="whatsapp_web"
+                    <a href={waLink(lead.whatsapp)!} 
                       className="text-[12px] font-bold text-[#22C55E] hover:underline">{lead.whatsapp}</a>
                     <button onClick={() => setEditWA(true)} className="text-[10px] text-gray-400 hover:text-gray-600 underline ml-1">editar</button>
                   </div>
@@ -554,7 +559,7 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                   </button>
                 )}
               </div>
-              {proxVencida && <p className="text-[11px] text-[#DC2626] font-bold mt-1.5 ml-1">⚠ Seguimiento vencido</p>}
+              {proxVencida && <p className="text-[11px] text-[#DC2626] font-bold mt-1.5 ml-1">? Seguimiento vencido</p>}
             </div>
 
             {/* Notas */}

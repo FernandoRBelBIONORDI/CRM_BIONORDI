@@ -83,3 +83,23 @@ INSERT OR IGNORE INTO configuracion (clave, valor) VALUES ('zonas_cobertura', 'C
 INSERT OR IGNORE INTO configuracion (clave, valor) VALUES ('metodologia_venta', 'Problema-Agitación-Solución');
 INSERT OR IGNORE INTO configuracion (clave, valor) VALUES ('dias_alerta_seguimiento', '3');
 INSERT OR IGNORE INTO configuracion (clave, valor) VALUES ('dias_alerta_diagnostico', '5');
+
+-- WaSenderAPI Tablas
+CREATE TABLE IF NOT EXISTS chats_wa (
+  chat_id TEXT PRIMARY KEY,
+  name TEXT,
+  phone TEXT,
+  unread INTEGER DEFAULT 0,
+  last_message TEXT,
+  last_timestamp INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS mensajes_wa (
+  id TEXT PRIMARY KEY,
+  chat_id TEXT REFERENCES chats_wa(chat_id),
+  from_me INTEGER,
+  text TEXT,
+  timestamp INTEGER,
+  status TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_chat ON mensajes_wa(chat_id);

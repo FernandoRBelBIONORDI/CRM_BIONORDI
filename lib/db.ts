@@ -309,7 +309,36 @@ function initDb(): Database.Database {
       created_at  TEXT DEFAULT (datetime('now','localtime'))
     )
   `);
+  _db.exec(`
+    CREATE TABLE IF NOT EXISTS chats_wa (
+      chat_id        TEXT PRIMARY KEY,
+      name           TEXT,
+      phone          TEXT,
+      unread         INTEGER DEFAULT 0,
+      last_message   TEXT,
+      last_timestamp INTEGER DEFAULT 0
+    )
+  `);
+
+  _db.exec(`
+    CREATE TABLE IF NOT EXISTS mensajes_wa (
+      id        TEXT PRIMARY KEY,
+      chat_id   TEXT NOT NULL REFERENCES chats_wa(chat_id) ON DELETE CASCADE,
+      from_me   INTEGER DEFAULT 0,
+      text      TEXT,
+      timestamp INTEGER DEFAULT 0,
+      status    TEXT DEFAULT 'received'
+    )
+  `);
+
+  try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_mensajes_wa_chat ON mensajes_wa(chat_id)`); } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_wa_messages_phone ON wa_messages(phone)`); } catch {}
+  try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_interacciones_lead_id ON interacciones(lead_id)`); } catch {}
+  try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_ordenes_lead_id ON ordenes_trabajo(lead_id)`); } catch {}
+  try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_cotizaciones_lead_id ON cotizaciones(lead_id)`); } catch {}
+  try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_leads_status_crm ON leads(status_crm)`); } catch {}
+  try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_leads_ciudad ON leads(ciudad)`); } catch {}
+  try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_leads_proximo ON leads(fecha_proximo_contacto) WHERE fecha_proximo_contacto IS NOT NULL`); } catch {}
 
   return _db;
 }

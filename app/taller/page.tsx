@@ -29,12 +29,11 @@ function NuevaOrdenModal({ onClose, onCreate, initialLeadId }: { onClose: () => 
     fetch("/api/leads").then(r => r.json()).then(d => {
       const allLeads = d.leads || [];
       setLeads(allLeads);
-      // Pre-rellenar el nombre del lead en el buscador si viene del URL
       if (initialLeadId) {
         const lead = allLeads.find((l: any) => l.id === initialLeadId);
         if (lead) setQ(lead.nombre);
       }
-    });
+    }).catch(() => {});
   }, []);
 
   const leadsFiltered = leads.filter(l =>
@@ -184,9 +183,10 @@ export default function TallerPage() {
 
   const fetchOrdenes = async () => {
     setLoading(true);
-    const d = await fetch("/api/ordenes").then(r => r.json());
-    setOrdenes(d.ordenes || []);
-    setLoading(false);
+    try {
+      const d = await fetch("/api/ordenes").then(r => r.json());
+      setOrdenes(d.ordenes || []);
+    } catch {} finally { setLoading(false); }
   };
 
   const filtered = ordenes.filter(o => {

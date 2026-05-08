@@ -388,10 +388,11 @@ export default function CatalogoPage() {
 
   const load = async () => {
     setLoading(true);
-    const res = await fetch("/api/catalogo");
-    const data = await res.json();
-    setEquipos(data.equipos || []);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/catalogo");
+      const data = await res.json();
+      setEquipos(data.equipos || []);
+    } catch {} finally { setLoading(false); }
   };
 
   const handleSync = async () => {

@@ -49,8 +49,7 @@ export default function ConfiguracionPage() {
   useEffect(()=>{
     fetch("/api/config").then(r=>r.json()).then(d=>{
       if(d.config) setConfig(prev=>({...prev,...d.config}));
-      setLoading(false);
-    });
+    }).catch(()=>{}).finally(()=>setLoading(false));
   },[]);
 
   const handleSave = async () => {

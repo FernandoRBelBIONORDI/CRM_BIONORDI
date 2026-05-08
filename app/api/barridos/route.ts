@@ -10,14 +10,21 @@ export async function GET() {
     LIMIT 50
   `).all() as any[];
 
-  const barridos = rows.map(b => {
-    const statusBreakdown = db.prepare(`
-      SELECT status_crm, COUNT(*) as count
-      FROM leads WHERE barrido_id = ?
-      GROUP BY status_crm
-    `).all(b.id);
-    return { ...b, statusBreakdown };
-  });
+  // Single query for all status breakdowns — avoids N+1
+  const breakdowns = db.prepare(`
+    SELECT barrido_id, status_crm, COUNT(*) as count
+    FROM leads
+    WHERE barrido_id IS NOT NULL
+    GROUP BY barrido_id, status_crm
+  `).all() as any[];
+
+  const bdMap = new Map<number, any[]>();
+  for (const r of breakdowns) {
+    if (!bdMap.has(r.barrido_id)) bdMap.set(r.barrido_id, []);
+    bdMap.get(r.barrido_id)!.push({ status_crm: r.status_crm, count: r.count });
+  }
+
+  const barridos = rows.map(b => ({ ...b, statusBreakdown: bdMap.get(b.id) || [] }));
 
   return NextResponse.json({ barridos });
 }

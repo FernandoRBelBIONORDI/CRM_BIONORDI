@@ -40,8 +40,7 @@ export default function UsuariosPage() {
     setLoading(true);
     fetch("/api/usuarios").then(r => r.json()).then(d => {
       setUsuarios(d.usuarios || []);
-      setLoading(false);
-    });
+    }).catch(() => {}).finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, []);

@@ -156,7 +156,7 @@ export default function SidebarNav() {
           <NavItem href="/barridos"   icon={FolderOpen} label="Barridos"   active={is("/barridos")}     collapsed={collapsed} color="#4E60A9" />
           <NavItem href="/clientes"   icon={Users}      label="Clientes"   active={is("/clientes")}     collapsed={collapsed} color="#4E60A9" />
           <NavItem href="/agenda"     icon={CalendarDays} label="Agenda"    active={is("/agenda")}       collapsed={collapsed} color="#0EA5E9" badge={(() => { const hoy = new Date().toISOString().slice(0, 10); return agenda.filter(e => e.fecha_proximo_contacto?.slice(0,10) <= hoy).length || undefined; })()} />
-          <NavItem onClick={() => window.open('https://web.whatsapp.com', 'whatsapp_web')} icon={MessageCircle} label="WhatsApp" active={false} collapsed={collapsed} color="#25D366" />
+          <NavItem href="/chat"       icon={MessageCircle} label="WhatsApp"   active={is("/chat")}         collapsed={collapsed} color="#25D366" />
           <NavItem href="/correo"     icon={Mail}          label="Correo"   active={is("/correo")}      collapsed={collapsed} color="#0EA5E9" />
           <Section label="Taller"    collapsed={collapsed} />
           <NavItem href="/taller"     icon={Wrench}   label="Órdenes"     active={is("/taller")}       collapsed={collapsed} color="#7C3AED" badge={tallerBadge} />

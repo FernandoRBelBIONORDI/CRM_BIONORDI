@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Activity, Search, Download, Zap, MapPin, ArrowRight, UserPlus, Copy, Check,
@@ -305,7 +305,7 @@ export default function EncontrarPage() {
         <div className="flex items-center gap-3">
           {lastRes && (
             <span className="text-[12px] font-bold text-[#34A853] bg-[#EEF9F1] px-4 py-2 rounded-full tracking-tight">
-              ✓ {lastRes.added} lead{lastRes.added!==1?"s":""} nuevo{lastRes.added!==1?"s":""}
+              ? {lastRes.added} lead{lastRes.added!==1?"s":""} nuevo{lastRes.added!==1?"s":""}
               {lastRes.found>0 && <span className="font-medium text-[#64748B]"> · {lastRes.found} analizados</span>}
             </span>
           )}
@@ -417,7 +417,7 @@ export default function EncontrarPage() {
                                         <span className={`text-[11px] font-medium flex-1 truncate ${checked?"text-[#4E60A9]":"text-gray-600"}`}>{m}</span>
                                         {prog && (
                                           <span className={`text-[10px] font-bold shrink-0 ${prog.status==="running"?"text-orange-400":prog.status==="cancelled"?"text-gray-400":"text-[#34A853]"}`}>
-                                            {prog.status==="running"?"…":prog.status==="cancelled"?"✕":`+${prog.nuevos}`}
+                                            {prog.status==="running"?"":prog.status==="cancelled"?"?":`+${prog.nuevos}`}
                                           </span>
                                         )}
                                       </button>
@@ -475,7 +475,7 @@ export default function EncontrarPage() {
                   {fuente==="doctoralia" && (
                     <div className="space-y-2">
                       <p className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Especialidad</p>
-                      {/* Lista scrollable de chips — max-h evita que desborde el sidebar */}
+                      {/* Lista scrollable de chips  max-h evita que desborde el sidebar */}
                       <div className="max-h-[170px] overflow-y-auto space-y-1.5 pr-0.5">
                         {GRUPOS_ESP.map(({ grupo, items }) => (
                           <div key={grupo}>
@@ -557,7 +557,7 @@ export default function EncontrarPage() {
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <div className={`text-[12px] font-bold truncate ${isActive?"text-[#4E60A9]":"text-[#1E293B]"}`}>{b.nombre}</div>
-                            <div className="text-[10px] text-gray-400 font-medium mt-0.5">{fecha} · {b.estado||"—"}</div>
+                            <div className="text-[10px] text-gray-400 font-medium mt-0.5">{fecha} · {b.estado||""}</div>
                           </div>
                           <button suppressHydrationWarning onClick={e=>{
                             e.stopPropagation();
@@ -692,7 +692,7 @@ export default function EncontrarPage() {
                           </div>
                           {lead.score_potencial ? (
                             <span className="text-[12px] font-extrabold px-2 py-0.5 rounded-full shrink-0"
-                              style={{color:scoreColor,backgroundColor:scoreBg}}>★ {lead.score_potencial}/10</span>
+                              style={{color:scoreColor,backgroundColor:scoreBg}}>? {lead.score_potencial}/10</span>
                           ) : null}
                         </div>
                         <h4 className="font-bold text-[#1E293B] text-[14px] tracking-tight leading-snug">{lead.nombre}</h4>
@@ -708,10 +708,10 @@ export default function EncontrarPage() {
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-1.5 min-w-0">
                             <span className="text-[11px] font-bold text-gray-300 shrink-0">Tel</span>
-                            <span className="text-[12px] font-semibold text-[#1E293B] truncate">{lead.telefono||"—"}</span>
+                            <span className="text-[12px] font-semibold text-[#1E293B] truncate">{lead.telefono||""}</span>
                           </div>
                           {waLink(lead.whatsapp || lead.telefono) && (
-                            <a href={waLink(lead.whatsapp || lead.telefono)!} target="whatsapp_web"
+                            <a href={waLink(lead.whatsapp || lead.telefono)!} 
                               className="shrink-0 flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-50 hover:bg-green-500 hover:text-white px-2 py-1 rounded-full transition-colors">
                               <ArrowRight size={9}/> WA
                             </a>
@@ -720,7 +720,7 @@ export default function EncontrarPage() {
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-1.5 min-w-0">
                             <span className="text-[11px] font-bold text-gray-300 shrink-0">Email</span>
-                            <span className="text-[11px] font-medium text-[#1E293B] truncate">{lead.correo||"—"}</span>
+                            <span className="text-[11px] font-medium text-[#1E293B] truncate">{lead.correo||""}</span>
                           </div>
                           <button suppressHydrationWarning onClick={()=>{
                             const parts=[lead.nombre,lead.telefono||"",lead.correo||"",lead.sitio_web||""].filter(Boolean);
@@ -755,7 +755,7 @@ export default function EncontrarPage() {
                             <div className="flex items-center gap-1.5 min-w-0">
                               <UserCheck size={11} className={lead.asignado_a===myName?"text-green-600":"text-[#4E60A9]"}/>
                               <span className={`text-[11px] font-bold truncate ${lead.asignado_a===myName?"text-green-700":"text-[#4E60A9]"}`}>
-                                {lead.asignado_a===myName?"Tuyo":"→ "+lead.asignado_a}
+                                {lead.asignado_a===myName?"Tuyo":"? "+lead.asignado_a}
                               </span>
                             </div>
                             {lead.asignado_a===myName && (

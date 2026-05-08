@@ -1,23 +1,34 @@
 import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
+import fs from 'fs';
+
+const CHROME_PATHS = [
+  // Linux (Railway / nixpacks chromium)
+  '/run/current-system/sw/bin/chromium',
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+  '/usr/bin/google-chrome',
+  '/usr/bin/google-chrome-stable',
+  // macOS
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  // Windows
+  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+];
+
+function findChrome(): string {
+  for (const p of CHROME_PATHS) {
+    if (fs.existsSync(p)) return p;
+  }
+  throw new Error('Chrome/Chromium no encontrado. Instala Chrome o Chromium.');
+}
 
 export async function POST(req: Request) {
   try {
     const { html } = await req.json();
     if (!html) return NextResponse.json({ error: 'html requerido' }, { status: 400 });
 
-    const chromePaths = [
-      'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-      'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-    ];
-
-    let executablePath = chromePaths[0];
-    for (const p of chromePaths) {
-      try {
-        const fs = await import('fs');
-        if (fs.existsSync(p)) { executablePath = p; break; }
-      } catch {}
-    }
+    const executablePath = findChrome();
 
     const browser = await puppeteer.launch({
       executablePath,

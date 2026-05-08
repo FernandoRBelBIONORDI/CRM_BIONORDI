@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -134,7 +134,7 @@ export default function Dashboard() {
   return (
     <div className="h-full flex flex-col gap-4 font-sans overflow-y-auto pb-6">
 
-      {/* ── Welcome ── */}
+      {/* -- Welcome -- */}
       <div className="flex justify-between items-end px-5 mt-3">
         <div>
           <h1 className="text-[38px] font-medium text-[#202538] leading-tight tracking-[-1px]">Bienvenido, {session?.user?.name?.split(" ")[0] ?? ""}.</h1>
@@ -182,7 +182,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── Sub-app cards ── */}
+      {/* -- Sub-app cards -- */}
       <div className="px-5 flex gap-4">
         <SubCard
           icon={Database} title="Ventas & CRM" sub="Pipeline, prospectos y seguimiento"
@@ -192,7 +192,7 @@ export default function Dashboard() {
             { v: m.diagnostico, l: "En diagnóstico" },
             { v: m.cliente,     l: "Clientes", good: true },
           ]}
-          cta="Abrir CRM →"
+          cta="Abrir CRM ?"
         />
         <SubCard
           icon={Wrench} title="Taller & Reparaciones" sub="Órdenes de trabajo activas"
@@ -202,7 +202,7 @@ export default function Dashboard() {
             { v: taller.metrics.listas,  l: "Listas",   good: taller.metrics.listas > 0 },
             { v: taller.metrics.vencidas,l: "Vencidas",  urgent: taller.metrics.vencidas > 0 },
           ]}
-          cta="Ver órdenes →"
+          cta="Ver órdenes ?"
         />
         <SubCard
           icon={FileText} title="Cotizaciones" sub="Genera propuestas técnicas en PDF"
@@ -212,14 +212,14 @@ export default function Dashboard() {
             { v: cot.venta       ?? 0, l: "Venta" },
             { v: cot.mantenimiento ?? 0, l: "Mantenimiento" },
           ]}
-          cta="Nueva cotización →"
+          cta="Nueva cotización ?"
           onClick={() => setShowCotizacion(true)}
         />
       </div>
 
       {showCotizacion && <CotizacionManualModal onClose={() => setShowCotizacion(false)} />}
 
-      {/* ── Pipeline Funnel ── */}
+      {/* -- Pipeline Funnel -- */}
       <div className="px-5">
         <div className="bg-white rounded-[18px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] px-6 py-4 flex items-center gap-1">
           {[
@@ -254,7 +254,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── Alertas ── */}
+      {/* -- Alertas -- */}
       {(al.seguimiento7dias.length > 0 || al.diagnostico5dias.length > 0) && (
         <div className="px-5 flex gap-3">
           {al.seguimiento7dias.length > 0 && (
@@ -274,7 +274,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Grid 3 cols ── */}
+      {/* -- Grid 3 cols -- */}
       <div className="grid grid-cols-3 gap-5 px-5">
 
         {/* Agenda de Hoy */}
@@ -288,7 +288,7 @@ export default function Dashboard() {
                   ? <span className="bg-[#FEF2F2] text-[#DC2626] px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase">{q.followUps.length} fríos</span>
                   : null}
             </div>
-            <Link href="/crm" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver CRM →</Link>
+            <Link href="/crm" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver CRM ?</Link>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto pr-1">
             {q.proximosSeguimientos.length === 0 && q.followUps.length === 0 ? (
@@ -319,8 +319,8 @@ export default function Dashboard() {
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0 ml-2">
                         {waLink(l.whatsapp || l.telefono) && (
-                          <button type="button"
-                            onClick={e=>{e.preventDefault();e.stopPropagation();window.open(waLink(l.whatsapp||l.telefono)!, "whatsapp_web");}}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); window.location.href = waLink(l.whatsapp || l.telefono)!; }}
                             className="w-6 h-6 flex items-center justify-center rounded-full bg-green-100 text-green-600 hover:bg-green-500 hover:text-white transition-colors">
                             <MessageCircle size={11}/>
                           </button>
@@ -356,7 +356,7 @@ export default function Dashboard() {
               <h3 className="font-bold text-[16px] text-[#202538] tracking-tight">Top Prospectos</h3>
               <span className="bg-[#EEF3FC] text-[#5A82ED] px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase">Por Abordar</span>
             </div>
-            <Link href="/crm?status=nuevo" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver todos →</Link>
+            <Link href="/crm?status=nuevo" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver todos ?</Link>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto pr-1">
             {q.topPriorities.length === 0 ? (
@@ -365,7 +365,7 @@ export default function Dashboard() {
                   <Search size={15} className="text-gray-400"/>
                 </div>
                 <p className="text-gray-400 text-[12px] font-medium text-center">Sin prospectos nuevos.<br/>Haz un barrido para empezar.</p>
-                <Link href="/encontrar" className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-4 py-1.5 rounded-full hover:bg-[#4E60A9] hover:text-white transition-all mt-1">Buscar leads →</Link>
+                <Link href="/encontrar" className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-4 py-1.5 rounded-full hover:bg-[#4E60A9] hover:text-white transition-all mt-1">Buscar leads ?</Link>
               </div>
             ) : q.topPriorities.map((l: any) => (
               <Link key={l.id} href={`/crm?expand=${l.id}`} className="flex items-center justify-between p-3 px-4 border border-gray-100 rounded-2xl hover:border-[#5A82ED]/30 hover:bg-[#F8FAFF] transition-all group">
@@ -375,7 +375,7 @@ export default function Dashboard() {
                   </div>
                   <div className="min-w-0">
                     <div className="font-bold text-[#1E293B] text-[12px] tracking-tight truncate">{l.nombre}</div>
-                    <div className="text-gray-400 text-[10px] font-medium truncate">{l.nicho || "Sector Médico"} · {l.ciudad || "—"}</div>
+                    <div className="text-gray-400 text-[10px] font-medium truncate">{l.nicho || "Sector Médico"} · {l.ciudad || ""}</div>
                   </div>
                 </div>
                 <ChevronRight size={13} className="text-gray-300 group-hover:text-[#5A82ED] transition-colors shrink-0 ml-2"/>
@@ -390,7 +390,7 @@ export default function Dashboard() {
             <h3 className="font-bold text-[16px] text-[#202538] tracking-tight flex items-center gap-2">
               <Wrench size={14} className="text-[#7C3AED]"/> Taller
             </h3>
-            <Link href="/taller" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver taller →</Link>
+            <Link href="/taller" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver taller ?</Link>
           </div>
           <div className="grid grid-cols-3 gap-2 mb-4 shrink-0">
             <div className="bg-[#EEF3FC] rounded-xl p-2.5 text-center">
@@ -413,7 +413,7 @@ export default function Dashboard() {
                   <Wrench size={14} className="text-[#7C3AED]"/>
                 </div>
                 <p className="text-gray-400 text-[12px] font-medium text-center">Sin órdenes activas.</p>
-                <Link href="/taller" className="text-[11px] font-bold text-[#7C3AED] bg-[#F5F3FF] px-3 py-1.5 rounded-full hover:bg-[#7C3AED] hover:text-white transition-all">Crear OT →</Link>
+                <Link href="/taller" className="text-[11px] font-bold text-[#7C3AED] bg-[#F5F3FF] px-3 py-1.5 rounded-full hover:bg-[#7C3AED] hover:text-white transition-all">Crear OT ?</Link>
               </div>
             ) : taller.ordenes.map((o: any) => {
               const hoy = new Date(); hoy.setHours(0,0,0,0);
@@ -431,7 +431,7 @@ export default function Dashboard() {
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0" style={{color:sc.color, backgroundColor:sc.bg}}>{sc.label}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-gray-400 truncate">{o.equipo_tipo || "—"}{o.equipo_marca ? ` · ${o.equipo_marca}` : ""}</span>
+                      <span className="text-[10px] text-gray-400 truncate">{o.equipo_tipo || ""}{o.equipo_marca ? ` · ${o.equipo_marca}` : ""}</span>
                       {comp && (
                         <span className={`text-[9px] font-bold flex items-center gap-0.5 shrink-0 ${vencida ? "text-[#DC2626]" : urgente ? "text-[#D97706]" : "text-gray-400"}`}>
                           {vencida && <AlertTriangle size={8}/>}
@@ -446,7 +446,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── Leads Calientes ── */}
+        {/* -- Leads Calientes -- */}
         <div className="bg-white rounded-[24px] shadow-[0_8px_30px_-6px_rgba(0,0,0,0.04)] p-6 flex flex-col" style={{minHeight:"260px"}}>
           <div className="flex justify-between items-center mb-4 shrink-0">
             <h3 className="font-bold text-[16px] text-[#202538] tracking-tight flex items-center gap-2">
@@ -487,7 +487,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── OTs por Cobrar + Conversión Semanal (2 cols) ── */}
+        {/* -- OTs por Cobrar + Conversión Semanal (2 cols) -- */}
         <div className="col-span-2 grid grid-cols-2 gap-5">
 
           {/* OTs por cobrar */}
@@ -501,7 +501,7 @@ export default function Dashboard() {
                   <span className="bg-[#ECFDF5] text-[#059669] px-2.5 py-0.5 rounded-full text-[10px] font-bold">{fmt(ng.totalPorCobrar)}</span>
                 )}
               </div>
-              <Link href="/taller" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Taller →</Link>
+              <Link href="/taller" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Taller ?</Link>
             </div>
             <div className="flex-1 space-y-2 overflow-y-auto pr-1">
               {ng.otsPorCobrar.length === 0 ? (
@@ -515,11 +515,11 @@ export default function Dashboard() {
                 <Link key={o.id} href="/taller" className="flex items-center justify-between p-3 px-4 border border-green-100 rounded-2xl bg-[#FAFFFE] hover:border-green-200 hover:bg-green-50/30 transition-all group">
                   <div className="min-w-0 flex-1">
                     <div className="font-bold text-[#1E293B] text-[12px] truncate">{o.lead_nombre || "Sin cliente"}</div>
-                    <div className="text-[10px] text-gray-400 truncate">{o.equipo_tipo || "—"}{o.equipo_marca ? ` · ${o.equipo_marca}` : ""}</div>
+                    <div className="text-[10px] text-gray-400 truncate">{o.equipo_tipo || ""}{o.equipo_marca ? ` · ${o.equipo_marca}` : ""}</div>
                   </div>
                   <div className="shrink-0 ml-3 text-right">
                     <div className="text-[12px] font-bold text-[#059669]">
-                      {o.precio_final ? fmt(o.precio_final) : o.presupuesto ? fmt(o.presupuesto) : "—"}
+                      {o.precio_final ? fmt(o.precio_final) : o.presupuesto ? fmt(o.presupuesto) : ""}
                     </div>
                     <div className="text-[9px] text-gray-300 font-mono">{o.folio}</div>
                   </div>
@@ -539,7 +539,7 @@ export default function Dashboard() {
                   <span className="bg-[#EEF3FC] text-[#4E60A9] px-2.5 py-0.5 rounded-full text-[10px] font-bold">{totalConvSemana} movimientos</span>
                 )}
               </div>
-              <Link href="/crm" className="text-[11px] font-bold text-[#4E60A9] hover:underline">CRM →</Link>
+              <Link href="/crm" className="text-[11px] font-bold text-[#4E60A9] hover:underline">CRM ?</Link>
             </div>
             <div className="flex-1 flex flex-col justify-center">
               {ng.conversionSemanal.length === 0 ? (

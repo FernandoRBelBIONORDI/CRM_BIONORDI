@@ -86,20 +86,22 @@ interface AgendaEvent {
 function EventPill({ ev, compact = false }: { ev: AgendaEvent; compact?: boolean }) {
   const color = S_COLOR[ev.status_crm] || "#94A3B8";
   return (
-    <div
-      className={`rounded-lg truncate leading-none font-bold cursor-default ${compact ? "text-[9.5px] px-1.5 py-0.5 mb-0.5" : "text-[11px] px-2 py-1 mb-1"}`}
+    <a
+      href={`/clientes/${ev.lead_id}`}
+      className={`block rounded-lg truncate leading-none font-bold hover:opacity-80 transition-opacity ${compact ? "text-[9.5px] px-1.5 py-0.5 mb-0.5" : "text-[11px] px-2 py-1 mb-1"}`}
       style={{ backgroundColor: color + "18", color }}
       title={ev.lead_nombre}
     >
       {ev.lead_nombre}
-    </div>
+    </a>
   );
 }
 
 function DayCard({ ev }: { ev: AgendaEvent }) {
   const color = S_COLOR[ev.status_crm] || "#94A3B8";
   return (
-    <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
+    <a href={`/clientes/${ev.lead_id}`}
+      className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 hover:border-[#4E60A9]/30 hover:shadow-sm transition-all">
       <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
       <div className="flex-1 min-w-0">
         <div className="text-[14px] font-bold text-[#1E293B] truncate">{ev.lead_nombre}</div>
@@ -120,7 +122,7 @@ function DayCard({ ev }: { ev: AgendaEvent }) {
           )}
         </div>
       </div>
-    </div>
+    </a>
   );
 }
 

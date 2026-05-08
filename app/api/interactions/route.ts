@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import db from '@/lib/db';
+import { requireAuth } from '@/lib/require-auth';
 
 export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
 
   const { searchParams } = new URL(req.url);
   const leadId = searchParams.get('lead_id');
@@ -19,7 +18,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { session, unauth } = await requireAuth();
+    if (unauth) return unauth;
     const { lead_id, tipo, contenido, resultado } = await req.json();
     if (!lead_id || !tipo || !contenido)
       return NextResponse.json({ error: 'lead_id, tipo y contenido son requeridos' }, { status: 400 });
@@ -44,6 +44,8 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
   try {
     const { id } = await req.json();
     if (!id) return NextResponse.json({ error: 'id requerido' }, { status: 400 });

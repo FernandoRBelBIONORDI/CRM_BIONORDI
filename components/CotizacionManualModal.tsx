@@ -187,8 +187,8 @@ export default function CotizacionManualModal({
 
   // ── Efectos ───────────────────────────────────────────────────────────────
   useEffect(() => {
-    fetch("/api/catalogo").then(r => r.json()).then(d => setCatalogo(d.equipos || []));
-    fetch("/api/leads").then(r => r.json()).then(d => setLeadsList(d.leads || []));
+    fetch("/api/catalogo").then(r => r.json()).then(d => setCatalogo(d.equipos || [])).catch(() => {});
+    fetch("/api/leads").then(r => r.json()).then(d => setLeadsList(d.leads || [])).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -205,7 +205,7 @@ export default function CotizacionManualModal({
         representante:  c.nombre_representante     || "Fernando Rosas",
         cargo:          c.fact_cargo_representante || "Director General",
       });
-    });
+    }).catch(() => {});
   }, []);
 
 

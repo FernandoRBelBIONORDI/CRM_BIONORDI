@@ -107,7 +107,7 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
           <div style="color:#9CA3AF">${lead.nicho || ""} · ${lead.ciudad || ""}</div>
           ${scoreBar}
           <div style="margin-top:8px;display:flex;gap:6px">
-            ${waLink(lead.whatsapp || lead.telefono) ? `<a href="${waLink(lead.whatsapp || lead.telefono)}" target="whatsapp_web"
+            ${waLink(lead.whatsapp || lead.telefono) ? `<a href="${waLink(lead.whatsapp || lead.telefono)}" 
               style="background:#22C55E;color:#fff;padding:3px 8px;border-radius:4px;text-decoration:none;font-size:11px">WA</a>` : ""}
             <a href="/clientes/${lead.id}" style="background:#0EA5E9;color:#fff;padding:3px 8px;border-radius:4px;text-decoration:none;font-size:11px">Ver lead</a>
           </div>

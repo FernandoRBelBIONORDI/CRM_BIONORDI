@@ -170,12 +170,15 @@ export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();
     if (!id) return NextResponse.json({ error: 'ID requerido' }, { status: 400 });
-    db.prepare(`DELETE FROM leads WHERE id = ?`).run(id);
-    db.prepare(`DELETE FROM interacciones WHERE lead_id = ?`).run(id);
-    db.prepare(`DELETE FROM scripts WHERE lead_id = ?`).run(id);
-    db.prepare(`DELETE FROM equipos_cliente WHERE lead_id = ?`).run(id);
-    db.prepare(`DELETE FROM cotizaciones WHERE lead_id = ?`).run(id);
-    db.prepare(`DELETE FROM ordenes_trabajo WHERE lead_id = ?`).run(id);
+    const deleteLead = (db as any).transaction(() => {
+      db.prepare(`DELETE FROM interacciones WHERE lead_id = ?`).run(id);
+      db.prepare(`DELETE FROM scripts WHERE lead_id = ?`).run(id);
+      db.prepare(`DELETE FROM equipos_cliente WHERE lead_id = ?`).run(id);
+      db.prepare(`DELETE FROM cotizaciones WHERE lead_id = ?`).run(id);
+      db.prepare(`DELETE FROM ordenes_trabajo WHERE lead_id = ?`).run(id);
+      db.prepare(`DELETE FROM leads WHERE id = ?`).run(id);
+    });
+    deleteLead();
     return NextResponse.json({ success: true });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

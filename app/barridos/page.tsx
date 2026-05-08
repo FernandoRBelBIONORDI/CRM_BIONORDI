@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import {
   Star, FolderOpen, Activity, Check,
 } from "lucide-react";
 
-// ── Constantes ────────────────────────────────────────────────────────────────
+// -- Constantes ----------------------------------------------------------------
 
 const STATUS = {
   nuevo:       { label: "Nuevo",       color: "#5A85F1", bg: "#EEF3FC" },
@@ -40,7 +40,7 @@ const ESP_LABEL: Record<string, string> = {
   urologo: "Urólogo",
 };
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 interface StatusEntry { status_crm: string; count: number; }
 interface Barrido {
@@ -54,7 +54,7 @@ interface Lead {
   ciudad?: string; estado_republica?: string; status_crm: string; score_potencial?: number;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 
 function fmtFecha(iso?: string) {
   if (!iso) return "";
@@ -67,7 +67,7 @@ function breakdown(leads: Lead[]): StatusEntry[] {
   return Object.entries(m).map(([status_crm, count]) => ({ status_crm, count }));
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// -- Page ----------------------------------------------------------------------
 
 export default function BarridosPage() {
   const [barridos, setBarridos]         = useState<Barrido[]>([]);
@@ -188,7 +188,7 @@ export default function BarridosPage() {
 
       <div className="flex-1 flex overflow-hidden p-5 gap-4">
 
-        {/* ── LISTA ─────────────────────────────────────────────────────── */}
+        {/* -- LISTA ------------------------------------------------------- */}
         <div className="w-[300px] shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col overflow-hidden">
 
           {/* Búsqueda + filtro fuente */}
@@ -255,7 +255,7 @@ export default function BarridosPage() {
                       </span>
                     )}
                     <span className={`ml-auto text-[9px] font-bold ${b.completado ? "text-[#34A853]" : "text-orange-400"}`}>
-                      {b.completado ? "✓ Completo" : "Parcial"}
+                      {b.completado ? "? Completo" : "Parcial"}
                     </span>
                   </div>
 
@@ -279,7 +279,7 @@ export default function BarridosPage() {
           </div>
         </div>
 
-        {/* ── DETALLE ────────────────────────────────────────────────────── */}
+        {/* -- DETALLE ------------------------------------------------------ */}
         {!selected ? (
           <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center gap-3">
             <FolderOpen size={44} className="text-gray-200" />
@@ -441,9 +441,9 @@ export default function BarridosPage() {
                             {lead.nicho && <p className="text-[10px] text-gray-400 mt-0.5">{lead.nicho}</p>}
                           </td>
                           <td className="px-5 py-3 text-[12px] text-gray-500">
-                            {[lead.ciudad, lead.estado_republica].filter(Boolean).join(", ") || "—"}
+                            {[lead.ciudad, lead.estado_republica].filter(Boolean).join(", ") || ""}
                           </td>
-                          <td className="px-5 py-3 text-[12px] font-mono text-gray-700">{lead.telefono || "—"}</td>
+                          <td className="px-5 py-3 text-[12px] font-mono text-gray-700">{lead.telefono || ""}</td>
                           <td className="px-5 py-3">
                             <select value={lead.status_crm || "nuevo"}
                               onChange={e => patchStatus(lead.id, e.target.value)}
@@ -456,7 +456,7 @@ export default function BarridosPage() {
                             {waLink(lead.whatsapp || lead.telefono) && (
                               <a
                                 href={waLink(lead.whatsapp || lead.telefono)!}
-                                target="whatsapp_web"
+                                
                                 className="flex items-center gap-1 text-[10px] font-bold text-[#25D366] hover:bg-green-50 px-2 py-1 rounded-full transition-all">
                                 <MessageCircle size={10} /> WA
                               </a>

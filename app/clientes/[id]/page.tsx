@@ -211,6 +211,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
         setProxDate(d.lead?.fecha_proximo_contacto?.slice(0, 10) || "");
         setWaVal(d.lead?.whatsapp || "");
       })
+      .catch(() => {})
       .finally(() => setLoading(false));
 
   useEffect(() => {
@@ -436,7 +437,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                     </div>
                   ) : lead.whatsapp ? (
                     <div className="flex items-center gap-1">
-                      <a href={waLink(lead.whatsapp)!} target="whatsapp_web"
+                      <a href={waLink(lead.whatsapp)!}
                         className="flex items-center gap-1.5 text-[12px] font-bold text-white bg-[#25D366] hover:bg-[#1ebe5d] px-3 py-1.5 rounded-full transition-colors shadow-sm">
                         <MessageCircle size={13} /> WhatsApp
                       </a>

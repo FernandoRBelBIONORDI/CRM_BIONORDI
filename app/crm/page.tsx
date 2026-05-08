@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, Fragment, useRef } from "react";
 import { useSession } from "next-auth/react";
@@ -282,7 +282,7 @@ export default function CRMPage() {
       </div>
 
       {view === "table" ? (
-        /* ── TABLE VIEW ── */
+        /* -- TABLE VIEW -- */
         <div className="flex-1 overflow-hidden p-6 pt-4 flex flex-col">
           <div ref={tableRef} className="card overflow-auto flex-1 p-2 pb-[40px]">
             <table className="t-table">
@@ -330,7 +330,7 @@ export default function CRMPage() {
                           <button onClick={e=>{ e.stopPropagation(); router.push(`/clientes/${lead.id}`); }}
                             className="text-left hover:text-[#4E60A9] transition-colors group/name">
                             <div className="font-bold text-[#1E293B] group-hover/name:text-[#4E60A9] tracking-tight text-[13px] transition-colors">{lead.nombre}</div>
-                            <div className="text-[11px] text-gray-400 mt-0.5 max-w-sm truncate">{lead.ciudad||"—"}</div>
+                            <div className="text-[11px] text-gray-400 mt-0.5 max-w-sm truncate">{lead.ciudad||""}</div>
                           </button>
                         </td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
@@ -344,7 +344,7 @@ export default function CRMPage() {
                             <ChevronDown size={10} className="absolute right-2 pointer-events-none opacity-60" style={{color:st.color}}/>
                           </div>
                         </td>
-                        <td className="text-[12px] font-medium text-[#64748B] max-w-[140px] truncate">{lead.nicho||"—"}</td>
+                        <td className="text-[12px] font-medium text-[#64748B] max-w-[140px] truncate">{lead.nicho||""}</td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
                           {!lead.asignado_a && myName ? (
                             <button onClick={()=>{
@@ -376,12 +376,12 @@ export default function CRMPage() {
                               <Calendar size={10}/>
                               {proxFecha.toLocaleDateString("es-MX",{day:"2-digit",month:"short"})}
                             </span>
-                          ) : <span className="text-gray-300 text-[11px]">—</span>}
+                          ) : <span className="text-gray-300 text-[11px]"></span>}
                         </td>
                         <td onClick={e=>e.stopPropagation()} className="pb-4 pt-4 pr-1">
                           <div className="flex items-center justify-end gap-1 px-2">
                             {waLink(lead.whatsapp || lead.telefono) && (
-                              <a href={waLink(lead.whatsapp || lead.telefono)!} target="whatsapp_web"
+                              <a href={waLink(lead.whatsapp || lead.telefono)!} 
                                 className="w-8 h-8 flex items-center justify-center rounded-full text-white bg-green-500 hover:bg-green-600 transition-all shadow-sm">
                                 <MessageCircle size={14} strokeWidth={2.5}/>
                               </a>
@@ -530,7 +530,7 @@ export default function CRMPage() {
                         className="text-[12px] font-bold text-gray-400 hover:text-[#4E60A9] transition-colors disabled:opacity-50">
                         {loadingMore
                           ? <span className="flex items-center justify-center gap-1.5"><Activity size={12} className="animate-spin"/>Cargando...</span>
-                          : `↓ Cargar más · ${total - leads.length} restantes`}
+                          : `? Cargar más · ${total - leads.length} restantes`}
                       </button>
                     </td>
                   </tr>
@@ -540,7 +540,7 @@ export default function CRMPage() {
           </div>
         </div>
       ) : view === "kanban" ? (
-        /* ── KANBAN VIEW ── */
+        /* -- KANBAN VIEW -- */
         <div className="flex-1 overflow-x-auto p-6 pt-4">
           <div className="flex gap-3 h-full min-w-max">
             {KANBAN_COLS.map(col=>{
@@ -585,7 +585,7 @@ export default function CRMPage() {
                           {/* Nombre */}
                           <div className="font-bold text-[13px] text-[#1E293B] leading-snug mb-1.5">{lead.nombre}</div>
                           {/* Nicho + ciudad */}
-                          <div className="text-[11px] text-[#94A3B8] mb-2 truncate">{lead.nicho||"—"} · {lead.ciudad||"—"}</div>
+                          <div className="text-[11px] text-[#94A3B8] mb-2 truncate">{lead.nicho||""} · {lead.ciudad||""}</div>
                           {/* Agente asignado */}
                           <div onClick={e=>e.stopPropagation()} className="mb-2">
                             {!lead.asignado_a ? (
@@ -630,7 +630,7 @@ export default function CRMPage() {
                             ) : <span/>}
                             <div className="flex gap-1.5">
                               {waLink(lead.whatsapp || lead.telefono) && (
-                                <a href={waLink(lead.whatsapp || lead.telefono)!} target="whatsapp_web"
+                                <a href={waLink(lead.whatsapp || lead.telefono)!} 
                                   onClick={e=>e.stopPropagation()}
                                   className="w-6 h-6 flex items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A] hover:bg-green-500 hover:text-white transition-colors">
                                   <MessageCircle size={11}/>
@@ -652,7 +652,7 @@ export default function CRMPage() {
           </div>
         </div>
       ) : (
-        /* ── POR AGENTE VIEW ── */
+        /* -- POR AGENTE VIEW -- */
         <div className="flex-1 overflow-y-auto p-6 pt-4 space-y-8">
           {loading ? (
             <div className="flex items-center justify-center h-40 text-[13px] font-medium text-gray-400">
@@ -681,7 +681,7 @@ export default function CRMPage() {
                   {/* Cabecera del agente */}
                   <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-extrabold shrink-0 ${sinAsignar?"bg-gray-100 text-gray-400":"bg-[#EEF3FC] text-[#4E60A9]"}`}>
-                      {sinAsignar ? "—" : agente[0]?.toUpperCase()}
+                      {sinAsignar ? "" : agente[0]?.toUpperCase()}
                     </div>
                     <div>
                       <div className="text-[15px] font-extrabold text-[#1E293B]">{agente}</div>
@@ -713,7 +713,7 @@ export default function CRMPage() {
                               </span>
                             )}
                           </div>
-                          <div className="text-[10px] text-gray-400 truncate mb-2">{lead.nicho||"—"} · {lead.ciudad||"—"}</div>
+                          <div className="text-[10px] text-gray-400 truncate mb-2">{lead.nicho||""} · {lead.ciudad||""}</div>
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{color:st.color,background:st.bg}}>
                             {st.label}
                           </span>
