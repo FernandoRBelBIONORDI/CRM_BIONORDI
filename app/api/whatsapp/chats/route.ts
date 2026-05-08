@@ -8,16 +8,20 @@ export async function GET(req: Request) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
+    // Comparar los últimos 10 dígitos del teléfono para manejar diferencias
+    // de código de país (ej: 521XXXXXXXXXX vs 1XXXXXXXXXX vs XXXXXXXXXX)
     const chats = db.prepare(`
-      SELECT c.*, 
-             l.id as lead_id, 
-             l.nombre as lead_nombre, 
-             l.score_potencial, 
-             l.nicho, 
+      SELECT c.*,
+             l.id as lead_id,
+             l.nombre as lead_nombre,
+             l.score_potencial,
+             l.nicho,
              l.fecha_ultimo_contacto
       FROM chats_wa c
-      LEFT JOIN leads l ON c.phone = l.telefono OR c.phone = l.whatsapp
-      ORDER BY c.last_timestamp DESC 
+      LEFT JOIN leads l
+        ON SUBSTR(c.phone, -10) = SUBSTR(REPLACE(REPLACE(REPLACE(l.telefono, ' ', ''), '-', ''), '+', ''), -10)
+        OR SUBSTR(c.phone, -10) = SUBSTR(REPLACE(REPLACE(REPLACE(l.whatsapp, ' ', ''), '-', ''), '+', ''), -10)
+      ORDER BY c.last_timestamp DESC
       LIMIT 80
     `).all();
     return NextResponse.json({ chats });
