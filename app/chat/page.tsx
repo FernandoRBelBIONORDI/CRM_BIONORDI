@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, Suspense } from "react";
-import { MessageCircle, QrCode, Search, Send, Activity, Info, Phone, ArrowLeft, Paperclip, ImageIcon, FileText, CheckCheck, Check, User, Building2, CalendarDays, Zap } from "lucide-react";
+import { MessageCircle, QrCode, Search, Send, Activity, Phone, Paperclip, ImageIcon, FileText, CheckCheck, Check, User, Building2, Zap } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 
@@ -24,6 +24,7 @@ interface Message {
   fromMe: boolean;
   text: string;
   timestamp: number;
+  status?: string; // 'sent' | 'delivered' | 'read' | 'received'
 }
 
 function ChatContent() {
@@ -323,7 +324,13 @@ function ChatContent() {
                               </div>
                               <span className="text-[10px] font-bold text-slate-400 mt-1 px-1 flex items-center gap-1">
                                 {date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                                {m.fromMe && <CheckCheck size={12} className="text-[#38BDF8]" />}
+                                {m.fromMe && (
+                                m.status === "read"
+                                  ? <CheckCheck size={12} className="text-[#38BDF8]" />
+                                  : m.status === "delivered"
+                                  ? <CheckCheck size={12} className="text-slate-400" />
+                                  : <Check size={12} className="text-slate-400" />
+                              )}
                               </span>
                             </div>
                           )
