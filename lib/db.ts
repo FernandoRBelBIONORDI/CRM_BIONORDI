@@ -99,6 +99,8 @@ function initDb(): Database.Database {
     `ALTER TABLE interacciones ADD COLUMN usuario_id INTEGER`,
     `ALTER TABLE interacciones ADD COLUMN usuario_nombre TEXT`,
     `ALTER TABLE ordenes_trabajo ADD COLUMN cotizacion_id INTEGER`,
+    `ALTER TABLE leads ADD COLUMN lat REAL`,
+    `ALTER TABLE leads ADD COLUMN lng REAL`,
   ]) { try { _db.exec(sql); } catch { /* column already exists */ } }
 
   _db.exec(`

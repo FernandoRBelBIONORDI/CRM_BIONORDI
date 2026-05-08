@@ -144,7 +144,7 @@ export async function PATCH(req: Request) {
       'nombre','telefono','correo','whatsapp','direccion','ciudad','municipio',
       'estado_republica','nicho','status_crm','confianza_fuente','notas',
       'fecha_seguimiento','fecha_proximo_contacto','score_potencial','prioridad',
-      'whatsapp_verificado','sitio_activo','fuente','sitio_web','barrido_id','asignado_a',
+      'whatsapp_verificado','sitio_activo','fuente','sitio_web','barrido_id','asignado_a','lat','lng',
     ]);
     const safeUpdates = Object.fromEntries(
       Object.entries(updates).filter(([k]) => COLS.has(k))

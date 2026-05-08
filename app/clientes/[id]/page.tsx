@@ -24,7 +24,7 @@ interface Lead {
   fecha_ultimo_contacto?: string; fecha_extraccion?: string;
   fecha_proximo_contacto?: string; fecha_ultimo_cambio?: string;
   tamano_estimado?: string; nivel_socioeconomico?: string;
-  asignado_a?: string;
+  asignado_a?: string; lat?: number; lng?: number;
 }
 
 interface Interaccion {
@@ -187,6 +187,42 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
 
   // OT
   const [creatingOT, setCreatingOT] = useState<number | null>(null);
+
+  // Geolocalización
+  const [geoStatus, setGeoStatus] = useState<"idle"|"loading"|"ok"|"error">("idle");
+  const [geoMsg,    setGeoMsg]    = useState("");
+
+  const captureGPS = () => {
+    if (!navigator.geolocation) { setGeoStatus("error"); setGeoMsg("Geolocalización no disponible"); return; }
+    setGeoStatus("loading"); setGeoMsg("");
+    navigator.geolocation.getCurrentPosition(
+      async pos => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        await fetch("/api/leads", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: Number(id), lat, lng }),
+        });
+        setLead(prev => prev ? { ...prev, lat, lng } : prev);
+        setGeoStatus("ok"); setGeoMsg(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+      },
+      err => { setGeoStatus("error"); setGeoMsg(err.message); },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const geocodeLead = async () => {
+    setGeoStatus("loading"); setGeoMsg("");
+    const res = await fetch("/api/geocode", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: Number(id) }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setGeoStatus("error"); setGeoMsg(data.error || "Error"); return; }
+    setLead(prev => prev ? { ...prev, lat: data.lat, lng: data.lng } : prev);
+    setGeoStatus("ok"); setGeoMsg(`${data.lat.toFixed(6)}, ${data.lng.toFixed(6)}`);
+  };
 
   const patchLead = async (upd: Record<string, any>) => {
     await fetch("/api/leads", {
@@ -541,6 +577,50 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                     </div>
                   ) : null)}
                 </dl>
+
+                {/* Ubicación precisa */}
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-bold text-gray-500">Ubicación precisa</span>
+                    {lead?.lat && lead?.lng && (
+                      <a href={`https://www.google.com/maps?q=${lead.lat},${lead.lng}`} target="_blank"
+                        className="text-[10px] font-bold text-[#4E60A9] hover:underline flex items-center gap-1">
+                        <ExternalLink size={10} /> Ver en Maps
+                      </a>
+                    )}
+                  </div>
+
+                  {lead?.lat && lead?.lng ? (
+                    <div className="text-[11px] text-green-700 bg-green-50 rounded-lg px-3 py-2 font-mono mb-2">
+                      {lead.lat.toFixed(6)}, {lead.lng.toFixed(6)}
+                    </div>
+                  ) : (
+                    <div className="text-[10px] text-gray-400 mb-2">Sin coordenadas guardadas</div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <button onClick={captureGPS} disabled={geoStatus === "loading"}
+                      className="flex-1 flex items-center justify-center gap-1.5 text-[11px] font-bold py-1.5 rounded-lg border border-[#4E60A9]/30 text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white transition-colors disabled:opacity-40">
+                      <MapPin size={11} /> GPS ahora
+                    </button>
+                    {(lead?.direccion || lead?.ciudad) && (
+                      <button onClick={geocodeLead} disabled={geoStatus === "loading"}
+                        className="flex-1 flex items-center justify-center gap-1.5 text-[11px] font-bold py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-[#4E60A9]/40 hover:text-[#4E60A9] transition-colors disabled:opacity-40">
+                        <MapPin size={11} /> Geocodificar
+                      </button>
+                    )}
+                  </div>
+
+                  {geoStatus === "loading" && (
+                    <p className="text-[10px] text-gray-400 mt-1.5 text-center">Obteniendo ubicación…</p>
+                  )}
+                  {geoStatus === "ok" && (
+                    <p className="text-[10px] text-green-600 font-bold mt-1.5 text-center">✓ {geoMsg}</p>
+                  )}
+                  {geoStatus === "error" && (
+                    <p className="text-[10px] text-red-500 mt-1.5 text-center">{geoMsg}</p>
+                  )}
+                </div>
               </div>
 
               {/* Equipos del cliente */}
