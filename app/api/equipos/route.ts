@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { requireAuth } from '@/lib/require-auth';
 
 export async function GET(req: Request) {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   const { searchParams } = new URL(req.url);
   const lead_id = searchParams.get('lead_id');
   if (!lead_id) return NextResponse.json({ error: 'Falta lead_id' }, { status: 400 });
@@ -14,6 +18,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   const { lead_id, tipo, marca, modelo, num_serie, estado, notas } = await req.json();
   if (!lead_id || !tipo) return NextResponse.json({ error: 'Faltan campos' }, { status: 400 });
 
@@ -27,6 +34,9 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   const { id, tipo, marca, modelo, num_serie, estado, notas } = await req.json();
   if (!id) return NextResponse.json({ error: 'Falta id' }, { status: 400 });
 
@@ -38,6 +48,9 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   const { id } = await req.json();
   db.prepare(`DELETE FROM equipos_cliente WHERE id = ?`).run(id);
   return NextResponse.json({ success: true });

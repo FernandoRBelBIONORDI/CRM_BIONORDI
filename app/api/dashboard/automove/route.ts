@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { requireAuth } from '@/lib/require-auth';
 
 export async function POST() {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   const now = new Date().toISOString();
 
   const cfgRows = db.prepare(

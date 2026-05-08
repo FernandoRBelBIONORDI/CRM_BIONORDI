@@ -3,6 +3,7 @@ import db from '@/lib/db';
 import { searchGooglePlaces } from '@/lib/google-places';
 import { verifyContact } from '@/lib/verificacion';
 import { searchDENUE, nombreSimilarity } from '@/lib/denue';
+import { requireAuth } from '@/lib/require-auth';
 
 function findDuplicate(nombre: string, telefono: string | undefined, ciudad: string): any | null {
   // 1. Match exacto por teléfono
@@ -42,6 +43,9 @@ function mergeIntoExisting(existing: any, patch: Record<string, any>) {
 }
 
 export async function POST(req: Request) {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   try {
     const { nicho, ciudad, estado_republica, municipio, barrido_id, max_paginas } = await req.json();
 

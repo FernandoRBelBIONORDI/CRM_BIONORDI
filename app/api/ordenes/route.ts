@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { requireAuth } from '@/lib/require-auth';
 
 function generarFolio(): string {
   const now = new Date();
@@ -25,6 +26,9 @@ const SELECT_BASE = `
 `;
 
 export async function GET(req: Request) {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   const { searchParams } = new URL(req.url);
   const lead_id = searchParams.get('lead_id');
   const status  = searchParams.get('status');
@@ -42,6 +46,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   try {
     const data = await req.json();
     const now = new Date().toISOString();
@@ -92,6 +99,9 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   try {
     const { id, ...updates } = await req.json();
     if (!id) return NextResponse.json({ error: 'id requerido' }, { status: 400 });
@@ -118,6 +128,9 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   try {
     const { id } = await req.json();
     db.prepare(`DELETE FROM ordenes_trabajo WHERE id = ?`).run(id);

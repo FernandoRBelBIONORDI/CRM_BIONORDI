@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { generateScripts } from '@/lib/claude';
+import { requireAuth } from '@/lib/require-auth';
 
 export async function POST(req: Request) {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   try {
     const { id } = await req.json();
 

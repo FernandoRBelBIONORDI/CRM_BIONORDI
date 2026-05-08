@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { requireAuth } from '@/lib/require-auth';
 
 export async function GET() {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   const rows = db.prepare(`SELECT clave, valor FROM configuracion`).all() as any[];
   const config: Record<string, string> = {};
   rows.forEach(r => { config[r.clave] = r.valor; });
@@ -9,6 +13,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   try {
     const updates: Record<string, string> = await req.json();
     const stmt = db.prepare(`INSERT OR REPLACE INTO configuracion (clave, valor) VALUES (?, ?)`);
