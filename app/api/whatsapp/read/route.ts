@@ -13,13 +13,16 @@ export async function POST(req: Request) {
     const { chatId } = await req.json();
     if (!chatId) return NextResponse.json({ error: "chatId required" }, { status: 400 });
 
+    const phone10 = chatId.split("@")[0].replace(/\D/g, "").slice(-10);
+
     // Obtener el último mensaje recibido (fromMe=0) de este chat
     const lastMsg = db.prepare(`
       SELECT id FROM mensajes_wa
-      WHERE chat_id = ? AND from_me = 0
+      WHERE from_me = 0
+        AND SUBSTR(REPLACE(REPLACE(chat_id, '@s.whatsapp.net', ''), '@c.us', ''), -10) = ?
       ORDER BY timestamp DESC
       LIMIT 1
-    `).get(chatId) as { id: string } | undefined;
+    `).get(phone10) as { id: string } | undefined;
 
     if (!lastMsg) return NextResponse.json({ ok: true, skipped: true });
 

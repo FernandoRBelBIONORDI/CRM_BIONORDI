@@ -197,9 +197,10 @@ function ChatContent() {
 
   // ── Open chat (load messages + profile pic) ──────────────────────────────────
   const openChat = (c: Chat) => {
+    prevMsgCountRef.current = 0; // reset scroll ref before loading new chat
+    setMessages([]);
     setActiveChat(c);
     fetchMessages(c.chat_id);
-    setMessages([]);
     if (!photosMap[c.phone] && !c.photo_url) {
       fetch(`/api/whatsapp/profile-pic?phone=${encodeURIComponent(c.phone)}`)
         .then((r) => r.json())
