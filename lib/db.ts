@@ -345,6 +345,14 @@ function initDb(): Database.Database {
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_leads_ciudad ON leads(ciudad)`); } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_leads_proximo ON leads(fecha_proximo_contacto) WHERE fecha_proximo_contacto IS NOT NULL`); } catch {}
 
+  // Migración: corregir paths viejos /uploads/ → /api/file/ en todas las tablas
+  try {
+    _db.exec(`UPDATE catalogo_equipos SET imagen_path   = REPLACE(imagen_path,   '/uploads/', '/api/file/') WHERE imagen_path   LIKE '/uploads/%'`);
+    _db.exec(`UPDATE catalogo_equipos SET brochure_path = REPLACE(brochure_path, '/uploads/', '/api/file/') WHERE brochure_path LIKE '/uploads/%'`);
+    _db.exec(`UPDATE catalogo_equipos SET fotos_json    = REPLACE(fotos_json,    '/uploads/', '/api/file/') WHERE fotos_json    LIKE '%/uploads/%'`);
+    _db.exec(`UPDATE cotizaciones      SET pdf_path     = REPLACE(pdf_path,      '/uploads/', '/api/file/') WHERE pdf_path      LIKE '/uploads/%'`);
+  } catch {}
+
   return _db;
 }
 
