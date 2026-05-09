@@ -138,8 +138,8 @@ function ChatContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatId: activeChat.chat_id, message: text })
       });
-      fetchMessages(activeChat.chat_id, true);
-      fetchChats(true);
+      // No hacer fetch inmediato — el mensaje temp se queda visible
+      // hasta que el próximo poll (4s) traiga el mensaje real con el ID correcto de WhatsApp
     } catch(e) {}
   };
 

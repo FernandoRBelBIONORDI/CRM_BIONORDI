@@ -85,7 +85,15 @@ export async function POST(req: Request) {
           const s = baileyStatusToString(rawStatus);
 
           // Intentar actualizar si ya existe
-          const result = db.prepare(`UPDATE mensajes_wa SET status = ? WHERE id = ?`).run(s, msgId);
+          // Solo subir el status, nunca bajarlo (read > delivered > sent)
+          const result = db.prepare(`
+            UPDATE mensajes_wa SET status = ?
+            WHERE id = ? AND (
+              (status = 'sent') OR
+              (status = 'delivered' AND ? = 'read') OR
+              (status = '' OR status IS NULL)
+            )
+          `).run(s, msgId, s);
 
           // Si no existía aún (race condition: tick llegó antes que upsert),
           // guardar placeholder con el status correcto. El upsert posterior
