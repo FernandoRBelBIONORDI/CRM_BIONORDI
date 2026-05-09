@@ -747,7 +747,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     try {
       const { html, folio } = await buildPDFHtml(savedCot?.folio);
 
-      // 1. Guardar cotizacion en DB primero (siempre, aunque el PDF falle)
+      // 1. Guardar cotizacion en DB (siempre — es el paso crítico)
       let cotizacionId = savedCot?.id ?? null;
       if (!savedCot) {
         const dbRes = await fetch("/api/cotizaciones", {
@@ -766,20 +766,22 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         if (cotizacionId) setSavedCot({ id: cotizacionId, folio });
       }
 
-      // 2. Generar PDF (puede fallar en algunos entornos)
-      const pdfB64 = await generarPDFBase64(html);
-
-      // 3. Guardar archivo PDF y actualizar pdf_path
-      const expRes = await fetch("/api/expediente", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId, folio, pdfBase64: pdfB64, cotizacionId }),
-      });
-      if (!expRes.ok) throw new Error("Error al guardar el archivo PDF");
+      // 2. Intentar generar PDF (no-fatal: si falla, la cotización ya está guardada)
+      try {
+        const pdfB64 = await generarPDFBase64(html);
+        await fetch("/api/expediente", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadId, folio, pdfBase64: pdfB64, cotizacionId }),
+        });
+      } catch (pdfErr) {
+        console.warn("[cotizacion] PDF no generado (no fatal):", pdfErr);
+      }
 
       setSaveStatus("ok");
       onSuccess?.(folio);
-    } catch {
+    } catch (err: any) {
+      console.error("[cotizacion] error fatal al guardar:", err?.message);
       setSaveStatus("error");
     }
     setTimeout(() => setSaveStatus("idle"), 5000);
