@@ -146,12 +146,14 @@ function ChatContent() {
     if (!silent) setLoadingMsgs(true);
     try {
       const res = await fetch(`/api/whatsapp/messages?chatId=${encodeURIComponent(chatId)}`).then((r) => r.json());
+      console.log("[chat] fetchMessages response:", chatId, "messages:", res.messages?.length, "error:", res.error);
       if (res.messages) {
         const fetched: Message[] = res.messages;
 
+        console.log("[chat] setMessages will be called with:", fetched.length, "items");
+
         // Don't overwrite existing messages with empty array on silent polls
         if (silent && fetched.length === 0) {
-          if (!silent) setLoadingMsgs(false);
           return;
         }
 
@@ -446,6 +448,10 @@ function ChatContent() {
                 {/* Mensajes */}
                 <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#F8FAFC]/50"
                   style={{ backgroundImage: "radial-gradient(#E2E8F4 1px, transparent 1px)", backgroundSize: "24px 24px" }}>
+                  {/* DEBUG TEMPORAL */}
+                  <div style={{position:"fixed",bottom:80,right:8,background:"#000",color:"#0f0",padding:"4px 8px",fontSize:11,zIndex:9999,borderRadius:4}}>
+                    msgs: {messages.length} | chat: {activeChat?.chat_id?.split("@")[0]?.slice(-8)}
+                  </div>
                   {loadingMsgs && messages.length === 0 ? (
                     <div className="p-6 space-y-6">
                       {[1, 2, 3].map((i) => (
