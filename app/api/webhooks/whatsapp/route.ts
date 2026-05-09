@@ -171,18 +171,6 @@ export async function POST(req: Request) {
               last_timestamp = excluded.last_timestamp
           `).run(chatId, name, phone, fromMe ? 0 : 1, text, ts);
 
-          // Para mensajes enviados por nosotros: eliminar el duplicado que insertó
-          // el send route con un ID diferente (ID interno WaSenderAPI vs ID real de WhatsApp).
-          // Condición: mismo chat, mismo texto, mismo fromMe, timestamp cercano (±15s), ID distinto.
-          if (fromMe) {
-            db.prepare(`
-              DELETE FROM mensajes_wa
-              WHERE chat_id = ? AND from_me = 1 AND text = ?
-                AND ABS(timestamp - ?) <= 15
-                AND id != ?
-            `).run(chatId, text, ts, msgId);
-          }
-
           // ON CONFLICT: rellenar texto si estaba vacío (placeholder de tick),
           // NO sobreescribir el status si ya fue actualizado por un tick.
           db.prepare(`

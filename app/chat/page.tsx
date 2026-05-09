@@ -151,8 +151,9 @@ function ChatContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatId: activeChat.chat_id, message: text })
       });
-      fetchMessages(activeChat.chat_id, true);
-      fetchChats(true);
+      // Esperar a que el webhook upsert llegue antes de fetchear,
+      // así el mensaje real aparece directo con el ID correcto y sin transición rara.
+      setTimeout(() => { fetchMessages(activeChat.chat_id, true); fetchChats(true); }, 700);
     } catch(e) {}
   };
 
