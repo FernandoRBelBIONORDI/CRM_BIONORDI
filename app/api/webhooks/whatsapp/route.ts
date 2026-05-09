@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
 
-// Mapea status numérico de Baileys a string legible
 function baileyStatusToString(status: number | string): string {
   const n = Number(status);
-  if (n === 1) return "sent";
-  if (n === 2) return "sent";
+  if (n >= 4) return "read";
   if (n === 3) return "delivered";
-  if (n === 4) return "read";
-  if (n === 5) return "read";
   if (typeof status === "string") {
     const s = status.toLowerCase();
     if (s === "read" || s === "leído") return "read";
@@ -17,81 +13,109 @@ function baileyStatusToString(status: number | string): string {
   return "sent";
 }
 
+function extractText(msg: any): string {
+  return (
+    msg?.message?.conversation ||
+    msg?.message?.extendedTextMessage?.text ||
+    msg?.message?.imageMessage?.caption ||
+    msg?.message?.videoMessage?.caption ||
+    msg?.message?.documentMessage?.caption ||
+    msg?.message?.buttonsResponseMessage?.selectedDisplayText ||
+    msg?.message?.listResponseMessage?.title ||
+    msg?.text ||
+    msg?.body ||
+    msg?.content ||
+    msg?.caption ||
+    ""
+  );
+}
+
+function extractChatId(msg: any): string {
+  return (
+    msg?.key?.remoteJid ||
+    msg?.remoteJid ||
+    msg?.from ||
+    msg?.chatId ||
+    msg?.jid ||
+    msg?.chat ||
+    ""
+  );
+}
+
 export async function POST(req: Request) {
   let rawBody = "";
   try {
     rawBody = await req.text();
     const payload = JSON.parse(rawBody);
-    console.log("[WH] payload:", JSON.stringify(payload).slice(0, 800));
+
+    // Log primeros 1000 chars del payload para diagnóstico en Railway
+    console.log("[WH] raw:", JSON.stringify(payload).slice(0, 1000));
 
     const events = Array.isArray(payload) ? payload : [payload];
 
     for (const ev of events) {
-      const eventName: string = (ev.event || ev.type || ev.eventType || "").toLowerCase();
+      const eventName = (ev.event || ev.type || ev.eventType || "").toLowerCase();
+      console.log("[WH] event:", eventName || "(sin nombre)");
 
-      // ─── 1. ESTADO DE SESIÓN ────────────────────────────────────────────────
-      const isSessionEvent =
+      // ─── ESTADO DE SESIÓN ──────────────────────────────────────────────────
+      if (
         eventName.includes("connection") ||
         eventName.includes("session") ||
-        eventName.includes("qr");
-
-      if (isSessionEvent) {
+        eventName.includes("qr")
+      ) {
         const conn = ev.data?.connection || ev.data?.status || ev.data?.state || "";
-        if (conn) {
-          const status = conn === "open" || conn === "connected" || conn === "ready"
+        const status =
+          conn === "open" || conn === "connected" || conn === "ready"
             ? "ready"
             : conn === "close" || conn === "disconnected"
             ? "disconnected"
             : conn;
-          try {
-            db.prepare(`INSERT OR REPLACE INTO configuracion (clave, valor) VALUES ('wa_session_status', ?)`)
-              .run(status);
-            console.log("[WH] session status:", status);
-          } catch {}
+        if (status) {
+          try { db.prepare(`INSERT OR REPLACE INTO configuracion (clave, valor) VALUES ('wa_session_status', ?)`).run(status); } catch {}
+          console.log("[WH] session →", status);
         }
         continue;
       }
 
-      // ─── 2. ACTUALIZACIÓN DE ESTADO DE MENSAJES (TICKS) ────────────────────
-      const isUpdateEvent =
+      // ─── TICKS / ESTADO DE MENSAJES ────────────────────────────────────────
+      if (
         eventName.includes("messages.update") ||
         eventName.includes("message.update") ||
         eventName.includes("receipt") ||
-        eventName.includes("recibo");
-
-      if (isUpdateEvent) {
+        eventName.includes("recibo")
+      ) {
         const updates = Array.isArray(ev.data) ? ev.data : [ev.data];
         for (const upd of updates) {
           if (!upd) continue;
-          const msgId = upd.key?.id;
-          const rawStatus = upd.update?.status ?? upd.status ?? upd.receipt?.readTimestamp ? 4 : undefined;
+          const msgId = upd?.key?.id || upd?.id;
+          const rawStatus = upd?.update?.status ?? upd?.status ?? (upd?.receipt?.readTimestamp ? 4 : undefined);
           if (msgId && rawStatus !== undefined) {
             const status = baileyStatusToString(rawStatus);
-            try {
-              db.prepare(`UPDATE mensajes_wa SET status = ? WHERE id = ?`).run(status, msgId);
-              console.log("[WH] tick update:", msgId, "→", status);
-            } catch {}
+            try { db.prepare(`UPDATE mensajes_wa SET status = ? WHERE id = ?`).run(status, msgId); } catch {}
+            console.log("[WH] tick:", msgId, "→", status);
           }
         }
         continue;
       }
 
-      // ─── 3. MENSAJES NUEVOS ────────────────────────────────────────────────
-      // Aceptar cualquier evento que pueda contener un mensaje
-      const isMessageEvent =
-        eventName === "" ||                            // sin nombre → intentar igualmente
-        eventName.includes("message") ||
-        eventName.includes("mensaje") ||
-        eventName.includes("upsert") ||
-        eventName.includes("received") ||
-        eventName.includes("recibid");
+      // ─── MENSAJES NUEVOS ───────────────────────────────────────────────────
+      // Aceptar cualquier evento con nombre de mensaje O sin nombre (procesar todo)
+      const skipEvent =
+        eventName.includes("delete") ||
+        eventName.includes("reaction") ||
+        eventName.includes("reaccion") ||
+        eventName.includes("group") ||
+        eventName.includes("grupo") ||
+        eventName.includes("contact") ||
+        eventName.includes("contacto") ||
+        eventName.includes("presence");
 
-      if (!isMessageEvent) {
-        console.log("[WH] evento ignorado:", eventName);
+      if (skipEvent) {
+        console.log("[WH] skip event:", eventName);
         continue;
       }
 
-      // Extraer lista de mensajes — WaSenderAPI puede enviarlos de varias formas
+      // WaSenderAPI puede enviar el mensaje directamente en ev.data o en ev.data.messages[]
       const raw = ev.data ?? ev.payload ?? ev;
       const msgList: any[] = Array.isArray(raw)
         ? raw
@@ -99,47 +123,36 @@ export async function POST(req: Request) {
         ? raw.messages
         : [raw];
 
+      console.log("[WH] procesando", msgList.length, "mensaje(s)");
+
       for (const msg of msgList) {
-        if (!msg) continue;
+        if (!msg || typeof msg !== "object") continue;
 
-        // Intentar extraer chatId de múltiples ubicaciones posibles
-        const chatId: string =
-          msg.key?.remoteJid ||
-          msg.remoteJid ||
-          msg.from ||
-          msg.chatId ||
-          msg.jid ||
-          "";
+        const chatId = extractChatId(msg);
+        console.log("[WH] chatId:", chatId);
 
-        if (!chatId || chatId.endsWith("@g.us") || chatId.endsWith("@broadcast")) continue;
-        if (!msg.key && !msg.id) continue; // no parece un mensaje
+        if (!chatId) continue;
+        if (chatId.endsWith("@g.us") || chatId.endsWith("@broadcast") || chatId.endsWith("@newsletter")) continue;
 
-        const fromMe = !!(msg.key?.fromMe || msg.fromMe);
+        // ✅ Removida la condición restrictiva !msg.key && !msg.id
+        // Siempre generamos un ID como fallback
+        const fromMe = !!(msg?.key?.fromMe ?? msg?.fromMe ?? false);
         const msgId: string =
-          msg.key?.id ||
-          msg.id ||
-          msg.messageId ||
-          `auto-${Date.now()}-${Math.random()}`;
+          msg?.key?.id ||
+          msg?.id ||
+          msg?.messageId ||
+          msg?.wamid ||
+          `gen-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-        // Extraer texto de múltiples ubicaciones posibles
-        let text =
-          msg.message?.conversation ||
-          msg.message?.extendedTextMessage?.text ||
-          msg.message?.imageMessage?.caption ||
-          msg.message?.videoMessage?.caption ||
-          msg.text ||
-          msg.body ||
-          msg.content ||
-          "";
-
+        const text = extractText(msg);
         if (!text) {
-          console.log("[WH] mensaje sin texto, id:", msgId);
+          console.log("[WH] msg sin texto, id:", msgId, "keys:", Object.keys(msg).join(","));
           continue;
         }
 
         const phone = chatId.split("@")[0].split(":")[0];
-        const name: string = msg.pushName || msg.notifyName || msg.senderName || phone;
-        const ts = Number(msg.messageTimestamp || msg.timestamp || Math.floor(Date.now() / 1000));
+        const name: string = msg?.pushName || msg?.notifyName || msg?.senderName || phone;
+        const ts = Number(msg?.messageTimestamp || msg?.timestamp || Math.floor(Date.now() / 1000));
 
         try {
           db.prepare(`
@@ -157,7 +170,7 @@ export async function POST(req: Request) {
             VALUES (?, ?, ?, ?, ?, ?)
           `).run(msgId, chatId, fromMe ? 1 : 0, text, ts, fromMe ? "sent" : "received");
 
-          console.log("[WH] mensaje guardado:", phone, "→", text.slice(0, 60));
+          console.log("[WH] ✅ guardado:", phone, fromMe ? "→" : "←", text.slice(0, 60));
         } catch (dbErr: any) {
           console.error("[WH] DB error:", dbErr.message);
         }
@@ -166,7 +179,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-    console.error("[WH] error parseando payload:", e.message, "| raw:", rawBody.slice(0, 300));
-    return NextResponse.json({ ok: true }); // siempre 200 para que WaSenderAPI no retire el webhook
+    console.error("[WH] parse error:", e.message, "raw:", rawBody.slice(0, 400));
+    return NextResponse.json({ ok: true }); // siempre 200 para no perder el webhook
   }
 }
