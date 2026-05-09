@@ -93,6 +93,21 @@ function newItem(): LineItem {
 }
 
 async function generarPDFBase64(htmlString: string): Promise<string> {
+  // Primario: Puppeteer server-side (alta calidad — requiere chromium-browser en Railway)
+  try {
+    const res = await fetch("/api/pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ html: htmlString }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.base64) return data.base64;
+    }
+    console.warn("[pdf] server falló, usando fallback client-side");
+  } catch { /* fallback */ }
+
+  // Fallback: html2canvas + jspdf en el browser (si Puppeteer no está disponible)
   return new Promise((resolve, reject) => {
     const iframe = document.createElement("iframe");
     Object.assign(iframe.style, {
@@ -100,51 +115,34 @@ async function generarPDFBase64(htmlString: string): Promise<string> {
       width: "794px", height: "1123px", border: "none", opacity: "0", pointerEvents: "none",
     });
     document.body.appendChild(iframe);
-
     const cleanup = () => { try { document.body.removeChild(iframe); } catch {} };
 
     iframe.onload = async () => {
       try {
-        // Esperar a que terminen de cargar las imágenes base64
-        await new Promise(r => setTimeout(r, 600));
-
+        await new Promise(r => setTimeout(r, 800));
         const html2canvas = (await import("html2canvas")).default;
         const { jsPDF } = await import("jspdf");
-
         const doc = iframe.contentDocument;
         if (!doc) { cleanup(); reject(new Error("No se pudo acceder al iframe")); return; }
-
         const canvas = await html2canvas(doc.documentElement, {
-          scale: 1.5,
-          useCORS: true,
-          allowTaint: true,
-          width: 794,
-          windowWidth: 794,
-          logging: false,
+          scale: 3, useCORS: true, allowTaint: true,
+          width: 794, windowWidth: 794, logging: false,
         });
-
         const pdf = new jsPDF({ format: "a4", unit: "mm", orientation: "portrait" });
         const pdfW = pdf.internal.pageSize.getWidth();
         const pdfH = pdf.internal.pageSize.getHeight();
         const imgH = (canvas.height * pdfW) / canvas.width;
-        const imgData = canvas.toDataURL("image/jpeg", 0.92);
-
+        const imgData = canvas.toDataURL("image/jpeg", 0.95);
         let y = 0;
         while (y < imgH) {
           if (y > 0) pdf.addPage();
           pdf.addImage(imgData, "JPEG", 0, -y, pdfW, imgH);
           y += pdfH;
         }
-
-        const base64 = pdf.output("datauristring").split(",")[1];
         cleanup();
-        resolve(base64);
-      } catch (err) {
-        cleanup();
-        reject(err);
-      }
+        resolve(pdf.output("datauristring").split(",")[1]);
+      } catch (err) { cleanup(); reject(err); }
     };
-
     iframe.onerror = () => { cleanup(); reject(new Error("Error al cargar el HTML")); };
     iframe.srcdoc = htmlString;
   });
