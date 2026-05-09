@@ -333,6 +333,11 @@ function initDb(): Database.Database {
 
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_mensajes_wa_chat ON mensajes_wa(chat_id)`); } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_wa_messages_phone ON wa_messages(phone)`); } catch {}
+
+  // Limpiar chats con chatId en formato LID (@lid) — formato antiguo de WhatsApp Multi-Device
+  try {
+    _db.exec(`DELETE FROM chats_wa WHERE chat_id LIKE '%@lid'`);
+  } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_interacciones_lead_id ON interacciones(lead_id)`); } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_ordenes_lead_id ON ordenes_trabajo(lead_id)`); } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_cotizaciones_lead_id ON cotizaciones(lead_id)`); } catch {}

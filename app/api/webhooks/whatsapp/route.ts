@@ -41,27 +41,23 @@ function extractChatIdAndPhone(msg: any): { chatId: string; phone: string } {
     "";
 
   // Si el JID es LID, buscar el número real en senderPn / cleanedSenderPn
-  if (rawJid.endsWith("@lid") || rawJid.endsWith("@lid ")) {
-    const senderPn: string =
-      msg?.key?.senderPn ||
-      msg?.senderPn ||
-      "";
+  if (rawJid.endsWith("@lid")) {
     const cleanPhone: string =
       msg?.key?.cleanedSenderPn ||
       msg?.cleanedSenderPn ||
-      senderPn.split("@")[0] ||
+      (msg?.key?.senderPn || msg?.senderPn || "").split("@")[0] ||
       "";
 
     if (cleanPhone) {
-      const chatId = senderPn || `${cleanPhone}@s.whatsapp.net`;
       const phone = cleanPhone.split(":")[0];
-      return { chatId, phone };
+      return { chatId: `${phone}@s.whatsapp.net`, phone };
     }
   }
 
-  // Formato estándar @s.whatsapp.net
+  // Siempre normalizar a phone@s.whatsapp.net para consistencia
   const phone = rawJid.split("@")[0].split(":")[0];
-  return { chatId: rawJid, phone };
+  const chatId = rawJid.includes("@") ? `${phone}@s.whatsapp.net` : rawJid;
+  return { chatId, phone };
 }
 
 export async function POST(req: Request) {
