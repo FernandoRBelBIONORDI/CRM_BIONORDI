@@ -15,6 +15,8 @@ export async function GET(req: Request) {
     const phone10 = chatId.split("@")[0].replace(/\D/g, "").slice(-10);
     db.prepare(`UPDATE chats_wa SET unread = 0 WHERE SUBSTR(REPLACE(REPLACE(chat_id, '@s.whatsapp.net', ''), '@c.us', ''), -10) = ?`).run(phone10);
 
+    const total = (db.prepare(`SELECT COUNT(*) as c FROM mensajes_wa`).get() as any)?.c ?? 0;
+
     const messages = db.prepare(`
       SELECT m.*
       FROM mensajes_wa m
@@ -27,8 +29,11 @@ export async function GET(req: Request) {
       fromMe: m.from_me === 1
     }));
 
+    console.log(`[MSGS] chatId=${chatId} phone10=${phone10} found=${messages.length} totalInDB=${total}`);
+
     return NextResponse.json({ messages });
   } catch (e: any) {
+    console.error("[MSGS] error:", e.message);
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }

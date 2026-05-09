@@ -149,6 +149,12 @@ function ChatContent() {
       if (res.messages) {
         const fetched: Message[] = res.messages;
 
+        // Don't overwrite existing messages with empty array on silent polls
+        if (silent && fetched.length === 0) {
+          if (!silent) setLoadingMsgs(false);
+          return;
+        }
+
         let display = fetched;
         if (pendingSentRef.current) {
           const p = pendingSentRef.current;
