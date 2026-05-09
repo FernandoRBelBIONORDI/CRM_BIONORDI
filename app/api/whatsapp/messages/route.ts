@@ -12,16 +12,14 @@ export async function GET(req: Request) {
   if (!chatId) return NextResponse.json({ error: "chatId required" }, { status: 400 });
 
   try {
-    db.prepare("UPDATE chats_wa SET unread = 0 WHERE chat_id = ?").run(chatId);
-
     const phone10 = chatId.split("@")[0].replace(/\D/g, "").slice(-10);
+    db.prepare(`UPDATE chats_wa SET unread = 0 WHERE SUBSTR(REPLACE(REPLACE(chat_id, '@s.whatsapp.net', ''), '@c.us', ''), -10) = ?`).run(phone10);
 
     const messages = db.prepare(`
       SELECT m.*
       FROM mensajes_wa m
-      JOIN chats_wa c ON m.chat_id = c.chat_id
-      WHERE SUBSTR(c.phone, -10) = ?
-        AND m.text != ''
+      WHERE m.text != ''
+        AND SUBSTR(REPLACE(REPLACE(m.chat_id, '@s.whatsapp.net', ''), '@c.us', ''), -10) = ?
       ORDER BY m.timestamp ASC
       LIMIT 200
     `).all(phone10).map((m: any) => ({
