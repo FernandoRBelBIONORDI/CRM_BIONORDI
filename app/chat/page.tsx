@@ -116,19 +116,24 @@ function ChatContent() {
     try {
       const res = await fetch(`/api/whatsapp/messages?chatId=${encodeURIComponent(chatId)}`).then(r=>r.json());
       if(res.messages) {
+        const prevCount = messages.length;
         setMessages(res.messages);
         if(!silent) setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+
+        // Marcar como leído si: abrimos el chat O llegaron mensajes nuevos entrantes
+        const hasNewIncoming = res.messages.some((m: any, i: number) =>
+          !m.fromMe && i >= prevCount
+        );
+        if(!silent || hasNewIncoming) {
+          fetch('/api/whatsapp/read', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatId })
+          }).catch(() => {});
+        }
       }
     } catch(e) {}
-    if(!silent) {
-      setLoadingMsgs(false);
-      // Marcar mensajes como leídos → el lead verá palomitas azules
-      fetch('/api/whatsapp/read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chatId })
-      }).catch(() => {});
-    }
+    if(!silent) setLoadingMsgs(false);
   };
 
   const sendMessage = async () => {
