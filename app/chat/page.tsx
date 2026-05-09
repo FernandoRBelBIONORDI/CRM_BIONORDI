@@ -147,10 +147,11 @@ function ChatContent() {
 
   // Agrupación de mensajes por fecha
   const groupedMessages = messages.reduce((acc, m) => {
-    const d = new Date(m.timestamp * 1000);
+    const ts = m.timestamp && m.timestamp > 1000000 ? m.timestamp * 1000 : Date.now();
+    const d = new Date(ts);
     const today = new Date();
     const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
-    
+
     let dateStr = d.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
     if (d.toDateString() === today.toDateString()) dateStr = "Hoy";
     else if (d.toDateString() === yesterday.toDateString()) dateStr = "Ayer";
@@ -316,14 +317,13 @@ function ChatContent() {
                         </div>
                         {msgs.map((m, i) => {
                           const prevFromMe = i > 0 && msgs[i-1].fromMe === m.fromMe;
-                          const date = new Date(m.timestamp * 1000);
                           return (
                             <div key={m.id} className={`flex flex-col max-w-[75%] ${m.fromMe ? 'self-end items-end' : 'self-start items-start'} ${prevFromMe ? 'mt-0' : 'mt-2'}`}>
                               <div className={`px-4 py-2.5 rounded-2xl text-[14px] leading-relaxed shadow-sm break-words relative group ${m.fromMe ? 'bg-gradient-to-br from-[#E0F2FE] to-[#BAE6FD] text-[#0369A1] rounded-br-none border border-[#7DD3FC]/30' : 'bg-white text-slate-700 border border-slate-200 rounded-bl-none'}`}>
                                 {m.text}
                               </div>
                               <span className="text-[10px] font-bold text-slate-400 mt-1 px-1 flex items-center gap-1">
-                                {date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                {new Date(m.timestamp && m.timestamp > 1000000 ? m.timestamp * 1000 : Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                                 {m.fromMe && (
                                 m.status === "read"
                                   ? <CheckCheck size={12} className="text-[#38BDF8]" />
