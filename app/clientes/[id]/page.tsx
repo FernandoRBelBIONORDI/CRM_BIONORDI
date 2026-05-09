@@ -11,7 +11,7 @@ import {
   ExternalLink, Check, ClipboardList, Activity,
 } from "lucide-react";
 import { initials, avatarColor, fmtDate, fmtDatetime, waLink } from "@/lib/ui";
-import QuoteModal from "@/components/QuoteModal";
+import CotizacionManualModal from "@/components/CotizacionManualModal";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -353,7 +353,21 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      {showQuote && <QuoteModal lead={lead as any} onClose={() => setShowQuote(false)} />}
+      {showQuote && lead && (
+        <CotizacionManualModal
+          initialLead={{
+            id: lead.id,
+            nombre: lead.nombre,
+            telefono: lead.telefono || lead.whatsapp,
+            correo: lead.correo,
+            ciudad: lead.ciudad,
+            estado_republica: lead.estado_republica,
+            direccion: lead.direccion,
+          }}
+          onClose={() => { setShowQuote(false); reload(); }}
+          onSuccess={() => { setShowQuote(false); reload(); }}
+        />
+      )}
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#F4F7FB]">
 

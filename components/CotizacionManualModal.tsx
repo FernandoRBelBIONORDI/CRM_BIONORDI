@@ -107,10 +107,20 @@ export default function CotizacionManualModal({
   onClose,
   initialTipo = "reparacion",
   onSuccess,
+  initialLead,
 }: {
   onClose: () => void;
   initialTipo?: TipoCotizacion;
   onSuccess?: (folio: string) => void;
+  initialLead?: {
+    id: number;
+    nombre: string;
+    telefono?: string;
+    correo?: string;
+    ciudad?: string;
+    estado_republica?: string;
+    direccion?: string;
+  };
 }) {
   // ── Estado ────────────────────────────────────────────────────────────────
   const [tipo, setTipo] = useState<TipoCotizacion>(initialTipo);
@@ -189,6 +199,18 @@ export default function CotizacionManualModal({
   useEffect(() => {
     fetch("/api/catalogo").then(r => r.json()).then(d => setCatalogo(d.equipos || [])).catch(() => {});
     fetch("/api/leads").then(r => r.json()).then(d => setLeadsList(d.leads || [])).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!initialLead) return;
+    setLeadId(initialLead.id);
+    setCliNombre(initialLead.nombre || "");
+    setCliTel(initialLead.telefono || "");
+    setCliCorreo(initialLead.correo || "");
+    setCliCiudad(initialLead.ciudad || "");
+    setCliEstado(initialLead.estado_republica || "");
+    setCliDireccion(initialLead.direccion || "");
+    if (initialLead.correo) setEmailTo(initialLead.correo);
   }, []);
 
   useEffect(() => {
@@ -443,7 +465,7 @@ export default function CotizacionManualModal({
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
         ${eqFotosB64.map((b64, i) => `
           <div style="flex:1;min-width:150px;max-width:220px;">
-            <img src="${b64}" alt="Foto ${i+1}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;border:1px solid #E2E8F0;" />
+            <img src="${b64}" alt="Foto ${i+1}" style="width:100%;max-height:220px;object-fit:contain;background:white;border-radius:8px;border:1px solid #E2E8F0;" />
           </div>`).join("")}
       </div>
     </div>` : `
@@ -468,7 +490,7 @@ export default function CotizacionManualModal({
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
         ${evidencias.map((ev, i) => `
           <div style="flex:1;min-width:130px;max-width:200px;">
-            <img src="${ev.b64}" alt="Evidencia ${i+1}" style="width:100%;height:130px;object-fit:cover;border-radius:6px;border:1px solid #FECACA;" />
+            <img src="${ev.b64}" alt="Evidencia ${i+1}" style="width:100%;max-height:180px;object-fit:contain;background:white;border-radius:6px;border:1px solid #FECACA;" />
             <div style="margin-top:4px;font-size:9px;color:#7F1D1D;font-weight:600;text-align:center;">
               Foto ${i+1}${ev.caption ? ` — ${ev.caption}` : ""}
             </div>
@@ -724,8 +746,8 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     setSaveStatus("saving");
     try {
       const { html, folio } = await buildPDFHtml(savedCot?.folio);
-      const pdfB64 = await generarPDFBase64(html);
 
+      // 1. Guardar cotizacion en DB primero (siempre, aunque el PDF falle)
       let cotizacionId = savedCot?.id ?? null;
       if (!savedCot) {
         const dbRes = await fetch("/api/cotizaciones", {
@@ -739,17 +761,24 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           }),
         });
         const data = await dbRes.json();
+        if (!dbRes.ok) throw new Error(data.error || "Error al guardar en base de datos");
         cotizacionId = data.id ?? null;
         if (cotizacionId) setSavedCot({ id: cotizacionId, folio });
       }
 
-      await fetch("/api/expediente", {
+      // 2. Generar PDF (puede fallar en algunos entornos)
+      const pdfB64 = await generarPDFBase64(html);
+
+      // 3. Guardar archivo PDF y actualizar pdf_path
+      const expRes = await fetch("/api/expediente", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ leadId, folio, pdfBase64: pdfB64, cotizacionId }),
       });
+      if (!expRes.ok) throw new Error("Error al guardar el archivo PDF");
 
       setSaveStatus("ok");
+      onSuccess?.(folio);
     } catch {
       setSaveStatus("error");
     }
