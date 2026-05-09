@@ -5,10 +5,9 @@ import db from "@/lib/db";
 
 const WASENDER_TOKEN = process.env.WASENDER_TOKEN!;
 
-// Normalizar número mexicano: 527XXXXXXXX → 5217XXXXXXXX
-// WhatsApp requiere el prefijo 1 para números móviles de México
 function normalizePhone(raw: string): string {
   const digits = raw.replace(/\D/g, "");
+  // México: 52 + 10 dígitos (sin el 1) → agregar el 1
   if (digits.startsWith("52") && digits.length === 12) {
     return `521${digits.slice(2)}`;
   }
@@ -41,9 +40,9 @@ export async function POST(req: Request) {
 
     if (res.ok && data.success !== false) {
       const ts = Math.floor(Date.now() / 1000);
-      const msgId = data.data?.id || `out-${Date.now()}`;
 
-      // Asegurar chat con chatId normalizado
+      // Solo actualizar el chat — el mensaje lo insertará el webhook messages.upsert
+      // con el ID correcto de WhatsApp, evitando que los ticks fallen por ID mismatch.
       db.prepare(`
         INSERT INTO chats_wa (chat_id, name, phone, unread, last_message, last_timestamp)
         VALUES (?, ?, ?, 0, ?, ?)
@@ -52,12 +51,7 @@ export async function POST(req: Request) {
           last_timestamp = excluded.last_timestamp
       `).run(normalizedChatId, phone, phone, message, ts);
 
-      db.prepare(`
-        INSERT OR IGNORE INTO mensajes_wa (id, chat_id, from_me, text, timestamp, status)
-        VALUES (?, ?, 1, ?, ?, 'sent')
-      `).run(msgId, normalizedChatId, message, ts);
-
-      return NextResponse.json({ ok: true, messageId: msgId });
+      return NextResponse.json({ ok: true });
     } else {
       return NextResponse.json({ error: data.message || "Error WaSenderAPI" }, { status: 400 });
     }
