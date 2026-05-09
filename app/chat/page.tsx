@@ -79,7 +79,7 @@ function ChatContent() {
     const timer = setInterval(() => {
       fetchChats(true);
       if (activeChat) fetchMessages(activeChat.chat_id, true);
-    }, 4000);
+    }, 2000);
     return () => clearInterval(timer);
   }, [status, activeChat]);
 
@@ -121,16 +121,20 @@ function ChatContent() {
         const fetched: Message[] = res.messages;
         const prevCount = messages.length;
 
-        // Si hay un mensaje enviado pendiente (upsert webhook aún no llegó a la DB),
-        // mantenerlo visible fusionándolo con los mensajes fetcheados.
+        // Si hay un mensaje enviado pendiente (aún no llegó al poll),
+        // mantenerlo visible hasta que aparezca el real en DB.
         let display = fetched;
         if (pendingSentRef.current) {
           const p = pendingSentRef.current;
-          const arrived = fetched.some(m => m.fromMe && m.text === p.text && Math.abs(m.timestamp - p.timestamp) < 30);
+          const arrived = fetched.some(
+            m => m.fromMe && m.text === p.text && Math.abs(m.timestamp - p.timestamp) < 60
+          );
           if (arrived) {
-            pendingSentRef.current = null; // llegó el real, limpiar
+            pendingSentRef.current = null;
           } else {
-            display = [...fetched, p]; // aún no llegó, seguir mostrando el temp
+            // Solo añadir si no hay duplicado visible
+            const alreadyShown = fetched.some(m => m.id === p.id);
+            if (!alreadyShown) display = [...fetched, p];
           }
         }
 
@@ -372,17 +376,14 @@ function ChatContent() {
                 <div className="p-4 bg-white border-t border-slate-200 shrink-0">
                   <div className="flex items-end gap-3 max-w-4xl mx-auto">
                     <div className="flex gap-1 shrink-0 pb-1">
-                      <button onClick={() => alert('La subida de archivos está en desarrollo.')} className="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors tooltip-trigger relative group">
+                      <button disabled title="Próximamente" className="w-9 h-9 flex items-center justify-center rounded-xl text-slate-300 cursor-not-allowed">
                         <Paperclip size={18}/>
-                        <span className="absolute -top-8 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Adjuntar</span>
                       </button>
-                      <button onClick={() => alert('El envío de imágenes está en desarrollo.')} className="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors relative group">
+                      <button disabled title="Próximamente" className="w-9 h-9 flex items-center justify-center rounded-xl text-slate-300 cursor-not-allowed">
                         <ImageIcon size={18}/>
-                        <span className="absolute -top-8 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Imagen</span>
                       </button>
-                      <button onClick={() => alert('Las plantillas rápidas se habilitarán pronto.')} className="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-[#4E60A9] transition-colors relative group">
+                      <button disabled title="Próximamente" className="w-9 h-9 flex items-center justify-center rounded-xl text-slate-300 cursor-not-allowed">
                         <FileText size={18}/>
-                        <span className="absolute -top-8 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Plantilla CRM</span>
                       </button>
                     </div>
                     
@@ -466,7 +467,7 @@ function ChatContent() {
                 ) : (
                   <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl text-center">
                     <p className="text-[12px] text-slate-500 mb-3">Este contacto no está registrado en tu base de datos de leads.</p>
-                    <button onClick={() => alert('La creación de leads desde el chat estará disponible pronto.')} className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg w-full">Crear Nuevo Lead</button>
+                    <button disabled className="text-[11px] font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg w-full cursor-not-allowed">Crear Nuevo Lead (próximamente)</button>
                   </div>
                 )}
               </div>

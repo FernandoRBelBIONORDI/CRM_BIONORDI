@@ -12,11 +12,8 @@ export async function GET(req: Request) {
   if (!chatId) return NextResponse.json({ error: "chatId required" }, { status: 400 });
 
   try {
-    // Marcar como leído solo el chatId solicitado
     db.prepare("UPDATE chats_wa SET unread = 0 WHERE chat_id = ?").run(chatId);
 
-    // Obtener mensajes de TODOS los chatIds que compartan los últimos 10 dígitos del teléfono.
-    // Esto une mensajes enviados (527...) con mensajes recibidos (5217...) del mismo contacto.
     const phone10 = chatId.split("@")[0].replace(/\D/g, "").slice(-10);
 
     const messages = db.prepare(`
@@ -24,6 +21,7 @@ export async function GET(req: Request) {
       FROM mensajes_wa m
       JOIN chats_wa c ON m.chat_id = c.chat_id
       WHERE SUBSTR(c.phone, -10) = ?
+        AND m.text != ''
       ORDER BY m.timestamp ASC
       LIMIT 200
     `).all(phone10).map((m: any) => ({

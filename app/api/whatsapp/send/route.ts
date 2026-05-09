@@ -7,6 +7,7 @@ const WASENDER_TOKEN = process.env.WASENDER_TOKEN!;
 
 function normalizePhone(raw: string): string {
   const digits = raw.replace(/\D/g, "");
+  // México: 52 + 10 dígitos (sin 1) → agregar 1
   if (digits.startsWith("52") && digits.length === 12) {
     return `521${digits.slice(2)}`;
   }
@@ -24,6 +25,7 @@ export async function POST(req: Request) {
     const rawPhone = chatId.split("@")[0];
     const phone = normalizePhone(rawPhone);
     const normalizedChatId = `${phone}@s.whatsapp.net`;
+    const ts = Math.floor(Date.now() / 1000);
 
     const res = await fetch("https://wasenderapi.com/api/send-message", {
       method: "POST",
@@ -38,8 +40,14 @@ export async function POST(req: Request) {
     const data = await res.json();
 
     if (res.ok && data.success !== false) {
-      const ts = Math.floor(Date.now() / 1000);
+      // Intentar obtener el ID real del mensaje (para que los ticks de estado lo encuentren)
+      const msgId: string =
+        data?.data?.key?.id ||
+        data?.data?.id ||
+        data?.id ||
+        `out-${ts}-${Math.random().toString(36).slice(2, 7)}`;
 
+      // Actualizar último mensaje del chat
       db.prepare(`
         INSERT INTO chats_wa (chat_id, name, phone, unread, last_message, last_timestamp)
         VALUES (?, ?, ?, 0, ?, ?)
@@ -47,6 +55,12 @@ export async function POST(req: Request) {
           last_message = excluded.last_message,
           last_timestamp = excluded.last_timestamp
       `).run(normalizedChatId, phone, phone, message, ts);
+
+      // Guardar el mensaje enviado en mensajes_wa para que aparezca en el chat
+      db.prepare(`
+        INSERT OR IGNORE INTO mensajes_wa (id, chat_id, from_me, text, timestamp, status)
+        VALUES (?, ?, 1, ?, ?, 'sent')
+      `).run(msgId, normalizedChatId, message, ts);
 
       return NextResponse.json({ ok: true });
     } else {
