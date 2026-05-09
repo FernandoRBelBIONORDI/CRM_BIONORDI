@@ -88,20 +88,28 @@ function ChatContent() {
   const [photosMap, setPhotosMap] = useState<Record<string, string>>({});
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const msgContainerRef = useRef<HTMLDivElement>(null);
   const pendingSentRef = useRef<Message | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const prevMsgCountRef = useRef(0);
 
-  // ── Auto-scroll al fondo cuando llegan mensajes nuevos ──────────────────────
-  useEffect(() => {
-    if (messages.length === 0) return;
-    const prev = prevMsgCountRef.current;
-    prevMsgCountRef.current = messages.length;
-    // Scroll instantáneo si cargamos muchos mensajes (apertura de chat), suave si llega 1-2 nuevos
-    const behavior: ScrollBehavior = messages.length > prev + 3 ? "auto" : "smooth";
-    messagesEndRef.current?.scrollIntoView({ behavior });
-  }, [messages.length]);
+  const scrollToBottom = (instant = false) => {
+    requestAnimationFrame(() => {
+      const el = msgContainerRef.current;
+      if (!el) return;
+      if (instant) {
+        el.scrollTop = el.scrollHeight;
+      } else {
+        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+      }
+    });
+  };
+
+  const isNearBottom = () => {
+    const el = msgContainerRef.current;
+    if (!el) return true;
+    return el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+  };
 
   // ── Status poll ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -179,9 +187,9 @@ function ChatContent() {
           }
         }
 
+        const prevCount = messages.length;
         setMessages(display);
 
-        const prevCount = messages.length;
         const hasNewIncoming = fetched.some((m, i) => !m.fromMe && i >= prevCount);
         if (!silent || hasNewIncoming) {
           fetch("/api/whatsapp/read", {
@@ -190,6 +198,12 @@ function ChatContent() {
             body: JSON.stringify({ chatId }),
           }).catch(() => {});
         }
+
+        if (!silent) {
+          scrollToBottom(true);
+        } else if (hasNewIncoming && isNearBottom()) {
+          scrollToBottom(false);
+        }
       }
     } catch {}
     if (!silent) setLoadingMsgs(false);
@@ -197,7 +211,6 @@ function ChatContent() {
 
   // ── Open chat (load messages + profile pic) ──────────────────────────────────
   const openChat = (c: Chat) => {
-    prevMsgCountRef.current = 0; // reset scroll ref before loading new chat
     setMessages([]);
     setActiveChat(c);
     fetchMessages(c.chat_id);
@@ -223,7 +236,7 @@ function ChatContent() {
     const tempMsg: Message = { id: `temp-${Date.now()}`, fromMe: true, text, timestamp: Date.now() / 1000, status: "sent" };
     pendingSentRef.current = tempMsg;
     setMessages((prev) => [...prev, tempMsg]);
-    setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+    scrollToBottom(false);
 
     try {
       await fetch("/api/whatsapp/send", {
@@ -258,7 +271,7 @@ function ChatContent() {
       const tempMsg: Message = { id: `temp-${Date.now()}`, fromMe: true, text: displayText, timestamp: Date.now() / 1000, status: "sent" };
       pendingSentRef.current = tempMsg;
       setMessages((prev) => [...prev, tempMsg]);
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+      scrollToBottom(false);
 
       // 4. Send via WaSenderAPI
       await fetch("/api/whatsapp/send-media", {
@@ -454,7 +467,7 @@ function ChatContent() {
                 </div>
 
                 {/* Mensajes */}
-                <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#F8FAFC]/50"
+                <div ref={msgContainerRef} className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#F8FAFC]/50"
                   style={{ backgroundImage: "radial-gradient(#E2E8F4 1px, transparent 1px)", backgroundSize: "24px 24px" }}>
                   {loadingMsgs && messages.length === 0 ? (
                     <div className="p-6 space-y-6">
