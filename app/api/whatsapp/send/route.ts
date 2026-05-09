@@ -7,7 +7,6 @@ const WASENDER_TOKEN = process.env.WASENDER_TOKEN!;
 
 function normalizePhone(raw: string): string {
   const digits = raw.replace(/\D/g, "");
-  // México: 52 + 10 dígitos (sin el 1) → agregar el 1
   if (digits.startsWith("52") && digits.length === 12) {
     return `521${digits.slice(2)}`;
   }
@@ -40,9 +39,10 @@ export async function POST(req: Request) {
 
     if (res.ok && data.success !== false) {
       const ts = Math.floor(Date.now() / 1000);
+      // WaSenderAPI devuelve el ID real de WhatsApp en data.data.id (e.g. "3EB0...")
+      // Usarlo para que el webhook messages.upsert posterior haga INSERT OR IGNORE correctamente
+      const msgId = data.data?.id || data.data?.key?.id || `out-${ts}-${Math.random().toString(36).slice(2, 6)}`;
 
-      // Solo actualizar el chat — el mensaje lo insertará el webhook messages.upsert
-      // con el ID correcto de WhatsApp, evitando que los ticks fallen por ID mismatch.
       db.prepare(`
         INSERT INTO chats_wa (chat_id, name, phone, unread, last_message, last_timestamp)
         VALUES (?, ?, ?, 0, ?, ?)
@@ -51,7 +51,14 @@ export async function POST(req: Request) {
           last_timestamp = excluded.last_timestamp
       `).run(normalizedChatId, phone, phone, message, ts);
 
-      return NextResponse.json({ ok: true });
+      // Insertar el mensaje inmediatamente para que aparezca en el chat sin delay.
+      // El webhook messages.upsert llegará con el mismo ID y será ignorado (INSERT OR IGNORE).
+      db.prepare(`
+        INSERT OR IGNORE INTO mensajes_wa (id, chat_id, from_me, text, timestamp, status)
+        VALUES (?, ?, 1, ?, ?, 'sent')
+      `).run(msgId, normalizedChatId, message, ts);
+
+      return NextResponse.json({ ok: true, messageId: msgId });
     } else {
       return NextResponse.json({ error: data.message || "Error WaSenderAPI" }, { status: 400 });
     }

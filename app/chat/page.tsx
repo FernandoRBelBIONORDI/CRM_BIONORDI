@@ -120,7 +120,15 @@ function ChatContent() {
         if(!silent) setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
       }
     } catch(e) {}
-    if(!silent) setLoadingMsgs(false);
+    if(!silent) {
+      setLoadingMsgs(false);
+      // Marcar mensajes como leídos → el lead verá palomitas azules
+      fetch('/api/whatsapp/read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chatId })
+      }).catch(() => {});
+    }
   };
 
   const sendMessage = async () => {
@@ -138,8 +146,8 @@ function ChatContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatId: activeChat.chat_id, message: text })
       });
-      // No hacer fetch inmediato — el mensaje temp se queda visible
-      // hasta que el próximo poll (4s) traiga el mensaje real con el ID correcto de WhatsApp
+      fetchMessages(activeChat.chat_id, true);
+      fetchChats(true);
     } catch(e) {}
   };
 
