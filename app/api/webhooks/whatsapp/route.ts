@@ -111,15 +111,37 @@ export async function POST(req: Request) {
           msg.jid ||
           "";
 
-        if (!chatId || chatId.endsWith("@g.us") || chatId.endsWith("@broadcast")) continue;
-        if (!msg.key && !msg.id) continue; // no parece un mensaje
+        if (!chatId || chatId.endsWith("@g.us") || chatId.endsWith("@broadcast")) {
+          console.log("[WH] mensaje descartado - razón: chatId inválido o grupo:", chatId || "(vacío)");
+          continue;
+        }
 
-        const fromMe = !!(msg.key?.fromMe || msg.fromMe);
+        // Extraer identificador del mensaje desde cualquier campo posible
         const msgId: string =
           msg.key?.id ||
           msg.id ||
           msg.messageId ||
-          `auto-${Date.now()}-${Math.random()}`;
+          msg.msgId ||
+          "";
+
+        // Verificar que haya al menos un identificador válido; si no, generar uno
+        // (WaSenderAPI puede omitir msg.key para mensajes entrantes)
+        const hasIdentifier = !!(msg.key || msg.id || msg.messageId || msg.msgId);
+        if (!hasIdentifier) {
+          console.log("[WH] mensaje descartado - razón: sin identificador válido. Campos disponibles:", Object.keys(msg).join(", "));
+          continue;
+        }
+
+        const resolvedMsgId: string = msgId || `auto-${Date.now()}-${Math.random()}`;
+
+        // fromMe: revisar todos los campos posibles que WaSenderAPI puede enviar
+        const fromMe = !!(
+          msg.key?.fromMe ||
+          msg.fromMe ||
+          msg.from_me ||
+          msg.isFromMe ||
+          msg.isSentByMe
+        );
 
         // Extraer texto de múltiples ubicaciones posibles
         let text =
@@ -133,13 +155,15 @@ export async function POST(req: Request) {
           "";
 
         if (!text) {
-          console.log("[WH] mensaje sin texto, id:", msgId);
+          console.log("[WH] mensaje sin texto, id:", resolvedMsgId, "fromMe:", fromMe, "campos:", Object.keys(msg).join(", "));
           continue;
         }
 
         const phone = chatId.split("@")[0].split(":")[0];
         const name: string = msg.pushName || msg.notifyName || msg.senderName || phone;
         const ts = Number(msg.messageTimestamp || msg.timestamp || Math.floor(Date.now() / 1000));
+
+        console.log("[WH] procesando mensaje:", { id: resolvedMsgId, phone, fromMe, ts, textPreview: text.slice(0, 60) });
 
         try {
           db.prepare(`
@@ -155,9 +179,9 @@ export async function POST(req: Request) {
           db.prepare(`
             INSERT OR IGNORE INTO mensajes_wa (id, chat_id, from_me, text, timestamp, status)
             VALUES (?, ?, ?, ?, ?, ?)
-          `).run(msgId, chatId, fromMe ? 1 : 0, text, ts, fromMe ? "sent" : "received");
+          `).run(resolvedMsgId, chatId, fromMe ? 1 : 0, text, ts, fromMe ? "sent" : "received");
 
-          console.log("[WH] mensaje guardado:", phone, "→", text.slice(0, 60));
+          console.log("[WH] mensaje guardado:", phone, "fromMe:", fromMe, "→", text.slice(0, 60));
         } catch (dbErr: any) {
           console.error("[WH] DB error:", dbErr.message);
         }
