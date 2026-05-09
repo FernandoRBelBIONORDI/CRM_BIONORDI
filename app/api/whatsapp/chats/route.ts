@@ -20,7 +20,7 @@ export async function GET() {
                ) AS rn
         FROM chats_wa
       )
-      SELECT d.chat_id, d.name, d.phone, d.unread, d.last_message, d.last_timestamp,
+      SELECT d.chat_id, d.name, d.phone, d.unread, d.last_message, d.last_timestamp, d.photo_url,
              l.id   AS lead_id,
              l.nombre AS lead_nombre,
              l.score_potencial,

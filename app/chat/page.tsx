@@ -421,12 +421,12 @@ function ChatContent() {
                         onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
                     ) : (
                       <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#4E60A9] to-indigo-500 flex items-center justify-center text-white font-extrabold text-[15px] shadow-md shadow-indigo-200">
-                        {activeChat.name ? activeChat.name.charAt(0).toUpperCase() : activeChat.phone.charAt(0)}
+                        {(activeChat.lead_nombre || activeChat.name)?.charAt(0).toUpperCase() || activeChat.phone.charAt(0)}
                       </div>
                     )}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-[16px] font-extrabold text-slate-900 leading-tight">{activeChat.name || activeChat.phone}</h3>
+                    <h3 className="text-[16px] font-extrabold text-slate-900 leading-tight">{activeChat.lead_nombre || activeChat.name || activeChat.phone}</h3>
                     <div className="text-[12px] font-semibold text-slate-500 mt-0.5 flex items-center gap-1.5">
                       <Phone size={11} className="text-slate-400" /> +{activeChat.phone}
                     </div>
