@@ -47,6 +47,8 @@ function ChatContent() {
   const [showProfile, setShowProfile] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Mensaje enviado pendiente: se muestra mientras el upsert del webhook no llegue a la DB
+  const pendingSentRef = useRef<Message | null>(null);
 
   // Poll status
   useEffect(() => {
@@ -116,14 +118,26 @@ function ChatContent() {
     try {
       const res = await fetch(`/api/whatsapp/messages?chatId=${encodeURIComponent(chatId)}`).then(r=>r.json());
       if(res.messages) {
+        const fetched: Message[] = res.messages;
         const prevCount = messages.length;
-        setMessages(res.messages);
+
+        // Si hay un mensaje enviado pendiente (upsert webhook aún no llegó a la DB),
+        // mantenerlo visible fusionándolo con los mensajes fetcheados.
+        let display = fetched;
+        if (pendingSentRef.current) {
+          const p = pendingSentRef.current;
+          const arrived = fetched.some(m => m.fromMe && m.text === p.text && Math.abs(m.timestamp - p.timestamp) < 30);
+          if (arrived) {
+            pendingSentRef.current = null; // llegó el real, limpiar
+          } else {
+            display = [...fetched, p]; // aún no llegó, seguir mostrando el temp
+          }
+        }
+
+        setMessages(display);
         if(!silent) setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
 
-        // Marcar como leído si: abrimos el chat O llegaron mensajes nuevos entrantes
-        const hasNewIncoming = res.messages.some((m: any, i: number) =>
-          !m.fromMe && i >= prevCount
-        );
+        const hasNewIncoming = fetched.some((m, i) => !m.fromMe && i >= prevCount);
         if(!silent || hasNewIncoming) {
           fetch('/api/whatsapp/read', {
             method: 'POST',
@@ -141,8 +155,9 @@ function ChatContent() {
     const text = inputMsg.trim();
     setInputMsg("");
     
-    const tempId = `temp-${Date.now()}`;
-    setMessages(prev => [...prev, { id: tempId, fromMe: true, text, timestamp: Date.now()/1000 }]);
+    const tempMsg: Message = { id: `temp-${Date.now()}`, fromMe: true, text, timestamp: Date.now()/1000, status: 'sent' };
+    pendingSentRef.current = tempMsg;
+    setMessages(prev => [...prev, tempMsg]);
     setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
 
     try {
@@ -151,10 +166,8 @@ function ChatContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatId: activeChat.chat_id, message: text })
       });
-      // Esperar a que el webhook upsert llegue antes de fetchear,
-      // así el mensaje real aparece directo con el ID correcto y sin transición rara.
-      setTimeout(() => { fetchMessages(activeChat.chat_id, true); fetchChats(true); }, 700);
-    } catch(e) {}
+      // El poll regular (~4s) detectará el mensaje real y reemplazará el temp sin parpadeo
+    } catch(e) { pendingSentRef.current = null; }
   };
 
   const filteredChats = chats.filter(c => c.name?.toLowerCase().includes(q.toLowerCase()) || c.phone?.includes(q));
