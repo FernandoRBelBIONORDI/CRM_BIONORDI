@@ -91,6 +91,17 @@ function ChatContent() {
   const pendingSentRef = useRef<Message | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const prevMsgCountRef = useRef(0);
+
+  // ── Auto-scroll al fondo cuando llegan mensajes nuevos ──────────────────────
+  useEffect(() => {
+    if (messages.length === 0) return;
+    const prev = prevMsgCountRef.current;
+    prevMsgCountRef.current = messages.length;
+    // Scroll instantáneo si cargamos muchos mensajes (apertura de chat), suave si llega 1-2 nuevos
+    const behavior: ScrollBehavior = messages.length > prev + 3 ? "auto" : "smooth";
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  }, [messages.length]);
 
   // ── Status poll ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -146,11 +157,8 @@ function ChatContent() {
     if (!silent) setLoadingMsgs(true);
     try {
       const res = await fetch(`/api/whatsapp/messages?chatId=${encodeURIComponent(chatId)}`).then((r) => r.json());
-      console.log("[chat] fetchMessages response:", chatId, "messages:", res.messages?.length, "error:", res.error);
       if (res.messages) {
         const fetched: Message[] = res.messages;
-
-        console.log("[chat] setMessages will be called with:", fetched.length, "items");
 
         // Don't overwrite existing messages with empty array on silent polls
         if (silent && fetched.length === 0) {
@@ -172,7 +180,6 @@ function ChatContent() {
         }
 
         setMessages(display);
-        if (!silent) setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
 
         const prevCount = messages.length;
         const hasNewIncoming = fetched.some((m, i) => !m.fromMe && i >= prevCount);
@@ -448,10 +455,6 @@ function ChatContent() {
                 {/* Mensajes */}
                 <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#F8FAFC]/50"
                   style={{ backgroundImage: "radial-gradient(#E2E8F4 1px, transparent 1px)", backgroundSize: "24px 24px" }}>
-                  {/* DEBUG TEMPORAL */}
-                  <div style={{position:"fixed",bottom:80,right:8,background:"#000",color:"#0f0",padding:"4px 8px",fontSize:11,zIndex:9999,borderRadius:4}}>
-                    msgs: {messages.length} | chat: {activeChat?.chat_id?.split("@")[0]?.slice(-8)}
-                  </div>
                   {loadingMsgs && messages.length === 0 ? (
                     <div className="p-6 space-y-6">
                       {[1, 2, 3].map((i) => (
