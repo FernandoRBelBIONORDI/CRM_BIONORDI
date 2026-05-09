@@ -92,18 +92,21 @@ function ChatContent() {
   const pendingSentRef = useRef<Message | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scrollSignalRef = useRef<"instant" | "smooth" | null>(null);
 
-  const scrollToBottom = (instant = false) => {
-    requestAnimationFrame(() => {
-      const el = msgContainerRef.current;
-      if (!el) return;
-      if (instant) {
-        el.scrollTop = el.scrollHeight;
-      } else {
-        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-      }
-    });
-  };
+  // Runs after React commits DOM — scrollHeight is accurate here
+  useEffect(() => {
+    const signal = scrollSignalRef.current;
+    if (!signal) return;
+    scrollSignalRef.current = null;
+    const el = msgContainerRef.current;
+    if (!el) return;
+    if (signal === "instant") {
+      el.scrollTop = el.scrollHeight;
+    } else {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }
+  }, [messages]);
 
   const isNearBottom = () => {
     const el = msgContainerRef.current;
@@ -200,9 +203,9 @@ function ChatContent() {
         }
 
         if (!silent) {
-          scrollToBottom(true);
+          scrollSignalRef.current = "instant";
         } else if (hasNewIncoming && isNearBottom()) {
-          scrollToBottom(false);
+          scrollSignalRef.current = "smooth";
         }
       }
     } catch {}
@@ -235,8 +238,8 @@ function ChatContent() {
 
     const tempMsg: Message = { id: `temp-${Date.now()}`, fromMe: true, text, timestamp: Date.now() / 1000, status: "sent" };
     pendingSentRef.current = tempMsg;
+    scrollSignalRef.current = "smooth";
     setMessages((prev) => [...prev, tempMsg]);
-    scrollToBottom(false);
 
     try {
       await fetch("/api/whatsapp/send", {
@@ -270,8 +273,8 @@ function ChatContent() {
       const displayText = pendingMedia.type === "image" ? (caption ? `📷 ${caption}` : "📷 Imagen") : (caption ? `📎 ${pendingMedia.file.name} — ${caption}` : `📎 ${pendingMedia.file.name}`);
       const tempMsg: Message = { id: `temp-${Date.now()}`, fromMe: true, text: displayText, timestamp: Date.now() / 1000, status: "sent" };
       pendingSentRef.current = tempMsg;
+      scrollSignalRef.current = "smooth";
       setMessages((prev) => [...prev, tempMsg]);
-      scrollToBottom(false);
 
       // 4. Send via WaSenderAPI
       await fetch("/api/whatsapp/send-media", {
