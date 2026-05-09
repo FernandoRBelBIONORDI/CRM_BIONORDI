@@ -344,6 +344,7 @@ function initDb(): Database.Database {
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_leads_status_crm ON leads(status_crm)`); } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_leads_ciudad ON leads(ciudad)`); } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_leads_proximo ON leads(fecha_proximo_contacto) WHERE fecha_proximo_contacto IS NOT NULL`); } catch {}
+  try { _db.exec(`ALTER TABLE chats_wa ADD COLUMN photo_url TEXT`); } catch {}
 
   // Migración: corregir paths viejos /uploads/ → /api/file/ en todas las tablas
   try {

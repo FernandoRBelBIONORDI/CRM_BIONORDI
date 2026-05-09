@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 
 const UPLOAD_ROOT = path.join(process.cwd(), 'db', 'uploads');
-const ALLOWED = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf']);
+const ALLOWED = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'pptx', 'mp4']);
 const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
 
 export async function POST(req: Request) {
