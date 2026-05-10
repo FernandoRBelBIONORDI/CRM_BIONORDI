@@ -18,12 +18,14 @@ export async function GET(req: Request) {
     const total = (db.prepare(`SELECT COUNT(*) as c FROM mensajes_wa`).get() as any)?.c ?? 0;
 
     const messages = db.prepare(`
-      SELECT m.*
-      FROM mensajes_wa m
-      WHERE m.text != ''
-        AND SUBSTR(REPLACE(REPLACE(m.chat_id, '@s.whatsapp.net', ''), '@c.us', ''), -10) = ?
-      ORDER BY m.timestamp ASC
-      LIMIT 200
+      SELECT * FROM (
+        SELECT m.*
+        FROM mensajes_wa m
+        WHERE m.text != ''
+          AND SUBSTR(REPLACE(REPLACE(m.chat_id, '@s.whatsapp.net', ''), '@c.us', ''), -10) = ?
+        ORDER BY m.timestamp DESC
+        LIMIT 200
+      ) ORDER BY timestamp ASC
     `).all(phone10).map((m: any) => ({
       ...m,
       fromMe: m.from_me === 1

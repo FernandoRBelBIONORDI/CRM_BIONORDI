@@ -94,18 +94,12 @@ function ChatContent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollSignalRef = useRef<"instant" | "smooth" | null>(null);
 
-  // Runs after React commits DOM — scrollHeight is accurate here
+  // Runs after React commits DOM — scrollIntoView is the most reliable scroll mechanism
   useEffect(() => {
     const signal = scrollSignalRef.current;
     if (!signal) return;
     scrollSignalRef.current = null;
-    const el = msgContainerRef.current;
-    if (!el) return;
-    if (signal === "instant") {
-      el.scrollTop = el.scrollHeight;
-    } else {
-      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: signal === "instant" ? "instant" : "smooth", block: "end" });
   }, [messages]);
 
   const isNearBottom = () => {
