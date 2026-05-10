@@ -44,33 +44,68 @@ interface MediaInfo {
   mimetype: string;
   fileEncSha256: string;
   fileName?: string;
+  directUrl?: string; // URL directa si WaSenderAPI ya la provee descifrada
+}
+
+function toBase64Key(raw: any): string {
+  if (!raw) return "";
+  if (typeof raw === "string") return raw;
+  // Buffer serializado como { type:"Buffer", data:[...] }
+  if (raw?.type === "Buffer" && Array.isArray(raw.data)) {
+    return Buffer.from(raw.data).toString("base64");
+  }
+  if (raw instanceof Uint8Array || Buffer.isBuffer(raw)) {
+    return Buffer.from(raw).toString("base64");
+  }
+  return String(raw);
 }
 
 function extractMedia(msg: any): MediaInfo | null {
-  const m = msg?.message;
-  if (!m) return null;
-  if (m.imageMessage?.url && m.imageMessage?.mediaKey) return {
-    mediaType: "image", url: m.imageMessage.url, mediaKey: m.imageMessage.mediaKey,
-    mimetype: m.imageMessage.mimetype || "image/jpeg",
-    fileEncSha256: m.imageMessage.fileEncSha256 || m.imageMessage.fileSha256 || "",
+  // Soporte para dos formatos: msg.message.imageMessage (Baileys estándar)
+  // o msg.imageMessage (algunos wrappers lo aplanan)
+  const m = msg?.message ?? msg;
+
+  const img = m?.imageMessage;
+  if (img?.url) return {
+    mediaType: "image",
+    url: img.url,
+    mediaKey: toBase64Key(img.mediaKey),
+    mimetype: img.mimetype || "image/jpeg",
+    fileEncSha256: toBase64Key(img.fileEncSha256 || img.fileSha256),
+    directUrl: img.mediaUrl || img.directUrl || undefined,
   };
-  if (m.videoMessage?.url && m.videoMessage?.mediaKey) return {
-    mediaType: "video", url: m.videoMessage.url, mediaKey: m.videoMessage.mediaKey,
-    mimetype: m.videoMessage.mimetype || "video/mp4",
-    fileEncSha256: m.videoMessage.fileEncSha256 || "",
+
+  const vid = m?.videoMessage;
+  if (vid?.url) return {
+    mediaType: "video",
+    url: vid.url,
+    mediaKey: toBase64Key(vid.mediaKey),
+    mimetype: vid.mimetype || "video/mp4",
+    fileEncSha256: toBase64Key(vid.fileEncSha256),
+    directUrl: vid.mediaUrl || vid.directUrl || undefined,
   };
-  if (m.documentMessage?.url && m.documentMessage?.mediaKey) return {
-    mediaType: "document", url: m.documentMessage.url, mediaKey: m.documentMessage.mediaKey,
-    mimetype: m.documentMessage.mimetype || "application/octet-stream",
-    fileEncSha256: m.documentMessage.fileEncSha256 || "",
-    fileName: m.documentMessage.fileName,
+
+  const doc = m?.documentMessage;
+  if (doc?.url) return {
+    mediaType: "document",
+    url: doc.url,
+    mediaKey: toBase64Key(doc.mediaKey),
+    mimetype: doc.mimetype || "application/octet-stream",
+    fileEncSha256: toBase64Key(doc.fileEncSha256),
+    fileName: doc.fileName,
+    directUrl: doc.mediaUrl || doc.directUrl || undefined,
   };
-  const audio = m.audioMessage || m.pttMessage;
-  if (audio?.url && audio?.mediaKey) return {
-    mediaType: "audio", url: audio.url, mediaKey: audio.mediaKey,
+
+  const audio = m?.audioMessage || m?.pttMessage;
+  if (audio?.url) return {
+    mediaType: "audio",
+    url: audio.url,
+    mediaKey: toBase64Key(audio.mediaKey),
     mimetype: audio.mimetype || "audio/ogg",
-    fileEncSha256: audio.fileEncSha256 || "",
+    fileEncSha256: toBase64Key(audio.fileEncSha256),
+    directUrl: audio.mediaUrl || audio.directUrl || undefined,
   };
+
   return null;
 }
 
@@ -111,45 +146,70 @@ function extractChatIdAndPhone(msg: any): { chatId: string; phone: string } {
 // Descarga el media de WaSenderAPI y lo guarda en el volumen persistente
 async function downloadAndStoreMedia(msgId: string, media: MediaInfo): Promise<void> {
   try {
-    const decryptRes = await fetch("https://www.wasenderapi.com/api/decrypt-media", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${WASENDER_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        url: media.url,
-        mediaKey: media.mediaKey,
-        mimetype: media.mimetype,
-        fileEncSha256: media.fileEncSha256,
-      }),
-    });
+    console.log("[WH] descargando media:", media.mediaType, "url[:60]:", media.url?.slice(0, 60), "hasKey:", !!media.mediaKey, "directUrl:", media.directUrl?.slice(0, 60) || "none");
 
-    if (!decryptRes.ok) {
-      console.error("[WH] decrypt-media:", decryptRes.status, await decryptRes.text().catch(() => ""));
-      return;
+    let downloadUrl: string | undefined = media.directUrl;
+
+    // Si tenemos URL directa (ya descifrada), usarla sin llamar a decrypt-media
+    if (!downloadUrl && media.mediaKey) {
+      const decryptRes = await fetch("https://www.wasenderapi.com/api/decrypt-media", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${WASENDER_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: media.url,
+          mediaKey: media.mediaKey,
+          mimetype: media.mimetype,
+          fileEncSha256: media.fileEncSha256,
+        }),
+      });
+
+      const decryptText = await decryptRes.text();
+      console.log("[WH] decrypt-media status:", decryptRes.status, "body:", decryptText.slice(0, 300));
+
+      if (decryptRes.ok) {
+        try {
+          const d = JSON.parse(decryptText);
+          // Intentar todos los campos posibles
+          downloadUrl = d.publicUrl || d.url || d.downloadUrl || d.mediaUrl ||
+            d.data?.url || d.data?.publicUrl || d.media?.url || d.result?.url;
+          if (!downloadUrl) {
+            console.error("[WH] decrypt-media: campos disponibles:", Object.keys(d).join(","));
+          }
+        } catch { console.error("[WH] decrypt-media: respuesta no es JSON"); }
+      }
     }
 
-    const decryptData = await decryptRes.json();
-    const publicUrl: string = decryptData.publicUrl || decryptData.url || decryptData.downloadUrl;
-    if (!publicUrl) { console.error("[WH] decrypt-media: no publicUrl"); return; }
+    // Último fallback: intentar descargar la URL original directamente
+    if (!downloadUrl && media.url) {
+      console.log("[WH] fallback: intentando URL directa");
+      downloadUrl = media.url;
+    }
 
-    const fileRes = await fetch(publicUrl);
-    if (!fileRes.ok) { console.error("[WH] descarga media:", fileRes.status); return; }
+    if (!downloadUrl) { console.error("[WH] sin URL de descarga para:", msgId); return; }
+
+    const fileRes = await fetch(downloadUrl);
+    if (!fileRes.ok) {
+      console.error("[WH] descarga media falló:", fileRes.status, "url:", downloadUrl.slice(0, 80));
+      return;
+    }
 
     const ext = media.fileName
       ? (media.fileName.split(".").pop() || mimeToExt(media.mimetype))
       : mimeToExt(media.mimetype);
-    const fileName = `${msgId}.${ext}`;
+    const safeId = msgId.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const fileName = `${safeId}.${ext}`;
 
     fs.mkdirSync(UPLOAD_DIR, { recursive: true });
     fs.writeFileSync(path.join(UPLOAD_DIR, fileName), Buffer.from(await fileRes.arrayBuffer()));
 
     const localUrl = `/api/file/wa-media/${fileName}`;
     db.prepare(`UPDATE mensajes_wa SET media_url = ? WHERE id = ?`).run(localUrl, msgId);
-    console.log("[WH] media guardado:", localUrl);
+    console.log("[WH] ✅ media guardado:", localUrl);
   } catch (e: any) {
-    console.error("[WH] downloadAndStoreMedia:", e.message);
+    console.error("[WH] downloadAndStoreMedia error:", e.message);
   }
 }
 
@@ -160,7 +220,7 @@ export async function POST(req: Request) {
   try {
     rawBody = await req.text();
     const payload = JSON.parse(rawBody);
-    console.log("[WH] raw:", JSON.stringify(payload).slice(0, 800));
+    console.log("[WH] raw:", JSON.stringify(payload).slice(0, 2000));
 
     const events = Array.isArray(payload) ? payload : [payload];
 
@@ -247,6 +307,12 @@ export async function POST(req: Request) {
         if (!text) { console.log("[WH] sin texto, keys:", Object.keys(msg).join(",")); continue; }
 
         const media = extractMedia(msg);
+        if (media) {
+          console.log("[WH] media detectado:", media.mediaType, "hasKey:", !!media.mediaKey, "directUrl:", !!media.directUrl, "url[:50]:", media.url?.slice(0, 50));
+        } else {
+          const msgKeys = Object.keys(msg?.message || msg || {}).join(",");
+          console.log("[WH] sin media, claves message:", msgKeys);
+        }
         const name: string = msg?.pushName || msg?.notifyName || phone;
         const ts = Number(msg?.messageTimestamp?.low ?? msg?.messageTimestamp ?? msg?.timestamp ?? Math.floor(Date.now() / 1000));
 

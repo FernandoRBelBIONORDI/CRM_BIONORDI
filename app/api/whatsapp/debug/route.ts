@@ -15,15 +15,17 @@ export async function GET(req: Request) {
 
   const mensajes = phone10
     ? db.prepare(`
-        SELECT id, chat_id, from_me, text, timestamp, status
+        SELECT id, chat_id, from_me, text, timestamp, status, media_type, media_url
         FROM mensajes_wa
         WHERE SUBSTR(REPLACE(REPLACE(chat_id, '@s.whatsapp.net', ''), '@c.us', ''), -10) = ?
-        ORDER BY timestamp DESC LIMIT 20
+        ORDER BY timestamp DESC LIMIT 30
       `).all(phone10)
-    : db.prepare(`SELECT id, chat_id, from_me, text, timestamp, status FROM mensajes_wa ORDER BY timestamp DESC LIMIT 20`).all();
+    : db.prepare(`SELECT id, chat_id, from_me, text, timestamp, status, media_type, media_url FROM mensajes_wa ORDER BY timestamp DESC LIMIT 30`).all();
 
   const totalMensajes = (db.prepare(`SELECT COUNT(*) as c FROM mensajes_wa`).get() as any)?.c;
   const totalChats = (db.prepare(`SELECT COUNT(*) as c FROM chats_wa`).get() as any)?.c;
+  const conMedia = (db.prepare(`SELECT COUNT(*) as c FROM mensajes_wa WHERE media_type IS NOT NULL`).get() as any)?.c;
+  const conMediaUrl = (db.prepare(`SELECT COUNT(*) as c FROM mensajes_wa WHERE media_url IS NOT NULL`).get() as any)?.c;
 
-  return NextResponse.json({ totalChats, totalMensajes, chats, mensajes, phone10_buscado: phone10 || "(todos)" });
+  return NextResponse.json({ totalChats, totalMensajes, conMedia, conMediaUrl, chats, mensajes, phone10_buscado: phone10 || "(todos)" });
 }
