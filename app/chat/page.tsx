@@ -93,16 +93,11 @@ function ChatContent() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Scroll al fondo cuando llegan mensajes nuevos
+  // Scroll al fondo cuando cambia el chat o llegan mensajes nuevos
   useEffect(() => {
     if (messages.length === 0) return;
-    const id = requestAnimationFrame(() => {
-      const el = msgContainerRef.current;
-      if (!el) return;
-      el.scrollTop = el.scrollHeight;
-    });
-    return () => cancelAnimationFrame(id);
-  }, [messages.length]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+  }, [messages.length, activeChat?.chat_id]);
 
   // ── Status poll ──────────────────────────────────────────────────────────────
   useEffect(() => {
