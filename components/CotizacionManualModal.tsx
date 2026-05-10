@@ -513,6 +513,13 @@ export default function CotizacionManualModal({
             <img src="${b64}" alt="Foto ${i+1}" style="width:100%;max-height:220px;object-fit:contain;background:white;border-radius:8px;border:1px solid #E2E8F0;" />
           </div>`).join("")}
       </div>
+    </div>` : imgEquipoB64 ? `
+    <div class="tech-card avoid-break">
+      <div class="card-title">Foto del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
+      ${eqDescripcion ? `<p class="diag-p">${eqDescripcion}</p>` : ""}
+      <div style="display:flex;justify-content:center;margin-top:8px;">
+        <img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Equipo"}" style="max-width:340px;max-height:300px;object-fit:contain;background:white;border-radius:8px;border:1px solid #E2E8F0;" />
+      </div>
     </div>` : `
     <div class="tech-card avoid-break">
       <div class="card-title">Características del Equipo — Vista de Referencia</div>
@@ -529,14 +536,22 @@ export default function CotizacionManualModal({
       </div>
     </div>`) : "";
 
-    const evidenciaHTML = tipo === "reparacion" && evidencias.length > 0 ? `
+    const evidenciaLabel = tipo === "reparacion" ? "Evidencia Fotográfica del Defecto"
+      : tipo === "mantenimiento" ? "Fotos del Mantenimiento"
+      : tipo === "venta" ? "Fotos del Equipo"
+      : "Fotos de Productos";
+    const evidenciaColor = tipo === "reparacion" ? "#B91C1C" : "#4E60A9";
+    const evidenciaBorder = tipo === "reparacion" ? "#FECACA" : "#E2E8F0";
+    const evidenciaImgBorder = tipo === "reparacion" ? "#FECACA" : "#E2E8F0";
+    const evidenciaTextColor = tipo === "reparacion" ? "#7F1D1D" : "#475569";
+    const evidenciaHTML = evidencias.length > 0 ? `
     <div class="tech-card" style="margin-bottom:20px;page-break-before:avoid;">
-      <div class="card-title" style="color:#B91C1C;border-bottom-color:#FECACA;">Evidencia Fotográfica del Defecto</div>
+      <div class="card-title" style="color:${evidenciaColor};border-bottom-color:${evidenciaBorder};">${evidenciaLabel}</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
         ${evidencias.map((ev, i) => `
           <div style="flex:1;min-width:130px;max-width:200px;">
-            <img src="${ev.b64}" alt="Evidencia ${i+1}" style="width:100%;max-height:180px;object-fit:contain;background:white;border-radius:6px;border:1px solid #FECACA;" />
-            <div style="margin-top:4px;font-size:9px;color:#7F1D1D;font-weight:600;text-align:center;">
+            <img src="${ev.b64}" alt="Evidencia ${i+1}" style="width:100%;max-height:180px;object-fit:contain;background:white;border-radius:6px;border:1px solid ${evidenciaImgBorder};" />
+            <div style="margin-top:4px;font-size:9px;color:${evidenciaTextColor};font-weight:600;text-align:center;">
               Foto ${i+1}${ev.caption ? ` — ${ev.caption}` : ""}
             </div>
           </div>`).join("")}
@@ -562,12 +577,14 @@ export default function CotizacionManualModal({
         ${eqFalla ? `<div class="eq-full"><div class="eq-lbl" style="color:#B91C1C;">Falla Reportada / Síntoma</div><div class="eq-val" style="color:#7F1D1D;margin-top:2px;">${eqFalla}</div></div>` : ""}
       </div>
     </div>`
-    : tipo === "venta" && (eqMarca || eqModelo) ? `
+    : tipo === "venta" && (eqMarca || eqModelo || eqTipo) ? `
     <div class="eq-card">
       <div class="card-title" style="border:none;padding:0;margin-bottom:12px;">Equipo Cotizado</div>
       <div class="eq-grid">
+        ${eqTipo ? `<div class="eq-item"><div class="eq-lbl">Tipo</div><div class="eq-val">${eqTipo}</div></div>` : ""}
         ${eqMarca ? `<div class="eq-item"><div class="eq-lbl">Marca</div><div class="eq-val">${eqMarca}</div></div>` : ""}
         ${eqModelo ? `<div class="eq-item"><div class="eq-lbl">Modelo</div><div class="eq-val">${eqModelo}</div></div>` : ""}
+        ${eqSerie ? `<div class="eq-item"><div class="eq-lbl">No. de Serie</div><div class="eq-val">${eqSerie}</div></div>` : ""}
         ${eqDescripcion ? `<div class="eq-full"><div class="eq-lbl">Descripción</div><div class="eq-val" style="margin-top:2px;">${eqDescripcion}</div></div>` : ""}
       </div>
     </div>` : "";
@@ -1012,7 +1029,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     setTimeout(() => setEmailStatus("idle"), 6000);
   };
 
-  const showEquipo = tipo === "reparacion" || tipo === "mantenimiento";
+  const showEquipo = tipo !== "consumibles";
   const rapidosList = SERVICIOS_RAPIDOS[tipo] ?? [];
 
   // Derived catalog values — computed here so JSX stays clean (no IIFE)
@@ -1137,17 +1154,17 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
             </div>
           </div>
 
-          {/* Equipo (reparacion / mantenimiento) */}
+          {/* Equipo */}
           {showEquipo && (
             <div className="px-6 py-4 border-b border-gray-100">
               <div className="flex items-center justify-between mb-3">
                 <div className="text-[10px] font-bold text-[#4E60A9] uppercase tracking-widest">
-                  {tipo === "reparacion" ? "Equipo a reparar" : "Equipo a dar mantenimiento"}
+                  {tipo === "reparacion" ? "Equipo a reparar" : tipo === "venta" ? "Equipo a cotizar" : "Equipo a dar mantenimiento"}
                 </div>
-                {tipo === "reparacion" && marcasUnicas.length > 0 && (
+                {catalogo.length > 0 && (
                   <div className="flex gap-1 bg-gray-100 p-0.5 rounded-lg">
                     <button
-                      onClick={() => { setEquipoMode("catalogo"); setEqMarca(""); setEqModelo(""); setImgEquipoB64(null); }}
+                      onClick={() => { setEquipoMode("catalogo"); setEqMarca(""); setEqModelo(""); setEqTipo(""); setImgEquipoB64(null); limpiarEquipoCatalogo(); }}
                       className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${equipoMode === "catalogo" ? "bg-white text-[#4E60A9] shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>
                       Catálogo
                     </button>
@@ -1160,175 +1177,195 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <Field label="Tipo de transductor">
-                  {tipo === "reparacion"
-                    ? <select value={eqTipo} onChange={e => setEqTipo(e.target.value)} className={sel}>
-                        <option value="">— Seleccionar —</option>
-                        {TIPOS_TRANSDUCTOR.map(t => <option key={t}>{t}</option>)}
-                      </select>
-                    : <input value={eqTipo} onChange={e => setEqTipo(e.target.value)} placeholder="Ultrasonido, Monitor…" className={inp}/>
-                  }
-                </Field>
+              {/* Lista plana del catálogo para venta y mantenimiento en modo catálogo */}
+              {(tipo === "venta" || tipo === "mantenimiento") && equipoMode === "catalogo" && catalogo.length > 0 && (
+                <div className="max-h-[180px] overflow-y-auto space-y-1.5 pr-1 mb-3">
+                  {catalogo.map(eq => {
+                    const desc = [eq.marca, eq.modelo].filter(Boolean).join(" — ") || eq.tipo || "Equipo";
+                    return (
+                      <button key={eq.id} onClick={async () => {
+                        await seleccionarDelCatalogo(eq);
+                        setEqTipo(eq.tipo || "");
+                        if (tipo === "venta") {
+                          setItems(p => {
+                            const limpio = p.filter(i => i.descripcion !== "" || i.precioUnit !== 0);
+                            return [...limpio, { id: Math.random().toString(36).slice(2), descripcion: desc, cantidad: 1, precioUnit: 0 }];
+                          });
+                        }
+                      }}
+                        className="w-full text-left flex items-center gap-3 p-2.5 rounded-xl border border-gray-100 hover:border-[#4E60A9]/30 hover:bg-blue-50/50 transition-all">
+                        {eq.imagen_path && (
+                          <img src={eq.imagen_path} alt="" className="w-9 h-9 object-contain rounded-lg border border-gray-100 bg-white shrink-0" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[12px] font-bold text-[#1E293B] truncate">{eq.modelo || "Sin modelo"}</p>
+                          <p className="text-[10px] text-gray-400">{[eq.marca, eq.tipo].filter(Boolean).join(" · ")}</p>
+                        </div>
+                        <span className="text-[10px] font-bold text-[#4E60A9] shrink-0 flex items-center gap-1">
+                          <Plus size={10} /> Agregar
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
 
-                <Field label="Marca">
-                  {tipo === "reparacion" && equipoMode === "catalogo" && marcasUnicas.length > 0 ? (
-                    <select value={eqMarca} onChange={e => { setEqMarca(e.target.value); setEqModelo(""); setImgEquipoB64(null); }} className={sel}>
-                      <option value="">— Seleccionar marca —</option>
-                      {marcasUnicas.map(m => <option key={m} value={m}>{m}</option>)}
-                      {transductores.some(e => !e.marca) && <option value="__sin_marca__">Sin marca especificada</option>}
-                    </select>
-                  ) : (
-                    <input value={eqMarca} onChange={e => setEqMarca(e.target.value)}
-                      placeholder="GE, Philips, Mindray…" className={inp}/>
+              {/* Campos para reparación (siempre) o modo manual (venta/mantenimiento) */}
+              {(tipo === "reparacion" || equipoMode === "manual") && (
+                <>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <Field label={tipo === "reparacion" ? "Tipo de transductor" : "Tipo de equipo"}>
+                      {tipo === "reparacion"
+                        ? <select value={eqTipo} onChange={e => setEqTipo(e.target.value)} className={sel}>
+                            <option value="">— Seleccionar —</option>
+                            {TIPOS_TRANSDUCTOR.map(t => <option key={t}>{t}</option>)}
+                          </select>
+                        : <input value={eqTipo} onChange={e => setEqTipo(e.target.value)} placeholder="Ultrasonido, Monitor de signos vitales…" className={inp}/>
+                      }
+                    </Field>
+
+                    <Field label="Marca">
+                      {tipo === "reparacion" && equipoMode === "catalogo" && marcasUnicas.length > 0 ? (
+                        <select value={eqMarca} onChange={e => { setEqMarca(e.target.value); setEqModelo(""); setImgEquipoB64(null); }} className={sel}>
+                          <option value="">— Seleccionar marca —</option>
+                          {marcasUnicas.map(m => <option key={m} value={m}>{m}</option>)}
+                          {transductores.some(e => !e.marca) && <option value="__sin_marca__">Sin marca especificada</option>}
+                        </select>
+                      ) : (
+                        <input value={eqMarca} onChange={e => setEqMarca(e.target.value)}
+                          placeholder="GE, Philips, Mindray…" className={inp}/>
+                      )}
+                    </Field>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3 mb-3">
+                    <Field label="Modelo">
+                      {tipo === "reparacion" && equipoMode === "catalogo" && modelosPorMarca.length > 0 ? (
+                        <select value={eqModelo} onChange={async e => {
+                          const found = transductores.find(t => t.modelo === e.target.value && (!eqMarca || t.marca === eqMarca));
+                          setEqModelo(e.target.value);
+                          if (found) await seleccionarDelCatalogo(found);
+                          else setImgEquipoB64(null);
+                        }} className={sel}>
+                          <option value="">— Seleccionar modelo —</option>
+                          {modelosPorMarca.map(e => (
+                            <option key={e.id} value={e.modelo}>
+                              {e.modelo}{e.imagen_path ? " ✓" : ""}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input value={eqModelo} onChange={e => setEqModelo(e.target.value)}
+                          placeholder="Modelo" className={inp}/>
+                      )}
+                    </Field>
+
+                    <Field label="No. de Serie">
+                      <input value={eqSerie} onChange={e => setEqSerie(e.target.value)} placeholder="SN-XXXXXX" className={inp}/>
+                    </Field>
+                    {tipo !== "venta" && (
+                      <Field label="Falla / Síntoma">
+                        <input value={eqFalla} onChange={e => setEqFalla(e.target.value)} placeholder="Sin imagen, cable dañado…" className={inp}/>
+                      </Field>
+                    )}
+                  </div>
+
+                  {/* Subida de foto/diagrama para venta y mantenimiento en modo manual */}
+                  {tipo !== "reparacion" && (
+                    <div className="mt-1">
+                      <label className="text-[11px] font-bold text-gray-500 block mb-1">
+                        {tipo === "venta" ? "Foto / Diagrama del equipo" : "Foto del equipo"}
+                      </label>
+                      {imgEquipoB64 ? (
+                        <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                          <img src={imgEquipoB64} alt="diagrama" className="h-8 w-12 object-contain rounded border border-blue-200 bg-white shrink-0"/>
+                          <span className="text-[10px] text-blue-700 font-medium flex-1">Imagen cargada — aparecerá en el PDF</span>
+                          <button onClick={() => setImgEquipoB64(null)} className="text-[10px] text-blue-400 hover:text-blue-600">Quitar</button>
+                        </div>
+                      ) : (
+                        <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-dashed border-blue-200 hover:border-[#4E60A9] text-[11px] text-[#4E60A9] font-medium transition-all bg-blue-50/40 hover:bg-blue-50">
+                          <Plus size={12}/>
+                          Subir imagen
+                          <input type="file" accept="image/*" className="hidden" onChange={handleImgEquipo}/>
+                        </label>
+                      )}
+                    </div>
                   )}
-                </Field>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 mb-3">
-                <Field label="Modelo">
-                  {tipo === "reparacion" && equipoMode === "catalogo" && modelosPorMarca.length > 0 ? (
-                    <select value={eqModelo} onChange={async e => {
-                      const found = transductores.find(t => t.modelo === e.target.value && (!eqMarca || t.marca === eqMarca));
-                      setEqModelo(e.target.value);
-                      if (found) await seleccionarDelCatalogo(found);
-                      else setImgEquipoB64(null);
-                    }} className={sel}>
-                      <option value="">— Seleccionar modelo —</option>
-                      {modelosPorMarca.map(e => (
-                        <option key={e.id} value={e.modelo}>
-                          {e.modelo}{e.imagen_path ? " ✓" : ""}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input value={eqModelo} onChange={e => setEqModelo(e.target.value)}
-                      placeholder="Modelo" className={inp}/>
-                  )}
-                </Field>
-
-                <Field label="No. de Serie">
-                  <input value={eqSerie} onChange={e => setEqSerie(e.target.value)} placeholder="SN-XXXXXX" className={inp}/>
-                </Field>
-                <Field label="Falla / Síntoma">
-                  <input value={eqFalla} onChange={e => setEqFalla(e.target.value)} placeholder="Sin imagen, cable dañado…" className={inp}/>
-                </Field>
-              </div>
+                </>
+              )}
 
               {/* Indicador de datos del catálogo cargados */}
-              {(imgEquipoB64 || eqFotos.length > 0 || eqBrochureB64) && (
+              {(imgEquipoB64 || eqFotos.length > 0 || eqBrochureB64 || ((tipo === "venta" || tipo === "mantenimiento") && equipoMode === "catalogo" && (eqMarca || eqModelo))) && (
                 <div className="flex items-center gap-3 mt-3 p-3 bg-[#EEF0F7] border border-[#C5CAE0] rounded-xl">
-                  {imgEquipoB64 && (
-                    <img src={imgEquipoB64} alt="diagrama" className="h-10 w-14 object-contain rounded border border-blue-200 bg-white shrink-0" />
-                  )}
-                  {eqFotos[0] && (
-                    <img src={eqFotos[0]} alt="foto" className="h-10 w-14 object-cover rounded border border-blue-200 shrink-0" />
-                  )}
+                  {eqFotos[0]
+                    ? <img src={eqFotos[0]} alt="foto" className="h-10 w-14 object-cover rounded border border-blue-200 shrink-0" />
+                    : imgEquipoB64
+                    ? <img src={imgEquipoB64} alt="diagrama" className="h-10 w-14 object-contain rounded border border-blue-200 bg-white shrink-0" />
+                    : null}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-bold text-[#4E60A9]">Datos del catálogo cargados en el PDF</p>
+                    <p className="text-[11px] font-bold text-[#4E60A9]">
+                      {equipoMode === "catalogo" ? "Datos del catálogo cargados en el PDF" : "Imagen cargada en el PDF"}
+                    </p>
                     <p className="text-[10px] text-[#4E60A9] mt-0.5">
-                      {[imgEquipoB64 && "Diagrama técnico", eqFotos.length > 0 && `${eqFotos.length} foto(s)`, eqBrochureB64 && "Ficha técnica"].filter(Boolean).join(" · ")}
+                      {[imgEquipoB64 && "Diagrama técnico", eqFotos.length > 0 && `${eqFotos.length} foto(s)`, eqBrochureB64 && "Ficha técnica", (eqMarca || eqModelo) && [eqMarca, eqModelo].filter(Boolean).join(" ")].filter(Boolean).join(" · ")}
                     </p>
                     {eqDescripcion && <p className="text-[10px] text-[#4E60A9] mt-0.5 truncate">{eqDescripcion}</p>}
                   </div>
-                  <button onClick={limpiarEquipoCatalogo}
+                  <button
+                    onClick={() => { limpiarEquipoCatalogo(); if (tipo !== "reparacion") { setEqMarca(""); setEqModelo(""); setEqTipo(""); } }}
                     className="text-[10px] text-blue-300 hover:text-blue-500 shrink-0">Quitar</button>
                 </div>
               )}
             </div>
           )}
 
-          {/* Evidencia fotográfica — solo reparación */}
-          {tipo === "reparacion" && (
-            <div className="px-6 py-4 border-b border-gray-100">
-              <div className="text-[10px] font-bold text-red-700 uppercase tracking-widest mb-2">Evidencia fotográfica del defecto</div>
-              {imgEquipoB64 && (
-                <div className="flex items-center gap-2 mb-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                  <img src={imgEquipoB64} alt="diagrama" className="h-8 w-12 object-contain rounded border border-blue-200 bg-white shrink-0"/>
-                  <span className="text-[10px] text-blue-700 font-medium flex-1">Diagrama cargado desde catálogo</span>
-                  <button onClick={() => setImgEquipoB64(null)} className="text-[10px] text-blue-400 hover:text-blue-600">Quitar</button>
-                </div>
-              )}
-              <div className="space-y-2">
-                {evidencias.map((ev, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <img src={ev.b64} alt={`ev${i}`} className="h-10 w-16 object-cover rounded border border-red-200 shrink-0"/>
-                    <input
-                      value={ev.caption}
-                      onChange={e => setEvidenciaCaption(i, e.target.value)}
-                      placeholder="Descripción del defecto (opcional)"
-                      className="flex-1 text-[11px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#4E60A9]/40"/>
-                    <button onClick={() => removeEvidencia(i)} className="w-7 h-7 flex items-center justify-center text-red-300 hover:text-red-500 rounded hover:bg-red-50">
-                      <Trash2 size={12}/>
-                    </button>
-                  </div>
-                ))}
-                {evidencias.length < 4 && (
-                  <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-dashed border-red-200 hover:border-red-400 text-[11px] text-red-500 font-medium transition-all bg-red-50/40 hover:bg-red-50">
-                    <Plus size={12}/>
-                    Agregar foto de defecto
-                    <input type="file" accept="image/*" className="hidden"
-                      onChange={e => handleEvidencia(e, evidencias.length)}/>
-                  </label>
-                )}
-              </div>
+          {/* Evidencia fotográfica / Fotos — todos los tipos */}
+          <div className="px-6 py-4 border-b border-gray-100">
+            <div className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${tipo === "reparacion" ? "text-red-700" : "text-[#4E60A9]"}`}>
+              {tipo === "reparacion" ? "Evidencia fotográfica del defecto" :
+               tipo === "mantenimiento" ? "Fotos del mantenimiento (antes / después)" :
+               tipo === "venta" ? "Fotos adicionales del equipo" :
+               "Fotos de productos / referencia"}
             </div>
-          )}
+            {tipo === "reparacion" && imgEquipoB64 && (
+              <div className="flex items-center gap-2 mb-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                <img src={imgEquipoB64} alt="diagrama" className="h-8 w-12 object-contain rounded border border-blue-200 bg-white shrink-0"/>
+                <span className="text-[10px] text-blue-700 font-medium flex-1">Diagrama cargado desde catálogo</span>
+                <button onClick={() => setImgEquipoB64(null)} className="text-[10px] text-blue-400 hover:text-blue-600">Quitar</button>
+              </div>
+            )}
+            <div className="space-y-2">
+              {evidencias.map((ev, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <img src={ev.b64} alt={`ev${i}`} className={`h-10 w-16 object-cover rounded shrink-0 ${tipo === "reparacion" ? "border border-red-200" : "border border-blue-200"}`}/>
+                  <input
+                    value={ev.caption}
+                    onChange={e => setEvidenciaCaption(i, e.target.value)}
+                    placeholder={tipo === "reparacion" ? "Descripción del defecto (opcional)" : "Descripción (opcional)"}
+                    className="flex-1 text-[11px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#4E60A9]/40"/>
+                  <button onClick={() => removeEvidencia(i)} className={`w-7 h-7 flex items-center justify-center rounded hover:bg-red-50 ${tipo === "reparacion" ? "text-red-300 hover:text-red-500" : "text-gray-300 hover:text-red-400"}`}>
+                    <Trash2 size={12}/>
+                  </button>
+                </div>
+              ))}
+              {evidencias.length < 4 && (
+                <label className={`cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-dashed text-[11px] font-medium transition-all ${
+                  tipo === "reparacion"
+                    ? "border-red-200 hover:border-red-400 text-red-500 bg-red-50/40 hover:bg-red-50"
+                    : "border-blue-200 hover:border-[#4E60A9] text-[#4E60A9] bg-blue-50/40 hover:bg-blue-50"
+                }`}>
+                  <Plus size={12}/>
+                  {tipo === "reparacion" ? "Agregar foto de defecto" :
+                   tipo === "mantenimiento" ? "Agregar foto del mantenimiento" :
+                   tipo === "venta" ? "Agregar foto del equipo" :
+                   "Agregar foto de producto"}
+                  <input type="file" accept="image/*" className="hidden"
+                    onChange={e => handleEvidencia(e, evidencias.length)}/>
+                </label>
+              )}
+            </div>
+          </div>
 
-          {/* Catálogo de equipos — solo venta */}
-          {tipo === "venta" && catalogo.length > 0 && (
-            <div className="px-6 py-4 border-b border-gray-100">
-              <div className="text-[10px] font-bold text-[#059669] uppercase tracking-widest mb-3">
-                Agregar equipo del catálogo
-              </div>
-              <div className="max-h-[180px] overflow-y-auto space-y-1.5 pr-1">
-                {catalogo.map(eq => {
-                  const desc = [eq.marca, eq.modelo].filter(Boolean).join(" — ") || eq.tipo || "Equipo";
-                  return (
-                    <button key={eq.id} onClick={async () => {
-                      await seleccionarDelCatalogo(eq);
-                      setItems(p => {
-                        const limpio = p.filter(i => i.descripcion !== "" || i.precioUnit !== 0);
-                        return [...limpio, { id: Math.random().toString(36).slice(2), descripcion: desc, cantidad: 1, precioUnit: 0 }];
-                      });
-                    }}
-                      className="w-full text-left flex items-center gap-3 p-2.5 rounded-xl border border-gray-100 hover:border-[#059669]/30 hover:bg-green-50/50 transition-all">
-                      {eq.imagen_path && (
-                        <img src={eq.imagen_path} alt="" className="w-9 h-9 object-contain rounded-lg border border-gray-100 bg-white shrink-0" />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[12px] font-bold text-[#1E293B] truncate">{eq.modelo || "Sin modelo"}</p>
-                        <p className="text-[10px] text-gray-400">{[eq.marca, eq.tipo].filter(Boolean).join(" · ")}</p>
-                      </div>
-                      <span className="text-[10px] font-bold text-[#059669] shrink-0 flex items-center gap-1">
-                        <Plus size={10} /> Agregar
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-              {/* Indicador de equipo seleccionado del catálogo */}
-              {(eqMarca || eqModelo || imgEquipoB64) && (
-                <div className="flex items-center gap-3 mt-3 p-3 bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl">
-                  {eqFotos[0]
-                    ? <img src={eqFotos[0]} alt="foto" className="h-10 w-14 object-cover rounded border border-green-200 shrink-0" />
-                    : imgEquipoB64
-                    ? <img src={imgEquipoB64} alt="diagrama" className="h-10 w-14 object-contain rounded border border-green-200 bg-white shrink-0" />
-                    : null}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-bold text-[#15803D]">
-                      {[eqMarca, eqModelo].filter(Boolean).join(" ")} — datos cargados al PDF
-                    </p>
-                    <p className="text-[10px] text-[#16A34A] mt-0.5">
-                      {[eqFotos.length > 0 && `${eqFotos.length} foto(s)`, imgEquipoB64 && "Diagrama", eqBrochureB64 && "Ficha técnica"].filter(Boolean).join(" · ") || "Sin archivos visuales"}
-                    </p>
-                  </div>
-                  <button onClick={() => { limpiarEquipoCatalogo(); setEqMarca(""); setEqModelo(""); }}
-                    className="text-[10px] text-green-300 hover:text-green-500 shrink-0">Quitar</button>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Servicios rápidos */}
           {rapidosList.length > 0 && (
