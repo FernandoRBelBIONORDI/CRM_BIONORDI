@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import db from "@/lib/db";
 
 const WASENDER_TOKEN = process.env.WASENDER_TOKEN!;
@@ -143,80 +144,92 @@ function extractChatIdAndPhone(msg: any): { chatId: string; phone: string } {
   return { chatId, phone };
 }
 
-// Descarga el media de WaSenderAPI y lo guarda en el volumen persistente
-async function downloadAndStoreMedia(msgId: string, media: MediaInfo): Promise<void> {
+// Descifrado local de media de WhatsApp (AES-256-CBC + HKDF)
+function decryptWhatsAppMedia(encryptedBuf: Buffer, mediaKeyB64: string, mediaType: string): Buffer {
+  const mediaKey = Buffer.from(mediaKeyB64, "base64");
+  const infoMap: Record<string, string> = {
+    image: "WhatsApp Image Keys", video: "WhatsApp Video Keys",
+    audio: "WhatsApp Audio Keys", document: "WhatsApp Document Keys",
+  };
+  const info = Buffer.from(infoMap[mediaType] || "WhatsApp Image Keys");
+  const expanded = Buffer.from(crypto.hkdfSync("sha256", mediaKey, Buffer.alloc(0), info, 112));
+  const iv = expanded.subarray(0, 16);
+  const cipherKey = expanded.subarray(16, 48);
+  const cipherData = encryptedBuf.subarray(0, -10); // últimos 10 bytes = MAC, se descartan
+  const decipher = crypto.createDecipheriv("aes-256-cbc", cipherKey, iv);
+  return Buffer.concat([decipher.update(cipherData), decipher.final()]);
+}
+
+// Descarga y descifra el media, lo guarda en el volumen persistente
+async function downloadAndStoreMedia(msgId: string, media: MediaInfo, originalMsg: any): Promise<void> {
   try {
     const safeId = msgId.replace(/[^a-zA-Z0-9_-]/g, "_");
     let ext = media.fileName
       ? (media.fileName.split(".").pop()?.toLowerCase() || mimeToExt(media.mimetype))
       : mimeToExt(media.mimetype);
 
-    console.log("[WH] descargando media:", media.mediaType, "ext:", ext, "hasKey:", !!media.mediaKey, "directUrl:", !!media.directUrl);
+    console.log("[WH] descargando media:", media.mediaType, "ext:", ext, "hasKey:", !!media.mediaKey);
 
     let fileBuffer: Buffer | null = null;
 
-    // 1. URL directa (ya descifrada por WaSenderAPI)
+    // 1. URL directa ya descifrada
     if (media.directUrl) {
       const r = await fetch(media.directUrl);
-      console.log("[WH] directUrl status:", r.status);
-      if (r.ok) fileBuffer = Buffer.from(await r.arrayBuffer());
+      if (r.ok) { fileBuffer = Buffer.from(await r.arrayBuffer()); console.log("[WH] directUrl ok bytes:", fileBuffer.length); }
     }
 
-    // 2. decrypt-media de WaSenderAPI
-    if (!fileBuffer && (media.mediaKey || media.url)) {
+    // 2. WaSenderAPI decrypt-media con formato correcto (mensaje completo)
+    if (!fileBuffer) {
       const decryptRes = await fetch("https://www.wasenderapi.com/api/decrypt-media", {
         method: "POST",
         headers: { "Authorization": `Bearer ${WASENDER_TOKEN}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ url: media.url, mediaKey: media.mediaKey, mimetype: media.mimetype, fileEncSha256: media.fileEncSha256 }),
+        body: JSON.stringify({ data: { messages: originalMsg } }),
       });
-
       const ct = decryptRes.headers.get("content-type") || "";
-      console.log("[WH] decrypt-media status:", decryptRes.status, "content-type:", ct);
-
+      console.log("[WH] decrypt-media status:", decryptRes.status, "ct:", ct);
       if (decryptRes.ok) {
-        // Respuesta binaria directa (el propio endpoint devuelve el archivo)
-        if (!ct.includes("application/json") && !ct.includes("text/plain")) {
+        if (!ct.includes("application/json") && !ct.includes("text/")) {
           fileBuffer = Buffer.from(await decryptRes.arrayBuffer());
-          const ctExt = ct.split("/")[1]?.split(";")[0]?.trim();
-          if (ctExt) ext = mimeToExt(ct) || ctExt;
-          console.log("[WH] decrypt-media: binario directo size:", fileBuffer.length);
+          console.log("[WH] decrypt-media binario bytes:", fileBuffer.length);
         } else {
           const body = await decryptRes.text();
-          console.log("[WH] decrypt-media body:", body.slice(0, 600));
+          console.log("[WH] decrypt-media body:", body.slice(0, 400));
           try {
             const d = JSON.parse(body);
-            // Caso A: tiene URL pública
             const dlUrl = d.publicUrl || d.url || d.downloadUrl || d.mediaUrl ||
-              d.data?.url || d.data?.publicUrl || d.media?.url || d.fileUrl;
+              d.data?.url || d.data?.publicUrl || d.fileUrl;
+            const b64 = d.data?.base64 || d.base64 || d.mediaBase64;
             if (dlUrl) {
               const r = await fetch(dlUrl);
-              console.log("[WH] descarga desde URL status:", r.status);
               if (r.ok) fileBuffer = Buffer.from(await r.arrayBuffer());
+            } else if (b64) {
+              fileBuffer = Buffer.from(b64, "base64");
+              console.log("[WH] decrypt-media base64 bytes:", fileBuffer.length);
+            } else {
+              console.log("[WH] decrypt-media campos:", Object.keys(d).join(","));
             }
-            // Caso B: tiene base64
-            if (!fileBuffer) {
-              const b64 = d.data?.base64 || d.base64 || d.mediaBase64 || d.data?.data;
-              if (b64) {
-                fileBuffer = Buffer.from(b64, "base64");
-                console.log("[WH] decrypt-media: base64 size:", fileBuffer.length);
-              } else {
-                console.error("[WH] decrypt-media: campos:", JSON.stringify(Object.keys(d)), d.data ? "data:" + JSON.stringify(Object.keys(d.data)) : "");
-              }
-            }
-          } catch { console.error("[WH] decrypt-media: JSON inválido"); }
+          } catch { /* no JSON */ }
         }
       } else {
-        const errBody = await decryptRes.text().catch(() => "");
-        console.error("[WH] decrypt-media error:", decryptRes.status, errBody.slice(0, 200));
+        console.log("[WH] decrypt-media error:", decryptRes.status, (await decryptRes.text().catch(() => "")).slice(0, 150));
       }
     }
 
-    // 3. Fallback: URL cifrada de WhatsApp directamente (a veces funciona sin descifrar)
-    if (!fileBuffer && media.url) {
-      console.log("[WH] fallback URL directa de WhatsApp");
+    // 3. Descargar cifrado de CDN + descifrar localmente con mediaKey (más confiable)
+    if (!fileBuffer && media.url && media.mediaKey) {
+      console.log("[WH] descifrado local: descargando de CDN");
       const r = await fetch(media.url, { headers: { "User-Agent": "WhatsApp/2.23.20.0" } });
-      console.log("[WH] fallback status:", r.status, r.headers.get("content-type"));
-      if (r.ok) fileBuffer = Buffer.from(await r.arrayBuffer());
+      console.log("[WH] CDN status:", r.status);
+      if (r.ok) {
+        const encBuf = Buffer.from(await r.arrayBuffer());
+        try {
+          fileBuffer = decryptWhatsAppMedia(encBuf, media.mediaKey, media.mediaType);
+          console.log("[WH] descifrado local ok bytes:", fileBuffer.length);
+        } catch (decErr: any) {
+          console.error("[WH] descifrado local error:", decErr.message);
+          fileBuffer = encBuf; // guardar cifrado como último recurso
+        }
+      }
     }
 
     if (!fileBuffer || fileBuffer.length === 0) {
@@ -232,7 +245,7 @@ async function downloadAndStoreMedia(msgId: string, media: MediaInfo): Promise<v
     db.prepare(`UPDATE mensajes_wa SET media_url = ? WHERE id = ?`).run(localUrl, msgId);
     console.log("[WH] ✅ media guardado:", localUrl, "bytes:", fileBuffer.length);
   } catch (e: any) {
-    console.error("[WH] downloadAndStoreMedia error:", e.message, e.stack?.slice(0, 300));
+    console.error("[WH] downloadAndStoreMedia error:", e.message);
   }
 }
 
@@ -378,7 +391,7 @@ export async function POST(req: Request) {
 
           // Descarga de media en background (no bloquea la respuesta al webhook)
           if (media) {
-            downloadAndStoreMedia(msgId, media).catch(() => {});
+            downloadAndStoreMedia(msgId, media, msg).catch(() => {});
           }
         } catch (dbErr: any) {
           console.error("[WH] DB error:", dbErr.message);
