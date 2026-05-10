@@ -17,6 +17,10 @@ crm.db
 
 # WhatsApp session tokens — sensitive auth data
 sessions/
+baileys_auth_info/
+
+# Temporary scripts
+scratch_fix.js
 
 # User-uploaded files
 public/uploads/
