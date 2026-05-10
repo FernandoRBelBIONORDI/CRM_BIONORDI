@@ -10,6 +10,23 @@ const MIME: Record<string, string> = {
   webp: 'image/webp',
   gif:  'image/gif',
   pdf:  'application/pdf',
+  mp4:  'video/mp4',
+  webm: 'video/webm',
+  mov:  'video/quicktime',
+  mp3:  'audio/mpeg',
+  ogg:  'audio/ogg',
+  oga:  'audio/ogg',
+  m4a:  'audio/mp4',
+  aac:  'audio/aac',
+  opus: 'audio/opus',
+  doc:  'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xls:  'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ppt:  'application/vnd.ms-powerpoint',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  txt:  'text/plain',
+  zip:  'application/zip',
 };
 
 export async function GET(
@@ -34,16 +51,16 @@ export async function GET(
   const mime = MIME[ext] || 'application/octet-stream';
   const nodeBuffer = fs.readFileSync(filePath);
 
-  const cacheControl = ext === 'pdf'
-    ? 'no-store'
-    : 'public, max-age=31536000, immutable';
+  const isDownload = ['pdf','doc','docx','xls','xlsx','ppt','pptx','zip','txt'].includes(ext);
+  const cacheControl = isDownload ? 'no-store' : 'public, max-age=31536000, immutable';
+  const disposition = isDownload
+    ? `attachment; filename="${path.basename(filePath)}"`
+    : 'inline';
 
-  // Use standard Response (not NextResponse) to avoid any binary body mangling.
-  // Uint8Array is the safest body type for binary data across all runtimes.
   return new Response(new Uint8Array(nodeBuffer), {
     headers: {
       'Content-Type': mime,
-      'Content-Disposition': 'inline',
+      'Content-Disposition': disposition,
       'Content-Length': String(nodeBuffer.byteLength),
       'Cache-Control': cacheControl,
     },

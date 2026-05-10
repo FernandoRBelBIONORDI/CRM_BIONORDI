@@ -30,7 +30,9 @@ export async function GET(req: Request) {
             WHEN 2 THEN 'delivered'
             WHEN 1 THEN 'sent'
             ELSE 'received'
-          END as status
+          END as status,
+          MAX(media_type) as media_type,
+          MAX(media_url)  as media_url
         FROM mensajes_wa
         WHERE text != ''
           AND SUBSTR(REPLACE(REPLACE(chat_id, '@s.whatsapp.net', ''), '@c.us', ''), -10) = ?

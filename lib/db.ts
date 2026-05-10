@@ -331,6 +331,8 @@ function initDb(): Database.Database {
     )
   `);
 
+  try { _db.exec(`ALTER TABLE mensajes_wa ADD COLUMN media_type TEXT`); } catch {}
+  try { _db.exec(`ALTER TABLE mensajes_wa ADD COLUMN media_url  TEXT`); } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_mensajes_wa_chat ON mensajes_wa(chat_id)`); } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_wa_messages_phone ON wa_messages(phone)`); } catch {}
 

@@ -30,6 +30,8 @@ interface Message {
   text: string;
   timestamp: number;
   status?: string;
+  media_type?: string;
+  media_url?: string;
 }
 
 interface PendingMedia {
@@ -477,10 +479,47 @@ function ChatContent() {
                         </div>
                         {msgs.map((m, i) => {
                           const prevFromMe = i > 0 && msgs[i - 1].fromMe === m.fromMe;
+                          const bubbleBase = `rounded-2xl shadow-sm ${m.fromMe ? "bg-gradient-to-br from-[#E0F2FE] to-[#BAE6FD] text-[#0369A1] rounded-br-none border border-[#7DD3FC]/30" : "bg-white text-slate-700 border border-slate-200 rounded-bl-none"}`;
+                          const caption = m.text.replace(/^(📷|🎥|🎵|📎\s*\S+\s*—?\s*)/, "").trim();
+
+                          let mediaEl: React.ReactNode = null;
+                          if (m.media_url) {
+                            if (m.media_type === "image") {
+                              mediaEl = (
+                                <a href={m.media_url} target="_blank" rel="noreferrer">
+                                  <img src={m.media_url} alt="imagen" className="max-w-[260px] max-h-[220px] rounded-xl object-cover cursor-pointer" />
+                                </a>
+                              );
+                            } else if (m.media_type === "video") {
+                              mediaEl = (
+                                <video controls className="max-w-[260px] max-h-[200px] rounded-xl" src={m.media_url} />
+                              );
+                            } else if (m.media_type === "audio") {
+                              mediaEl = (
+                                <audio controls className="w-[220px]" src={m.media_url} />
+                              );
+                            } else if (m.media_type === "document") {
+                              const fname = m.media_url.split("/").pop() || "Archivo";
+                              mediaEl = (
+                                <a href={m.media_url} download className="flex items-center gap-2 px-3 py-2 bg-white/60 rounded-xl border border-slate-200 text-[13px] font-semibold hover:bg-white transition-colors">
+                                  <FileText size={16} className="text-blue-500 shrink-0" />
+                                  <span className="truncate max-w-[180px]">{fname}</span>
+                                </a>
+                              );
+                            }
+                          }
+
                           return (
                             <div key={m.id} className={`flex flex-col max-w-[75%] ${m.fromMe ? "self-end items-end" : "self-start items-start"} ${prevFromMe ? "mt-0" : "mt-2"}`}>
-                              <div className={`px-4 py-2.5 rounded-2xl text-[14px] leading-relaxed shadow-sm break-words ${m.fromMe ? "bg-gradient-to-br from-[#E0F2FE] to-[#BAE6FD] text-[#0369A1] rounded-br-none border border-[#7DD3FC]/30" : "bg-white text-slate-700 border border-slate-200 rounded-bl-none"}`}>
-                                {m.text}
+                              <div className={`${bubbleBase} overflow-hidden ${mediaEl ? "p-1.5" : "px-4 py-2.5"} text-[14px] leading-relaxed break-words`}>
+                                {mediaEl ? (
+                                  <div className="flex flex-col gap-1.5">
+                                    {mediaEl}
+                                    {caption && <p className="px-2.5 py-1 text-[13px]">{caption}</p>}
+                                  </div>
+                                ) : (
+                                  m.text
+                                )}
                               </div>
                               <span className="text-[10px] font-bold text-slate-400 mt-1 px-1 flex items-center gap-1">
                                 {new Date(m.timestamp && m.timestamp > 1_000_000 ? m.timestamp * 1000 : Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}

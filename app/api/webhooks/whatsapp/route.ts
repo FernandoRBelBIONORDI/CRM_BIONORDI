@@ -1,5 +1,12 @@
 import { NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 import db from "@/lib/db";
+
+const WASENDER_TOKEN = process.env.WASENDER_TOKEN!;
+const UPLOAD_DIR = path.join(process.cwd(), "db", "uploads", "wa-media");
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
 
 function baileyStatusToString(status: number | string): string {
   const n = Number(status);
@@ -13,65 +20,140 @@ function baileyStatusToString(status: number | string): string {
   return "sent";
 }
 
+function mimeToExt(mimetype: string): string {
+  const base = (mimetype || "").split(";")[0].trim().toLowerCase();
+  const map: Record<string, string> = {
+    "image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png",
+    "image/webp": "webp", "image/gif": "gif",
+    "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov",
+    "audio/mpeg": "mp3", "audio/ogg": "ogg", "audio/mp4": "m4a",
+    "audio/aac": "aac", "audio/opus": "opus",
+    "application/pdf": "pdf",
+    "application/msword": "doc",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+    "application/vnd.ms-excel": "xls",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+  };
+  return map[base] || base.split("/")[1]?.replace(/[^a-z0-9]/g, "") || "bin";
+}
+
+interface MediaInfo {
+  mediaType: string;
+  url: string;
+  mediaKey: string;
+  mimetype: string;
+  fileEncSha256: string;
+  fileName?: string;
+}
+
+function extractMedia(msg: any): MediaInfo | null {
+  const m = msg?.message;
+  if (!m) return null;
+  if (m.imageMessage?.url && m.imageMessage?.mediaKey) return {
+    mediaType: "image", url: m.imageMessage.url, mediaKey: m.imageMessage.mediaKey,
+    mimetype: m.imageMessage.mimetype || "image/jpeg",
+    fileEncSha256: m.imageMessage.fileEncSha256 || m.imageMessage.fileSha256 || "",
+  };
+  if (m.videoMessage?.url && m.videoMessage?.mediaKey) return {
+    mediaType: "video", url: m.videoMessage.url, mediaKey: m.videoMessage.mediaKey,
+    mimetype: m.videoMessage.mimetype || "video/mp4",
+    fileEncSha256: m.videoMessage.fileEncSha256 || "",
+  };
+  if (m.documentMessage?.url && m.documentMessage?.mediaKey) return {
+    mediaType: "document", url: m.documentMessage.url, mediaKey: m.documentMessage.mediaKey,
+    mimetype: m.documentMessage.mimetype || "application/octet-stream",
+    fileEncSha256: m.documentMessage.fileEncSha256 || "",
+    fileName: m.documentMessage.fileName,
+  };
+  const audio = m.audioMessage || m.pttMessage;
+  if (audio?.url && audio?.mediaKey) return {
+    mediaType: "audio", url: audio.url, mediaKey: audio.mediaKey,
+    mimetype: audio.mimetype || "audio/ogg",
+    fileEncSha256: audio.fileEncSha256 || "",
+  };
+  return null;
+}
+
 function extractText(msg: any): string {
   const m = msg?.message;
-
-  // Texto plano
-  const plain =
-    m?.conversation ||
-    m?.extendedTextMessage?.text ||
-    msg?.messageBody ||
-    msg?.text ||
-    msg?.body;
+  const plain = m?.conversation || m?.extendedTextMessage?.text ||
+    msg?.messageBody || msg?.text || msg?.body;
   if (plain) return plain;
-
-  // Media
-  if (m?.imageMessage)
-    return m.imageMessage.caption ? `📷 ${m.imageMessage.caption}` : "📷 Imagen";
-
-  if (m?.videoMessage)
-    return m.videoMessage.caption ? `🎥 ${m.videoMessage.caption}` : "🎥 Video";
-
+  if (m?.imageMessage)    return m.imageMessage.caption    ? `📷 ${m.imageMessage.caption}`    : "📷 Imagen";
+  if (m?.videoMessage)    return m.videoMessage.caption    ? `🎥 ${m.videoMessage.caption}`    : "🎥 Video";
   if (m?.documentMessage) {
     const name = m.documentMessage.fileName || "Archivo";
     return m.documentMessage.caption ? `📎 ${name} — ${m.documentMessage.caption}` : `📎 ${name}`;
   }
-
-  if (m?.audioMessage || m?.pttMessage)
-    return "🎵 Audio";
-
-  if (m?.stickerMessage)
-    return "🎭 Sticker";
-
-  if (m?.locationMessage)
-    return "📍 Ubicación";
-
-  if (m?.contactMessage)
-    return `👤 Contacto: ${m.contactMessage.displayName || ""}`;
-
+  if (m?.audioMessage || m?.pttMessage) return "🎵 Audio";
+  if (m?.stickerMessage)  return "🎭 Sticker";
+  if (m?.locationMessage) return "📍 Ubicación";
+  if (m?.contactMessage)  return `👤 Contacto: ${m.contactMessage.displayName || ""}`;
   return "";
 }
 
 function extractChatIdAndPhone(msg: any): { chatId: string; phone: string } {
-  const rawJid: string =
-    msg?.key?.remoteJid || msg?.remoteJid || msg?.from || msg?.chatId || "";
-
+  const rawJid: string = msg?.key?.remoteJid || msg?.remoteJid || msg?.from || msg?.chatId || "";
   if (rawJid.endsWith("@lid")) {
     const cleanPhone: string =
-      msg?.key?.cleanedSenderPn ||
-      msg?.cleanedSenderPn ||
-      (msg?.key?.senderPn || msg?.senderPn || "").split("@")[0] ||
-      "";
+      msg?.key?.cleanedSenderPn || msg?.cleanedSenderPn ||
+      (msg?.key?.senderPn || msg?.senderPn || "").split("@")[0] || "";
     if (cleanPhone) {
       const phone = cleanPhone.split(":")[0];
       return { chatId: `${phone}@s.whatsapp.net`, phone };
     }
   }
-
   const phone = rawJid.split("@")[0].split(":")[0];
   const chatId = rawJid.includes("@") ? `${phone}@s.whatsapp.net` : rawJid;
   return { chatId, phone };
 }
+
+// Descarga el media de WaSenderAPI y lo guarda en el volumen persistente
+async function downloadAndStoreMedia(msgId: string, media: MediaInfo): Promise<void> {
+  try {
+    const decryptRes = await fetch("https://www.wasenderapi.com/api/decrypt-media", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${WASENDER_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: media.url,
+        mediaKey: media.mediaKey,
+        mimetype: media.mimetype,
+        fileEncSha256: media.fileEncSha256,
+      }),
+    });
+
+    if (!decryptRes.ok) {
+      console.error("[WH] decrypt-media:", decryptRes.status, await decryptRes.text().catch(() => ""));
+      return;
+    }
+
+    const decryptData = await decryptRes.json();
+    const publicUrl: string = decryptData.publicUrl || decryptData.url || decryptData.downloadUrl;
+    if (!publicUrl) { console.error("[WH] decrypt-media: no publicUrl"); return; }
+
+    const fileRes = await fetch(publicUrl);
+    if (!fileRes.ok) { console.error("[WH] descarga media:", fileRes.status); return; }
+
+    const ext = media.fileName
+      ? (media.fileName.split(".").pop() || mimeToExt(media.mimetype))
+      : mimeToExt(media.mimetype);
+    const fileName = `${msgId}.${ext}`;
+
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    fs.writeFileSync(path.join(UPLOAD_DIR, fileName), Buffer.from(await fileRes.arrayBuffer()));
+
+    const localUrl = `/api/file/wa-media/${fileName}`;
+    db.prepare(`UPDATE mensajes_wa SET media_url = ? WHERE id = ?`).run(localUrl, msgId);
+    console.log("[WH] media guardado:", localUrl);
+  } catch (e: any) {
+    console.error("[WH] downloadAndStoreMedia:", e.message);
+  }
+}
+
+// ── Handler ────────────────────────────────────────────────────────────────────
 
 export async function POST(req: Request) {
   let rawBody = "";
@@ -86,7 +168,7 @@ export async function POST(req: Request) {
       const eventName = (ev.event || ev.type || ev.eventType || "").toLowerCase();
       console.log("[WH] event:", eventName || "(sin nombre)");
 
-      // ─── ESTADO DE SESIÓN ──────────────────────────────────────────────────
+      // ─── ESTADO DE SESIÓN ────────────────────────────────────────────────
       if (eventName.includes("connection") || eventName.includes("session") || eventName.includes("qr")) {
         const conn = ev.data?.connection || ev.data?.status || ev.data?.state || "";
         const status = conn === "open" || conn === "connected" || conn === "ready" ? "ready"
@@ -98,7 +180,7 @@ export async function POST(req: Request) {
         continue;
       }
 
-      // ─── TICKS ────────────────────────────────────────────────────────────
+      // ─── TICKS ──────────────────────────────────────────────────────────
       if (eventName.includes("update") || eventName.includes("receipt") || eventName.includes("recibo")) {
         const updates = Array.isArray(ev.data) ? ev.data : [ev.data];
         for (const upd of updates) {
@@ -106,11 +188,8 @@ export async function POST(req: Request) {
           const msgId = upd?.key?.id || upd?.id;
           const rawStatus = upd?.update?.status ?? upd?.status ?? (upd?.receipt?.readTimestamp ? 4 : undefined);
           if (!msgId || rawStatus === undefined) continue;
-
           const s = baileyStatusToString(rawStatus);
 
-          // Intentar actualizar si ya existe
-          // Solo subir el status, nunca bajarlo (read > delivered > sent)
           const result = db.prepare(`
             UPDATE mensajes_wa SET status = ?
             WHERE id = ? AND (
@@ -120,9 +199,6 @@ export async function POST(req: Request) {
             )
           `).run(s, msgId, s);
 
-          // Si no existía aún (race condition: tick llegó antes que upsert),
-          // guardar placeholder con el status correcto. El upsert posterior
-          // rellenará el texto sin sobreescribir el status.
           if (result.changes === 0) {
             const remoteJid: string = upd?.key?.remoteJid || upd?.remoteJid || "";
             const phone = remoteJid.split("@")[0].split(":")[0];
@@ -130,20 +206,17 @@ export async function POST(req: Request) {
             const ts = Number(upd?.messageTimestamp || Math.floor(Date.now() / 1000));
             if (chatId) {
               try {
-                // Asegurar que el chat exista
                 db.prepare(`INSERT OR IGNORE INTO chats_wa (chat_id, name, phone, unread, last_message, last_timestamp) VALUES (?, ?, ?, 0, '', ?)`).run(chatId, phone, phone, ts);
-                // Insertar placeholder — el upsert posterior llenará el texto
                 db.prepare(`INSERT OR IGNORE INTO mensajes_wa (id, chat_id, from_me, text, timestamp, status) VALUES (?, ?, 1, '', ?, ?)`).run(msgId, chatId, ts, s);
               } catch {}
             }
           }
-
           console.log("[WH] tick:", msgId, "→", s);
         }
         continue;
       }
 
-      // ─── MENSAJES NUEVOS ───────────────────────────────────────────────────
+      // ─── MENSAJES NUEVOS ────────────────────────────────────────────────
       const skipEvent = eventName.includes("delete") || eventName.includes("reaction") ||
         eventName.includes("group") || eventName.includes("presence") ||
         eventName.includes("contact");
@@ -151,15 +224,10 @@ export async function POST(req: Request) {
 
       const raw = ev.data ?? ev.payload ?? ev;
       let msgList: any[];
-      if (Array.isArray(raw)) {
-        msgList = raw;
-      } else if (raw?.messages && !Array.isArray(raw.messages)) {
-        msgList = [raw.messages];
-      } else if (Array.isArray(raw?.messages)) {
-        msgList = raw.messages;
-      } else {
-        msgList = [raw];
-      }
+      if (Array.isArray(raw)) msgList = raw;
+      else if (raw?.messages && !Array.isArray(raw.messages)) msgList = [raw.messages];
+      else if (Array.isArray(raw?.messages)) msgList = raw.messages;
+      else msgList = [raw];
 
       console.log("[WH] mensajes a procesar:", msgList.length);
 
@@ -167,7 +235,6 @@ export async function POST(req: Request) {
         if (!msg || typeof msg !== "object") continue;
 
         const { chatId, phone } = extractChatIdAndPhone(msg);
-        console.log("[WH] chatId:", chatId, "phone:", phone);
         if (!chatId || !phone) continue;
         if (chatId.endsWith("@g.us") || chatId.endsWith("@broadcast") || chatId.endsWith("@newsletter")) continue;
 
@@ -177,29 +244,24 @@ export async function POST(req: Request) {
           `gen-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
         const text = extractText(msg);
-        if (!text) {
-          console.log("[WH] sin texto, keys:", Object.keys(msg).join(","));
-          continue;
-        }
+        if (!text) { console.log("[WH] sin texto, keys:", Object.keys(msg).join(",")); continue; }
 
+        const media = extractMedia(msg);
         const name: string = msg?.pushName || msg?.notifyName || phone;
         const ts = Number(msg?.messageTimestamp?.low ?? msg?.messageTimestamp ?? msg?.timestamp ?? Math.floor(Date.now() / 1000));
 
         try {
-          // Deduplicar: si ya existe un mensaje igual, actualizar su ID al real del webhook
-          // (el send route inserta con un ID provisional; el upsert trae el ID definitivo
-          //  que usan los ticks — si no lo actualizamos, las palomitas nunca suben)
+          // Dedup: si existe, actualizar ID al real (para que los ticks funcionen)
           const dupe = db.prepare(`
             SELECT id FROM mensajes_wa
             WHERE chat_id = ? AND from_me = ? AND text = ? AND ABS(timestamp - ?) <= 5
             LIMIT 1
           `).get(chatId, fromMe ? 1 : 0, text, ts) as { id: string } | undefined;
+
           if (dupe) {
             if (dupe.id !== msgId) {
-              try {
-                db.prepare(`UPDATE mensajes_wa SET id = ? WHERE id = ?`).run(msgId, dupe.id);
-                console.log("[WH] dedup: id actualizado", dupe.id, "→", msgId);
-              } catch {}
+              try { db.prepare(`UPDATE mensajes_wa SET id = ? WHERE id = ?`).run(msgId, dupe.id); } catch {}
+              console.log("[WH] dedup: id actualizado", dupe.id, "→", msgId);
             }
             continue;
           }
@@ -215,14 +277,20 @@ export async function POST(req: Request) {
           `).run(chatId, name, phone, fromMe ? 0 : 1, text, ts);
 
           db.prepare(`
-            INSERT INTO mensajes_wa (id, chat_id, from_me, text, timestamp, status)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO mensajes_wa (id, chat_id, from_me, text, timestamp, status, media_type)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
-              text      = CASE WHEN mensajes_wa.text = '' THEN excluded.text ELSE mensajes_wa.text END,
-              timestamp = CASE WHEN mensajes_wa.timestamp = 0 THEN excluded.timestamp ELSE mensajes_wa.timestamp END
-          `).run(msgId, chatId, fromMe ? 1 : 0, text, ts, fromMe ? "sent" : "received");
+              text       = CASE WHEN mensajes_wa.text = '' THEN excluded.text ELSE mensajes_wa.text END,
+              timestamp  = CASE WHEN mensajes_wa.timestamp = 0 THEN excluded.timestamp ELSE mensajes_wa.timestamp END,
+              media_type = CASE WHEN mensajes_wa.media_type IS NULL THEN excluded.media_type ELSE mensajes_wa.media_type END
+          `).run(msgId, chatId, fromMe ? 1 : 0, text, ts, fromMe ? "sent" : "received", media?.mediaType ?? null);
 
           console.log("[WH] ✅", phone, fromMe ? "→" : "←", text.slice(0, 60));
+
+          // Descarga de media en background (no bloquea la respuesta al webhook)
+          if (media) {
+            downloadAndStoreMedia(msgId, media).catch(() => {});
+          }
         } catch (dbErr: any) {
           console.error("[WH] DB error:", dbErr.message);
         }
