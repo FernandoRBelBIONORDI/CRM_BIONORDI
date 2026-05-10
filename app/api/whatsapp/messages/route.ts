@@ -19,7 +19,18 @@ export async function GET(req: Request) {
 
     const messages = db.prepare(`
       SELECT * FROM (
-        SELECT MIN(id) as id, chat_id, from_me, text, timestamp, MAX(status) as status
+        SELECT MIN(id) as id, chat_id, from_me, text, timestamp,
+          CASE MAX(CASE status
+            WHEN 'read'      THEN 3
+            WHEN 'delivered' THEN 2
+            WHEN 'sent'      THEN 1
+            WHEN 'received'  THEN 0
+            ELSE 0 END)
+            WHEN 3 THEN 'read'
+            WHEN 2 THEN 'delivered'
+            WHEN 1 THEN 'sent'
+            ELSE 'received'
+          END as status
         FROM mensajes_wa
         WHERE text != ''
           AND SUBSTR(REPLACE(REPLACE(chat_id, '@s.whatsapp.net', ''), '@c.us', ''), -10) = ?

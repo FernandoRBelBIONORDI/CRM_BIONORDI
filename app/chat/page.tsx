@@ -93,15 +93,15 @@ function ChatContent() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Scroll al fondo cada vez que cambia el número de mensajes
+  // Scroll al fondo cuando llegan mensajes nuevos
   useEffect(() => {
     if (messages.length === 0) return;
-    const t = setTimeout(() => {
+    const id = requestAnimationFrame(() => {
       const el = msgContainerRef.current;
       if (!el) return;
       el.scrollTop = el.scrollHeight;
-    }, 80);
-    return () => clearTimeout(t);
+    });
+    return () => cancelAnimationFrame(id);
   }, [messages.length]);
 
   // ── Status poll ──────────────────────────────────────────────────────────────
