@@ -937,6 +937,24 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     </table>
   </td></tr>` : ""}
 
+  ${tipo === "reparacion" ? `
+  <tr><td style="padding:20px 36px 0;">
+    <p style="margin:0 0 14px;font-size:9px;color:#4E60A9;font-weight:800;text-transform:uppercase;letter-spacing:2px;">Alcance del Servicio</p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+      <tr bgcolor="#F1F5F9">
+        <th align="left" style="padding:10px 12px;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:1px;">Descripci&#243;n del servicio</th>
+      </tr>
+      ${validItems.map(s => `
+      <tr style="border-bottom:1px solid #F1F5F9;">
+        <td style="padding:11px 12px;font-size:13px;color:#1E293B;font-weight:600;">${s.descripcion}</td>
+      </tr>`).join("")}
+    </table>
+  </td></tr>
+  <tr><td style="padding:20px 36px;background:#EEF0F7;border-top:2px solid #C5CAE0;">
+    <p style="margin:0 0 6px;font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;">Inversi&#243;n Total del Servicio</p>
+    <p style="margin:0;font-size:32px;font-weight:900;color:#4E60A9;letter-spacing:-1px;">${$f(total)}</p>
+    <p style="margin:4px 0 0;font-size:11px;color:#64748B;">Incluye materiales, mano de obra y garant&#237;a de 12 meses${conIVA ? " · IVA incluido" : ""}</p>
+  </td></tr>` : `
   <tr><td style="padding:20px 36px 0;">
     <p style="margin:0 0 14px;font-size:9px;color:#4E60A9;font-weight:800;text-transform:uppercase;letter-spacing:2px;">
       ${tipo === "venta" ? "Productos" : tipo === "consumibles" ? "Consumibles" : "Servicios"}
@@ -951,7 +969,6 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       ${rowsHTML}
     </table>
   </td></tr>
-
   <tr><td style="padding:16px 36px;background:#EEF0F7;border-top:2px solid #C5CAE0;">
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
       ${descuento > 0 ? `
@@ -973,7 +990,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         <td align="right" style="padding:10px 0 0;font-size:22px;font-weight:900;color:#4E60A9;border-top:1px solid #C5CAE0;">${$f(total)}</td>
       </tr>
     </table>
-  </td></tr>
+  </td></tr>`}
 
   <tr><td style="padding:20px 36px;border-top:1px solid #E2E8F0;">
     <p style="margin:0 0 12px;font-size:9px;color:#4E60A9;font-weight:800;text-transform:uppercase;letter-spacing:2px;">Datos de Transferencia</p>
