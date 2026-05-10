@@ -96,9 +96,12 @@ function ChatContent() {
   // Scroll al fondo cada vez que cambia el número de mensajes
   useEffect(() => {
     if (messages.length === 0) return;
-    const el = msgContainerRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    const t = setTimeout(() => {
+      const el = msgContainerRef.current;
+      if (!el) return;
+      el.scrollTop = el.scrollHeight;
+    }, 80);
+    return () => clearTimeout(t);
   }, [messages.length]);
 
   // ── Status poll ──────────────────────────────────────────────────────────────
@@ -447,13 +450,6 @@ function ChatContent() {
                     className={`text-[12px] font-bold px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2 ${showProfile ? "bg-[#4E60A9] text-white shadow-md shadow-indigo-200" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
                     <User size={14} /> Perfil CRM
                   </button>
-                </div>
-
-                {/* DEBUG TEMPORAL */}
-                <div className="px-4 py-1 bg-black text-green-400 text-[11px] font-mono shrink-0 flex gap-4">
-                  <span>msgs en estado: {messages.length}</span>
-                  <span>último: {messages[messages.length - 1]?.text?.slice(0, 30) ?? "—"}</span>
-                  <span>loading: {loadingMsgs ? "sí" : "no"}</span>
                 </div>
 
                 {/* Mensajes */}
