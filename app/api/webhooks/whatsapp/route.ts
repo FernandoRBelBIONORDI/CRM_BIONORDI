@@ -161,14 +161,21 @@ export async function POST(req: Request) {
         const ts = Number(msg?.messageTimestamp?.low ?? msg?.messageTimestamp ?? msg?.timestamp ?? Math.floor(Date.now() / 1000));
 
         try {
-          // Deduplicar: si ya existe un mensaje con mismo texto, from_me y timestamp ±5s, omitir
+          // Deduplicar: si ya existe un mensaje igual, actualizar su ID al real del webhook
+          // (el send route inserta con un ID provisional; el upsert trae el ID definitivo
+          //  que usan los ticks — si no lo actualizamos, las palomitas nunca suben)
           const dupe = db.prepare(`
             SELECT id FROM mensajes_wa
             WHERE chat_id = ? AND from_me = ? AND text = ? AND ABS(timestamp - ?) <= 5
             LIMIT 1
-          `).get(chatId, fromMe ? 1 : 0, text, ts);
+          `).get(chatId, fromMe ? 1 : 0, text, ts) as { id: string } | undefined;
           if (dupe) {
-            console.log("[WH] dedup skip:", text.slice(0, 40));
+            if (dupe.id !== msgId) {
+              try {
+                db.prepare(`UPDATE mensajes_wa SET id = ? WHERE id = ?`).run(msgId, dupe.id);
+                console.log("[WH] dedup: id actualizado", dupe.id, "→", msgId);
+              } catch {}
+            }
             continue;
           }
 

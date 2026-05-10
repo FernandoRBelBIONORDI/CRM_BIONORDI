@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState, useRef, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import {
   MessageCircle, QrCode, Search, Send, Activity, Phone,
   Paperclip, ImageIcon, FileText, CheckCheck, Check,
@@ -93,12 +93,11 @@ function ChatContent() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Scroll al fondo antes de pintar — useLayoutEffect evita el flash de posición incorrecta
-  useLayoutEffect(() => {
+  // Con flex-col-reverse, scrollTop=0 siempre muestra los mensajes más nuevos
+  useEffect(() => {
     if (messages.length === 0) return;
     const el = msgContainerRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    if (el) el.scrollTop = 0;
   }, [messages.length, activeChat?.chat_id]);
 
   // ── Status poll ──────────────────────────────────────────────────────────────
@@ -450,7 +449,7 @@ function ChatContent() {
                 </div>
 
                 {/* Mensajes */}
-                <div ref={msgContainerRef} className="flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-4 bg-[#F8FAFC]/50"
+                <div ref={msgContainerRef} className="flex-1 min-h-0 overflow-y-auto p-6 flex flex-col-reverse gap-4 bg-[#F8FAFC]/50"
                   style={{ backgroundImage: "radial-gradient(#E2E8F4 1px, transparent 1px)", backgroundSize: "24px 24px" }}>
                   {loadingMsgs && messages.length === 0 ? (
                     <div className="p-6 space-y-6">
@@ -469,7 +468,7 @@ function ChatContent() {
                       <span className="text-[12px] font-medium text-slate-400 text-center max-w-[250px]">Escribe un mensaje o selecciona una imagen para enviar.</span>
                     </div>
                   ) : (
-                    Object.entries(groupedMessages).map(([dateLabel, msgs]) => (
+                    Object.entries(groupedMessages).reverse().map(([dateLabel, msgs]) => (
                       <div key={dateLabel} className="flex flex-col gap-4 w-full">
                         <div className="flex justify-center sticky top-2 z-10">
                           <span className="px-3 py-1 bg-white/80 backdrop-blur border border-slate-200 shadow-sm rounded-full text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
