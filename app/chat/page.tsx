@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, Suspense } from "react";
+import { useEffect, useLayoutEffect, useState, useRef, Suspense } from "react";
 import {
   MessageCircle, QrCode, Search, Send, Activity, Phone,
   Paperclip, ImageIcon, FileText, CheckCheck, Check,
@@ -94,12 +94,14 @@ function ChatContent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollSignalRef = useRef<"instant" | "smooth" | null>(null);
 
-  // Runs after React commits DOM — scrollIntoView is the most reliable scroll mechanism
-  useEffect(() => {
+  // useLayoutEffect: corre ANTES del paint del browser — el scrollHeight ya es el definitivo
+  useLayoutEffect(() => {
     const signal = scrollSignalRef.current;
     if (!signal) return;
     scrollSignalRef.current = null;
-    messagesEndRef.current?.scrollIntoView({ behavior: signal === "instant" ? "instant" : "smooth", block: "end" });
+    const el = msgContainerRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
   }, [messages]);
 
   const isNearBottom = () => {
@@ -461,6 +463,13 @@ function ChatContent() {
                     className={`text-[12px] font-bold px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2 ${showProfile ? "bg-[#4E60A9] text-white shadow-md shadow-indigo-200" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
                     <User size={14} /> Perfil CRM
                   </button>
+                </div>
+
+                {/* DEBUG TEMPORAL */}
+                <div className="px-4 py-1 bg-black text-green-400 text-[11px] font-mono shrink-0 flex gap-4">
+                  <span>msgs en estado: {messages.length}</span>
+                  <span>último: {messages[messages.length - 1]?.text?.slice(0, 30) ?? "—"}</span>
+                  <span>loading: {loadingMsgs ? "sí" : "no"}</span>
                 </div>
 
                 {/* Mensajes */}
