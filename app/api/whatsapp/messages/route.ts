@@ -19,11 +19,12 @@ export async function GET(req: Request) {
 
     const messages = db.prepare(`
       SELECT * FROM (
-        SELECT m.*
-        FROM mensajes_wa m
-        WHERE m.text != ''
-          AND SUBSTR(REPLACE(REPLACE(m.chat_id, '@s.whatsapp.net', ''), '@c.us', ''), -10) = ?
-        ORDER BY m.timestamp DESC
+        SELECT MIN(id) as id, chat_id, from_me, text, timestamp, MAX(status) as status
+        FROM mensajes_wa
+        WHERE text != ''
+          AND SUBSTR(REPLACE(REPLACE(chat_id, '@s.whatsapp.net', ''), '@c.us', ''), -10) = ?
+        GROUP BY from_me, text, timestamp
+        ORDER BY timestamp DESC
         LIMIT 200
       ) ORDER BY timestamp ASC
     `).all(phone10).map((m: any) => ({

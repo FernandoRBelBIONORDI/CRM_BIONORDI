@@ -161,6 +161,17 @@ export async function POST(req: Request) {
         const ts = Number(msg?.messageTimestamp?.low ?? msg?.messageTimestamp ?? msg?.timestamp ?? Math.floor(Date.now() / 1000));
 
         try {
+          // Deduplicar: si ya existe un mensaje con mismo texto, from_me y timestamp ±5s, omitir
+          const dupe = db.prepare(`
+            SELECT id FROM mensajes_wa
+            WHERE chat_id = ? AND from_me = ? AND text = ? AND ABS(timestamp - ?) <= 5
+            LIMIT 1
+          `).get(chatId, fromMe ? 1 : 0, text, ts);
+          if (dupe) {
+            console.log("[WH] dedup skip:", text.slice(0, 40));
+            continue;
+          }
+
           db.prepare(`
             INSERT INTO chats_wa (chat_id, name, phone, unread, last_message, last_timestamp)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -171,8 +182,6 @@ export async function POST(req: Request) {
               last_timestamp = excluded.last_timestamp
           `).run(chatId, name, phone, fromMe ? 0 : 1, text, ts);
 
-          // ON CONFLICT: rellenar texto si estaba vacío (placeholder de tick),
-          // NO sobreescribir el status si ya fue actualizado por un tick.
           db.prepare(`
             INSERT INTO mensajes_wa (id, chat_id, from_me, text, timestamp, status)
             VALUES (?, ?, ?, ?, ?, ?)
