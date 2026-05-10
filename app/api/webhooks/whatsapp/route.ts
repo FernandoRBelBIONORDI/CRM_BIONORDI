@@ -14,17 +14,42 @@ function baileyStatusToString(status: number | string): string {
 }
 
 function extractText(msg: any): string {
-  return (
-    msg?.message?.conversation ||
-    msg?.message?.extendedTextMessage?.text ||
-    msg?.message?.imageMessage?.caption ||
-    msg?.message?.videoMessage?.caption ||
-    msg?.message?.documentMessage?.caption ||
+  const m = msg?.message;
+
+  // Texto plano
+  const plain =
+    m?.conversation ||
+    m?.extendedTextMessage?.text ||
     msg?.messageBody ||
     msg?.text ||
-    msg?.body ||
-    ""
-  );
+    msg?.body;
+  if (plain) return plain;
+
+  // Media
+  if (m?.imageMessage)
+    return m.imageMessage.caption ? `📷 ${m.imageMessage.caption}` : "📷 Imagen";
+
+  if (m?.videoMessage)
+    return m.videoMessage.caption ? `🎥 ${m.videoMessage.caption}` : "🎥 Video";
+
+  if (m?.documentMessage) {
+    const name = m.documentMessage.fileName || "Archivo";
+    return m.documentMessage.caption ? `📎 ${name} — ${m.documentMessage.caption}` : `📎 ${name}`;
+  }
+
+  if (m?.audioMessage || m?.pttMessage)
+    return "🎵 Audio";
+
+  if (m?.stickerMessage)
+    return "🎭 Sticker";
+
+  if (m?.locationMessage)
+    return "📍 Ubicación";
+
+  if (m?.contactMessage)
+    return `👤 Contacto: ${m.contactMessage.displayName || ""}`;
+
+  return "";
 }
 
 function extractChatIdAndPhone(msg: any): { chatId: string; phone: string } {
