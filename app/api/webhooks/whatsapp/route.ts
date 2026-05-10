@@ -146,70 +146,93 @@ function extractChatIdAndPhone(msg: any): { chatId: string; phone: string } {
 // Descarga el media de WaSenderAPI y lo guarda en el volumen persistente
 async function downloadAndStoreMedia(msgId: string, media: MediaInfo): Promise<void> {
   try {
-    console.log("[WH] descargando media:", media.mediaType, "url[:60]:", media.url?.slice(0, 60), "hasKey:", !!media.mediaKey, "directUrl:", media.directUrl?.slice(0, 60) || "none");
+    const safeId = msgId.replace(/[^a-zA-Z0-9_-]/g, "_");
+    let ext = media.fileName
+      ? (media.fileName.split(".").pop()?.toLowerCase() || mimeToExt(media.mimetype))
+      : mimeToExt(media.mimetype);
 
-    let downloadUrl: string | undefined = media.directUrl;
+    console.log("[WH] descargando media:", media.mediaType, "ext:", ext, "hasKey:", !!media.mediaKey, "directUrl:", !!media.directUrl);
 
-    // Si tenemos URL directa (ya descifrada), usarla sin llamar a decrypt-media
-    if (!downloadUrl && media.mediaKey) {
+    let fileBuffer: Buffer | null = null;
+
+    // 1. URL directa (ya descifrada por WaSenderAPI)
+    if (media.directUrl) {
+      const r = await fetch(media.directUrl);
+      console.log("[WH] directUrl status:", r.status);
+      if (r.ok) fileBuffer = Buffer.from(await r.arrayBuffer());
+    }
+
+    // 2. decrypt-media de WaSenderAPI
+    if (!fileBuffer && (media.mediaKey || media.url)) {
       const decryptRes = await fetch("https://www.wasenderapi.com/api/decrypt-media", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${WASENDER_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          url: media.url,
-          mediaKey: media.mediaKey,
-          mimetype: media.mimetype,
-          fileEncSha256: media.fileEncSha256,
-        }),
+        headers: { "Authorization": `Bearer ${WASENDER_TOKEN}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ url: media.url, mediaKey: media.mediaKey, mimetype: media.mimetype, fileEncSha256: media.fileEncSha256 }),
       });
 
-      const decryptText = await decryptRes.text();
-      console.log("[WH] decrypt-media status:", decryptRes.status, "body:", decryptText.slice(0, 300));
+      const ct = decryptRes.headers.get("content-type") || "";
+      console.log("[WH] decrypt-media status:", decryptRes.status, "content-type:", ct);
 
       if (decryptRes.ok) {
-        try {
-          const d = JSON.parse(decryptText);
-          // Intentar todos los campos posibles
-          downloadUrl = d.publicUrl || d.url || d.downloadUrl || d.mediaUrl ||
-            d.data?.url || d.data?.publicUrl || d.media?.url || d.result?.url;
-          if (!downloadUrl) {
-            console.error("[WH] decrypt-media: campos disponibles:", Object.keys(d).join(","));
-          }
-        } catch { console.error("[WH] decrypt-media: respuesta no es JSON"); }
+        // Respuesta binaria directa (el propio endpoint devuelve el archivo)
+        if (!ct.includes("application/json") && !ct.includes("text/plain")) {
+          fileBuffer = Buffer.from(await decryptRes.arrayBuffer());
+          const ctExt = ct.split("/")[1]?.split(";")[0]?.trim();
+          if (ctExt) ext = mimeToExt(ct) || ctExt;
+          console.log("[WH] decrypt-media: binario directo size:", fileBuffer.length);
+        } else {
+          const body = await decryptRes.text();
+          console.log("[WH] decrypt-media body:", body.slice(0, 600));
+          try {
+            const d = JSON.parse(body);
+            // Caso A: tiene URL pública
+            const dlUrl = d.publicUrl || d.url || d.downloadUrl || d.mediaUrl ||
+              d.data?.url || d.data?.publicUrl || d.media?.url || d.fileUrl;
+            if (dlUrl) {
+              const r = await fetch(dlUrl);
+              console.log("[WH] descarga desde URL status:", r.status);
+              if (r.ok) fileBuffer = Buffer.from(await r.arrayBuffer());
+            }
+            // Caso B: tiene base64
+            if (!fileBuffer) {
+              const b64 = d.data?.base64 || d.base64 || d.mediaBase64 || d.data?.data;
+              if (b64) {
+                fileBuffer = Buffer.from(b64, "base64");
+                console.log("[WH] decrypt-media: base64 size:", fileBuffer.length);
+              } else {
+                console.error("[WH] decrypt-media: campos:", JSON.stringify(Object.keys(d)), d.data ? "data:" + JSON.stringify(Object.keys(d.data)) : "");
+              }
+            }
+          } catch { console.error("[WH] decrypt-media: JSON inválido"); }
+        }
+      } else {
+        const errBody = await decryptRes.text().catch(() => "");
+        console.error("[WH] decrypt-media error:", decryptRes.status, errBody.slice(0, 200));
       }
     }
 
-    // Último fallback: intentar descargar la URL original directamente
-    if (!downloadUrl && media.url) {
-      console.log("[WH] fallback: intentando URL directa");
-      downloadUrl = media.url;
+    // 3. Fallback: URL cifrada de WhatsApp directamente (a veces funciona sin descifrar)
+    if (!fileBuffer && media.url) {
+      console.log("[WH] fallback URL directa de WhatsApp");
+      const r = await fetch(media.url, { headers: { "User-Agent": "WhatsApp/2.23.20.0" } });
+      console.log("[WH] fallback status:", r.status, r.headers.get("content-type"));
+      if (r.ok) fileBuffer = Buffer.from(await r.arrayBuffer());
     }
 
-    if (!downloadUrl) { console.error("[WH] sin URL de descarga para:", msgId); return; }
-
-    const fileRes = await fetch(downloadUrl);
-    if (!fileRes.ok) {
-      console.error("[WH] descarga media falló:", fileRes.status, "url:", downloadUrl.slice(0, 80));
+    if (!fileBuffer || fileBuffer.length === 0) {
+      console.error("[WH] ❌ sin datos para guardar msgId:", msgId);
       return;
     }
 
-    const ext = media.fileName
-      ? (media.fileName.split(".").pop() || mimeToExt(media.mimetype))
-      : mimeToExt(media.mimetype);
-    const safeId = msgId.replace(/[^a-zA-Z0-9_-]/g, "_");
     const fileName = `${safeId}.${ext}`;
-
     fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-    fs.writeFileSync(path.join(UPLOAD_DIR, fileName), Buffer.from(await fileRes.arrayBuffer()));
+    fs.writeFileSync(path.join(UPLOAD_DIR, fileName), fileBuffer);
 
     const localUrl = `/api/file/wa-media/${fileName}`;
     db.prepare(`UPDATE mensajes_wa SET media_url = ? WHERE id = ?`).run(localUrl, msgId);
-    console.log("[WH] ✅ media guardado:", localUrl);
+    console.log("[WH] ✅ media guardado:", localUrl, "bytes:", fileBuffer.length);
   } catch (e: any) {
-    console.error("[WH] downloadAndStoreMedia error:", e.message);
+    console.error("[WH] downloadAndStoreMedia error:", e.message, e.stack?.slice(0, 300));
   }
 }
 
