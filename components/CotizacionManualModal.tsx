@@ -407,14 +407,42 @@ export default function CotizacionManualModal({
 
     const logoB64 = await fetchBase64("/LOGO_PRINCIPAL.png");
 
-    // Para reparación: generar párrafo de alcance (precio único, sin desglose)
+    // Para reparación: párrafo de alcance específico por tipo de transductor
     const generarParrafoAlcance = (): string => {
       const nombres = validItems.map(i => i.descripcion.trim()).filter(Boolean);
       if (nombres.length === 0) return "";
+      const equipoRef = [eqMarca, eqModelo].filter(Boolean).join(" ") || "el transductor";
       const listaTexto = nombres.length === 1
         ? nombres[0].toLowerCase()
         : nombres.slice(0, -1).map(n => n.toLowerCase()).join(", ") + " y " + nombres[nombres.length - 1].toLowerCase();
-      return `El presente presupuesto comprende la realización de los siguientes trabajos sobre el equipo indicado: ${listaTexto}. El servicio incluye mano de obra especializada, refacciones y materiales necesarios, pruebas de funcionamiento conforme a protocolos técnicos, y garantía escrita de 6 meses sobre la intervención realizada.`;
+      const falla = eqFalla ? ` La falla reportada («${eqFalla}») ha sido evaluada y el plan de intervención contempla su resolución integral.` : "";
+      let especifico = "";
+      switch (eqTipo) {
+        case "Lineal":
+          especifico = "El transductor lineal opera en rangos de alta frecuencia (5–18 MHz), diseñado para aplicaciones vasculares, musculoesqueléticas y de tejidos superficiales. La intervención técnica contempla el reacondicionamiento del arreglo de cristales piezoeléctricos en geometría lineal, asegurando la uniformidad del haz acústico y la resolución axial óptima en toda la apertura activa del transductor.";
+          break;
+        case "Convex / Curvilíneo":
+          especifico = "El transductor convex opera en rangos de frecuencia media-baja (2–6 MHz), ampliamente utilizado en estudios abdominales, obstétricos y pélvicos. La intervención técnica contempla el reacondicionamiento del arreglo curvilíneo de cristales, preservando la geometría del sector de imagen y garantizando la uniformidad del campo acústico en todo el rango de profundidad de exploración.";
+          break;
+        case "Sectorial / Phased Array":
+          especifico = "El transductor sectorial phased array opera mediante un arreglo de alta densidad de elementos de pequeña huella, diseñado para la visualización de estructuras cardiacas profundas entre espacios intercostales. La intervención incluye calibración del desfase electrónico entre canales, restauración del arreglo piezoeléctrico y verificación de la integridad del cableado coaxial multi-conductor de alta precisión.";
+          break;
+        case "Intracavitario / Endovaginal":
+          especifico = "El transductor intracavitario requiere un estándar técnico y sanitario de alta exigencia por su uso en cavidades corporales. La intervención incluye verificación rigurosa de la hermeticidad del cuerpo del transductor, restitución del material acústico del lente distal, pruebas de aislamiento eléctrico conforme a normas de seguridad para dispositivos de contacto directo con mucosas, y validación de la integridad del cable en toda su longitud.";
+          break;
+        case "TEE (Transesofágico)":
+          especifico = "El transductor transesofágico (TEE) es un instrumento de alta complejidad clínica y técnica, utilizado en ecocardiografía intraoperatoria y en unidades de cuidados intensivos. La intervención abarca la revisión del mecanismo de articulación multiplanar distal, restitución del encapsulado de la cabeza con materiales biocompatibles, verificación del arreglo matricial de cristales y pruebas de aislamiento eléctrico conforme a la normativa IEC 60601-2-37 para transductores de contacto esofágico.";
+          break;
+        case "3D/4D":
+          especifico = "El transductor 3D/4D incorpora un arreglo matricial de cristales que permite la adquisición volumétrica de imágenes en tiempo real mediante barrido electrónico o mecánico interno. La intervención técnica contempla la revisión del sistema de barrido, restitución del polímero acústico del lente volumétrico, verificación de la sincronía electrónica entre planos de adquisición y calibración del sistema de procesamiento de señal tridimensional.";
+          break;
+        case "Microconvex":
+          especifico = "El transductor microconvex combina una huella de contacto reducida con un amplio campo de visión sectorial, siendo la elección preferida en neonatología, pediatría y aplicaciones cardiacas de ventana acústica restringida. La intervención contempla el reacondicionamiento del arreglo curvilíneo de pequeño radio, con especial atención a la delicadeza mecánica del ensamble de cristales y la integridad del sellado hermético del lente acústico.";
+          break;
+        default:
+          especifico = "El equipo ha sido evaluado mediante protocolos de diagnóstico automatizado que incluyen pruebas de pulso-eco, medición de capacitancia por canal y análisis de uniformidad del campo acústico, determinando con precisión el alcance de la intervención técnica necesaria para restablecer el rendimiento óptimo del transductor.";
+      }
+      return `El presente presupuesto comprende la realización de los siguientes trabajos sobre ${equipoRef}: ${listaTexto}.${falla} ${especifico} El servicio incluye mano de obra especializada, refacciones y materiales necesarios, pruebas de funcionamiento conforme a protocolos técnicos establecidos, y garantía escrita de 12 meses sobre la intervención realizada.`;
     };
 
     const rows = validItems.map((s, i) => `
@@ -438,12 +466,14 @@ export default function CotizacionManualModal({
           <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="width:100%;height:160px;object-fit:contain;background:white;" />
           <div class="dot" style="top:25%;left:39%;">1</div>
           <div class="dot" style="top:20%;left:55%;">2</div>
-          <div class="dot" style="bottom:12%;right:18%;">3</div>
+          <div class="dot" style="bottom:32%;left:30%;">3</div>
+          <div class="dot" style="bottom:12%;right:18%;">4</div>
         </div>
         <div class="diag-list">
           <div class="d-item"><div class="d-num">1</div><div><strong>Lente Acústico / Membrana:</strong> Retiro del material desgastado, descontaminación del arreglo de cristales e inyección de nuevo polímero acústico con curado térmico.</div></div>
           <div class="d-item"><div class="d-num">2</div><div><strong>Carcasa y Sellado:</strong> Reencapsulado de uniones para evitar filtraciones de gel transmisor y proteger los componentes electrónicos internos.</div></div>
-          <div class="d-item"><div class="d-num">3</div><div><strong>Cableado y Conector:</strong> Revisión de micro-coaxiales, refuerzo en zonas de flexión y limpieza profunda de pines de contacto en la placa base.</div></div>
+          <div class="d-item"><div class="d-num">3</div><div><strong>Cableado:</strong> Revisión de micro-coaxiales, verificación de continuidad eléctrica y refuerzo estructural en zonas de flexión y estrés mecánico del cableado principal.</div></div>
+          <div class="d-item"><div class="d-num">4</div><div><strong>Conector:</strong> Limpieza profunda de pines de contacto, verificación de continuidad en placa base y prueba de impedancia de señal en cada canal del arreglo piezoeléctrico.</div></div>
         </div>
       </div>
     </div>`
@@ -709,7 +739,7 @@ ${tipo === "reparacion" ? `
   <div style="background:#EEF0F7;border:1px solid #C5CAE0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
     <div>
       <div style="font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Inversión Total del Servicio</div>
-      <div style="font-size:11px;color:#4E60A9;">Incluye materiales, mano de obra y garantía de 6 meses</div>
+      <div style="font-size:11px;color:#4E60A9;">Incluye materiales, mano de obra y garantía de 12 meses</div>
     </div>
     <div style="text-align:right;">
       ${descuento > 0 ? `<div style="font-size:11px;color:#94A3B8;text-decoration:line-through;margin-bottom:2px;">${$f(subtotal)}</div>` : ""}
@@ -754,7 +784,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     <li><strong>Vigencia:</strong> 15 días naturales (hasta el ${vigencia}).</li>
     <li><strong>Esquema de Pago:</strong> Contado 100% anticipado — o anticipo del 50% (${$f(Math.round(total / 2))}) y liquidación contra entrega.</li>
     <li><strong>Tiempo de Entrega:</strong> 5 a 7 días hábiles a partir del ingreso del equipo y validación de anticipo.</li>
-    ${tipo === "reparacion" ? `<li><strong>Garantía:</strong> 6 meses sobre la reparación. No cubre daños por caídas, tirones de cable o derrames posteriores.</li>` : ""}
+    ${tipo === "reparacion" ? `<li><strong>Garantía:</strong> 12 meses sobre la reparación. No cubre daños por caídas, tirones de cable o derrames posteriores a la entrega.</li>` : ""}
     ${tipo === "mantenimiento" ? `<li><strong>Garantía:</strong> 3 meses sobre el servicio de mantenimiento realizado.</li>` : ""}
     ${tipo === "consumibles" ? `<li><strong>Devoluciones:</strong> Se aceptan en 7 días naturales con producto sin abrir y en empaque original.</li>` : ""}
   </ul>
