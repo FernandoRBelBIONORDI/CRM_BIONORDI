@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState, useRef, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import {
   MessageCircle, QrCode, Search, Send, Activity, Phone,
   Paperclip, ImageIcon, FileText, CheckCheck, Check,
@@ -92,23 +92,14 @@ function ChatContent() {
   const pendingSentRef = useRef<Message | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const scrollSignalRef = useRef<"instant" | "smooth" | null>(null);
 
-  // useLayoutEffect: corre ANTES del paint del browser — el scrollHeight ya es el definitivo
-  useLayoutEffect(() => {
-    const signal = scrollSignalRef.current;
-    if (!signal) return;
-    scrollSignalRef.current = null;
+  // Scroll al fondo cada vez que cambia el número de mensajes
+  useEffect(() => {
+    if (messages.length === 0) return;
     const el = msgContainerRef.current;
     if (!el) return;
     el.scrollTop = el.scrollHeight;
-  }, [messages]);
-
-  const isNearBottom = () => {
-    const el = msgContainerRef.current;
-    if (!el) return true;
-    return el.scrollHeight - el.scrollTop - el.clientHeight < 120;
-  };
+  }, [messages.length]);
 
   // ── Status poll ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -198,11 +189,6 @@ function ChatContent() {
           }).catch(() => {});
         }
 
-        if (!silent) {
-          scrollSignalRef.current = "instant";
-        } else if (hasNewIncoming && isNearBottom()) {
-          scrollSignalRef.current = "smooth";
-        }
       }
     } catch {}
     if (!silent) setLoadingMsgs(false);
@@ -234,7 +220,6 @@ function ChatContent() {
 
     const tempMsg: Message = { id: `temp-${Date.now()}`, fromMe: true, text, timestamp: Date.now() / 1000, status: "sent" };
     pendingSentRef.current = tempMsg;
-    scrollSignalRef.current = "smooth";
     setMessages((prev) => [...prev, tempMsg]);
 
     try {
@@ -269,7 +254,6 @@ function ChatContent() {
       const displayText = pendingMedia.type === "image" ? (caption ? `📷 ${caption}` : "📷 Imagen") : (caption ? `📎 ${pendingMedia.file.name} — ${caption}` : `📎 ${pendingMedia.file.name}`);
       const tempMsg: Message = { id: `temp-${Date.now()}`, fromMe: true, text: displayText, timestamp: Date.now() / 1000, status: "sent" };
       pendingSentRef.current = tempMsg;
-      scrollSignalRef.current = "smooth";
       setMessages((prev) => [...prev, tempMsg]);
 
       // 4. Send via WaSenderAPI
