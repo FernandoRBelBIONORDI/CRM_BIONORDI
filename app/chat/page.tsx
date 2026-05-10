@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, Suspense } from "react";
+import { useEffect, useLayoutEffect, useState, useRef, Suspense } from "react";
 import {
   MessageCircle, QrCode, Search, Send, Activity, Phone,
   Paperclip, ImageIcon, FileText, CheckCheck, Check,
@@ -93,10 +93,12 @@ function ChatContent() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Scroll al fondo cuando cambia el chat o llegan mensajes nuevos
-  useEffect(() => {
+  // Scroll al fondo antes de pintar — useLayoutEffect evita el flash de posición incorrecta
+  useLayoutEffect(() => {
     if (messages.length === 0) return;
-    messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+    const el = msgContainerRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
   }, [messages.length, activeChat?.chat_id]);
 
   // ── Status poll ──────────────────────────────────────────────────────────────
