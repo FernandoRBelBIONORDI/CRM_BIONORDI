@@ -733,7 +733,7 @@ ${evidenciaHTML}
 ${brochureHTML}
 
 ${tipo === "reparacion" ? `
-<div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;">
+<div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;page-break-before:always;">
   <div class="card-title">Propuesta Técnica de Servicio</div>
   <p style="font-size:12px;color:#334155;line-height:1.75;margin-bottom:16px;">${generarParrafoAlcance()}</p>
   <div style="background:#EEF0F7;border:1px solid #C5CAE0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
