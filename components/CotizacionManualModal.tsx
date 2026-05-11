@@ -455,21 +455,21 @@ export default function CotizacionManualModal({
       </tr>`).join("");
 
     const diagramaHTML = tipo === "reparacion" ? `
-    <div class="tech-card avoid-break">
+    <div class="tech-card avoid-break" style="margin-top:10px;margin-bottom:10px;">
       <div class="card-title">Alcance Técnico y Diagnóstico Integral${eqMarca || eqModelo ? ` — ${[eqMarca, eqModelo].filter(Boolean).join(" ")}` : ""}</div>
-      <p class="diag-p">
+      <p class="diag-p" style="margin-bottom:8px;">
         ${eqDescripcion ? `<strong>${eqDescripcion}.</strong> ` : ""}Todo equipo ingresado a laboratorio es sometido a un <strong>diagnóstico técnico automatizado</strong>.
         Realizamos pruebas de pulso-eco, medición de capacitancia, análisis de cristales piezoeléctricos y revisión de fugas eléctricas para garantizar la seguridad del paciente y la resolución óptima de imagen.
       </p>
       <div class="diag-grid">
-        <div style="flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;">
-          <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="width:100%;height:160px;object-fit:contain;display:block;" />
+        <div style="flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;height:148px;overflow:hidden;">
+          <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="width:100%;height:140px;object-fit:contain;display:block;" />
           <div style="position:absolute;top:25%;left:39%;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;text-align:center;line-height:20px;border:2px solid #fff;box-sizing:border-box;transform:translate(-50%,-50%);">1</div>
           <div style="position:absolute;top:20%;left:55%;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;text-align:center;line-height:20px;border:2px solid #fff;box-sizing:border-box;transform:translate(-50%,-50%);">2</div>
-          <div style="position:absolute;bottom:32%;left:30%;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;text-align:center;line-height:20px;border:2px solid #fff;box-sizing:border-box;transform:translate(-50%,50%);">3</div>
-          <div style="position:absolute;bottom:12%;right:18%;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;text-align:center;line-height:20px;border:2px solid #fff;box-sizing:border-box;transform:translate(50%,50%);">4</div>
+          <div style="position:absolute;top:68%;left:30%;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;text-align:center;line-height:20px;border:2px solid #fff;box-sizing:border-box;transform:translate(-50%,-50%);">3</div>
+          <div style="position:absolute;top:88%;left:82%;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;text-align:center;line-height:20px;border:2px solid #fff;box-sizing:border-box;transform:translate(-50%,-50%);">4</div>
         </div>
-        <div class="diag-list">
+        <div class="diag-list" style="gap:8px;">
           <div class="d-item"><div class="d-num">1</div><div><strong>Lente Acústico / Membrana:</strong> Retiro del material desgastado, descontaminación del arreglo de cristales e inyección de nuevo polímero acústico con curado térmico.</div></div>
           <div class="d-item"><div class="d-num">2</div><div><strong>Carcasa y Sellado:</strong> Reencapsulado de uniones para evitar filtraciones de gel transmisor y proteger los componentes electrónicos internos.</div></div>
           <div class="d-item"><div class="d-num">3</div><div><strong>Cableado:</strong> Revisión de micro-coaxiales, verificación de continuidad eléctrica y refuerzo estructural en zonas de flexión y estrés mecánico del cableado principal.</div></div>
@@ -575,12 +575,12 @@ export default function CotizacionManualModal({
     const evidenciaImgBorder = tipo === "reparacion" ? "#FECACA" : "#E2E8F0";
     const evidenciaTextColor = tipo === "reparacion" ? "#7F1D1D" : "#475569";
     const evidenciaHTML = evidencias.length > 0 ? `
-    <div class="tech-card" style="margin-bottom:20px;page-break-before:avoid;">
+    <div class="tech-card" style="margin-bottom:10px;page-break-inside:avoid;break-inside:avoid;">
       <div class="card-title" style="color:${evidenciaColor};border-bottom-color:${evidenciaBorder};">${evidenciaLabel}</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
         ${evidencias.map((ev, i) => `
           <div style="flex:1;min-width:130px;max-width:200px;">
-            <img src="${ev.b64}" alt="Evidencia ${i+1}" style="width:100%;max-height:180px;object-fit:contain;background:white;border-radius:6px;border:1px solid ${evidenciaImgBorder};" />
+            <img src="${ev.b64}" alt="Evidencia ${i+1}" style="width:100%;max-height:140px;object-fit:contain;background:white;border-radius:6px;border:1px solid ${evidenciaImgBorder};" />
             <div style="margin-top:4px;font-size:9px;color:${evidenciaTextColor};font-weight:600;text-align:center;">
               Foto ${i+1}${ev.caption ? ` — ${ev.caption}` : ""}
             </div>
