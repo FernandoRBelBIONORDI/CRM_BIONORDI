@@ -462,12 +462,12 @@ export default function CotizacionManualModal({
         Realizamos pruebas de pulso-eco, medición de capacitancia, análisis de cristales piezoeléctricos y revisión de fugas eléctricas para garantizar la seguridad del paciente y la resolución óptima de imagen.
       </p>
       <div class="diag-grid">
-        <div class="img-container">
-          <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="width:100%;height:160px;object-fit:contain;background:white;" />
-          <div class="dot" style="top:25%;left:39%;">1</div>
-          <div class="dot" style="top:20%;left:55%;">2</div>
-          <div class="dot" style="bottom:32%;left:30%;">3</div>
-          <div class="dot" style="bottom:12%;right:18%;">4</div>
+        <div style="flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;">
+          <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="width:100%;height:160px;object-fit:contain;display:block;" />
+          <div style="position:absolute;top:25%;left:39%;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;text-align:center;line-height:20px;border:2px solid #fff;box-sizing:border-box;transform:translate(-50%,-50%);">1</div>
+          <div style="position:absolute;top:20%;left:55%;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;text-align:center;line-height:20px;border:2px solid #fff;box-sizing:border-box;transform:translate(-50%,-50%);">2</div>
+          <div style="position:absolute;bottom:32%;left:30%;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;text-align:center;line-height:20px;border:2px solid #fff;box-sizing:border-box;transform:translate(-50%,50%);">3</div>
+          <div style="position:absolute;bottom:12%;right:18%;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;text-align:center;line-height:20px;border:2px solid #fff;box-sizing:border-box;transform:translate(50%,50%);">4</div>
         </div>
         <div class="diag-list">
           <div class="d-item"><div class="d-num">1</div><div><strong>Lente Acústico / Membrana:</strong> Retiro del material desgastado, descontaminación del arreglo de cristales e inyección de nuevo polímero acústico con curado térmico.</div></div>
@@ -603,7 +603,7 @@ export default function CotizacionManualModal({
         <div class="eq-item"><div class="eq-lbl">Marca</div><div class="eq-val">${eqMarca || "—"}</div></div>
         <div class="eq-item"><div class="eq-lbl">Modelo</div><div class="eq-val">${eqModelo || "—"}</div></div>
         <div class="eq-item"><div class="eq-lbl">No. de Serie</div><div class="eq-val">${eqSerie || "—"}</div></div>
-        ${eqDescripcion ? `<div class="eq-full"><div class="eq-lbl">Descripción</div><div class="eq-val" style="margin-top:2px;">${eqDescripcion}</div></div>` : ""}
+        ${eqDescripcion && tipo !== "reparacion" ? `<div class="eq-full"><div class="eq-lbl">Descripción</div><div class="eq-val" style="margin-top:2px;">${eqDescripcion}</div></div>` : ""}
         ${eqFalla ? `<div class="eq-full"><div class="eq-lbl" style="color:#B91C1C;">Falla Reportada / Síntoma</div><div class="eq-val" style="color:#7F1D1D;margin-top:2px;">${eqFalla}</div></div>` : ""}
       </div>
     </div>`
@@ -897,6 +897,15 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         <td align="right" style="padding:11px 12px;font-size:13px;font-weight:700;color:#4E60A9;">${$f(s.cantidad * s.precioUnit)}</td>
       </tr>`).join("");
 
+    // Párrafo descriptivo para el correo de reparación
+    const nombresEmail = validItems.map(i => i.descripcion.trim()).filter(Boolean);
+    const equipoRefEmail = [eqMarca, eqModelo].filter(Boolean).join(" ") || "el transductor indicado";
+    const listaEmail = nombresEmail.length === 0 ? "los servicios acordados"
+      : nombresEmail.length === 1 ? nombresEmail[0].toLowerCase()
+      : nombresEmail.slice(0, -1).map(n => n.toLowerCase()).join(", ") + " y " + nombresEmail[nombresEmail.length - 1].toLowerCase();
+    const fallaEmail = eqFalla ? ` La falla reportada («${eqFalla}») será atendida de manera integral.` : "";
+    const parrafoEmail = `Nos complace presentarle la siguiente propuesta técnica para la realización de: ${listaEmail}, sobre ${equipoRefEmail}.${fallaEmail} El servicio comprende diagnóstico técnico especializado, mano de obra calificada, refacciones y materiales necesarios, pruebas de funcionamiento conforme a estándares técnicos establecidos, y garantía escrita de 12 meses sobre la intervención realizada. El detalle completo de la propuesta se encuentra en el PDF adjunto.`;
+
     const emailHTML = `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -938,22 +947,14 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   </td></tr>` : ""}
 
   ${tipo === "reparacion" ? `
-  <tr><td style="padding:20px 36px 0;">
-    <p style="margin:0 0 14px;font-size:9px;color:#4E60A9;font-weight:800;text-transform:uppercase;letter-spacing:2px;">Alcance del Servicio</p>
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
-      <tr bgcolor="#F1F5F9">
-        <th align="left" style="padding:10px 12px;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:1px;">Descripci&#243;n del servicio</th>
-      </tr>
-      ${validItems.map(s => `
-      <tr style="border-bottom:1px solid #F1F5F9;">
-        <td style="padding:11px 12px;font-size:13px;color:#1E293B;font-weight:600;">${s.descripcion}</td>
-      </tr>`).join("")}
-    </table>
+  <tr><td style="padding:20px 36px;border-bottom:1px solid #E2E8F0;">
+    <p style="margin:0 0 12px;font-size:9px;color:#4E60A9;font-weight:800;text-transform:uppercase;letter-spacing:2px;">Alcance del Servicio</p>
+    <p style="margin:0;font-size:13px;color:#334155;line-height:1.8;">${parrafoEmail}</p>
   </td></tr>
   <tr><td style="padding:20px 36px;background:#EEF0F7;border-top:2px solid #C5CAE0;">
     <p style="margin:0 0 6px;font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;">Inversi&#243;n Total del Servicio</p>
     <p style="margin:0;font-size:32px;font-weight:900;color:#4E60A9;letter-spacing:-1px;">${$f(total)}</p>
-    <p style="margin:4px 0 0;font-size:11px;color:#64748B;">Incluye materiales, mano de obra y garant&#237;a de 12 meses${conIVA ? " · IVA incluido" : ""}</p>
+    <p style="margin:4px 0 0;font-size:11px;color:#64748B;">Incluye materiales, mano de obra y garant&#237;a de 12 meses${conIVA ? " &middot; IVA incluido" : ""}</p>
   </td></tr>` : `
   <tr><td style="padding:20px 36px 0;">
     <p style="margin:0 0 14px;font-size:9px;color:#4E60A9;font-weight:800;text-transform:uppercase;letter-spacing:2px;">
