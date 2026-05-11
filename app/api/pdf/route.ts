@@ -8,6 +8,7 @@ export async function POST(req: Request) {
 
     const browser = await puppeteer.launch({
       headless: true,
+      executablePath: process.env.CHROMIUM_PATH || process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -15,6 +16,7 @@ export async function POST(req: Request) {
         '--disable-gpu',
         '--no-first-run',
         '--no-zygote',
+        '--single-process',
       ],
     });
 
