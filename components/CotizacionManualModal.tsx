@@ -37,6 +37,18 @@ const TIPOS_TRANSDUCTOR = [
   "Intracavitario / Endovaginal", "TEE (Transesofágico)", "3D/4D", "Microconvex", "Otro",
 ];
 
+const TIPOS_EQUIPO = [
+  "Ultrasonido",
+  "Monitor de Signos Vitales",
+  "Máquina de Anestesia",
+  "Ventilador Mecánico",
+  "Desfibrilador",
+  "Electrocardiógrafo",
+  "Incubadora",
+  "Unidad de Electrocirugía",
+  "Otro Equipo",
+];
+
 const SERVICIOS_RAPIDOS: Record<TipoCotizacion, { nombre: string; precio: number }[]> = {
   reparacion: [
     { nombre:"Diagnóstico técnico de transductor",   precio:1500  },
@@ -1431,7 +1443,12 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                             <option value="">— Seleccionar —</option>
                             {TIPOS_TRANSDUCTOR.map(t => <option key={t}>{t}</option>)}
                           </select>
-                        : <input value={eqTipo} onChange={e => setEqTipo(e.target.value)} placeholder="Ultrasonido, Monitor de signos vitales…" className={inp}/>
+                        : tipo === "mantenimiento" || tipo === "venta"
+                        ? <select value={eqTipo} onChange={e => setEqTipo(e.target.value)} className={sel}>
+                            <option value="">— Seleccionar tipo —</option>
+                            {TIPOS_EQUIPO.map(t => <option key={t} value={t}>{t}</option>)}
+                          </select>
+                        : <input value={eqTipo} onChange={e => setEqTipo(e.target.value)} placeholder="Ultrasonido, Monitor…" className={inp}/>
                       }
                     </Field>
 
