@@ -595,12 +595,14 @@ export default function CotizacionManualModal({
       <div style="display:flex;gap:16px;margin-top:4px;">
         <div style="flex:1;">
           <div style="font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;text-align:center;">Vista Frontal</div>
-          <div class="img-container" style="height:200px;">
-            <img src="${imgFront}" alt="Equipo Móvil Frente" style="width:100%;height:100%;object-fit:contain;background:white;" />
-            <div class="dot" style="top:12%;left:50%;transform:translateX(-50%);">1</div>
-            <div class="dot" style="top:42%;left:18%;">2</div>
-            <div class="dot" style="top:42%;right:18%;">3</div>
-            <div class="dot" style="bottom:18%;left:50%;transform:translateX(-50%);">4</div>
+          <div class="img-container" style="height:220px;padding:4px;">
+            <div style="position:relative;display:inline-block;height:100%;">
+              <img src="${imgFront}" alt="Equipo Móvil Frente" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block;" />
+              <div class="dot" style="top:15%;left:50%;transform:translate(-50%,-50%);">1</div>
+              <div class="dot" style="top:45%;left:20%;transform:translate(-50%,-50%);">2</div>
+              <div class="dot" style="top:45%;left:80%;transform:translate(-50%,-50%);">3</div>
+              <div class="dot" style="top:85%;left:50%;transform:translate(-50%,-50%);">4</div>
+            </div>
           </div>
           <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
             <div class="d-item"><div class="d-num">1</div><div><strong>Pantalla / Display:</strong> Revisión de píxeles, brillo, contraste y calibración de imagen.</div></div>
@@ -611,11 +613,13 @@ export default function CotizacionManualModal({
         </div>
         <div style="flex:1;">
           <div style="font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;text-align:center;">Vista Posterior</div>
-          <div class="img-container" style="height:200px;">
-            <img src="${imgBack}" alt="Equipo Móvil Trasera" style="width:100%;height:100%;object-fit:contain;background:white;" />
-            <div class="dot" style="top:15%;left:50%;transform:translateX(-50%);">A</div>
-            <div class="dot" style="top:45%;right:15%;">B</div>
-            <div class="dot" style="bottom:20%;left:30%;">C</div>
+          <div class="img-container" style="height:220px;padding:4px;">
+            <div style="position:relative;display:inline-block;height:100%;">
+              <img src="${imgBack}" alt="Equipo Móvil Trasera" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block;" />
+              <div class="dot" style="top:15%;left:50%;transform:translate(-50%,-50%);">A</div>
+              <div class="dot" style="top:45%;left:85%;transform:translate(-50%,-50%);">B</div>
+              <div class="dot" style="top:80%;left:30%;transform:translate(-50%,-50%);">C</div>
+            </div>
           </div>
           <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
             <div class="d-item"><div class="d-num" style="background:#FEF3C7;color:#92400E;">A</div><div><strong>Rejillas de Ventilación:</strong> Limpieza de filtros de polvo y verificación del flujo de aire del sistema de enfriamiento.</div></div>
@@ -762,7 +766,7 @@ export default function CotizacionManualModal({
   .diag-p{font-size:11px;color:#475569;line-height:1.5;margin-bottom:15px}
   .diag-grid{display:flex;gap:20px;align-items:center}
   .img-container{flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-  .dot{position:absolute;width:18px;height:18px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.3);border:2px solid #fff;line-height:1}
+  .dot{position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.3);border:2px solid #fff;box-sizing:border-box;line-height:1}
   .diag-list{flex:1.2;display:flex;flex-direction:column;gap:12px}
   .d-item{display:flex;gap:10px;font-size:10.5px;color:#334155;line-height:1.4;align-items:flex-start}
   .d-num{width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;line-height:1}
