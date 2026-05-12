@@ -440,6 +440,65 @@ export default function CotizacionManualModal({
 
     const logoB64 = await fetchBase64("/LOGO_PRINCIPAL.png");
 
+    const VENTA_FEATURES: Record<string, string[]> = {
+      "M9": [
+        "<strong>Tecnología Premium</strong>: Ultrasonido portátil con sondas monocristal 3T, pantalla LED 16\" y SSD 128 GB. Incluye Echo Boost™, Smart OB, Smart NT y opción Stress Echo.",
+        "<strong>Sondas Monocristal 3T</strong>: Triple capa de matching que proporciona mayor sensibilidad, ancho de banda más amplio y mejor relación señal/ruido.",
+        "<strong>Echo Boost™</strong>: Procesamiento adaptativo de señal específico para imagen cardíaca, suprimiendo el ruido en las cámaras y reforzando el endocardio.",
+        "<strong>Biometría Fetal Automática</strong>: Smart OB™ y Smart NT™ realizan mediciones automáticas con un solo clic, reduciendo variabilidad entre operadores."
+      ],
+      "Z50": [
+        "<strong>Tecnología Versátil</strong>: Ultrasonido portátil todo-en-uno con pantalla de 15\", 500 GB y batería de 1.5 h. Incluye 3D/4D, iLive, Smart OB™ y Smart Face™.",
+        "<strong>3D/4D con iLive™ y Smart Face™</strong>: Captura volúmenes fetales simulando iluminación natural para obtener imágenes realistas con apariencia de piel.",
+        "<strong>Smart OB™</strong>: Detecta y mide automáticamente los parámetros de biometría fetal, calculando edad gestacional al instante.",
+        "<strong>iScape™ y Auto IMT</strong>: Genera imagen panorámica en tiempo real y realiza medición automática del espesor íntima-media carotídea."
+      ],
+      "DC-60 Exp": [
+        "<strong>Alto Desempeño</strong>: Consola de alta gama con motor de imagen X-Engine (GPU+CPU, 3–4× más rápido). Incluye 4D en tiempo real, STIC y AutoEF.",
+        "<strong>X-Engine</strong>: Integra procesamiento GPU y CPU en paralelo, acelerando de forma masiva el pipeline de imagen.",
+        "<strong>4D Real-time + STIC</strong>: Adquisición 4D en tiempo real con Smart Volume, Color 3D e iLive para evaluar detalladamente cardiopatías.",
+        "<strong>Suite Cardíaca Completa</strong>: AutoEF, Stress Echo y LVO para calcular fracción de eyección y permitir protocolos avanzados de estrés."
+      ],
+      "DC-30": [
+        "<strong>Equilibrio y Calidad</strong>: Consola de gama media con pantalla LED 15\"/17\" y batería integrada. Incluye 3D/4D, Elastografía, TDI y Contraste.",
+        "<strong>Diagnóstico Avanzado</strong>: Imagen 3D/4D en tiempo real para obstetricia y Elastografía Natural Touch que mapea la rigidez tisular.",
+        "<strong>TDI y UWN Contraste</strong>: Mide velocidad miocárdica y habilita estudios de perfusión con agente de contraste microburbuja.",
+        "<strong>FCI e iBeam™</strong>: Combinación de frecuencias y compuesto espacial multi-ángulo para reducir el ruido y homogeneizar la imagen."
+      ],
+      "M5": [
+        "<strong>Punto de Atención Rápido</strong>: Ultrasonido portátil compacto con LCD 15\" y batería de 2 horas. Modos B, M, Color, Power y Doppler Pulsado.",
+        "<strong>iTouch</strong>: Optimización automática de imagen (ganancia y parámetros) con un solo toque para agilizar estudios en urgencias.",
+        "<strong>Alta Portabilidad</strong>: Peso ligero de 4.5 kg y diseño reforzado, ideal para acompañar en rondas hospitalarias intensivas.",
+        "<strong>Compatibilidad de Sondas</strong>: Acepta transductores convex abdominal, lineal vascular, phased array cardíaco y endocavitario."
+      ],
+      "M7": [
+        "<strong>Diagnóstico a Bordo</strong>: Portátil a color con LCD 15\", HDD 320 GB y batería de 1.5 h. Incluye iNeedle™, TDI, 4D y Auto IMT.",
+        "<strong>iNeedle™</strong>: Realce avanzado de la aguja en procedimientos guiados, amplificando los ecos de retorno para máxima visibilidad.",
+        "<strong>Tissue Doppler Imaging (TDI)</strong>: Paquete completo para medir velocidad de movimiento miocárdico y evaluar función diastólica.",
+        "<strong>iBeam™ + THI + PSH</strong>: Compuesto espacial y armónicas para entregar una imagen de alta definición incluso en pacientes difíciles."
+      ],
+      "MX7": [
+        "<strong>Innovación Ultrafina</strong>: Ultrasonido de 44 mm de grosor y 3 kg, con plataforma ZST+, panel principal 15.6\", panel táctil 12.3\" y U-Bank.",
+        "<strong>ZST+ (Zone Sonography)</strong>: Plataforma de beamforming virtual que transmite zonas completas, logrando tasas de cuadros ultrarrápidas.",
+        "<strong>HD Scope™</strong>: Mejora extrema de la resolución de contraste y la definición de bordes tisulares en partes pequeñas y cardíaco.",
+        "<strong>Batería U-Bank</strong>: Autonomía de hasta 8 horas de escaneo continuo para cubrir guardias sin interrupción."
+      ],
+      "DP-50 Exp": [
+        "<strong>Escencial y Confiable</strong>: Consola portátil B/W con pantalla LCD 15\", batería > 2 h. Incluye THI, iBeam™, iClear™ e iScape™.",
+        "<strong>THI + TSI</strong>: Armónica tisular que elimina reverberaciones y ajusta el procesamiento según el órgano específico a explorar.",
+        "<strong>Compuesto Espacial iBeam™</strong>: Elimina sombras acústicas y reduce el moteado sin comprometer la nitidez de los bordes anatómicos.",
+        "<strong>Productividad</strong>: Mediciones Auto IMT, imagen panorámica y gestión integrada de estudios con iStation™."
+      ]
+    };
+
+    const getVentaFeatures = (modelo: string | undefined, desc: string | undefined) => {
+      if (!modelo) return desc ? [desc] : ["Excelente equipo médico con altos estándares de calidad y precisión diagnóstica."];
+      const foundKey = Object.keys(VENTA_FEATURES).find(k => modelo.toLowerCase().includes(k.toLowerCase()));
+      if (foundKey) return VENTA_FEATURES[foundKey];
+      return desc ? [desc] : ["Excelente equipo médico con altos estándares de calidad y precisión diagnóstica."];
+    };
+    const currentFeatures = getVentaFeatures(eqModelo, eqDescripcion);
+
     // Para reparación: párrafo de alcance específico por tipo de transductor
     const generarParrafoAlcance = (): string => {
       const nombres = validItems.map(i => i.descripcion.trim()).filter(Boolean);
@@ -569,19 +628,32 @@ export default function CotizacionManualModal({
     : tipo === "venta" ? (eqFotosB64.length > 0 ? `
     <div class="tech-card avoid-break">
       <div class="card-title">Galería del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
-      ${eqDescripcion ? `<p class="diag-p">${eqDescripcion}</p>` : ""}
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
-        ${eqFotosB64.map((b64, i) => `
-          <div style="flex:1;min-width:150px;max-width:220px;">
-            <img src="${b64}" alt="Foto ${i+1}" style="width:100%;max-height:220px;object-fit:contain;background:white;border-radius:8px;border:1px solid #E2E8F0;" />
-          </div>`).join("")}
+      <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
+        <div style="flex:0 0 280px;">
+          <div class="img-container" style="height:250px;padding:10px;">
+            <img src="${eqFotosB64[0]}" alt="Foto Principal" style="width:100%;height:100%;object-fit:contain;background:white;" />
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding-top:4px;">
+          ${currentFeatures.map((feat, i) => `
+            <div class="d-item"><div class="d-num">${i + 1}</div><div>${feat}</div></div>
+          `).join("")}
+        </div>
       </div>
     </div>` : imgEquipoB64 ? `
     <div class="tech-card avoid-break">
-      <div class="card-title">Foto del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
-      ${eqDescripcion ? `<p class="diag-p">${eqDescripcion}</p>` : ""}
-      <div style="display:flex;justify-content:center;margin-top:8px;">
-        <img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Equipo"}" style="max-width:340px;max-height:300px;object-fit:contain;background:white;border-radius:8px;border:1px solid #E2E8F0;" />
+      <div class="card-title">Características del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
+      <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
+        <div style="flex:0 0 280px;">
+          <div class="img-container" style="height:250px;padding:10px;">
+            <img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ")}" style="width:100%;height:100%;object-fit:contain;background:white;" />
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding-top:4px;">
+          ${currentFeatures.map((feat, i) => `
+            <div class="d-item"><div class="d-num">${i + 1}</div><div>${feat}</div></div>
+          `).join("")}
+        </div>
       </div>
     </div>` : `
     <div class="tech-card avoid-break">
