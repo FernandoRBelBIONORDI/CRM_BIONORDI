@@ -599,6 +599,58 @@ export default function CotizacionManualModal({
       return `El presente presupuesto comprende la realización de los siguientes trabajos sobre ${equipoRef}: ${listaTexto}.${falla} ${especifico} El servicio incluye mano de obra especializada, refacciones y materiales necesarios, pruebas de funcionamiento conforme a protocolos técnicos establecidos, y garantía escrita de 12 meses sobre la intervención realizada.`;
     };
 
+    const getPropuestaInfo = () => {
+      const nombres = validItems.map(i => i.descripcion.trim()).filter(Boolean);
+      const listaTexto = nombres.length === 0 ? "los servicios/insumos solicitados"
+        : nombres.length === 1 ? nombres[0].toLowerCase()
+        : nombres.slice(0, -1).map(n => n.toLowerCase()).join(", ") + " y " + nombres[nombres.length - 1].toLowerCase();
+        
+      const equipoRef = [eqMarca, eqModelo].filter(Boolean).join(" ");
+      const sobreEquipo = equipoRef ? ` sobre el equipo ${equipoRef}` : "";
+      
+      let titulo = "";
+      let subtituloTotal = "";
+      let parrafoPDF = "";
+      let parrafoEmail = "";
+      
+      if (tipo === "reparacion") {
+        titulo = "Propuesta Técnica de Servicio";
+        subtituloTotal = "Incluye materiales, mano de obra y garantía de 12 meses";
+        parrafoPDF = generarParrafoAlcance();
+        const falla = eqFalla ? ` La falla reportada («${eqFalla}») será atendida de manera integral.` : "";
+        parrafoEmail = `Nos complace presentarle la siguiente propuesta técnica para la realización de: ${listaTexto}${sobreEquipo}.${falla} El servicio comprende diagnóstico técnico, mano de obra calificada y refacciones, con garantía escrita de 12 meses. El detalle completo se encuentra en el documento adjunto.`;
+      } 
+      else if (tipo === "mantenimiento") {
+        titulo = "Propuesta Técnica de Mantenimiento";
+        subtituloTotal = "Incluye refacciones preventivas, mano de obra y reporte técnico";
+        const cleanFeatures = currentMantenimiento.map(f => {
+          let txt = f.replace(/<strong>.*?<\/strong>:\s*/g, '');
+          return txt.charAt(0).toLowerCase() + txt.slice(1);
+        }).join(' ');
+        parrafoPDF = `El presente presupuesto comprende la realización del mantenimiento preventivo integral: ${listaTexto}${sobreEquipo}. El alcance del servicio incluye: ${cleanFeatures} El servicio se realiza bajo estrictos estándares de calidad, incluyendo pruebas de seguridad eléctrica y entrega de un reporte técnico detallado conforme a la normativa vigente.`;
+        parrafoEmail = `Nos complace presentarle la propuesta para el mantenimiento preventivo de: ${listaTexto}${sobreEquipo}. El servicio garantiza el óptimo funcionamiento de su unidad clínica. El detalle completo de la intervención y condiciones comerciales se encuentra en el documento adjunto.`;
+      }
+      else if (tipo === "venta") {
+        titulo = "Propuesta Comercial";
+        subtituloTotal = "Incluye garantía directa y soporte técnico especializado";
+        const cleanFeatures = currentFeatures.map(f => {
+          let txt = f.replace(/<strong>.*?<\/strong>:\s*/g, '');
+          if (!txt.endsWith('.')) txt += '.';
+          return txt;
+        }).join(' ');
+        parrafoPDF = `La presente propuesta comercial contempla el suministro de: ${listaTexto}. ${cleanFeatures} El equipo incluye garantía directa contra defectos de fábrica, soporte técnico especializado y capacitación operativa para asegurar su óptimo aprovechamiento en el entorno clínico.`;
+        parrafoEmail = `Nos complace presentarle nuestra propuesta comercial para el suministro de: ${listaTexto}. Estamos seguros de que nuestra tecnología cumplirá con sus más altas exigencias clínicas. Los detalles, precio final y especificaciones se encuentran en el documento adjunto.`;
+      }
+      else {
+        titulo = "Propuesta Comercial";
+        subtituloTotal = "Precios sujetos a disponibilidad de inventario";
+        parrafoPDF = `La presente cotización comprende el suministro de: ${listaTexto}. Todos nuestros consumibles e insumos médicos cumplen con los más altos estándares de calidad y caducidad vigente, garantizando un desempeño óptimo en su uso clínico.`;
+        parrafoEmail = `Nos complace presentarle la cotización correspondiente al suministro de consumibles médicos: ${listaTexto}. El detalle completo de la inversión se encuentra en el documento adjunto.`;
+      }
+      return { titulo, subtituloTotal, parrafoPDF, parrafoEmail };
+    };
+    const propInfo = getPropuestaInfo();
+
     const rows = validItems.map((s, i) => `
       <tr>
         <td class="c text-muted">${i + 1}</td>
@@ -907,14 +959,13 @@ ${diagramaHTML}
 ${evidenciaHTML}
 ${brochureHTML}
 
-${tipo === "reparacion" ? `
 <div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;page-break-before:always;">
-  <div class="card-title">Propuesta Técnica de Servicio</div>
-  <p style="font-size:12px;color:#334155;line-height:1.75;margin-bottom:16px;">${generarParrafoAlcance()}</p>
+  <div class="card-title">${propInfo.titulo}</div>
+  <p style="font-size:12px;color:#334155;line-height:1.75;margin-bottom:16px;">${propInfo.parrafoPDF}</p>
   <div style="background:#EEF0F7;border:1px solid #C5CAE0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
     <div>
-      <div style="font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Inversión Total del Servicio</div>
-      <div style="font-size:11px;color:#4E60A9;">Incluye materiales, mano de obra y garantía de 12 meses</div>
+      <div style="font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Inversión Total</div>
+      <div style="font-size:11px;color:#4E60A9;">${propInfo.subtituloTotal}</div>
     </div>
     <div style="text-align:right;">
       ${descuento > 0 ? `<div style="font-size:11px;color:#94A3B8;text-decoration:line-through;margin-bottom:2px;">${$f(subtotal)}</div>` : ""}
@@ -922,17 +973,7 @@ ${tipo === "reparacion" ? `
       ${conIVA ? `<div style="font-size:9px;color:#38AD64;font-weight:700;">IVA incluido</div>` : `<div style="font-size:9px;color:#64748B;">Más IVA</div>`}
     </div>
   </div>
-</div>` : `
-<table>
-  <thead><tr>
-    <th class="c" style="width:50px;">Item</th>
-    <th>Descripción</th>
-    <th class="c" style="width:60px;">Cant.</th>
-    <th class="r" style="width:120px;">Precio Unit.</th>
-    <th class="r" style="width:120px;">Importe</th>
-  </tr></thead>
-  <tbody>${rows}</tbody>
-</table>`}
+</div>
 
 ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:9px 13px;margin-bottom:20px;font-size:11px;color:#92400E;border-radius:0 4px 4px 0;"><strong>Notas:</strong> ${notas}</div>` : ""}
 
@@ -945,10 +986,6 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     <div class="b-step"><span class="b-icon">4.</span><div>Su factura será procesada en un lapso no mayor a 24 horas hábiles.</div></div>
   </div>
   <div class="totals-card">
-    ${tipo !== "reparacion" ? `
-    <div class="t-row"><div>Subtotal</div><div class="t-val">${$f(subtotal)}</div></div>
-    ${descuento > 0 ? `<div class="t-row"><div>Descuento (${descuento}%)</div><div class="t-val" style="color:#EF4444;">−${$f(descMonto)}</div></div>` : ""}
-    ${conIVA ? `<div class="t-row"><div>IVA (16%)</div><div class="t-val">${$f(iva)}</div></div>` : ""}` : ""}
     <div class="t-row final"><div>Total (MXN)</div><div class="t-val">${$f(total)}</div></div>
   </div>
 </div>
@@ -1064,22 +1101,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     const folio    = savedCot?.folio ?? `BNRD-${new Date().getFullYear().toString().slice(-2)}-${folioSuffix}-${Date.now().toString().slice(-4)}`;
     const vigencia = new Date(Date.now() + 15 * 86400000).toLocaleDateString("es-MX", { day:"2-digit", month:"long", year:"numeric" });
 
-    const rowsHTML = validItems.map(s => `
-      <tr style="border-bottom:1px solid #F1F5F9;">
-        <td style="padding:11px 12px;font-size:13px;color:#1E293B;font-weight:600;">${s.descripcion}</td>
-        <td align="center" style="padding:11px 12px;font-size:12px;color:#64748B;">${s.cantidad}</td>
-        <td align="right" style="padding:11px 12px;font-size:12px;color:#64748B;">${$f(s.precioUnit)}</td>
-        <td align="right" style="padding:11px 12px;font-size:13px;font-weight:700;color:#4E60A9;">${$f(s.cantidad * s.precioUnit)}</td>
-      </tr>`).join("");
-
-    // Párrafo descriptivo para el correo de reparación
-    const nombresEmail = validItems.map(i => i.descripcion.trim()).filter(Boolean);
-    const equipoRefEmail = [eqMarca, eqModelo].filter(Boolean).join(" ") || "el transductor indicado";
-    const listaEmail = nombresEmail.length === 0 ? "los servicios acordados"
-      : nombresEmail.length === 1 ? nombresEmail[0].toLowerCase()
-      : nombresEmail.slice(0, -1).map(n => n.toLowerCase()).join(", ") + " y " + nombresEmail[nombresEmail.length - 1].toLowerCase();
-    const fallaEmail = eqFalla ? ` La falla reportada («${eqFalla}») será atendida de manera integral.` : "";
-    const parrafoEmail = `Nos complace presentarle la siguiente propuesta técnica para la realización de: ${listaEmail}, sobre ${equipoRefEmail}.${fallaEmail} El servicio comprende diagnóstico técnico especializado, mano de obra calificada, refacciones y materiales necesarios, pruebas de funcionamiento conforme a estándares técnicos establecidos, y garantía escrita de 12 meses sobre la intervención realizada. El detalle completo de la propuesta se encuentra en el PDF adjunto.`;
+    const propInfoEmail = getPropuestaInfo();
 
     const emailHTML = `<!DOCTYPE html>
 <html lang="es">
@@ -1121,52 +1143,15 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     </table>
   </td></tr>` : ""}
 
-  ${tipo === "reparacion" ? `
   <tr><td style="padding:20px 36px;border-bottom:1px solid #E2E8F0;">
-    <p style="margin:0 0 12px;font-size:9px;color:#4E60A9;font-weight:800;text-transform:uppercase;letter-spacing:2px;">Alcance del Servicio</p>
-    <p style="margin:0;font-size:13px;color:#334155;line-height:1.8;">${parrafoEmail}</p>
+    <p style="margin:0 0 12px;font-size:9px;color:#4E60A9;font-weight:800;text-transform:uppercase;letter-spacing:2px;">${propInfoEmail.titulo}</p>
+    <p style="margin:0;font-size:13px;color:#334155;line-height:1.8;">${propInfoEmail.parrafoEmail}</p>
   </td></tr>
   <tr><td style="padding:20px 36px;background:#EEF0F7;border-top:2px solid #C5CAE0;">
-    <p style="margin:0 0 6px;font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;">Inversi&#243;n Total del Servicio</p>
+    <p style="margin:0 0 6px;font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;">Inversi&#243;n Total</p>
     <p style="margin:0;font-size:32px;font-weight:900;color:#4E60A9;letter-spacing:-1px;">${$f(total)}</p>
-    <p style="margin:4px 0 0;font-size:11px;color:#64748B;">Incluye materiales, mano de obra y garant&#237;a de 12 meses${conIVA ? " &middot; IVA incluido" : ""}</p>
-  </td></tr>` : `
-  <tr><td style="padding:20px 36px 0;">
-    <p style="margin:0 0 14px;font-size:9px;color:#4E60A9;font-weight:800;text-transform:uppercase;letter-spacing:2px;">
-      ${tipo === "venta" ? "Productos" : tipo === "consumibles" ? "Consumibles" : "Servicios"}
-    </p>
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
-      <tr bgcolor="#F1F5F9">
-        <th align="left" style="padding:10px 12px;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:1px;">Descripci&#243;n</th>
-        <th width="50" align="center" style="padding:10px 12px;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;">Cant.</th>
-        <th width="90" align="right" style="padding:10px 12px;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;">P.U.</th>
-        <th width="100" align="right" style="padding:10px 12px;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;">Importe</th>
-      </tr>
-      ${rowsHTML}
-    </table>
+    <p style="margin:4px 0 0;font-size:11px;color:#64748B;">${propInfoEmail.subtituloTotal}${conIVA ? " &middot; IVA incluido" : " &middot; M&#225;s IVA"}</p>
   </td></tr>
-  <tr><td style="padding:16px 36px;background:#EEF0F7;border-top:2px solid #C5CAE0;">
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
-      ${descuento > 0 ? `
-      <tr>
-        <td style="padding:3px 0;font-size:12px;color:#64748B;">Subtotal</td>
-        <td align="right" style="padding:3px 0;font-size:12px;color:#64748B;">${$f(subtotal)}</td>
-      </tr>
-      <tr>
-        <td style="padding:3px 0;font-size:12px;color:#EF4444;">Descuento (${descuento}%)</td>
-        <td align="right" style="padding:3px 0;font-size:12px;color:#EF4444;">&#8722;${$f(descMonto)}</td>
-      </tr>` : ""}
-      ${conIVA ? `
-      <tr>
-        <td style="padding:3px 0;font-size:12px;color:#64748B;">IVA (16%)</td>
-        <td align="right" style="padding:3px 0;font-size:12px;color:#64748B;">${$f(iva)}</td>
-      </tr>` : ""}
-      <tr>
-        <td style="padding:10px 0 0;font-size:22px;font-weight:900;color:#4E60A9;border-top:1px solid #C5CAE0;">Total (MXN)</td>
-        <td align="right" style="padding:10px 0 0;font-size:22px;font-weight:900;color:#4E60A9;border-top:1px solid #C5CAE0;">${$f(total)}</td>
-      </tr>
-    </table>
-  </td></tr>`}
 
   <tr><td style="padding:20px 36px;border-top:1px solid #E2E8F0;">
     <p style="margin:0 0 12px;font-size:9px;color:#4E60A9;font-weight:800;text-transform:uppercase;letter-spacing:2px;">Datos de Transferencia</p>
