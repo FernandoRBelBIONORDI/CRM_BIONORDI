@@ -124,6 +124,39 @@ async function generarPDFBase64(htmlString: string): Promise<string> {
         const { jsPDF } = await import("jspdf");
         const doc = iframe.contentDocument;
         if (!doc) { cleanup(); reject(new Error("No se pudo acceder al iframe")); return; }
+        
+        // Simular page-breaks para html2canvas (ya que no los soporta nativamente)
+        const A4_HEIGHT = 1123;
+        const elementsToCheck = doc.querySelectorAll('table, [style*="page-break-before:always"], [style*="page-break-before: always"], .avoid-break');
+        
+        elementsToCheck.forEach(el => {
+          // Medir posición actual (puede haber cambiado si empujamos elementos previos)
+          const rect = el.getBoundingClientRect();
+          const isPageBreak = el.tagName === 'TABLE' || (el.getAttribute('style') || '').includes('page-break-before');
+          
+          if (isPageBreak) {
+            const currentPos = rect.top;
+            const pageNumber = Math.floor(currentPos / A4_HEIGHT);
+            const nextPagePos = (pageNumber + 1) * A4_HEIGHT + 40; // +40px de margen en nueva hoja
+            const pushAmount = nextPagePos - currentPos;
+            // Solo empujar si no está ya justo al principio de una hoja
+            if (pushAmount > 0 && (currentPos % A4_HEIGHT) > 50) {
+              const currentMargin = parseFloat(doc.defaultView?.getComputedStyle(el as Element).marginTop || "0");
+              (el as HTMLElement).style.marginTop = `${currentMargin + pushAmount}px`;
+            }
+          } else {
+            // avoid-break
+            const topPage = Math.floor(rect.top / A4_HEIGHT);
+            const bottomPage = Math.floor(rect.bottom / A4_HEIGHT);
+            if (topPage !== bottomPage) { // Si el elemento cruza entre dos páginas
+              const nextPagePos = bottomPage * A4_HEIGHT + 40;
+              const pushAmount = nextPagePos - rect.top;
+              const currentMargin = parseFloat(doc.defaultView?.getComputedStyle(el as Element).marginTop || "0");
+              (el as HTMLElement).style.marginTop = `${currentMargin + pushAmount}px`;
+            }
+          }
+        });
+
         const canvas = await html2canvas(doc.documentElement, {
           scale: 3, useCORS: true, allowTaint: true,
           width: 794, windowWidth: 794, logging: false,
