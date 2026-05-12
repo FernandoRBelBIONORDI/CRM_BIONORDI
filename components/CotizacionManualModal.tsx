@@ -694,7 +694,7 @@ export default function CotizacionManualModal({
           </div>
         </div>
       </div>
-    </div>`)
+    </div>`))
     : tipo === "venta" ? (eqFotosB64.length > 0 ? `
     <div class="tech-card avoid-break">
       <div class="card-title">Galería del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
