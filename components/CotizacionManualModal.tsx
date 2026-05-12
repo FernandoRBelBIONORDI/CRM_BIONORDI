@@ -499,6 +499,56 @@ export default function CotizacionManualModal({
     };
     const currentFeatures = getVentaFeatures(eqModelo, eqDescripcion);
 
+    const MANTENIMIENTO_FEATURES: Record<string, string[]> = {
+      "ultrasonido": [
+        "<strong>Diagnóstico General:</strong> Revisión sistemática de todos los componentes del equipo y pruebas de funcionamiento inicial.",
+        "<strong>Limpieza y Calibración:</strong> Limpieza profunda interior y exterior, ajuste de parámetros de imagen según especificaciones del fabricante.",
+        "<strong>Revisión Eléctrica:</strong> Verificación de voltajes, corrientes y sistema de tierra física. Prueba de puertos de transductores.",
+        "<strong>Reporte de Estado:</strong> Entrega de informe técnico con hallazgos y recomendaciones para mantenimiento preventivo futuro."
+      ],
+      "monitor": [
+        "<strong>Diagnóstico General:</strong> Revisión de módulos de medición (ECG, SpO2, PNI, Temp) y pruebas de alarmas visuales/auditivas.",
+        "<strong>Limpieza y Desinfección:</strong> Limpieza de carcasa, pantalla y conectores con agentes seguros para grado médico.",
+        "<strong>Revisión Eléctrica y Batería:</strong> Prueba de autonomía de la batería interna, revisión de fuente de poder y aislamiento eléctrico.",
+        "<strong>Calibración y Reporte:</strong> Verificación de parámetros con simulador de paciente y entrega de informe técnico."
+      ],
+      "anestesia": [
+        "<strong>Diagnóstico General:</strong> Inspección de circuitos neumáticos, vaporizadores y sistema de ventilación mecánica.",
+        "<strong>Pruebas de Fuga y Calibración:</strong> Verificación de hermeticidad del sistema, calibración de sensores de flujo y O2.",
+        "<strong>Revisión Eléctrica y Neumática:</strong> Inspección de electroválvulas, batería de respaldo y alarmas de seguridad.",
+        "<strong>Mantenimiento Preventivo:</strong> Reemplazo de empaques internos (si aplica) y entrega de informe técnico de operatividad."
+      ],
+      "desfibrilador": [
+        "<strong>Diagnóstico General:</strong> Revisión de circuito de descarga, palas, marcapasos y módulos de monitoreo.",
+        "<strong>Prueba de Descarga:</strong> Verificación de energía entregada real vs configurada utilizando analizador de desfibriladores.",
+        "<strong>Batería y Seguridad Eléctrica:</strong> Evaluación de vida útil de la batería, corriente de fuga y cableado paciente.",
+        "<strong>Limpieza y Reporte:</strong> Limpieza integral, calibración y emisión de informe técnico certificado."
+      ],
+      "electrocardiografo": [
+        "<strong>Diagnóstico General:</strong> Revisión de cables de paciente, impresor térmico, pantalla y botones de control.",
+        "<strong>Prueba de Señal:</strong> Validación de adquisición de señal ECG, filtros de ruido e impresión con simulador.",
+        "<strong>Mantenimiento Preventivo:</strong> Limpieza de cabezal térmico, ajuste de rodillos y revisión de fuente de alimentación.",
+        "<strong>Reporte de Estado:</strong> Entrega de informe técnico garantizando la precisión del trazado electrocardiográfico."
+      ]
+    };
+
+    const getMantenimientoFeatures = (tipo: string | undefined) => {
+      const t = (tipo || "ultrasonido").toLowerCase();
+      if (t.includes("monitor")) return MANTENIMIENTO_FEATURES["monitor"];
+      if (t.includes("anestesia") || t.includes("ventilador")) return MANTENIMIENTO_FEATURES["anestesia"];
+      if (t.includes("desfibrilador")) return MANTENIMIENTO_FEATURES["desfibrilador"];
+      if (t.includes("electro")) return MANTENIMIENTO_FEATURES["electrocardiografo"];
+      if (t.includes("ultrasonido") || t.includes("transductor")) return MANTENIMIENTO_FEATURES["ultrasonido"];
+      
+      return [
+        "<strong>Diagnóstico General:</strong> Revisión sistemática de componentes físicos, electrónicos y pruebas de encendido.",
+        "<strong>Limpieza Preventiva:</strong> Descontaminación interior y exterior, retiro de polvo y lubricación de partes móviles.",
+        "<strong>Revisión Eléctrica:</strong> Verificación de fuente de alimentación, voltajes internos y sistemas de seguridad del equipo.",
+        "<strong>Pruebas de Funcionamiento:</strong> Validación de operatividad y entrega de reporte técnico detallado."
+      ];
+    };
+    const currentMantenimiento = getMantenimientoFeatures(eqTipo);
+
     // Para reparación: párrafo de alcance específico por tipo de transductor
     const generarParrafoAlcance = (): string => {
       const nombres = validItems.map(i => i.descripcion.trim()).filter(Boolean);
@@ -582,11 +632,15 @@ export default function CotizacionManualModal({
           </div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding-top:4px;">
-          <div class="d-item"><div class="d-num">1</div><div><strong>Diagnóstico General:</strong> Revisión sistemática de todos los componentes del equipo y pruebas de funcionamiento inicial.</div></div>
-          <div class="d-item"><div class="d-num">2</div><div><strong>Limpieza y Calibración:</strong> Limpieza profunda interior y exterior, ajuste de parámetros de imagen según especificaciones del fabricante.</div></div>
-          <div class="d-item"><div class="d-num">3</div><div><strong>Revisión Eléctrica:</strong> Verificación de voltajes, corrientes y sistema de tierra física. Prueba de puertos de transductores.</div></div>
-          <div class="d-item"><div class="d-num">4</div><div><strong>Reporte de Estado:</strong> Entrega de informe técnico con hallazgos y recomendaciones para mantenimiento preventivo futuro.</div></div>
+          ${currentMantenimiento.map((feat, i) => `<div class="d-item"><div class="d-num">${i + 1}</div><div>${feat}</div></div>`).join("")}
         </div>
+      </div>
+    </div>` : (eqTipo && !eqTipo.toLowerCase().includes("ultrasonido") && !eqTipo.toLowerCase().includes("transductor") && eqTipo.toLowerCase() !== "equipo" ? `
+    <div class="tech-card avoid-break">
+      <div class="card-title">Alcance del Mantenimiento — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || eqTipo}</div>
+      <p class="diag-p">Se realiza una inspección profunda y mantenimiento preventivo especializado para asegurar el óptimo funcionamiento y la prolongación de la vida útil de la unidad.</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px;background:#F8FAFC;padding:16px;border-radius:8px;border:1px solid #E2E8F0;">
+        ${currentMantenimiento.map((feat, i) => `<div class="d-item"><div class="d-num">${i + 1}</div><div>${feat}</div></div>`).join("")}
       </div>
     </div>` : `
     <div class="tech-card avoid-break">
