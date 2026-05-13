@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
+import fs from 'fs';
+import path from 'path';
 import db from '@/lib/db';
 import { requireAuth } from '@/lib/require-auth';
 
@@ -38,6 +40,12 @@ export async function GET(req: Request) {
     const fechaIngreso = formatearFecha(orden.fecha_ingreso);
     const fechaEntrega = formatearFecha(orden.fecha_compromiso);
 
+    const logoPath = path.join(process.cwd(), 'public', 'LOGO_PRINCIPAL.png');
+    let logoB64 = '';
+    try {
+      logoB64 = 'data:image/png;base64,' + fs.readFileSync(logoPath).toString('base64');
+    } catch { /* ignore */ }
+
     const html = `
       <!DOCTYPE html>
       <html lang="es">
@@ -45,179 +53,160 @@ export async function GET(req: Request) {
         <meta charset="UTF-8" />
         <title>Orden de Servicio ${orden.folio}</title>
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-          body { font-family: 'Inter', sans-serif; font-size: 11px; color: #334155; margin: 0; padding: 0; background: #fff; line-height: 1.5; }
-          .page { padding: 40px; box-sizing: border-box; width: 100%; max-width: 800px; margin: 0 auto; position: relative; }
-          
-          /* Header Corporativo */
-          .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; border-bottom: 2px solid #4E60A9; padding-bottom: 15px; }
-          .header .logo-area { display: flex; align-items: center; gap: 10px; }
-          .header img { width: 45px; height: 45px; object-fit: contain; }
-          .header .brand { font-size: 18px; font-weight: 800; color: #1E293B; letter-spacing: -0.03em; margin: 0; line-height: 1; }
-          .header .brand span { font-size: 10px; color: #4E60A9; display: block; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
-          
-          .header .info-orden { text-align: right; }
-          .header .info-orden h1 { font-size: 20px; font-weight: 800; color: #1E293B; margin: 0 0 5px 0; letter-spacing: -0.02em; }
-          .header .info-orden .folio { font-size: 14px; font-weight: 700; color: #4E60A9; background: #EEF3FC; padding: 4px 10px; border-radius: 6px; display: inline-block; margin-bottom: 5px;}
-          .header .info-orden p { margin: 2px 0; color: #64748B; font-size: 10px; font-weight: 500; }
-
-          /* Secciones */
-          .section { margin-bottom: 25px; }
-          .section-title { font-size: 12px; font-weight: 800; color: #4E60A9; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #E2E8F0; padding-bottom: 5px; margin-bottom: 12px; }
-          
-          .grid { display: flex; flex-wrap: wrap; gap: 15px; }
-          .col { flex: 1; min-width: 45%; }
-          .col-full { flex: 0 0 100%; }
-          
-          .field { margin-bottom: 10px; }
-          .field-label { font-size: 9px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 2px; }
-          .field-value { font-size: 11px; font-weight: 600; color: #1E293B; }
-          
-          .box { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; }
-          .box.highlight { background: #EEF3FC; border-color: #CBD5E1; }
-          
-          /* Reporte Técnico */
-          .reporte-text { font-size: 11px; color: #475569; white-space: pre-wrap; margin-top: 4px; }
-          
-          /* Footer / Firmas */
-          .firmas { display: flex; justify-content: space-between; margin-top: 50px; page-break-inside: avoid; }
-          .firma-box { width: 45%; text-align: center; }
-          .firma-line { border-bottom: 1px solid #1E293B; height: 40px; margin-bottom: 8px; }
-          .firma-nombre { font-size: 11px; font-weight: 700; color: #1E293B; }
-          .firma-cargo { font-size: 9px; font-weight: 600; color: #94A3B8; }
-          
-          .page-footer { margin-top: 30px; text-align: center; border-top: 1px solid #E2E8F0; padding-top: 15px; font-size: 9px; color: #94A3B8; }
-          .page-footer strong { color: #475569; }
+          @page{margin:20mm 0 15mm 0}
+          @page:first{margin-top:0}
+          *{box-sizing:border-box;margin:0;padding:0}
+          body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#334155;background:#fff;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+          .page{padding:40px 70px;max-width:850px;margin:0 auto}
+          .avoid-break{page-break-inside:avoid}
+          .text-muted{color:#94A3B8}.b{font-weight:700}.c{text-align:center}.r{text-align:right}
+          .hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:15px}
+          .meta-box{text-align:right}
+          .doc-title{font-size:18px;font-weight:300;color:#94A3B8;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
+          .meta-grid{display:grid;grid-template-columns:auto auto;gap:4px 15px;justify-content:end;font-size:11px}
+          .meta-lbl{font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px}
+          .meta-val{color:#1E293B;font-weight:600}
+          .divider{height:4px;background:linear-gradient(90deg,#4E60A9,#38AD64,#E2E8F0);border-radius:4px;margin-bottom:15px}
+          .info-section{display:flex;gap:20px;margin-bottom:12px}
+          .info-card{flex:1;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px}
+          .card-title{font-size:10px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;border-bottom:2px solid #E2E8F0;padding-bottom:6px}
+          .i-row{display:flex;margin-bottom:5px;font-size:11px;line-height:1.4}
+          .i-lbl{width:85px;color:#64748B;font-weight:700}
+          .i-val{flex:1;color:#1E293B;font-weight:500}
+          .eq-card{background:#fff;border:1px solid #CBD5E1;border-radius:12px;padding:12px 16px;margin-bottom:12px;border-left:4px solid #4E60A9}
+          .eq-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+          .eq-item{display:flex;flex-direction:column;gap:4px}
+          .eq-lbl{font-size:9px;color:#64748B;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+          .eq-val{font-size:12px;color:#0F172A;font-weight:600}
+          .eq-full{grid-column:span 4;background:#FEF2F2;padding:8px 12px;border-radius:8px;border-left:3px solid #EF4444;margin-top:5px}
+          .tech-card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-top:12px;margin-bottom:12px}
+          .diag-p{font-size:11px;color:#475569;line-height:1.5;margin-bottom:5px}
+          .signatures{margin-top:40px;display:flex;justify-content:flex-end;page-break-inside:avoid}
+          .sig-box{text-align:center;width:240px}
+          .sig-line{border-top:2px solid #CBD5E1;margin-bottom:10px;padding-top:10px}
+          .sig-name{font-size:13px;font-weight:800;color:#4E60A9}
+          .sig-role{font-size:10px;font-weight:600;color:#64748B;text-transform:uppercase;margin-top:2px}
+          .footer{text-align:center;border-top:1px solid #E2E8F0;padding-top:15px;margin-top:30px;font-size:10px;color:#94A3B8;line-height:1.6}
+          @media print{body{padding:0}.page{padding:40px 70px}}
         </style>
       </head>
       <body>
         <div class="page">
           
-          <div class="header">
-            <div class="logo-area">
-              <img src="https://crm.bionordi.com/ISOTIPO.png" alt="Logo" onerror="this.style.display='none'" />
-              <div class="brand">
-                BIONORDI
-                <span>MEDICAL TECHNOLOGY</span>
-              </div>
+          <div class="hdr">
+            <div>
+              <img src="${logoB64}" alt="Bionordi Medical Technology" style="height:52px;width:auto;display:block;" />
             </div>
-            <div class="info-orden">
-              <h1>ORDEN DE SERVICIO</h1>
-              <div class="folio">Folio: ${orden.folio}</div>
-              <p>Fecha de Ingreso: ${fechaIngreso}</p>
-              <p>Fecha Estimada: ${fechaEntrega}</p>
+            <div class="meta-box">
+              <div class="doc-title">ORDEN DE SERVICIO</div>
+              <div class="meta-grid">
+                <div class="meta-lbl">Folio</div><div class="meta-val">${orden.folio}</div>
+                <div class="meta-lbl">F. Ingreso</div><div class="meta-val">${fechaIngreso}</div>
+                <div class="meta-lbl">F. Estimada</div><div class="meta-val">${fechaEntrega}</div>
+              </div>
             </div>
           </div>
+          <div class="divider"></div>
 
           <!-- Datos del Cliente -->
-          <div class="section">
-            <div class="section-title">Datos del Cliente e Institución</div>
-            <div class="grid box">
-              <div class="col">
-                <div class="field"><div class="field-label">Cliente / Hospital</div><div class="field-value">${clienteNombre} ${orden.datos_hospital ? `(${orden.datos_hospital})` : ''}</div></div>
-                <div class="field"><div class="field-label">Contacto / Teléfono</div><div class="field-value">${telefono}</div></div>
-              </div>
-              <div class="col">
-                <div class="field"><div class="field-label">Dirección</div><div class="field-value">${direccion}</div></div>
-                <div class="field"><div class="field-label">Correo Electrónico</div><div class="field-value">${correo}</div></div>
-              </div>
+          <div class="info-section">
+            <div class="info-card">
+              <div class="card-title">Datos del Cliente</div>
+              <div class="i-row"><div class="i-lbl">Cliente / Hosp.</div><div class="i-val">${clienteNombre} ${orden.datos_hospital ? `(${orden.datos_hospital})` : ''}</div></div>
+              <div class="i-row"><div class="i-lbl">Contacto</div><div class="i-val">${telefono}</div></div>
+              <div class="i-row"><div class="i-lbl">Dirección</div><div class="i-val">${direccion}</div></div>
+              <div class="i-row"><div class="i-lbl">Correo</div><div class="i-val">${correo}</div></div>
             </div>
           </div>
 
           <!-- Datos del Equipo -->
-          <div class="section">
-            <div class="section-title">Información del Equipo Médico</div>
-            <div class="grid box highlight">
-              <div class="col">
-                <div class="field"><div class="field-label">Tipo de Equipo</div><div class="field-value">${orden.equipo_tipo || '—'}</div></div>
-                <div class="field"><div class="field-label">Marca y Modelo</div><div class="field-value">${orden.equipo_marca || '—'} / ${orden.equipo_modelo || '—'}</div></div>
-                <div class="field"><div class="field-label">Número de Serie</div><div class="field-value">${orden.equipo_num_serie || '—'}</div></div>
-              </div>
-              <div class="col">
-                <div class="field"><div class="field-label">Versión / Área Médica</div><div class="field-value">${orden.equipo_version || '—'} / ${orden.equipo_area_medica || '—'}</div></div>
-                <div class="field"><div class="field-label">Año de Fabricación</div><div class="field-value">${orden.equipo_ano || '—'}</div></div>
-                <div class="field"><div class="field-label">Accesorios Recibidos</div><div class="field-value">${orden.accesorios_recibidos || 'Ninguno'}</div></div>
-              </div>
+          <div class="eq-card">
+            <div class="card-title" style="border:none;padding:0;margin-bottom:12px;">Especificaciones del Equipo Médico</div>
+            <div class="eq-grid">
+              <div class="eq-item"><div class="eq-lbl">Tipo</div><div class="eq-val">${orden.equipo_tipo || '—'}</div></div>
+              <div class="eq-item"><div class="eq-lbl">Marca y Modelo</div><div class="eq-val">${orden.equipo_marca || '—'} / ${orden.equipo_modelo || '—'}</div></div>
+              <div class="eq-item"><div class="eq-lbl">Número de Serie</div><div class="eq-val">${orden.equipo_num_serie || '—'}</div></div>
+              <div class="eq-item"><div class="eq-lbl">Área Médica</div><div class="eq-val">${orden.equipo_area_medica || '—'}</div></div>
+              ${orden.accesorios_recibidos ? `<div class="eq-full" style="background:#F8FAFC;border-left-color:#4E60A9;"><div class="eq-lbl">Accesorios Recibidos</div><div class="eq-val" style="margin-top:2px;">${orden.accesorios_recibidos}</div></div>` : ""}
             </div>
           </div>
 
           <!-- Reporte Técnico -->
-          <div class="section">
-            <div class="section-title">Diagnóstico y Reporte Técnico</div>
+          <div class="tech-card">
+            <div class="card-title">Diagnóstico y Reporte Técnico</div>
             
             ${orden.falla_reportada ? `
-            <div class="field">
-              <div class="field-label">Falla Reportada por el Cliente</div>
-              <div class="reporte-text">${orden.falla_reportada}</div>
-            </div><br/>` : ''}
+            <div style="margin-bottom: 12px;">
+              <div class="eq-lbl">Falla Reportada por el Cliente</div>
+              <div class="diag-p">${orden.falla_reportada}</div>
+            </div>` : ''}
             
             ${orden.diagnostico ? `
-            <div class="field">
-              <div class="field-label">Diagnóstico Técnico</div>
-              <div class="reporte-text">${orden.diagnostico}</div>
-            </div><br/>` : ''}
+            <div style="margin-bottom: 12px;">
+              <div class="eq-lbl">Diagnóstico Técnico</div>
+              <div class="diag-p">${orden.diagnostico}</div>
+            </div>` : ''}
 
             ${orden.actividades_realizadas ? `
-            <div class="field">
-              <div class="field-label">Mantenimiento y Actividades Realizadas</div>
-              <div class="reporte-text">${orden.actividades_realizadas}</div>
-            </div><br/>` : ''}
+            <div style="margin-bottom: 12px;">
+              <div class="eq-lbl">Actividades Realizadas</div>
+              <div class="diag-p">${orden.actividades_realizadas}</div>
+            </div>` : ''}
 
             ${orden.refacciones_utilizadas ? `
-            <div class="field">
-              <div class="field-label">Refacciones y Componentes Utilizados</div>
-              <div class="reporte-text">${orden.refacciones_utilizadas}</div>
-            </div><br/>` : ''}
+            <div style="margin-bottom: 12px;">
+              <div class="eq-lbl">Refacciones Utilizadas</div>
+              <div class="diag-p">${orden.refacciones_utilizadas}</div>
+            </div>` : ''}
 
             ${orden.pruebas_realizadas ? `
-            <div class="field">
-              <div class="field-label">Pruebas de Funcionamiento y Calibración</div>
-              <div class="reporte-text">${orden.pruebas_realizadas}</div>
-            </div><br/>` : ''}
+            <div style="margin-bottom: 12px;">
+              <div class="eq-lbl">Pruebas y Calibración</div>
+              <div class="diag-p">${orden.pruebas_realizadas}</div>
+            </div>` : ''}
             
             ${orden.reporte_tecnico_final ? `
-            <div class="box highlight" style="margin-top: 10px;">
-              <div class="field-label" style="color:#4E60A9;">Conclusión Técnica Final</div>
-              <div class="reporte-text" style="color:#1E293B; font-weight:600;">${orden.reporte_tecnico_final}</div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #E2E8F0;">
+              <div class="eq-lbl" style="color:#4E60A9;">Conclusión Técnica Final</div>
+              <div class="diag-p" style="color:#1E293B; font-weight:600; margin-top:4px;">${orden.reporte_tecnico_final}</div>
             </div>` : ''}
           </div>
 
           <!-- Recomendaciones y Garantía -->
-          <div class="section" style="page-break-inside: avoid;">
-            <div class="section-title">Recomendaciones y Garantía</div>
-            <div class="grid">
-              ${orden.recomendaciones ? `
-              <div class="col-full field">
-                <div class="field-label">Recomendaciones de Uso y Cuidados</div>
-                <div class="reporte-text">${orden.recomendaciones}</div>
-              </div>` : ''}
-              
-              ${orden.garantia ? `
-              <div class="col-full field" style="margin-top: 5px;">
-                <div class="field-label" style="color: #059669;">Cobertura de Garantía</div>
-                <div class="field-value" style="font-size: 12px;">${orden.garantia}</div>
-              </div>` : ''}
-            </div>
-          </div>
+          ${orden.recomendaciones || orden.garantia ? `
+          <div class="tech-card avoid-break">
+            <div class="card-title">Recomendaciones y Garantía</div>
+            ${orden.recomendaciones ? `
+            <div style="margin-bottom: ${orden.garantia ? '12px' : '0'};">
+              <div class="eq-lbl">Recomendaciones de Uso y Cuidados</div>
+              <div class="diag-p">${orden.recomendaciones}</div>
+            </div>` : ''}
+            
+            ${orden.garantia ? `
+            <div>
+              <div class="eq-lbl" style="color: #059669;">Cobertura de Garantía</div>
+              <div class="diag-p" style="font-weight: 600;">${orden.garantia}</div>
+            </div>` : ''}
+          </div>` : ''}
 
           <!-- Firmas -->
-          <div class="firmas">
-            <div class="firma-box">
-              <div class="firma-line"></div>
-              <div class="firma-nombre">${clienteNombre}</div>
-              <div class="firma-cargo">Firma de Conformidad del Cliente</div>
+          <div class="signatures">
+            <div class="sig-box" style="margin-right:40px;text-align:left;">
+              <div class="sig-line"></div>
+              <div class="sig-name">${clienteNombre}</div>
+              <div class="sig-role">Firma de Conformidad del Cliente</div>
             </div>
-            <div class="firma-box">
-              <div class="firma-line"></div>
-              <div class="firma-nombre">${orden.tecnico || 'Bionordi Medical Technology'}</div>
-              <div class="firma-cargo">Ingeniero Biomédico / Técnico Responsable</div>
+            <div class="sig-box" style="text-align:left;">
+              <div class="sig-line"></div>
+              <div class="sig-name">${orden.tecnico || 'Bionordi Medical Technology'}</div>
+              <div class="sig-role">Ingeniero Biomédico / Técnico Responsable</div>
             </div>
           </div>
 
-          <div class="page-footer">
+          <div class="footer">
             <strong>Bionordi Medical Technology</strong> | Servicio Técnico Especializado<br/>
             Este documento certifica el servicio realizado al equipo médico especificado.<br/>
-            Para dar seguimiento a esta orden visita: crm.bionordi.com/seguimiento/${orden.folio}
+            Para dar seguimiento a esta orden visita: <strong>crm.bionordi.com/seguimiento/${orden.folio}</strong>
           </div>
 
         </div>
