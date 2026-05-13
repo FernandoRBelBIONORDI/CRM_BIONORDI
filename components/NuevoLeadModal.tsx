@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { X, UserPlus, Activity } from "lucide-react";
@@ -24,6 +24,7 @@ export default function NuevoLeadModal({ onClose, onCreated }: Props) {
   const [form, setForm] = useState({
     nombre: "", telefono: "", whatsapp: "", ciudad: "", estado_republica: "",
     nicho: nichos[0], notas: "", status_crm: "nuevo", asignado_a: "",
+    correo: "", direccion: "", sitio_web: ""
   });
 
   useEffect(() => {
@@ -85,6 +86,22 @@ export default function NuevoLeadModal({ onClose, onCreated }: Props) {
               <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">WhatsApp <span className="font-normal text-gray-400 normal-case">(si es diferente)</span></label>
               <input value={form.whatsapp} onChange={set("whatsapp")} placeholder="52 55 0000 0000" className="inp w-full"/>
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Correo electrónico</label>
+              <input value={form.correo} onChange={set("correo")} type="email" placeholder="contacto@empresa.com" className="inp w-full"/>
+            </div>
+            <div>
+              <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Sitio Web</label>
+              <input value={form.sitio_web} onChange={set("sitio_web")} placeholder="www.empresa.com" className="inp w-full"/>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Dirección completa</label>
+            <input value={form.direccion} onChange={set("direccion")} placeholder="Calle, Número, Colonia..." className="inp w-full"/>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
