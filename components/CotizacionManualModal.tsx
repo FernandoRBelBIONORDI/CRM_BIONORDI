@@ -420,6 +420,203 @@ export default function CotizacionManualModal({
     setEvidencias(prev => prev.filter((_, i) => i !== idx));
   };
 
+  const VENTA_FEATURES: Record<string, string[]> = {
+    "M9": [
+      "<strong>Tecnología Premium</strong>: Ultrasonido portátil con sondas monocristal 3T, pantalla LED 16\" y SSD 128 GB. Incluye Echo Boost™, Smart OB, Smart NT y opción Stress Echo.",
+      "<strong>Sondas Monocristal 3T</strong>: Triple capa de matching que proporciona mayor sensibilidad, ancho de banda más amplio y mejor relación señal/ruido.",
+      "<strong>Echo Boost™</strong>: Procesamiento adaptativo de señal específico para imagen cardíaca, suprimiendo el ruido en las cámaras y reforzando el endocardio.",
+      "<strong>Biometría Fetal Automática</strong>: Smart OB™ y Smart NT™ realizan mediciones automáticas con un solo clic, reduciendo variabilidad entre operadores."
+    ],
+    "Z50": [
+      "<strong>Tecnología Versátil</strong>: Ultrasonido portátil todo-en-uno con pantalla de 15\", 500 GB y batería de 1.5 h. Incluye 3D/4D, iLive, Smart OB™ y Smart Face™.",
+      "<strong>3D/4D con iLive™ y Smart Face™</strong>: Captura volúmenes fetales simulando iluminación natural para obtener imágenes realistas con apariencia de piel.",
+      "<strong>Smart OB™</strong>: Detecta y mide automáticamente los parámetros de biometría fetal, calculando edad gestacional al instante.",
+      "<strong>iScape™ y Auto IMT</strong>: Genera imagen panorámica en tiempo real y realiza medición automática del espesor íntima-media carotídea."
+    ],
+    "DC-60 Exp": [
+      "<strong>Alto Desempeño</strong>: Consola de alta gama con motor de imagen X-Engine (GPU+CPU, 3–4× más rápido). Incluye 4D en tiempo real, STIC y AutoEF.",
+      "<strong>X-Engine</strong>: Integra procesamiento GPU y CPU en paralelo, acelerando de forma masiva el pipeline de imagen.",
+      "<strong>4D Real-time + STIC</strong>: Adquisición 4D en tiempo real con Smart Volume, Color 3D e iLive para evaluar detalladamente cardiopatías.",
+      "<strong>Suite Cardíaca Completa</strong>: AutoEF, Stress Echo y LVO para calcular fracción de eyección y permitir protocolos avanzados de estrés."
+    ],
+    "DC-30": [
+      "<strong>Equilibrio y Calidad</strong>: Consola de gama media con pantalla LED 15\"/17\" y batería integrada. Incluye 3D/4D, Elastografía, TDI y Contraste.",
+      "<strong>Diagnóstico Avanzado</strong>: Imagen 3D/4D en tiempo real para obstetricia y Elastografía Natural Touch que mapea la rigidez tisular.",
+      "<strong>TDI y UWN Contraste</strong>: Mide velocidad miocárdica y habilita estudios de perfusión con agente de contraste microburbuja.",
+      "<strong>FCI e iBeam™</strong>: Combinación de frecuencias y compuesto espacial multi-ángulo para reducir el ruido y homogeneizar la imagen."
+    ],
+    "M5": [
+      "<strong>Punto de Atención Rápido</strong>: Ultrasonido portátil compacto con LCD 15\" y batería de 2 horas. Modos B, M, Color, Power y Doppler Pulsado.",
+      "<strong>iTouch</strong>: Optimización automática de imagen (ganancia y parámetros) con un solo toque para agilizar estudios en urgencias.",
+      "<strong>Alta Portabilidad</strong>: Peso ligero de 4.5 kg y diseño reforzado, ideal para acompañar en rondas hospitalarias intensivas.",
+      "<strong>Compatibilidad de Sondas</strong>: Acepta transductores convex abdominal, lineal vascular, phased array cardíaco y endocavitario."
+    ],
+    "M7": [
+      "<strong>Diagnóstico a Bordo</strong>: Portátil a color con LCD 15\", HDD 320 GB y batería de 1.5 h. Incluye iNeedle™, TDI, 4D y Auto IMT.",
+      "<strong>iNeedle™</strong>: Realce avanzado de la aguja en procedimientos guiados, amplificando los ecos de retorno para máxima visibilidad.",
+      "<strong>Tissue Doppler Imaging (TDI)</strong>: Paquete completo para medir velocidad de movimiento miocárdico y evaluar función diastólica.",
+      "<strong>iBeam™ + THI + PSH</strong>: Compuesto espacial y armónicas para entregar una imagen de alta definición incluso en pacientes difíciles."
+    ],
+    "MX7": [
+      "<strong>Innovación Ultrafina</strong>: Ultrasonido de 44 mm de grosor y 3 kg, con plataforma ZST+, panel principal 15.6\", panel táctil 12.3\" y U-Bank.",
+      "<strong>ZST+ (Zone Sonography)</strong>: Plataforma de beamforming virtual que transmite zonas completas, logrando tasas de cuadros ultrarrápidas.",
+      "<strong>HD Scope™</strong>: Mejora extrema de la resolución de contraste y la definición de bordes tisulares en partes pequeñas y cardíaco.",
+      "<strong>Batería U-Bank</strong>: Autonomía de hasta 8 horas de escaneo continuo para cubrir guardias sin interrupción."
+    ],
+    "DP-50 Exp": [
+      "<strong>Escencial y Confiable</strong>: Consola portátil B/W con pantalla LCD 15\", batería > 2 h. Incluye THI, iBeam™, iClear™ e iScape™.",
+      "<strong>THI + TSI</strong>: Armónica tisular que elimina reverberaciones y ajusta el procesamiento según el órgano específico a explorar.",
+      "<strong>Compuesto Espacial iBeam™</strong>: Elimina sombras acústicas y reduce el moteado sin comprometer la nitidez de los bordes anatómicos.",
+      "<strong>Productividad</strong>: Mediciones Auto IMT, imagen panorámica y gestión integrada de estudios con iStation™."
+    ]
+  };
+
+  const getVentaFeatures = (modelo: string | undefined, desc: string | undefined) => {
+    if (!modelo) return desc ? [desc] : ["Excelente equipo médico con altos estándares de calidad y precisión diagnóstica."];
+    const foundKey = Object.keys(VENTA_FEATURES).find(k => modelo.toLowerCase().includes(k.toLowerCase()));
+    if (foundKey) return VENTA_FEATURES[foundKey];
+    return desc ? [desc] : ["Excelente equipo médico con altos estándares de calidad y precisión diagnóstica."];
+  };
+  const currentFeatures = getVentaFeatures(eqModelo, eqDescripcion);
+
+  const MANTENIMIENTO_FEATURES: Record<string, string[]> = {
+    "ultrasonido": [
+      "<strong>Diagnóstico General:</strong> Revisión sistemática de todos los componentes del equipo y pruebas de funcionamiento inicial.",
+      "<strong>Limpieza y Calibración:</strong> Limpieza profunda interior y exterior, ajuste de parámetros de imagen según especificaciones del fabricante.",
+      "<strong>Revisión Eléctrica:</strong> Verificación de voltajes, corrientes y sistema de tierra física. Prueba de puertos de transductores.",
+      "<strong>Reporte de Estado:</strong> Entrega de informe técnico con hallazgos y recomendaciones para mantenimiento preventivo futuro."
+    ],
+    "monitor": [
+      "<strong>Diagnóstico General:</strong> Revisión de módulos de medición (ECG, SpO2, PNI, Temp) y pruebas de alarmas visuales/auditivas.",
+      "<strong>Limpieza y Desinfección:</strong> Limpieza de carcasa, pantalla y conectores con agentes seguros para grado médico.",
+      "<strong>Revisión Eléctrica y Batería:</strong> Prueba de autonomía de la batería interna, revisión de fuente de poder y aislamiento eléctrico.",
+      "<strong>Calibración y Reporte:</strong> Verificación de parámetros con simulador de paciente y entrega de informe técnico."
+    ],
+    "anestesia": [
+      "<strong>Diagnóstico General:</strong> Inspección de circuitos neumáticos, vaporizadores y sistema de ventilación mecánica.",
+      "<strong>Pruebas de Fuga y Calibración:</strong> Verificación de hermeticidad del sistema, calibración de sensores de flujo y O2.",
+      "<strong>Revisión Eléctrica y Neumática:</strong> Inspección de electroválvulas, batería de respaldo y alarmas de seguridad.",
+      "<strong>Mantenimiento Preventivo:</strong> Reemplazo de empaques internos (si aplica) y entrega de informe técnico de operatividad."
+    ],
+    "desfibrilador": [
+      "<strong>Diagnóstico General:</strong> Revisión de circuito de descarga, palas, marcapasos y módulos de monitoreo.",
+      "<strong>Prueba de Descarga:</strong> Verificación de energía entregada real vs configurada utilizando analizador de desfibriladores.",
+      "<strong>Batería y Seguridad Eléctrica:</strong> Evaluación de vida útil de la batería, corriente de fuga y cableado paciente.",
+      "<strong>Limpieza y Reporte:</strong> Limpieza integral, calibración y emisión de informe técnico certificado."
+    ],
+    "electrocardiografo": [
+      "<strong>Diagnóstico General:</strong> Revisión de cables de paciente, impresor térmico, pantalla y botones de control.",
+      "<strong>Prueba de Señal:</strong> Validación de adquisición de señal ECG, filtros de ruido e impresión con simulador.",
+      "<strong>Mantenimiento Preventivo:</strong> Limpieza de cabezal térmico, ajuste de rodillos y revisión de fuente de alimentación.",
+      "<strong>Reporte de Estado:</strong> Entrega de informe técnico garantizando la precisión del trazado electrocardiográfico."
+    ]
+  };
+
+  const getMantenimientoFeatures = (tipo: string | undefined) => {
+    const t = (tipo || "ultrasonido").toLowerCase();
+    if (t.includes("monitor")) return MANTENIMIENTO_FEATURES["monitor"];
+    if (t.includes("anestesia") || t.includes("ventilador")) return MANTENIMIENTO_FEATURES["anestesia"];
+    if (t.includes("desfibrilador")) return MANTENIMIENTO_FEATURES["desfibrilador"];
+    if (t.includes("electro")) return MANTENIMIENTO_FEATURES["electrocardiografo"];
+    if (t.includes("ultrasonido") || t.includes("transductor")) return MANTENIMIENTO_FEATURES["ultrasonido"];
+    
+    return [
+      "<strong>Diagnóstico General:</strong> Revisión sistemática de componentes físicos, electrónicos y pruebas de encendido.",
+      "<strong>Limpieza Preventiva:</strong> Descontaminación interior y exterior, retiro de polvo y lubricación de partes móviles.",
+      "<strong>Revisión Eléctrica:</strong> Verificación de fuente de alimentación, voltajes internos y sistemas de seguridad del equipo.",
+      "<strong>Pruebas de Funcionamiento:</strong> Validación de operatividad y entrega de reporte técnico detallado."
+    ];
+  };
+  const currentMantenimiento = getMantenimientoFeatures(eqTipo);
+
+  const generarParrafoAlcance = (): string => {
+    const nombres = validItems.map(i => i.descripcion.trim()).filter(Boolean);
+    if (nombres.length === 0) return "";
+    const equipoRef = [eqMarca, eqModelo].filter(Boolean).join(" ") || "el transductor";
+    const listaTexto = nombres.length === 1
+      ? nombres[0].toLowerCase()
+      : nombres.slice(0, -1).map(n => n.toLowerCase()).join(", ") + " y " + nombres[nombres.length - 1].toLowerCase();
+    const falla = eqFalla ? ` La falla reportada («${eqFalla}») ha sido evaluada y el plan de intervención contempla su resolución integral.` : "";
+    let especifico = "";
+    switch (eqTipo) {
+      case "Lineal":
+        especifico = "El transductor lineal opera en rangos de alta frecuencia (5–18 MHz), diseñado para aplicaciones vasculares, musculoesqueléticas y de tejidos superficiales. La intervención técnica contempla el reacondicionamiento del arreglo de cristales piezoeléctricos en geometría lineal, asegurando la uniformidad del haz acústico y la resolución axial óptima en toda la apertura activa del transductor.";
+        break;
+      case "Convex / Curvilíneo":
+        especifico = "El transductor convex opera en rangos de frecuencia media-baja (2–6 MHz), ampliamente utilizado en estudios abdominales, obstétricos y pélvicos. La intervención técnica contempla el reacondicionamiento del arreglo curvilíneo de cristales, preservando la geometría del sector de imagen y garantizando la uniformidad del campo acústico en todo el rango de profundidad de exploración.";
+        break;
+      case "Sectorial / Phased Array":
+        especifico = "El transductor sectorial phased array opera mediante un arreglo de alta densidad de elementos de pequeña huella, diseñado para la visualización de estructuras cardiacas profundas entre espacios intercostales. La intervención incluye calibración del desfase electrónico entre canales, restauración del arreglo piezoeléctrico y verificación de la integridad del cableado coaxial multi-conductor de alta precisión.";
+        break;
+      case "Intracavitario / Endovaginal":
+        especifico = "El transductor intracavitario requiere un estándar técnico y sanitario de alta exigencia por su uso en cavidades corporales. La intervención incluye verificación rigurosa de la hermeticidad del cuerpo del transductor, restitución del material acústico del lente distal, pruebas de aislamiento eléctrico conforme a normas de seguridad para dispositivos de contacto directo con mucosas, y validación de la integridad del cable en toda su longitud.";
+        break;
+      case "TEE (Transesofágico)":
+        especifico = "El transductor transesofágico (TEE) es un instrumento de alta complejidad clínica y técnica, utilizado en ecocardiografía intraoperatoria y en unidades de cuidados intensivos. La intervención abarca la revisión del mecanismo de articulación multiplanar distal, restitución del encapsulado de la cabeza con materiales biocompatibles, verificación del arreglo matricial de cristales y pruebas de aislamiento eléctrico conforme a la normativa IEC 60601-2-37 para transductores de contacto esofágico.";
+        break;
+      case "3D/4D":
+        especifico = "El transductor 3D/4D incorpora un arreglo matricial de cristales que permite la adquisición volumétrica de imágenes en tiempo real mediante barrido electrónico o mecánico interno. La intervención técnica contempla la revisión del sistema de barrido, restitución del polímero acústico del lente volumétrico, verificación de la sincronía electrónica entre planos de adquisición y calibración del sistema de procesamiento de señal tridimensional.";
+        break;
+      case "Microconvex":
+        especifico = "El transductor microconvex combina una huella de contacto reducida con un amplio campo de visión sectorial, siendo la elección preferida en neonatología, pediatría y aplicaciones cardiacas de ventana acústica restringida. La intervención contempla el reacondicionamiento del arreglo curvilíneo de pequeño radio, con especial atención a la delicadeza mecánica del ensamble de cristales y la integridad del sellado hermético del lente acústico.";
+        break;
+      default:
+        especifico = "El equipo ha sido evaluado mediante protocolos de diagnóstico automatizado que incluyen pruebas de pulso-eco, medición de capacitancia por canal y análisis de uniformidad del campo acústico, determinando con precisión el alcance de la intervención técnica necesaria para restablecer el rendimiento óptimo del transductor.";
+    }
+    return `El presente presupuesto comprende la realización de los siguientes trabajos sobre ${equipoRef}: ${listaTexto}.${falla} ${especifico} El servicio incluye mano de obra especializada, refacciones y materiales necesarios, pruebas de funcionamiento conforme a protocolos técnicos establecidos, y garantía escrita de 12 meses sobre la intervención realizada.`;
+  };
+
+  const getPropuestaInfo = () => {
+    const nombres = validItems.map(i => i.descripcion.trim()).filter(Boolean);
+    const listaTexto = nombres.length === 0 ? "los servicios/insumos solicitados"
+      : nombres.length === 1 ? nombres[0].toLowerCase()
+      : nombres.slice(0, -1).map(n => n.toLowerCase()).join(", ") + " y " + nombres[nombres.length - 1].toLowerCase();
+      
+    const equipoRef = [eqMarca, eqModelo].filter(Boolean).join(" ");
+    const sobreEquipo = equipoRef ? ` sobre el equipo ${equipoRef}` : "";
+    
+    let titulo = "";
+    let subtituloTotal = "";
+    let parrafoPDF = "";
+    let parrafoEmail = "";
+    
+    if (tipo === "reparacion") {
+      titulo = "Propuesta Técnica de Servicio";
+      subtituloTotal = "Incluye materiales, mano de obra y garantía de 12 meses";
+      parrafoPDF = generarParrafoAlcance();
+      const falla = eqFalla ? ` La falla reportada («${eqFalla}») será atendida de manera integral.` : "";
+      parrafoEmail = `Nos complace presentarle la siguiente propuesta técnica para la realización de: ${listaTexto}${sobreEquipo}.${falla} El servicio comprende diagnóstico técnico, mano de obra calificada y refacciones, con garantía escrita de 12 meses. El detalle completo se encuentra en el documento adjunto.`;
+    } 
+    else if (tipo === "mantenimiento") {
+      titulo = "Propuesta Técnica de Mantenimiento";
+      subtituloTotal = "Incluye refacciones preventivas, mano de obra y reporte técnico";
+      const cleanFeatures = currentMantenimiento.map(f => {
+        let txt = f.replace(/<strong>.*?<\/strong>:\s*/g, '');
+        return txt.charAt(0).toLowerCase() + txt.slice(1);
+      }).join(' ');
+      parrafoPDF = `El presente presupuesto comprende la realización del mantenimiento preventivo integral: ${listaTexto}${sobreEquipo}. El alcance del servicio incluye: ${cleanFeatures} El servicio se realiza bajo estrictos estándares de calidad, incluyendo pruebas de seguridad eléctrica y entrega de un reporte técnico detallado conforme a la normativa vigente.`;
+      parrafoEmail = `Nos complace presentarle la propuesta para el mantenimiento preventivo de: ${listaTexto}${sobreEquipo}. El servicio garantiza el óptimo funcionamiento de su unidad clínica. El detalle completo de la intervención y condiciones comerciales se encuentra en el documento adjunto.`;
+    }
+    else if (tipo === "venta") {
+      titulo = "Propuesta Comercial";
+      subtituloTotal = "Incluye garantía directa y soporte técnico especializado";
+      const cleanFeatures = currentFeatures.map(f => {
+        let txt = f.replace(/<strong>.*?<\/strong>:\s*/g, '');
+        if (!txt.endsWith('.')) txt += '.';
+        return txt;
+      }).join(' ');
+      parrafoPDF = `La presente propuesta comercial contempla el suministro de: ${listaTexto}. ${cleanFeatures} El equipo incluye garantía directa contra defectos de fábrica, soporte técnico especializado y capacitación operativa para asegurar su óptimo aprovechamiento en el entorno clínico.`;
+      parrafoEmail = `Nos complace presentarle nuestra propuesta comercial para el suministro de: ${listaTexto}. Estamos seguros de que nuestra tecnología cumplirá con sus más altas exigencias clínicas. Los detalles, precio final y especificaciones se encuentran en el documento adjunto.`;
+    }
+    else {
+      titulo = "Propuesta Comercial";
+      subtituloTotal = "Precios sujetos a disponibilidad de inventario";
+      parrafoPDF = `La presente cotización comprende el suministro de: ${listaTexto}. Todos nuestros consumibles e insumos médicos cumplen con los más altos estándares de calidad y caducidad vigente, garantizando un desempeño óptimo en su uso clínico.`;
+      parrafoEmail = `Nos complace presentarle la cotización correspondiente al suministro de consumibles médicos: ${listaTexto}. El detalle completo de la inversión se encuentra en el documento adjunto.`;
+    }
+    return { titulo, subtituloTotal, parrafoPDF, parrafoEmail };
+  };
+
   const buildPDFHtml = async (folioOverride?: string): Promise<{ html: string; folio: string }> => {
     let imgTransductor = "/transductor.png";
     let imgFront       = "/equipo_movil_front.png";
@@ -452,203 +649,6 @@ export default function CotizacionManualModal({
 
     const logoB64 = await fetchBase64("/LOGO_PRINCIPAL.png");
 
-    const VENTA_FEATURES: Record<string, string[]> = {
-      "M9": [
-        "<strong>Tecnología Premium</strong>: Ultrasonido portátil con sondas monocristal 3T, pantalla LED 16\" y SSD 128 GB. Incluye Echo Boost™, Smart OB, Smart NT y opción Stress Echo.",
-        "<strong>Sondas Monocristal 3T</strong>: Triple capa de matching que proporciona mayor sensibilidad, ancho de banda más amplio y mejor relación señal/ruido.",
-        "<strong>Echo Boost™</strong>: Procesamiento adaptativo de señal específico para imagen cardíaca, suprimiendo el ruido en las cámaras y reforzando el endocardio.",
-        "<strong>Biometría Fetal Automática</strong>: Smart OB™ y Smart NT™ realizan mediciones automáticas con un solo clic, reduciendo variabilidad entre operadores."
-      ],
-      "Z50": [
-        "<strong>Tecnología Versátil</strong>: Ultrasonido portátil todo-en-uno con pantalla de 15\", 500 GB y batería de 1.5 h. Incluye 3D/4D, iLive, Smart OB™ y Smart Face™.",
-        "<strong>3D/4D con iLive™ y Smart Face™</strong>: Captura volúmenes fetales simulando iluminación natural para obtener imágenes realistas con apariencia de piel.",
-        "<strong>Smart OB™</strong>: Detecta y mide automáticamente los parámetros de biometría fetal, calculando edad gestacional al instante.",
-        "<strong>iScape™ y Auto IMT</strong>: Genera imagen panorámica en tiempo real y realiza medición automática del espesor íntima-media carotídea."
-      ],
-      "DC-60 Exp": [
-        "<strong>Alto Desempeño</strong>: Consola de alta gama con motor de imagen X-Engine (GPU+CPU, 3–4× más rápido). Incluye 4D en tiempo real, STIC y AutoEF.",
-        "<strong>X-Engine</strong>: Integra procesamiento GPU y CPU en paralelo, acelerando de forma masiva el pipeline de imagen.",
-        "<strong>4D Real-time + STIC</strong>: Adquisición 4D en tiempo real con Smart Volume, Color 3D e iLive para evaluar detalladamente cardiopatías.",
-        "<strong>Suite Cardíaca Completa</strong>: AutoEF, Stress Echo y LVO para calcular fracción de eyección y permitir protocolos avanzados de estrés."
-      ],
-      "DC-30": [
-        "<strong>Equilibrio y Calidad</strong>: Consola de gama media con pantalla LED 15\"/17\" y batería integrada. Incluye 3D/4D, Elastografía, TDI y Contraste.",
-        "<strong>Diagnóstico Avanzado</strong>: Imagen 3D/4D en tiempo real para obstetricia y Elastografía Natural Touch que mapea la rigidez tisular.",
-        "<strong>TDI y UWN Contraste</strong>: Mide velocidad miocárdica y habilita estudios de perfusión con agente de contraste microburbuja.",
-        "<strong>FCI e iBeam™</strong>: Combinación de frecuencias y compuesto espacial multi-ángulo para reducir el ruido y homogeneizar la imagen."
-      ],
-      "M5": [
-        "<strong>Punto de Atención Rápido</strong>: Ultrasonido portátil compacto con LCD 15\" y batería de 2 horas. Modos B, M, Color, Power y Doppler Pulsado.",
-        "<strong>iTouch</strong>: Optimización automática de imagen (ganancia y parámetros) con un solo toque para agilizar estudios en urgencias.",
-        "<strong>Alta Portabilidad</strong>: Peso ligero de 4.5 kg y diseño reforzado, ideal para acompañar en rondas hospitalarias intensivas.",
-        "<strong>Compatibilidad de Sondas</strong>: Acepta transductores convex abdominal, lineal vascular, phased array cardíaco y endocavitario."
-      ],
-      "M7": [
-        "<strong>Diagnóstico a Bordo</strong>: Portátil a color con LCD 15\", HDD 320 GB y batería de 1.5 h. Incluye iNeedle™, TDI, 4D y Auto IMT.",
-        "<strong>iNeedle™</strong>: Realce avanzado de la aguja en procedimientos guiados, amplificando los ecos de retorno para máxima visibilidad.",
-        "<strong>Tissue Doppler Imaging (TDI)</strong>: Paquete completo para medir velocidad de movimiento miocárdico y evaluar función diastólica.",
-        "<strong>iBeam™ + THI + PSH</strong>: Compuesto espacial y armónicas para entregar una imagen de alta definición incluso en pacientes difíciles."
-      ],
-      "MX7": [
-        "<strong>Innovación Ultrafina</strong>: Ultrasonido de 44 mm de grosor y 3 kg, con plataforma ZST+, panel principal 15.6\", panel táctil 12.3\" y U-Bank.",
-        "<strong>ZST+ (Zone Sonography)</strong>: Plataforma de beamforming virtual que transmite zonas completas, logrando tasas de cuadros ultrarrápidas.",
-        "<strong>HD Scope™</strong>: Mejora extrema de la resolución de contraste y la definición de bordes tisulares en partes pequeñas y cardíaco.",
-        "<strong>Batería U-Bank</strong>: Autonomía de hasta 8 horas de escaneo continuo para cubrir guardias sin interrupción."
-      ],
-      "DP-50 Exp": [
-        "<strong>Escencial y Confiable</strong>: Consola portátil B/W con pantalla LCD 15\", batería > 2 h. Incluye THI, iBeam™, iClear™ e iScape™.",
-        "<strong>THI + TSI</strong>: Armónica tisular que elimina reverberaciones y ajusta el procesamiento según el órgano específico a explorar.",
-        "<strong>Compuesto Espacial iBeam™</strong>: Elimina sombras acústicas y reduce el moteado sin comprometer la nitidez de los bordes anatómicos.",
-        "<strong>Productividad</strong>: Mediciones Auto IMT, imagen panorámica y gestión integrada de estudios con iStation™."
-      ]
-    };
-
-    const getVentaFeatures = (modelo: string | undefined, desc: string | undefined) => {
-      if (!modelo) return desc ? [desc] : ["Excelente equipo médico con altos estándares de calidad y precisión diagnóstica."];
-      const foundKey = Object.keys(VENTA_FEATURES).find(k => modelo.toLowerCase().includes(k.toLowerCase()));
-      if (foundKey) return VENTA_FEATURES[foundKey];
-      return desc ? [desc] : ["Excelente equipo médico con altos estándares de calidad y precisión diagnóstica."];
-    };
-    const currentFeatures = getVentaFeatures(eqModelo, eqDescripcion);
-
-    const MANTENIMIENTO_FEATURES: Record<string, string[]> = {
-      "ultrasonido": [
-        "<strong>Diagnóstico General:</strong> Revisión sistemática de todos los componentes del equipo y pruebas de funcionamiento inicial.",
-        "<strong>Limpieza y Calibración:</strong> Limpieza profunda interior y exterior, ajuste de parámetros de imagen según especificaciones del fabricante.",
-        "<strong>Revisión Eléctrica:</strong> Verificación de voltajes, corrientes y sistema de tierra física. Prueba de puertos de transductores.",
-        "<strong>Reporte de Estado:</strong> Entrega de informe técnico con hallazgos y recomendaciones para mantenimiento preventivo futuro."
-      ],
-      "monitor": [
-        "<strong>Diagnóstico General:</strong> Revisión de módulos de medición (ECG, SpO2, PNI, Temp) y pruebas de alarmas visuales/auditivas.",
-        "<strong>Limpieza y Desinfección:</strong> Limpieza de carcasa, pantalla y conectores con agentes seguros para grado médico.",
-        "<strong>Revisión Eléctrica y Batería:</strong> Prueba de autonomía de la batería interna, revisión de fuente de poder y aislamiento eléctrico.",
-        "<strong>Calibración y Reporte:</strong> Verificación de parámetros con simulador de paciente y entrega de informe técnico."
-      ],
-      "anestesia": [
-        "<strong>Diagnóstico General:</strong> Inspección de circuitos neumáticos, vaporizadores y sistema de ventilación mecánica.",
-        "<strong>Pruebas de Fuga y Calibración:</strong> Verificación de hermeticidad del sistema, calibración de sensores de flujo y O2.",
-        "<strong>Revisión Eléctrica y Neumática:</strong> Inspección de electroválvulas, batería de respaldo y alarmas de seguridad.",
-        "<strong>Mantenimiento Preventivo:</strong> Reemplazo de empaques internos (si aplica) y entrega de informe técnico de operatividad."
-      ],
-      "desfibrilador": [
-        "<strong>Diagnóstico General:</strong> Revisión de circuito de descarga, palas, marcapasos y módulos de monitoreo.",
-        "<strong>Prueba de Descarga:</strong> Verificación de energía entregada real vs configurada utilizando analizador de desfibriladores.",
-        "<strong>Batería y Seguridad Eléctrica:</strong> Evaluación de vida útil de la batería, corriente de fuga y cableado paciente.",
-        "<strong>Limpieza y Reporte:</strong> Limpieza integral, calibración y emisión de informe técnico certificado."
-      ],
-      "electrocardiografo": [
-        "<strong>Diagnóstico General:</strong> Revisión de cables de paciente, impresor térmico, pantalla y botones de control.",
-        "<strong>Prueba de Señal:</strong> Validación de adquisición de señal ECG, filtros de ruido e impresión con simulador.",
-        "<strong>Mantenimiento Preventivo:</strong> Limpieza de cabezal térmico, ajuste de rodillos y revisión de fuente de alimentación.",
-        "<strong>Reporte de Estado:</strong> Entrega de informe técnico garantizando la precisión del trazado electrocardiográfico."
-      ]
-    };
-
-    const getMantenimientoFeatures = (tipo: string | undefined) => {
-      const t = (tipo || "ultrasonido").toLowerCase();
-      if (t.includes("monitor")) return MANTENIMIENTO_FEATURES["monitor"];
-      if (t.includes("anestesia") || t.includes("ventilador")) return MANTENIMIENTO_FEATURES["anestesia"];
-      if (t.includes("desfibrilador")) return MANTENIMIENTO_FEATURES["desfibrilador"];
-      if (t.includes("electro")) return MANTENIMIENTO_FEATURES["electrocardiografo"];
-      if (t.includes("ultrasonido") || t.includes("transductor")) return MANTENIMIENTO_FEATURES["ultrasonido"];
-      
-      return [
-        "<strong>Diagnóstico General:</strong> Revisión sistemática de componentes físicos, electrónicos y pruebas de encendido.",
-        "<strong>Limpieza Preventiva:</strong> Descontaminación interior y exterior, retiro de polvo y lubricación de partes móviles.",
-        "<strong>Revisión Eléctrica:</strong> Verificación de fuente de alimentación, voltajes internos y sistemas de seguridad del equipo.",
-        "<strong>Pruebas de Funcionamiento:</strong> Validación de operatividad y entrega de reporte técnico detallado."
-      ];
-    };
-    const currentMantenimiento = getMantenimientoFeatures(eqTipo);
-
-    // Para reparación: párrafo de alcance específico por tipo de transductor
-    const generarParrafoAlcance = (): string => {
-      const nombres = validItems.map(i => i.descripcion.trim()).filter(Boolean);
-      if (nombres.length === 0) return "";
-      const equipoRef = [eqMarca, eqModelo].filter(Boolean).join(" ") || "el transductor";
-      const listaTexto = nombres.length === 1
-        ? nombres[0].toLowerCase()
-        : nombres.slice(0, -1).map(n => n.toLowerCase()).join(", ") + " y " + nombres[nombres.length - 1].toLowerCase();
-      const falla = eqFalla ? ` La falla reportada («${eqFalla}») ha sido evaluada y el plan de intervención contempla su resolución integral.` : "";
-      let especifico = "";
-      switch (eqTipo) {
-        case "Lineal":
-          especifico = "El transductor lineal opera en rangos de alta frecuencia (5–18 MHz), diseñado para aplicaciones vasculares, musculoesqueléticas y de tejidos superficiales. La intervención técnica contempla el reacondicionamiento del arreglo de cristales piezoeléctricos en geometría lineal, asegurando la uniformidad del haz acústico y la resolución axial óptima en toda la apertura activa del transductor.";
-          break;
-        case "Convex / Curvilíneo":
-          especifico = "El transductor convex opera en rangos de frecuencia media-baja (2–6 MHz), ampliamente utilizado en estudios abdominales, obstétricos y pélvicos. La intervención técnica contempla el reacondicionamiento del arreglo curvilíneo de cristales, preservando la geometría del sector de imagen y garantizando la uniformidad del campo acústico en todo el rango de profundidad de exploración.";
-          break;
-        case "Sectorial / Phased Array":
-          especifico = "El transductor sectorial phased array opera mediante un arreglo de alta densidad de elementos de pequeña huella, diseñado para la visualización de estructuras cardiacas profundas entre espacios intercostales. La intervención incluye calibración del desfase electrónico entre canales, restauración del arreglo piezoeléctrico y verificación de la integridad del cableado coaxial multi-conductor de alta precisión.";
-          break;
-        case "Intracavitario / Endovaginal":
-          especifico = "El transductor intracavitario requiere un estándar técnico y sanitario de alta exigencia por su uso en cavidades corporales. La intervención incluye verificación rigurosa de la hermeticidad del cuerpo del transductor, restitución del material acústico del lente distal, pruebas de aislamiento eléctrico conforme a normas de seguridad para dispositivos de contacto directo con mucosas, y validación de la integridad del cable en toda su longitud.";
-          break;
-        case "TEE (Transesofágico)":
-          especifico = "El transductor transesofágico (TEE) es un instrumento de alta complejidad clínica y técnica, utilizado en ecocardiografía intraoperatoria y en unidades de cuidados intensivos. La intervención abarca la revisión del mecanismo de articulación multiplanar distal, restitución del encapsulado de la cabeza con materiales biocompatibles, verificación del arreglo matricial de cristales y pruebas de aislamiento eléctrico conforme a la normativa IEC 60601-2-37 para transductores de contacto esofágico.";
-          break;
-        case "3D/4D":
-          especifico = "El transductor 3D/4D incorpora un arreglo matricial de cristales que permite la adquisición volumétrica de imágenes en tiempo real mediante barrido electrónico o mecánico interno. La intervención técnica contempla la revisión del sistema de barrido, restitución del polímero acústico del lente volumétrico, verificación de la sincronía electrónica entre planos de adquisición y calibración del sistema de procesamiento de señal tridimensional.";
-          break;
-        case "Microconvex":
-          especifico = "El transductor microconvex combina una huella de contacto reducida con un amplio campo de visión sectorial, siendo la elección preferida en neonatología, pediatría y aplicaciones cardiacas de ventana acústica restringida. La intervención contempla el reacondicionamiento del arreglo curvilíneo de pequeño radio, con especial atención a la delicadeza mecánica del ensamble de cristales y la integridad del sellado hermético del lente acústico.";
-          break;
-        default:
-          especifico = "El equipo ha sido evaluado mediante protocolos de diagnóstico automatizado que incluyen pruebas de pulso-eco, medición de capacitancia por canal y análisis de uniformidad del campo acústico, determinando con precisión el alcance de la intervención técnica necesaria para restablecer el rendimiento óptimo del transductor.";
-      }
-      return `El presente presupuesto comprende la realización de los siguientes trabajos sobre ${equipoRef}: ${listaTexto}.${falla} ${especifico} El servicio incluye mano de obra especializada, refacciones y materiales necesarios, pruebas de funcionamiento conforme a protocolos técnicos establecidos, y garantía escrita de 12 meses sobre la intervención realizada.`;
-    };
-
-    const getPropuestaInfo = () => {
-      const nombres = validItems.map(i => i.descripcion.trim()).filter(Boolean);
-      const listaTexto = nombres.length === 0 ? "los servicios/insumos solicitados"
-        : nombres.length === 1 ? nombres[0].toLowerCase()
-        : nombres.slice(0, -1).map(n => n.toLowerCase()).join(", ") + " y " + nombres[nombres.length - 1].toLowerCase();
-        
-      const equipoRef = [eqMarca, eqModelo].filter(Boolean).join(" ");
-      const sobreEquipo = equipoRef ? ` sobre el equipo ${equipoRef}` : "";
-      
-      let titulo = "";
-      let subtituloTotal = "";
-      let parrafoPDF = "";
-      let parrafoEmail = "";
-      
-      if (tipo === "reparacion") {
-        titulo = "Propuesta Técnica de Servicio";
-        subtituloTotal = "Incluye materiales, mano de obra y garantía de 12 meses";
-        parrafoPDF = generarParrafoAlcance();
-        const falla = eqFalla ? ` La falla reportada («${eqFalla}») será atendida de manera integral.` : "";
-        parrafoEmail = `Nos complace presentarle la siguiente propuesta técnica para la realización de: ${listaTexto}${sobreEquipo}.${falla} El servicio comprende diagnóstico técnico, mano de obra calificada y refacciones, con garantía escrita de 12 meses. El detalle completo se encuentra en el documento adjunto.`;
-      } 
-      else if (tipo === "mantenimiento") {
-        titulo = "Propuesta Técnica de Mantenimiento";
-        subtituloTotal = "Incluye refacciones preventivas, mano de obra y reporte técnico";
-        const cleanFeatures = currentMantenimiento.map(f => {
-          let txt = f.replace(/<strong>.*?<\/strong>:\s*/g, '');
-          return txt.charAt(0).toLowerCase() + txt.slice(1);
-        }).join(' ');
-        parrafoPDF = `El presente presupuesto comprende la realización del mantenimiento preventivo integral: ${listaTexto}${sobreEquipo}. El alcance del servicio incluye: ${cleanFeatures} El servicio se realiza bajo estrictos estándares de calidad, incluyendo pruebas de seguridad eléctrica y entrega de un reporte técnico detallado conforme a la normativa vigente.`;
-        parrafoEmail = `Nos complace presentarle la propuesta para el mantenimiento preventivo de: ${listaTexto}${sobreEquipo}. El servicio garantiza el óptimo funcionamiento de su unidad clínica. El detalle completo de la intervención y condiciones comerciales se encuentra en el documento adjunto.`;
-      }
-      else if (tipo === "venta") {
-        titulo = "Propuesta Comercial";
-        subtituloTotal = "Incluye garantía directa y soporte técnico especializado";
-        const cleanFeatures = currentFeatures.map(f => {
-          let txt = f.replace(/<strong>.*?<\/strong>:\s*/g, '');
-          if (!txt.endsWith('.')) txt += '.';
-          return txt;
-        }).join(' ');
-        parrafoPDF = `La presente propuesta comercial contempla el suministro de: ${listaTexto}. ${cleanFeatures} El equipo incluye garantía directa contra defectos de fábrica, soporte técnico especializado y capacitación operativa para asegurar su óptimo aprovechamiento en el entorno clínico.`;
-        parrafoEmail = `Nos complace presentarle nuestra propuesta comercial para el suministro de: ${listaTexto}. Estamos seguros de que nuestra tecnología cumplirá con sus más altas exigencias clínicas. Los detalles, precio final y especificaciones se encuentran en el documento adjunto.`;
-      }
-      else {
-        titulo = "Propuesta Comercial";
-        subtituloTotal = "Precios sujetos a disponibilidad de inventario";
-        parrafoPDF = `La presente cotización comprende el suministro de: ${listaTexto}. Todos nuestros consumibles e insumos médicos cumplen con los más altos estándares de calidad y caducidad vigente, garantizando un desempeño óptimo en su uso clínico.`;
-        parrafoEmail = `Nos complace presentarle la cotización correspondiente al suministro de consumibles médicos: ${listaTexto}. El detalle completo de la inversión se encuentra en el documento adjunto.`;
-      }
-      return { titulo, subtituloTotal, parrafoPDF, parrafoEmail };
-    };
     const propInfo = getPropuestaInfo();
 
     const rows = validItems.map((s, i) => `
