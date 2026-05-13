@@ -1272,19 +1272,21 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
             {/* Vincular con lead existente */}
             <div className="mb-4">
               {leadId ? (() => {
-                const lead = leadsList.find(l => l.id === leadId);
+                const lead = leadsList.find(l => l.id === leadId) || initialLead;
                 return (
                   <div className="flex items-center gap-3 p-3 bg-[#EEF0F7] border border-[#C5CAE0] rounded-xl">
                     <div className="flex-1 min-w-0">
                       <p className="text-[12px] font-bold text-[#4E60A9] truncate">{lead?.nombre}</p>
                       {lead?.ciudad && <p className="text-[10px] text-[#4E60A9]">{lead.ciudad}</p>}
                     </div>
-                    <button
-                      onClick={() => { setLeadId(null); setLeadSearch(""); }}
-                      className="text-[10px] text-[#4E60A9] hover:text-[#4E60A9] font-semibold shrink-0"
-                    >
-                      Cambiar
-                    </button>
+                    {!initialLead && (
+                      <button
+                        onClick={() => { setLeadId(null); setLeadSearch(""); }}
+                        className="text-[10px] text-[#4E60A9] hover:text-[#4E60A9] font-semibold shrink-0"
+                      >
+                        Cambiar
+                      </button>
+                    )}
                   </div>
                 );
               })() : (
