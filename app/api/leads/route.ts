@@ -78,8 +78,8 @@ export async function POST(req: Request) {
     const data = await req.json();
     const now = new Date().toISOString();
     const result = db.prepare(`
-      INSERT INTO leads (nombre, telefono, whatsapp, ciudad, estado_republica, nicho, notas, status_crm, asignado_a, fuente, confianza_fuente, fecha_extraccion, fecha_ultimo_cambio)
-      VALUES (@nombre, @telefono, @whatsapp, @ciudad, @estado_republica, @nicho, @notas, @status_crm, @asignado_a, 'manual', 'media', @now, @now)
+      INSERT INTO leads (nombre, telefono, whatsapp, ciudad, estado_republica, nicho, notas, status_crm, asignado_a, fuente, confianza_fuente, fecha_extraccion, fecha_ultimo_cambio, correo, direccion, sitio_web)
+      VALUES (@nombre, @telefono, @whatsapp, @ciudad, @estado_republica, @nicho, @notas, @status_crm, @asignado_a, 'manual', 'media', @now, @now, @correo, @direccion, @sitio_web)
     `).run({
       nombre:           data.nombre || "Sin nombre",
       telefono:         data.telefono || null,
@@ -90,6 +90,9 @@ export async function POST(req: Request) {
       notas:            data.notas || null,
       status_crm:       data.status_crm || "nuevo",
       asignado_a:       data.asignado_a || null,
+      correo:           data.correo || null,
+      direccion:        data.direccion || null,
+      sitio_web:        data.sitio_web || null,
       now,
     });
     const leadId = result.lastInsertRowid as number;

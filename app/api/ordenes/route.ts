@@ -54,6 +54,19 @@ export async function POST(req: Request) {
     const now = new Date().toISOString();
     const folio = generarFolio();
 
+    let fallbackData: any = {};
+    if (data.lead_id) {
+      const lead = db.prepare(`SELECT * FROM leads WHERE id = ?`).get(data.lead_id) as any;
+      if (lead) {
+        fallbackData = {
+          datos_hospital: lead.nombre,
+          direccion: [lead.direccion, lead.ciudad, lead.estado_republica].filter(Boolean).join(", "),
+          correo: lead.correo,
+          telefono: lead.telefono || lead.whatsapp,
+        };
+      }
+    }
+
     const { lastInsertRowid } = db.prepare(`
       INSERT INTO ordenes_trabajo (
         folio, lead_id, cotizacion_id,
@@ -75,10 +88,10 @@ export async function POST(req: Request) {
       lead_id:              data.lead_id        || null,
       cotizacion_id:        data.cotizacion_id  || null,
       datos_fiscales:       data.datos_fiscales || null,
-      datos_hospital:       data.datos_hospital || null,
-      direccion:            data.direccion      || null,
-      correo:               data.correo         || null,
-      telefono:             data.telefono       || null,
+      datos_hospital:       data.datos_hospital || fallbackData.datos_hospital || null,
+      direccion:            data.direccion      || fallbackData.direccion || null,
+      correo:               data.correo         || fallbackData.correo || null,
+      telefono:             data.telefono       || fallbackData.telefono || null,
       equipo_tipo:          data.equipo_tipo     || null,
       equipo_marca:         data.equipo_marca    || null,
       equipo_modelo:        data.equipo_modelo   || null,

@@ -230,14 +230,13 @@ export default function SidebarNav() {
 
       {/* Mobile Bottom Nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 h-[70px] bg-white border-t border-[#E8EFF8] flex justify-around items-center px-2 z-[60] shadow-[0_-4px_15px_-5px_rgba(0,0,0,0.05)] pb-safe">
-        <Link href="/" className={`flex flex-col items-center justify-center w-full h-full gap-1 ${is("/") ? "text-[#4E60A9]" : "text-[#94A3B8]"}`}>
-          <Home size={22} strokeWidth={is("/") ? 2.5 : 2} />
-          <span className="text-[10px] font-bold">Inicio</span>
+        <Link href="/maps" className={`flex flex-col items-center justify-center w-full h-full gap-1 ${is("/maps") ? "text-[#0E7490]" : "text-[#94A3B8]"}`}>
+          <Map size={22} strokeWidth={is("/maps") ? 2.5 : 2} />
+          <span className="text-[10px] font-bold">Mapa</span>
         </Link>
-        <Link href={crmBadge > 0 ? "/crm?status=seguimiento" : "/crm"} className={`relative flex flex-col items-center justify-center w-full h-full gap-1 ${is("/crm") ? "text-[#4E60A9]" : "text-[#94A3B8]"}`}>
-          <Database size={22} strokeWidth={is("/crm") ? 2.5 : 2} />
-          <span className="text-[10px] font-bold">CRM</span>
-          {crmBadge > 0 && <span className="absolute top-1 right-2 w-4 h-4 rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center border-2 border-white">{crmBadge > 9 ? "9+" : crmBadge}</span>}
+        <Link href="/cotizar" className={`flex flex-col items-center justify-center w-full h-full gap-1 ${is("/cotizar") ? "text-[#059669]" : "text-[#94A3B8]"}`}>
+          <FileText size={22} strokeWidth={is("/cotizar") ? 2.5 : 2} />
+          <span className="text-[10px] font-bold">Cotizar</span>
         </Link>
         <Link href="/taller" className={`relative flex flex-col items-center justify-center w-full h-full gap-1 ${is("/taller") ? "text-[#7C3AED]" : "text-[#94A3B8]"}`}>
           <Wrench size={22} strokeWidth={is("/taller") ? 2.5 : 2} />
@@ -256,35 +255,66 @@ export default function SidebarNav() {
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-[65] bg-black/40 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}>
-          <div className="absolute bottom-[70px] left-0 right-0 bg-white rounded-t-3xl overflow-hidden flex flex-col max-h-[80vh] animate-in slide-in-from-bottom-2" onClick={e => e.stopPropagation()}>
-            <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto my-3" />
-            <div className="px-5 py-2 font-extrabold text-[#1E293B] text-[18px]">Menú Principal</div>
-            <div className="flex-1 overflow-y-auto px-4 pb-6">
-              <div className="grid grid-cols-2 gap-3 mt-2">
-                <Link onClick={() => setMobileMenuOpen(false)} href="/encontrar" className="bg-[#EEF3FC] text-[#4E60A9] rounded-2xl p-4 flex flex-col gap-2"><Search size={22} /><span className="font-bold text-[13px]">Encontrar</span></Link>
-                <Link onClick={() => setMobileMenuOpen(false)} href="/barridos" className="bg-[#EEF3FC] text-[#4E60A9] rounded-2xl p-4 flex flex-col gap-2"><FolderOpen size={22} /><span className="font-bold text-[13px]">Barridos</span></Link>
-                <Link onClick={() => setMobileMenuOpen(false)} href="/clientes" className="bg-[#EEF3FC] text-[#4E60A9] rounded-2xl p-4 flex flex-col gap-2"><Users size={22} /><span className="font-bold text-[13px]">Clientes</span></Link>
-                <Link onClick={() => setMobileMenuOpen(false)} href="/agenda" className="bg-sky-50 text-sky-600 rounded-2xl p-4 flex flex-col gap-2"><CalendarDays size={22} /><span className="font-bold text-[13px]">Agenda</span></Link>
-                <Link onClick={() => setMobileMenuOpen(false)} href="/correo" className="bg-sky-50 text-sky-600 rounded-2xl p-4 flex flex-col gap-2"><Mail size={22} /><span className="font-bold text-[13px]">Correo</span></Link>
-                <Link onClick={() => setMobileMenuOpen(false)} href="/cotizar" className="bg-emerald-50 text-emerald-600 rounded-2xl p-4 flex flex-col gap-2"><FileText size={22} /><span className="font-bold text-[13px]">Cotizar</span></Link>
-                <Link onClick={() => setMobileMenuOpen(false)} href="/catalogo" className="bg-emerald-50 text-emerald-600 rounded-2xl p-4 flex flex-col gap-2"><Layers size={22} /><span className="font-bold text-[13px]">Catálogo</span></Link>
-                <Link onClick={() => setMobileMenuOpen(false)} href="/maps" className="bg-cyan-50 text-cyan-600 rounded-2xl p-4 flex flex-col gap-2"><Map size={22} /><span className="font-bold text-[13px]">Mapa leads</span></Link>
-                <Link onClick={() => setMobileMenuOpen(false)} href="/configuracion" className="bg-gray-50 text-gray-600 rounded-2xl p-4 flex flex-col gap-2"><Settings size={22} /><span className="font-bold text-[13px]">Configuración</span></Link>
-                {isAdmin && <Link onClick={() => setMobileMenuOpen(false)} href="/usuarios" className="bg-gray-50 text-gray-600 rounded-2xl p-4 flex flex-col gap-2"><UserCog size={22} /><span className="font-bold text-[13px]">Usuarios</span></Link>}
+        <div className="md:hidden fixed inset-0 z-[65] bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => setMobileMenuOpen(false)}>
+          <div className="absolute bottom-[70px] left-0 right-0 bg-white rounded-t-[32px] overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom-4 duration-300 ease-out shadow-[0_-10px_40px_rgba(0,0,0,0.1)]" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-4 mb-2" />
+            <div className="px-6 py-2">
+              <h2 className="font-extrabold text-[#1E293B] text-[20px] tracking-tight">Menú Principal</h2>
+              <p className="text-[12px] font-medium text-[#64748B]">Todas las herramientas de Bionordi</p>
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 pb-6">
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                <Link onClick={() => setMobileMenuOpen(false)} href="/" className="bg-[#F8FAFC] text-[#64748B] hover:bg-[#F1F5F9] rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
+                  <Home size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Inicio</span>
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href={crmBadge > 0 ? "/crm?status=seguimiento" : "/crm"} className="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-2xl p-4 flex flex-col gap-2.5 relative transition-all active:scale-[0.98]">
+                  <Database size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">CRM</span>
+                  {crmBadge > 0 && <span className="absolute top-3 right-3 w-[22px] h-[22px] rounded-full bg-[#EF4444] text-white text-[10px] font-bold flex items-center justify-center border-2 border-indigo-50 shadow-sm">{crmBadge > 9 ? "9+" : crmBadge}</span>}
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href="/agenda" className="bg-sky-50 text-sky-600 hover:bg-sky-100 rounded-2xl p-4 flex flex-col gap-2.5 relative transition-all active:scale-[0.98]">
+                  <CalendarDays size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Agenda</span>
+                  {(() => { const hoy = new Date().toISOString().slice(0, 10); const badge = agenda.filter(e => e.fecha_proximo_contacto?.slice(0,10) <= hoy).length; return badge > 0 ? <span className="absolute top-3 right-3 w-[22px] h-[22px] rounded-full bg-[#EF4444] text-white text-[10px] font-bold flex items-center justify-center border-2 border-sky-50 shadow-sm">{badge > 9 ? "9+" : badge}</span> : null; })()}
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href="/clientes" className="bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
+                  <Users size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Clientes</span>
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href="/encontrar" className="bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
+                  <Search size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Encontrar</span>
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href="/barridos" className="bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
+                  <FolderOpen size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Barridos</span>
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href="/correo" className="bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
+                  <Mail size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Correo</span>
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href="/catalogo" className="bg-teal-50 text-teal-600 hover:bg-teal-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
+                  <Layers size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Catálogo</span>
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href="/cotizar" className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
+                  <FileText size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Cotizar</span>
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href="/maps" className="bg-cyan-50 text-cyan-600 hover:bg-cyan-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
+                  <Map size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Mapa leads</span>
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href="/configuracion" className="bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
+                  <Settings size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Configuración</span>
+                </Link>
+                {isAdmin && <Link onClick={() => setMobileMenuOpen(false)} href="/usuarios" className="bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]"><UserCog size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Usuarios</span></Link>}
               </div>
               
-              <div className="mt-6 border-t border-gray-100 pt-4 flex items-center justify-between px-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4E60A9] to-[#38AD64] flex items-center justify-center text-white text-[13px] font-extrabold shadow-sm">
+              <div className="mt-6 border-t border-[#E8EFF8] pt-5 flex items-center justify-between px-1">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#4E60A9] to-[#38AD64] flex items-center justify-center text-white text-[14px] font-extrabold shadow-md border-2 border-white ring-2 ring-gray-50">
                     {session?.user?.name?.charAt(0).toUpperCase() ?? "U"}
                   </div>
                   <div>
-                    <div className="text-[14px] font-bold text-[#1E293B]">{session?.user?.name ?? "Usuario"}</div>
-                    <div className="text-[11px] font-medium text-gray-400 capitalize">{(session?.user as any)?.role ?? "operador"}</div>
+                    <div className="text-[15px] font-extrabold text-[#1E293B] tracking-tight">{session?.user?.name ?? "Usuario"}</div>
+                    <div className="text-[12px] font-semibold text-[#94A3B8] capitalize">{(session?.user as any)?.role ?? "operador"}</div>
                   </div>
                 </div>
-                <button onClick={() => signOut({ callbackUrl: "/login" })} className="text-red-500 bg-red-50 p-2.5 rounded-xl hover:bg-red-100 transition-colors"><LogOut size={18} /></button>
+                <button onClick={() => signOut({ callbackUrl: "/login" })} className="text-[#EF4444] bg-[#FEF2F2] p-3 rounded-2xl hover:bg-[#FEE2E2] transition-colors active:scale-[0.95]">
+                  <LogOut size={20} strokeWidth={2.5} />
+                </button>
               </div>
             </div>
           </div>
