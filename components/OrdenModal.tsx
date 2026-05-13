@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, Wrench, Calendar, CheckCircle, Clock, DollarSign, User, FileText, ChevronRight, Trash2, Check, AlertTriangle, Link2, Activity, Mail } from "lucide-react";
+import { X, Wrench, Calendar, CheckCircle, Clock, DollarSign, User, FileText, ChevronRight, Trash2, Check, AlertTriangle, Link2, Activity, Mail, Camera } from "lucide-react";
 
 export interface Orden {
   id: number; folio: string; lead_id?: number;
@@ -16,7 +16,8 @@ export interface Orden {
   falla_reportada?: string; diagnostico?: string; actividades_realizadas?: string; mantenimiento_realizado?: string;
   refacciones_utilizadas?: string; pruebas_realizadas?: string; notas_tecnicas?: string;
   observaciones?: string; recomendaciones?: string; garantia?: string; reporte_tecnico_final?: string;
-  
+  fotografias_json?: string;
+
   tecnico?: string; presupuesto?: number; presupuesto_aprobado?: number; precio_final?: number;
   status: string;
   fecha_ingreso?: string; fecha_compromiso?: string; fecha_entrega?: string; fecha_creacion?: string;
@@ -46,12 +47,23 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
   const [form, setForm] = useState<Partial<Orden>>({});
   const [saving, setSaving] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [fotosActividades, setFotosActividades] = useState<string[]>([]);
+  const [fotosResultado, setFotosResultado] = useState<string[]>([]);
+  const [uploadingFoto, setUploadingFoto] = useState<'actividades' | 'resultado' | null>(null);
   const [activeTab, setActiveTab] = useState("cliente");
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!orden) return;
     setForm({ ...orden });
+    try {
+      const parsed = JSON.parse(orden.fotografias_json || '{}');
+      setFotosActividades(parsed.actividades || []);
+      setFotosResultado(parsed.resultado || []);
+    } catch {
+      setFotosActividades([]);
+      setFotosResultado([]);
+    }
   }, [orden?.id]);
 
   useEffect(() => {
@@ -84,6 +96,37 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
     { id: "reporte", label: "Reporte y Garantía" },
     { id: "logistica", label: "Logística y Pagos" },
   ];
+
+  const saveFotos = (act: string[], res: string[]) =>
+    patch({ fotografias_json: JSON.stringify({ actividades: act, resultado: res }) });
+
+  const handleFotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, tipo: 'actividades' | 'resultado') => {
+    const file = e.target.files?.[0]; if (!file) return;
+    e.target.value = '';
+    const current = tipo === 'actividades' ? fotosActividades : fotosResultado;
+    if (current.length >= 4) return;
+    setUploadingFoto(tipo);
+    try {
+      const fd = new FormData(); fd.append('file', file);
+      const res = await fetch(`/api/upload?subfolder=ordenes&filename=${encodeURIComponent(file.name)}`, { method: 'POST', body: fd }).then(r => r.json());
+      if (res.path) {
+        const next = [...current, res.path];
+        if (tipo === 'actividades') { setFotosActividades(next); saveFotos(next, fotosResultado); }
+        else { setFotosResultado(next); saveFotos(fotosActividades, next); }
+      }
+    } catch {}
+    setUploadingFoto(null);
+  };
+
+  const removeFoto = (tipo: 'actividades' | 'resultado', idx: number) => {
+    if (tipo === 'actividades') {
+      const next = fotosActividades.filter((_, i) => i !== idx);
+      setFotosActividades(next); saveFotos(next, fotosResultado);
+    } else {
+      const next = fotosResultado.filter((_, i) => i !== idx);
+      setFotosResultado(next); saveFotos(fotosActividades, next);
+    }
+  };
 
   const sendStatusEmail = async () => {
     if (!orden) return;
@@ -282,6 +325,13 @@ ${falla || techNote ? `<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border
               <Textarea label="Falla reportada por el cliente" field="falla_reportada" form={form} setForm={setForm} onBlur={saveField} rows={2} />
               <Textarea label="Diagnóstico Técnico" field="diagnostico" form={form} setForm={setForm} onBlur={saveField} rows={2} />
               <Textarea label="Actividades Realizadas" field="actividades_realizadas" form={form} setForm={setForm} onBlur={saveField} rows={2} />
+              <FotoUploader
+                label="Fotos de actividades realizadas (máx. 4)"
+                fotos={fotosActividades}
+                onUpload={(e: React.ChangeEvent<HTMLInputElement>) => handleFotoUpload(e, 'actividades')}
+                onRemove={(i: number) => removeFoto('actividades', i)}
+                uploading={uploadingFoto === 'actividades'}
+              />
               <Textarea label="Mantenimiento Realizado" field="mantenimiento_realizado" form={form} setForm={setForm} onBlur={saveField} rows={2} />
               <Textarea label="Refacciones Utilizadas" field="refacciones_utilizadas" form={form} setForm={setForm} onBlur={saveField} rows={2} />
               <Textarea label="Pruebas Realizadas" field="pruebas_realizadas" form={form} setForm={setForm} onBlur={saveField} rows={2} />
@@ -295,6 +345,13 @@ ${falla || techNote ? `<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border
               <Textarea label="Recomendaciones" field="recomendaciones" form={form} setForm={setForm} onBlur={saveField} rows={2} />
               <Input label="Garantía de Servicio (Tiempo y Condiciones)" field="garantia" form={form} setForm={setForm} onBlur={saveField} />
               <Textarea label="Reporte Técnico Final (Conclusión)" field="reporte_tecnico_final" form={form} setForm={setForm} onBlur={saveField} rows={3} />
+              <FotoUploader
+                label="Fotos del equipo al finalizar (máx. 4)"
+                fotos={fotosResultado}
+                onUpload={(e: React.ChangeEvent<HTMLInputElement>) => handleFotoUpload(e, 'resultado')}
+                onRemove={(i: number) => removeFoto('resultado', i)}
+                uploading={uploadingFoto === 'resultado'}
+              />
             </div>
           )}
 
@@ -410,6 +467,41 @@ function DateInput({ label, field, form, setForm, onBlur }: any) {
         onChange={e => setForm((p: any) => ({ ...p, [field]: e.target.value }))}
         onBlur={e => onBlur(field, e.target.value)}
         className="w-full text-[12px] font-bold bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 cursor-pointer shadow-sm" />
+    </div>
+  );
+}
+
+function FotoUploader({ label, fotos, onUpload, onRemove, uploading }: {
+  label: string;
+  fotos: string[];
+  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRemove: (i: number) => void;
+  uploading: boolean;
+}) {
+  return (
+    <div>
+      <label className="text-[10px] font-bold text-gray-400 block mb-2 uppercase tracking-wider">{label}</label>
+      <div className="flex gap-2 flex-wrap">
+        {fotos.map((p, i) => (
+          <div key={i} className="relative w-[88px] h-[88px] group shrink-0">
+            <img src={p} alt={`foto-${i+1}`} className="w-full h-full object-contain rounded-lg border border-gray-200 bg-white" />
+            <button
+              onClick={() => onRemove(i)}
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-[11px] font-bold hidden group-hover:flex items-center justify-center shadow-sm"
+            >×</button>
+            <span className="absolute bottom-0 left-0 right-0 text-[9px] text-center text-gray-400 bg-white/80 rounded-b-lg py-0.5">Foto {i+1}</span>
+          </div>
+        ))}
+        {fotos.length < 4 && (
+          <label className={`w-[88px] h-[88px] flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-[#4E60A9]/50 hover:bg-[#EEF3FC]/40 transition-all shrink-0 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+            {uploading
+              ? <Activity size={18} className="text-[#4E60A9] animate-spin" />
+              : <Camera size={18} className="text-gray-300" />}
+            <span className="text-[9px] text-gray-400 mt-1">{uploading ? 'Subiendo…' : 'Agregar'}</span>
+            <input type="file" accept="image/*" className="hidden" onChange={onUpload} disabled={uploading} />
+          </label>
+        )}
+      </div>
     </div>
   );
 }

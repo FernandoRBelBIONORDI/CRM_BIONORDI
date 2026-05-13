@@ -46,6 +46,26 @@ export async function GET(req: Request) {
       logoB64 = 'data:image/png;base64,' + fs.readFileSync(logoPath).toString('base64');
     } catch { /* ignore */ }
 
+    function readFotoB64(filePath: string): string {
+      try {
+        const diskPath = path.join(process.cwd(), 'db', 'uploads', filePath.replace('/api/file/', ''));
+        const buf = fs.readFileSync(diskPath);
+        const ext = (filePath.split('.').pop() || 'jpg').toLowerCase();
+        const mime = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+        return `data:${mime};base64,${buf.toString('base64')}`;
+      } catch { return ''; }
+    }
+
+    let fotosActB64: string[] = [];
+    let fotosResB64: string[] = [];
+    if (orden.fotografias_json) {
+      try {
+        const parsed = JSON.parse(orden.fotografias_json);
+        fotosActB64 = (parsed.actividades || []).slice(0, 4).map(readFotoB64).filter(Boolean);
+        fotosResB64 = (parsed.resultado   || []).slice(0, 4).map(readFotoB64).filter(Boolean);
+      } catch { /* ignore */ }
+    }
+
     const html = `
       <!DOCTYPE html>
       <html lang="es">
@@ -153,6 +173,18 @@ export async function GET(req: Request) {
               <div class="diag-p">${orden.actividades_realizadas}</div>
             </div>` : ''}
 
+            ${fotosActB64.length > 0 ? `
+            <div style="margin-bottom:12px;page-break-inside:avoid;">
+              <div class="eq-lbl" style="margin-bottom:8px;">Evidencia Fotográfica — Actividades Realizadas</div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                ${fotosActB64.map((b64, i) => `
+                <div style="flex:1;min-width:130px;max-width:200px;">
+                  <img src="${b64}" alt="Foto ${i+1}" style="width:100%;max-height:140px;object-fit:contain;background:white;border-radius:6px;border:1px solid #E2E8F0;" />
+                  <div style="margin-top:4px;font-size:9px;color:#475569;font-weight:600;text-align:center;">Foto ${i+1}</div>
+                </div>`).join('')}
+              </div>
+            </div>` : ''}
+
             ${orden.refacciones_utilizadas ? `
             <div style="margin-bottom: 12px;">
               <div class="eq-lbl">Refacciones Utilizadas</div>
@@ -169,6 +201,18 @@ export async function GET(req: Request) {
             <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #E2E8F0;">
               <div class="eq-lbl" style="color:#4E60A9;">Conclusión Técnica Final</div>
               <div class="diag-p" style="color:#1E293B; font-weight:600; margin-top:4px;">${orden.reporte_tecnico_final}</div>
+            </div>` : ''}
+
+            ${fotosResB64.length > 0 ? `
+            <div style="margin-top:15px;padding-top:15px;border-top:1px solid #E2E8F0;page-break-inside:avoid;">
+              <div class="eq-lbl" style="color:#059669;margin-bottom:8px;">Evidencia Fotográfica — Estado Final del Equipo</div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                ${fotosResB64.map((b64, i) => `
+                <div style="flex:1;min-width:130px;max-width:200px;">
+                  <img src="${b64}" alt="Foto ${i+1}" style="width:100%;max-height:140px;object-fit:contain;background:white;border-radius:6px;border:1px solid #D1FAE5;" />
+                  <div style="margin-top:4px;font-size:9px;color:#047857;font-weight:600;text-align:center;">Foto ${i+1}</div>
+                </div>`).join('')}
+              </div>
             </div>` : ''}
           </div>
 
