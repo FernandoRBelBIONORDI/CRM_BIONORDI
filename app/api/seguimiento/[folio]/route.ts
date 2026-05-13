@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 
-export async function GET(req: Request, { params }: { params: { folio: string } }) {
-  const { folio } = params;
+export async function GET(req: Request, { params }: { params: Promise<{ folio: string }> }) {
+  const { folio } = await params;
 
   try {
     const orden = db.prepare(`
