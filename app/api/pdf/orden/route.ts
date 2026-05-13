@@ -206,7 +206,7 @@ export async function GET(req: Request) {
           <div class="footer">
             <strong>Bionordi Medical Technology</strong> | Servicio Técnico Especializado<br/>
             Este documento certifica el servicio realizado al equipo médico especificado.<br/>
-            Para dar seguimiento a esta orden visita: <strong>crm.bionordi.com/seguimiento/${orden.folio}</strong>
+            Para cualquier consulta, comuníquese directamente con su asesor Bionordi o con el ingeniero a cargo.
           </div>
 
         </div>

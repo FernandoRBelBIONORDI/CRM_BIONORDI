@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, Wrench, Calendar, CheckCircle, Clock, DollarSign, User, FileText, ChevronRight, Trash2, Check, AlertTriangle, Link2, Activity } from "lucide-react";
+import { X, Wrench, Calendar, CheckCircle, Clock, DollarSign, User, FileText, ChevronRight, Trash2, Check, AlertTriangle, Link2, Activity, Mail } from "lucide-react";
 
 export interface Orden {
   id: number; folio: string; lead_id?: number;
@@ -45,6 +45,7 @@ interface Props {
 export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props) {
   const [form, setForm] = useState<Partial<Orden>>({});
   const [saving, setSaving] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const [activeTab, setActiveTab] = useState("cliente");
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -83,6 +84,92 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
     { id: "reporte", label: "Reporte y Garantía" },
     { id: "logistica", label: "Logística y Pagos" },
   ];
+
+  const sendStatusEmail = async () => {
+    if (!orden) return;
+    const dest = form.correo || orden.correo;
+    if (!dest) { alert("No hay correo registrado. Agrégalo en la pestaña Cliente."); return; }
+    setSendingEmail(true);
+    const st = stColor(form.status || orden.status);
+    const currentStatus = form.status || orden.status;
+    const STEPS = [
+      { id: "recibido",              label: "Equipo Recibido" },
+      { id: "en_diagnostico",        label: "Evaluación Técnica" },
+      { id: "en_reparacion",         label: "Servicio en Proceso" },
+      { id: "en_espera_refacciones", label: "Espera de Refacciones" },
+      { id: "en_pruebas",            label: "Pruebas de Funcionamiento" },
+      { id: "listo",                 label: "Servicio Finalizado" },
+      { id: "entregado",             label: "Entregado" },
+    ];
+    const idx = STEPS.findIndex(s => s.id === currentStatus);
+    const timelineRows = STEPS.map((step, i) => {
+      const done = i < idx;
+      const current = i === idx;
+      const bg = (done || current) ? '#4E60A9' : '#E2E8F0';
+      const icon = done ? '&#10003;' : current ? '&#9679;' : '';
+      const iconColor = (done || current) ? 'white' : '#E2E8F0';
+      const nameColor = current ? '#4E60A9' : done ? '#1E293B' : '#94A3B8';
+      const op = i > idx ? '0.4' : '1';
+      return `<tr style="opacity:${op}"><td width="36" style="vertical-align:top;padding-right:12px;padding-top:2px;"><div style="width:28px;height:28px;border-radius:50%;background:${bg};text-align:center;line-height:28px;font-size:13px;color:${iconColor};font-weight:900;">${icon}</div></td><td style="padding-bottom:14px;"><div style="font-size:14px;font-weight:700;color:${nameColor};">${step.label}</div></td></tr>`;
+    }).join('');
+
+    const techNote = form.diagnostico || orden.diagnostico || '';
+    const falla = form.falla_reportada || orden.falla_reportada || '';
+    const equipo = [form.equipo_tipo || orden.equipo_tipo, form.equipo_marca || orden.equipo_marca, form.equipo_modelo || orden.equipo_modelo].filter(Boolean).join(' / ');
+    const serie = form.equipo_num_serie || orden.equipo_num_serie || '';
+    const fechaRaw = form.fecha_compromiso || orden.fecha_compromiso || '';
+    const fechaStr = fechaRaw ? new Date(fechaRaw + 'T00:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '';
+    const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+    const emailHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/></head><body style="margin:0;padding:0;background:#F4F7FB;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F4F7FB" style="padding:24px 16px;"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border-bottom:1px solid #E8EFF8;border-radius:16px 16px 0 0;">
+  <table width="100%" cellpadding="0" cellspacing="0"><tr>
+    <td><div style="font-size:17px;font-weight:900;color:#1E293B;letter-spacing:-0.03em;">BIONORDI</div><div style="font-size:9px;color:#4E60A9;font-weight:700;letter-spacing:0.1em;margin-top:2px;">MEDICAL TECHNOLOGY</div></td>
+    <td align="right"><span style="font-size:11px;font-weight:800;color:#4E60A9;background:#EEF3FC;padding:4px 12px;border-radius:20px;">Folio: ${orden.folio}</span></td>
+  </tr></table>
+</td></tr>
+<tr><td bgcolor="#FFFFFF" style="padding:28px 32px;border-bottom:1px solid #F1F5F9;">
+  <div style="font-size:22px;font-weight:900;color:#1E293B;margin-bottom:6px;">Actualización de Servicio</div>
+  <div style="font-size:13px;color:#64748B;margin-bottom:20px;">${hoy}</div>
+  <div style="display:inline-block;font-size:13px;font-weight:800;color:${st.color};background:${st.bg};padding:8px 20px;border-radius:20px;border:1px solid ${st.color}44;">${st.label}</div>
+  ${fechaStr ? `<div style="margin-top:20px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:14px 18px;"><div style="font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Entrega Estimada</div><div style="font-size:15px;font-weight:800;color:#1E293B;">${fechaStr}</div></div>` : ''}
+</td></tr>
+${equipo || serie ? `<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border-bottom:1px solid #F1F5F9;">
+  <div style="font-size:10px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">Información del Equipo</div>
+  ${equipo ? `<div style="font-size:15px;font-weight:700;color:#1E293B;margin-bottom:8px;">${equipo}</div>` : ''}
+  ${serie ? `<span style="font-size:12px;font-weight:600;color:#4E60A9;background:#EEF3FC;padding:3px 10px;border-radius:6px;">No. Serie: ${serie}</span>` : ''}
+</td></tr>` : ''}
+<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border-bottom:1px solid #F1F5F9;">
+  <div style="font-size:10px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;">Progreso del Servicio</div>
+  <table width="100%" cellpadding="0" cellspacing="0">${timelineRows}</table>
+</td></tr>
+${falla || techNote ? `<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border-bottom:1px solid #F1F5F9;">
+  <div style="font-size:10px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">Notas del Servicio</div>
+  ${falla ? `<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:6px;">Falla reportada</div><div style="font-size:13px;color:#475569;background:#F8FAFC;padding:12px;border-radius:8px;border:1px solid #E2E8F0;line-height:1.6;">${falla.replace(/\n/g, '<br/>')}</div></div>` : ''}
+  ${techNote ? `<div><div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:6px;">Diagnóstico / Avance técnico</div><div style="font-size:13px;color:#475569;background:#F8FAFC;padding:12px;border-radius:8px;border:1px solid #E2E8F0;line-height:1.6;">${techNote.replace(/\n/g, '<br/>')}</div></div>` : ''}
+</td></tr>` : ''}
+<tr><td bgcolor="#F8FAFC" style="padding:24px 32px;border-radius:0 0 16px 16px;border-top:1px solid #E8EFF8;">
+  <div style="font-size:12px;color:#64748B;line-height:1.7;text-align:center;"><strong style="color:#1E293B;">Bionordi Medical Technology</strong> | Servicio Técnico Especializado<br/>Para cualquier consulta, responda a este correo o comuníquese directamente con su asesor Bionordi.</div>
+</td></tr>
+</table></td></tr></table></body></html>`;
+
+    try {
+      const r = await fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: dest, subject: `Actualización de Servicio – Folio ${orden.folio} | Bionordi`, html: emailHtml }),
+      });
+      const data = await r.json();
+      if (data.error) throw new Error(data.error);
+      alert(`Correo enviado a ${dest}`);
+    } catch (e: any) {
+      alert(`Error al enviar correo: ${e.message}`);
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   if (!orden) return null;
 
@@ -275,9 +362,10 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
           </button>
           
           <div className="flex items-center gap-3">
-            <a href={`/seguimiento/${orden.folio}`} target="_blank" className="flex items-center gap-1.5 text-[12px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] px-3 py-2 rounded-full transition-colors">
-              <Link2 size={13} /> Enlace para cliente
-            </a>
+            <button onClick={sendStatusEmail} disabled={sendingEmail}
+              className="flex items-center gap-1.5 text-[12px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] px-3 py-2 rounded-full transition-colors disabled:opacity-50">
+              <Mail size={13} /> {sendingEmail ? "Enviando…" : "Actualizar por correo"}
+            </button>
             <span className="text-[11px] text-gray-400 font-medium flex items-center gap-1">
               <Clock size={11} />
               Ingresó {orden.fecha_ingreso ? new Date(orden.fecha_ingreso + "T00:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "—"}
