@@ -264,17 +264,17 @@ export default function TallerPage() {
       </div>
 
       {/* Kanban */}
-      <div className="flex-1 overflow-x-auto p-6 pt-2">
+      <div className="flex-1 overflow-x-auto p-4 md:p-6 pt-2 snap-x snap-mandatory pb-24 md:pb-4">
         {loading ? (
           <div className="h-full flex items-center justify-center">
             <Activity size={24} className="animate-spin text-[#4E60A9]" />
           </div>
         ) : (
-          <div className="flex gap-4 h-full min-w-max">
+          <div className="flex gap-4 h-full">
             {cols.map(col => {
               const colOrdenes = filtered.filter(o => o.status === col.value);
               return (
-                <div key={col.value} className="w-[240px] flex flex-col gap-2 shrink-0">
+                <div key={col.value} className="w-[85vw] md:w-[240px] flex flex-col gap-2 shrink-0 snap-center">
                   {/* Col header */}
                   <div className="flex items-center justify-between px-3 py-2 rounded-xl border"
                     style={{ backgroundColor: col.bg, borderColor: col.color + "30" }}>

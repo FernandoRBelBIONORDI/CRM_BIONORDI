@@ -541,13 +541,13 @@ export default function CRMPage() {
         </div>
       ) : view === "kanban" ? (
         /* -- KANBAN VIEW -- */
-        <div className="flex-1 overflow-x-auto p-6 pt-4">
-          <div className="flex gap-3 h-full min-w-max">
+        <div className="flex-1 overflow-x-auto p-4 md:p-6 pt-2 md:pt-4 snap-x snap-mandatory pb-24 md:pb-4">
+          <div className="flex gap-4 h-full">
             {KANBAN_COLS.map(col=>{
               const st = S[col];
               const colLeads = leads.filter(l=>l.status_crm===col);
               return (
-                <div key={col} style={{width:252}} className="flex flex-col gap-2 shrink-0">
+                <div key={col} className="flex flex-col gap-2 shrink-0 w-[85vw] md:w-[252px] snap-center">
                   {/* Column header */}
                   <div className="flex items-center justify-between px-3 py-2 rounded-[13px] border"
                     style={{backgroundColor: st.bg, borderColor: `${st.color}20`}}>

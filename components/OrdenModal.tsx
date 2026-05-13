@@ -98,7 +98,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div ref={panelRef}
-        className="relative w-[700px] h-full bg-white shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right"
+        className="relative w-full sm:w-[700px] h-full bg-white shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right"
         style={{ borderLeft: "1px solid #E2E8F0" }}>
 
         {/* Header */}

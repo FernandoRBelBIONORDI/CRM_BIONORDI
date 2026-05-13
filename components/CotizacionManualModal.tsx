@@ -88,8 +88,8 @@ const TIPO_LABELS: Record<TipoCotizacion, string> = {
   consumibles:   "Venta de Consumibles",
 };
 
-const inp = "w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white";
-const sel = "w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white appearance-none";
+const inp = "w-full text-[16px] md:text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white";
+const sel = "w-full text-[16px] md:text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white appearance-none";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -1250,7 +1250,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose}/>
-      <div className="relative bg-white rounded-2xl shadow-2xl w-[700px] max-h-[94vh] flex flex-col overflow-hidden">
+      <div className="relative bg-white sm:rounded-2xl shadow-2xl w-full h-full sm:w-[700px] sm:h-auto sm:max-h-[94vh] flex flex-col overflow-hidden">
 
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
