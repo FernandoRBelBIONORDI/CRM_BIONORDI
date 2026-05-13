@@ -159,7 +159,7 @@ export default function SidebarNav() {
           <NavItem href="/chat"       icon={MessageCircle} label="WhatsApp"   active={is("/chat")}         collapsed={collapsed} color="#25D366" />
           <NavItem href="/correo"     icon={Mail}          label="Correo"   active={is("/correo")}      collapsed={collapsed} color="#0EA5E9" />
           <Section label="Taller"    collapsed={collapsed} />
-          <NavItem href="/taller"     icon={Wrench}   label="Órdenes"     active={is("/taller")}       collapsed={collapsed} color="#7C3AED" badge={tallerBadge} />
+          <NavItem href="/taller"     icon={Wrench}   label="Servicios"     active={is("/taller")}       collapsed={collapsed} color="#7C3AED" badge={tallerBadge} />
           <Section label="Herramientas" collapsed={collapsed} />
           <NavItem href="/cotizar"    icon={FileText} label="Cotizar"      active={is("/cotizar")}      collapsed={collapsed} color="#059669" />
           <NavItem href="/catalogo"   icon={Layers}   label="Catálogo"    active={is("/catalogo")}     collapsed={collapsed} color="#059669" />

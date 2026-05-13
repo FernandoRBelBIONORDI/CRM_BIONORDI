@@ -1,15 +1,16 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Wrench, Plus, Activity, Search, X, ChevronRight, Clock, DollarSign, AlertTriangle, CheckCircle } from "lucide-react";
 import OrdenModal, { Orden } from "@/components/OrdenModal";
 
 const COLS: { value: string; label: string; color: string; bg: string }[] = [
-  { value: "recibido",              label: "Recibido",            color: "#5A85F1", bg: "#EEF3FC" },
-  { value: "en_diagnostico",        label: "Diagnóstico",         color: "#7C3AED", bg: "#F5F3FF" },
-  { value: "en_reparacion",         label: "Reparación",          color: "#D97706", bg: "#FFFBEB" },
+  { value: "recibido",              label: "Equipo recibido",     color: "#5A85F1", bg: "#EEF3FC" },
+  { value: "en_diagnostico",        label: "Evaluación técnica",  color: "#7C3AED", bg: "#F5F3FF" },
+  { value: "en_reparacion",         label: "Servicio en proceso", color: "#D97706", bg: "#FFFBEB" },
   { value: "en_espera_refacciones", label: "Espera refacciones",  color: "#EA580C", bg: "#FFF7ED" },
-  { value: "listo",                 label: "Listo",               color: "#059669", bg: "#ECFDF5" },
+  { value: "en_pruebas",            label: "Pruebas de funcionamiento", color: "#0E7490", bg: "#ECFEFF" },
+  { value: "listo",                 label: "Servicio finalizado", color: "#059669", bg: "#ECFDF5" },
   { value: "entregado",             label: "Entregado",           color: "#34A853", bg: "#EEF9F1" },
 ];
 
@@ -65,7 +66,7 @@ function NuevaOrdenModal({ onClose, onCreate, initialLeadId }: { onClose: () => 
               <Wrench size={16} className="text-[#4E60A9]" />
             </div>
             <div>
-              <h3 className="font-bold text-[15px] text-[#1E293B]">Nueva Orden de Trabajo</h3>
+              <h3 className="font-bold text-[15px] text-[#1E293B]">Nueva Orden de Servicio</h3>
               <p className="text-[11px] text-gray-400">El folio se asigna automáticamente</p>
             </div>
           </div>
@@ -152,7 +153,7 @@ function NuevaOrdenModal({ onClose, onCreate, initialLeadId }: { onClose: () => 
           <button onClick={submit} disabled={saving || !form.equipo_tipo.trim()}
             className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-white bg-[#4E60A9] hover:bg-[#2B5FD9] py-3 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
             {saving ? <Activity size={14} className="animate-spin" /> : <Plus size={14} />}
-            Crear Orden de Trabajo
+            Crear Orden de Servicio
           </button>
         </div>
       </div>
@@ -226,8 +227,8 @@ export default function TallerPage() {
       <div className="px-4 mb-2 space-y-3">
         <div className="flex justify-between items-center pl-4">
           <div>
-            <h1 className="text-[28px] font-medium text-[#202538] leading-tight tracking-[-0.03em]">Taller</h1>
-            <p className="text-[#8B95A5] text-[13px] font-medium mt-0.5">Órdenes de trabajo y seguimiento de reparaciones</p>
+            <h1 className="text-[28px] font-medium text-[#202538] leading-tight tracking-[-0.03em]">Órdenes de Servicio</h1>
+            <p className="text-[#8B95A5] text-[13px] font-medium mt-0.5">Administración técnica, reparaciones y mantenimiento</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -237,7 +238,7 @@ export default function TallerPage() {
             </div>
             <button onClick={() => setShowNueva(true)}
               className="btn-primary flex items-center gap-2">
-              <Plus size={14} /> Nueva OT
+              <Plus size={14} /> Nueva Orden
             </button>
           </div>
         </div>
