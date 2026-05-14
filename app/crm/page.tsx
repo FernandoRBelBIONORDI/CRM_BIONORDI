@@ -197,8 +197,65 @@ export default function CRMPage() {
     <div className="h-full flex flex-col font-sans relative">
 
       {/* Header */}
-      <div className="px-4 mb-2 space-y-2">
-        <div className="flex justify-between items-center">
+      <div className="bg-white border-b border-[#E8EFF8] shrink-0 px-4 pt-3 pb-2 space-y-2">
+
+        {/* ── Móvil: título + Nuevo Lead ── */}
+        <div className="flex items-center justify-between md:hidden">
+          <div>
+            <h1 className="text-[22px] font-medium text-[#202538] leading-tight tracking-[-0.03em]">CRM Central</h1>
+            <p className="text-[#8B95A5] text-[11px] font-medium mt-0.5">
+              {total} leads{leads.length < total ? ` · ${leads.length} mostrados` : ""}{activeFilters > 0 ? ` · ${activeFilters} filtro${activeFilters>1?"s":""}` : ""}
+            </p>
+          </div>
+          <button onClick={()=>setShowNuevoLead(true)} className="btn-primary shrink-0" suppressHydrationWarning>
+            <UserPlus size={14}/> Nuevo Lead
+          </button>
+        </div>
+
+        {/* ── Móvil: buscador + estado ── */}
+        <div className="flex md:hidden gap-2">
+          <div className="relative flex-1">
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Nombre o ciudad..."
+              className="inp pl-10 w-full rounded-full py-[10px]" suppressHydrationWarning />
+          </div>
+          <select value={filterS} onChange={e=>setFilterS(e.target.value)} suppressHydrationWarning
+            className="inp w-auto rounded-full py-[10px] bg-gray-50 border-transparent cursor-pointer text-gray-600">
+            <option value="todos">Todos</option>
+            {STATUS_OPTS.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+
+        {/* ── Móvil: vista + filtros ── */}
+        <div className="flex md:hidden items-center gap-2 overflow-x-auto pb-1">
+          <div className="flex items-center bg-white border border-gray-200 rounded-full p-1 gap-1 shadow-sm shrink-0">
+            <button onClick={()=>setView("table")} suppressHydrationWarning
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all ${view==="table"?"bg-[#2D2F3C] text-white shadow-sm":"text-gray-400"}`}>
+              <LayoutList size={12}/> Tabla
+            </button>
+            <button onClick={()=>setView("kanban")} suppressHydrationWarning
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all ${view==="kanban"?"bg-[#2D2F3C] text-white shadow-sm":"text-gray-400"}`}>
+              <Kanban size={12}/> Kanban
+            </button>
+            <button onClick={()=>setView("agente")} suppressHydrationWarning
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all ${view==="agente"?"bg-[#2D2F3C] text-white shadow-sm":"text-gray-400"}`}>
+              <Users size={12}/> Agente
+            </button>
+          </div>
+          <button onClick={()=>setShowFilters(p=>!p)} suppressHydrationWarning
+            className={`flex items-center gap-1.5 px-3 py-[9px] rounded-full text-[11px] font-bold transition-all border shrink-0 ${showFilters || activeFilters > 0 ? "bg-[#EEF3FC] text-[#4E60A9] border-[#4E60A9]/20" : "bg-gray-50 text-gray-500 border-transparent"}`}>
+            <SlidersHorizontal size={12}/>
+            Filtros
+            {activeFilters > 0 && <span className="w-4 h-4 bg-[#4E60A9] text-white text-[9px] font-bold rounded-full flex items-center justify-center">{activeFilters}</span>}
+          </button>
+          <button onClick={()=>setFilterMios(p=>!p)} suppressHydrationWarning
+            className={`flex items-center gap-1.5 px-3 py-[9px] rounded-full text-[11px] font-bold transition-all border shrink-0 ${filterMios ? "bg-[#EEF3FC] text-[#4E60A9] border-[#4E60A9]/20" : "bg-gray-50 text-gray-500 border-transparent"}`}>
+            <UserCheck size={12}/> Mis leads
+          </button>
+        </div>
+
+        {/* ── Escritorio: header completo ── */}
+        <div className="hidden md:flex justify-between items-center">
           <div className="flex items-center gap-6 pl-4">
             <div>
               <h1 className="text-[28px] font-medium text-[#202538] leading-tight tracking-[-0.03em]">CRM Central</h1>
@@ -230,7 +287,6 @@ export default function CRMPage() {
               </button>
             </div>
           </div>
-
           <div className="flex items-center gap-3">
             <div className="flex items-center bg-white border border-gray-200 rounded-full p-1 gap-1 shadow-sm">
               <button onClick={()=>setView("table")} suppressHydrationWarning
@@ -260,7 +316,7 @@ export default function CRMPage() {
 
         {/* Filtros expandibles */}
         {showFilters && (
-          <div className="pl-4 flex items-center gap-3 flex-wrap">
+          <div className="pl-1 md:pl-4 flex items-center gap-3 flex-wrap">
             <select value={filterNicho} onChange={e=>setFilterNicho(e.target.value)}
               className="inp w-auto rounded-full py-2 bg-white text-[12px] font-medium text-gray-600 border-gray-200">
               <option value="">Todos los nichos</option>
@@ -283,7 +339,7 @@ export default function CRMPage() {
 
       {view === "table" ? (
         /* -- TABLE VIEW -- */
-        <div className="flex-1 overflow-hidden p-6 pt-4 flex flex-col">
+        <div className="flex-1 overflow-hidden p-3 md:p-6 pt-3 md:pt-4 flex flex-col">
           <div ref={tableRef} className="card overflow-auto flex-1 p-2 pb-[40px]">
             <table className="t-table">
               <thead>
@@ -653,7 +709,7 @@ export default function CRMPage() {
         </div>
       ) : (
         /* -- POR AGENTE VIEW -- */
-        <div className="flex-1 overflow-y-auto p-6 pt-4 space-y-8">
+        <div className="flex-1 overflow-y-auto p-3 md:p-6 pt-3 md:pt-4 space-y-8">
           {loading ? (
             <div className="flex items-center justify-center h-40 text-[13px] font-medium text-gray-400">
               <Activity size={18} className="inline animate-spin mr-2 text-blue-500"/>Cargando pipeline...

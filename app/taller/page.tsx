@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Wrench, Plus, Activity, Search, X, ChevronRight, Clock, DollarSign, AlertTriangle, CheckCircle } from "lucide-react";
+import { Wrench, Plus, Activity, Search, X, Clock, AlertTriangle, CheckCircle } from "lucide-react";
 import OrdenModal, { Orden } from "@/components/OrdenModal";
 
 const COLS: { value: string; label: string; color: string; bg: string }[] = [
@@ -229,7 +229,7 @@ export default function TallerPage() {
   };
 
   return (
-    <div className="h-full flex flex-col font-sans">
+    <div className="h-full flex flex-col font-sans overflow-hidden">
 
       {/* Header */}
       <div className="px-4 md:px-4 pt-3 pb-2 bg-white border-b border-[#E8EFF8] shrink-0 space-y-3">
