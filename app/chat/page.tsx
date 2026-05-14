@@ -76,6 +76,7 @@ function ChatContent() {
 
   const [status, setStatus] = useState<"loading" | "disconnected" | "qr" | "ready">("loading");
   const [myPhone, setMyPhone] = useState("");
+  const [mobileView, setMobileView] = useState<"list" | "chat">("list");
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeChat, setActiveChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -199,6 +200,7 @@ function ChatContent() {
   const openChat = (c: Chat) => {
     setMessages([]);
     setActiveChat(c);
+    setMobileView("chat");
     fetchMessages(c.chat_id);
     if (!photosMap[c.phone] && !c.photo_url) {
       fetch(`/api/whatsapp/profile-pic?phone=${encodeURIComponent(c.phone)}`)
@@ -350,10 +352,10 @@ function ChatContent() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex overflow-hidden p-4 gap-4 max-w-[1600px] mx-auto w-full">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden p-2 md:p-4 gap-2 md:gap-4 max-w-[1600px] mx-auto w-full">
 
           {/* ── Lista de chats ─────────────────────────────────────────────────── */}
-          <div className="w-[340px] bg-white/60 backdrop-blur-xl rounded-3xl border border-white/50 flex flex-col shadow-xl shadow-blue-900/5 shrink-0 overflow-hidden">
+          <div className={`w-full md:w-[340px] bg-white/60 backdrop-blur-xl rounded-3xl border border-white/50 shadow-xl shadow-blue-900/5 shrink-0 overflow-hidden flex-col ${mobileView === "chat" ? "hidden md:flex" : "flex"}`}>
             <div className="p-5 border-b border-[#E2E8F4]/60 bg-white/40">
               <div className="relative group">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#4E60A9]" />
@@ -422,11 +424,16 @@ function ChatContent() {
           </div>
 
           {/* ── Chat activo ────────────────────────────────────────────────────── */}
-          <div className="flex-1 bg-white rounded-3xl border border-slate-200 flex flex-col shadow-xl shadow-blue-900/5 overflow-hidden relative">
+          <div className={`flex-1 bg-white rounded-3xl border border-slate-200 flex-col shadow-xl shadow-blue-900/5 overflow-hidden relative ${mobileView === "list" ? "hidden md:flex" : "flex"}`}>
             {activeChat ? (
               <>
                 {/* Header del chat */}
-                <div className="px-6 py-4 border-b border-slate-100 bg-white/90 backdrop-blur-md flex items-center gap-4 shrink-0 z-10">
+                <div className="px-4 md:px-6 py-3 md:py-4 border-b border-slate-100 bg-white/90 backdrop-blur-md flex items-center gap-3 md:gap-4 shrink-0 z-10">
+                  <button
+                    onClick={() => setMobileView("list")}
+                    className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors shrink-0">
+                    <X size={18} />
+                  </button>
                   <div className="relative shrink-0">
                     {photosMap[activeChat.phone] || activeChat.photo_url ? (
                       <img src={photosMap[activeChat.phone] || activeChat.photo_url} alt={activeChat.name}

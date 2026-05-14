@@ -230,9 +230,10 @@ export default function SidebarNav() {
 
       {/* Mobile Bottom Nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 h-[70px] bg-white border-t border-[#E8EFF8] flex justify-around items-center px-2 z-[60] shadow-[0_-4px_15px_-5px_rgba(0,0,0,0.05)] pb-safe">
-        <Link href="/maps" className={`flex flex-col items-center justify-center w-full h-full gap-1 ${is("/maps") ? "text-[#0E7490]" : "text-[#94A3B8]"}`}>
-          <Map size={22} strokeWidth={is("/maps") ? 2.5 : 2} />
-          <span className="text-[10px] font-bold">Mapa</span>
+        <Link href="/agenda" className={`relative flex flex-col items-center justify-center w-full h-full gap-1 ${is("/agenda") ? "text-[#0284C7]" : "text-[#94A3B8]"}`}>
+          <CalendarDays size={22} strokeWidth={is("/agenda") ? 2.5 : 2} />
+          <span className="text-[10px] font-bold">Agenda</span>
+          {(() => { const hoy = new Date().toISOString().slice(0, 10); const badge = agenda.filter(e => e.fecha_proximo_contacto?.slice(0,10) <= hoy).length; return badge > 0 ? <span className="absolute top-1 right-1.5 w-4 h-4 rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center border-2 border-white">{badge > 9 ? "9+" : badge}</span> : null; })()}
         </Link>
         <Link href="/cotizar" className={`flex flex-col items-center justify-center w-full h-full gap-1 ${is("/cotizar") ? "text-[#059669]" : "text-[#94A3B8]"}`}>
           <FileText size={22} strokeWidth={is("/cotizar") ? 2.5 : 2} />

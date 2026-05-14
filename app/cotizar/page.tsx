@@ -76,14 +76,14 @@ export default function CotizarPage() {
     <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#F4F7FB]">
 
       {/* Header */}
-      <div className="bg-white border-b border-[#E8EFF8] px-8 py-5 shrink-0">
+      <div className="bg-white border-b border-[#E8EFF8] px-5 md:px-8 py-4 md:py-5 shrink-0">
         <h1 className="text-[18px] font-extrabold text-[#1E293B] tracking-tight">Generador de Cotizaciones</h1>
         <p className="text-[11px] text-gray-400 mt-0.5">Selecciona el tipo y genera un PDF profesional listo para enviar</p>
       </div>
 
       {/* Banner de éxito */}
       {lastFolio && (
-        <div className="mx-8 mt-4 flex items-center gap-3 bg-[#ECFDF5] border border-[#6EE7B7] rounded-xl px-4 py-3 shrink-0">
+        <div className="mx-4 md:mx-8 mt-4 flex items-center gap-3 bg-[#ECFDF5] border border-[#6EE7B7] rounded-xl px-4 py-3 shrink-0">
           <CheckCircle2 size={16} className="text-[#059669] shrink-0" />
           <span className="text-[12px] font-semibold text-[#065F46]">
             Cotización <span className="font-mono">{lastFolio}</span> generada correctamente
@@ -92,8 +92,8 @@ export default function CotizarPage() {
       )}
 
       {/* Cards centradas */}
-      <div className="flex-1 flex items-center justify-center px-8 py-8 overflow-y-auto">
-        <div className="grid grid-cols-4 gap-4 w-full max-w-4xl">
+      <div className="flex-1 flex items-center justify-center px-4 md:px-8 py-5 md:py-8 overflow-y-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full max-w-4xl">
           {TIPOS.map(t => {
             const Icon = t.icon;
             return (

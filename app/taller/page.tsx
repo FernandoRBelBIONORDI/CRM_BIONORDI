@@ -232,39 +232,40 @@ export default function TallerPage() {
     <div className="h-full flex flex-col font-sans">
 
       {/* Header */}
-      <div className="px-4 mb-2 space-y-3">
-        <div className="flex justify-between items-center pl-4">
-          <div>
-            <h1 className="text-[28px] font-medium text-[#202538] leading-tight tracking-[-0.03em]">Órdenes de Servicio</h1>
-            <p className="text-[#8B95A5] text-[13px] font-medium mt-0.5">Administración técnica, reparaciones y mantenimiento</p>
+      <div className="px-4 md:px-4 pt-3 pb-2 bg-white border-b border-[#E8EFF8] shrink-0 space-y-3">
+        {/* Título */}
+        <div className="px-1">
+          <h1 className="text-[22px] md:text-[28px] font-medium text-[#202538] leading-tight tracking-[-0.03em]">Órdenes de Servicio</h1>
+          <p className="text-[#8B95A5] text-[12px] md:text-[13px] font-medium mt-0.5">Administración técnica, reparaciones y mantenimiento</p>
+        </div>
+
+        {/* Buscador + botón */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar orden o cliente..."
+              className="inp pl-10 w-full rounded-full py-[10px]" />
           </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar orden o cliente..."
-                className="inp pl-10 w-52 rounded-full py-[10px]" />
-            </div>
-            <button onClick={() => setShowNueva(true)}
-              className="btn-primary flex items-center gap-2">
-              <Plus size={14} /> Nueva Orden
-            </button>
-          </div>
+          <button onClick={() => setShowNueva(true)}
+            className="btn-primary flex items-center gap-2 shrink-0">
+            <Plus size={14} /> Nueva Orden
+          </button>
         </div>
 
         {/* Métricas */}
-        <div className="pl-4 flex items-center gap-3">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
           {[
             { label: "Activas",     val: metrics.activas,      color: "#4E60A9", bg: "#EEF3FC" },
             { label: "Listas",      val: metrics.listas,       color: "#059669", bg: "#ECFDF5" },
             { label: "Vencidas",    val: metrics.vencidas,     color: "#DC2626", bg: "#FEF2F2" },
-            { label: "Entregadas este mes", val: metrics.entregadasMes, color: "#34A853", bg: "#EEF9F1" },
+            { label: "Entregadas",  val: metrics.entregadasMes, color: "#34A853", bg: "#EEF9F1" },
           ].map(m => (
-            <div key={m.label} className="flex items-center gap-2 px-4 py-2 rounded-2xl border border-gray-100 bg-white shadow-sm">
-              <span className="text-[20px] font-extrabold tabular-nums" style={{ color: m.color }}>{m.val}</span>
-              <span className="text-[11px] font-bold text-gray-400">{m.label}</span>
+            <div key={m.label} className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-2xl border border-gray-100 bg-white shadow-sm shrink-0">
+              <span className="text-[18px] md:text-[20px] font-extrabold tabular-nums" style={{ color: m.color }}>{m.val}</span>
+              <span className="text-[10px] md:text-[11px] font-bold text-gray-400">{m.label}</span>
             </div>
           ))}
-          <label className="flex items-center gap-2 ml-auto cursor-pointer text-[12px] font-bold text-gray-400">
+          <label className="flex items-center gap-2 ml-auto cursor-pointer text-[11px] md:text-[12px] font-bold text-gray-400 shrink-0">
             <input type="checkbox" checked={showEntregadas} onChange={e => setShowEntregadas(e.target.checked)} className="accent-[#4E60A9]" />
             Ver entregadas
           </label>

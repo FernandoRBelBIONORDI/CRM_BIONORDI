@@ -135,12 +135,45 @@ export default function Dashboard() {
     <div className="h-full flex flex-col gap-4 font-sans overflow-y-auto pb-6">
 
       {/* -- Welcome -- */}
-      <div className="flex justify-between items-end px-5 mt-3">
-        <div>
-          <h1 className="text-[38px] font-medium text-[#202538] leading-tight tracking-[-1px]">Bienvenido, {session?.user?.name?.split(" ")[0] ?? ""}.</h1>
-          <p className="text-[#8B95A5] text-[13px] mt-1 font-medium tracking-tight">Panel de prospección y gestión de equipo biomédico.</p>
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end px-4 md:px-5 mt-3 gap-2 md:gap-0">
+        <div className="flex items-start justify-between md:block">
+          <div>
+            <h1 className="text-[26px] md:text-[38px] font-medium text-[#202538] leading-tight tracking-[-1px]">Bienvenido, {session?.user?.name?.split(" ")[0] ?? ""}.</h1>
+            <p className="text-[#8B95A5] text-[12px] md:text-[13px] mt-0.5 md:mt-1 font-medium tracking-tight">Panel de prospección y gestión de equipo biomédico.</p>
+          </div>
+          {/* Refresh solo visible en móvil aquí */}
+          <button onClick={load} title="Actualizar"
+            className={`md:hidden w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 hover:text-[#4E60A9] transition-all shrink-0 ${loading ? "animate-spin text-blue-400" : ""}`}>
+            <Activity size={17} strokeWidth={2}/>
+          </button>
         </div>
-        <div className="flex items-center gap-3">
+
+        {/* Stats rápidos en móvil */}
+        <div className="flex md:hidden gap-2 overflow-x-auto pb-1">
+          <div className="bg-[#EEF9F1] rounded-2xl flex items-center gap-2 px-4 py-2.5 border border-green-100 shrink-0">
+            <TrendingUp size={13} className="text-[#059669]" />
+            <div>
+              <div className="text-[12px] font-bold text-[#059669] leading-tight">{fmt(ng.ingresosMes)}</div>
+              <div className="text-[10px] text-green-600/70">Ingresos mes</div>
+            </div>
+          </div>
+          {ng.totalPorCobrar > 0 && (
+            <div className="bg-[#FFFBEB] rounded-2xl flex items-center gap-2 px-4 py-2.5 border border-amber-200 shrink-0">
+              <DollarSign size={13} className="text-[#D97706]" />
+              <div>
+                <div className="text-[12px] font-bold text-[#D97706] leading-tight">{fmt(ng.totalPorCobrar)}</div>
+                <div className="text-[10px] text-amber-600/70">{ng.otsPorCobrar.length} OT{ng.otsPorCobrar.length !== 1 ? "s" : ""} por cobrar</div>
+              </div>
+            </div>
+          )}
+          <Link href="/crm" className="bg-white rounded-2xl flex items-center gap-2 px-4 py-2.5 border border-gray-100 shrink-0">
+            <div className="text-[12px] font-bold text-[#1E293B]">{m.diagnostico}</div>
+            <div className="text-[10px] text-gray-400">En diagnóstico</div>
+          </Link>
+        </div>
+
+        {/* Pills escritorio */}
+        <div className="hidden md:flex items-center gap-3">
           <button onClick={load} title="Actualizar"
             className={`w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 hover:text-[#4E60A9] hover:scale-105 transition-all ${loading ? "animate-spin text-blue-400" : ""}`}>
             <Activity size={17} strokeWidth={2}/>
@@ -148,8 +181,6 @@ export default function Dashboard() {
           <Link href="/encontrar" className="h-[56px] w-[48px] bg-[#3B3E4B] rounded-[18px] flex items-center justify-center text-white shadow-md hover:bg-[#202538] transition-colors">
             <Search size={20} strokeWidth={2.5}/>
           </Link>
-
-          {/* Ingresos del mes */}
           <div className="h-[56px] bg-[#EEF9F1] rounded-[18px] flex items-center justify-between px-5 w-[200px] border border-green-100">
             <div>
               <div className="text-[14px] font-bold text-[#059669] tracking-tight flex items-center gap-1.5">
@@ -158,8 +189,6 @@ export default function Dashboard() {
               <div className="text-[11px] text-green-600/70 font-medium">Ingresos del mes</div>
             </div>
           </div>
-
-          {/* Por cobrar */}
           <div className={`h-[56px] rounded-[18px] flex items-center justify-between px-5 w-[185px] border ${ng.totalPorCobrar > 0 ? "bg-[#FFFBEB] border-amber-200" : "bg-white border-gray-100"}`}>
             <div>
               <div className={`text-[14px] font-bold tracking-tight flex items-center gap-1.5 ${ng.totalPorCobrar > 0 ? "text-[#D97706]" : "text-gray-300"}`}>
@@ -170,8 +199,6 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-
-          {/* Diagnóstico */}
           <Link href="/crm" className="h-[56px] bg-white/70 backdrop-blur-md rounded-[18px] shadow-sm flex items-center justify-between px-5 w-[165px] group hover:bg-white transition-colors border border-white/60">
             <div>
               <div className="text-[14px] font-bold text-[#1E293B] tracking-tight">{m.diagnostico} Leads</div>
@@ -183,7 +210,7 @@ export default function Dashboard() {
       </div>
 
       {/* -- Sub-app cards -- */}
-      <div className="px-5 flex gap-4">
+      <div className="px-4 md:px-5 flex flex-col md:flex-row gap-3 md:gap-4">
         <SubCard
           icon={Database} title="Ventas & CRM" sub="Pipeline, prospectos y seguimiento"
           color="#4E60A9" bg="#EEF3FC" href="/crm"
@@ -220,8 +247,9 @@ export default function Dashboard() {
       {showCotizacion && <CotizacionManualModal onClose={() => setShowCotizacion(false)} />}
 
       {/* -- Pipeline Funnel -- */}
-      <div className="px-5">
-        <div className="bg-white rounded-[18px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] px-6 py-4 flex items-center gap-1">
+      <div className="px-4 md:px-5">
+        <div className="bg-white rounded-[18px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] px-3 md:px-6 py-3 md:py-4 overflow-x-auto">
+        <div className="flex items-center gap-1 min-w-max md:min-w-0">
           {[
             { key:"nuevo",       label:"Nuevos",      color:"#5A85F1", bg:"#EEF3FC" },
             { key:"contactado",  label:"Contactados", color:"#D97706", bg:"#FFFBEB" },
@@ -252,11 +280,12 @@ export default function Dashboard() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mt-0.5">Total</span>
           </div>
         </div>
+        </div>
       </div>
 
       {/* -- Alertas -- */}
       {(al.seguimiento7dias.length > 0 || al.diagnostico5dias.length > 0) && (
-        <div className="px-5 flex gap-3">
+        <div className="px-4 md:px-5 flex flex-col md:flex-row gap-2 md:gap-3">
           {al.seguimiento7dias.length > 0 && (
             <Link href="/crm?status=seguimiento" className="flex-1 flex items-center gap-3 bg-[#FFF7ED] border border-orange-200 rounded-2xl px-5 py-2.5 hover:bg-orange-50 transition-colors">
               <AlertTriangle size={15} className="text-[#EA580C] shrink-0"/>
@@ -275,7 +304,7 @@ export default function Dashboard() {
       )}
 
       {/* -- Grid 3 cols -- */}
-      <div className="grid grid-cols-3 gap-5 px-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 px-4 md:px-5">
 
         {/* Agenda de Hoy */}
         <div className="bg-white rounded-[24px] shadow-[0_8px_30px_-6px_rgba(0,0,0,0.04)] p-6 flex flex-col" style={{minHeight:"300px"}}>
@@ -488,7 +517,7 @@ export default function Dashboard() {
         </div>
 
         {/* -- OTs por Cobrar + Conversión Semanal (2 cols) -- */}
-        <div className="col-span-2 grid grid-cols-2 gap-5">
+        <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
 
           {/* OTs por cobrar */}
           <div className="bg-white rounded-[24px] shadow-[0_8px_30px_-6px_rgba(0,0,0,0.04)] p-6 flex flex-col" style={{minHeight:"260px"}}>
