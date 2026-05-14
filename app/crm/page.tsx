@@ -197,7 +197,7 @@ export default function CRMPage() {
     <div className="h-full flex flex-col font-sans relative">
 
       {/* Header */}
-      <div className="bg-white border-b border-[#E8EFF8] shrink-0 px-4 pt-3 pb-2 space-y-2">
+      <div className="bg-white border-b border-[#E8EFF8] md:bg-transparent md:border-b-0 px-4 pt-3 md:pt-0 pb-2 md:mb-2 space-y-2">
 
         {/* ── Móvil: título + Nuevo Lead ── */}
         <div className="flex items-center justify-between md:hidden">

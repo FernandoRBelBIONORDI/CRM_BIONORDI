@@ -92,8 +92,8 @@ export default function CotizarPage() {
       )}
 
       {/* Cards */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-5 md:py-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full max-w-4xl md:mx-auto">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-5 md:py-8 md:flex md:items-center md:justify-center">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full max-w-4xl">
           {TIPOS.map(t => {
             const Icon = t.icon;
             return (
