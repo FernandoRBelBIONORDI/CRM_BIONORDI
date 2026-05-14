@@ -19,6 +19,14 @@
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
+/* iOS Safari: habilitar momentum scroll en contenedores overflow */
+.overflow-y-auto,
+.overflow-y-scroll,
+.overflow-x-auto,
+.overflow-x-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
 @layer components {
   /* Restoring Original Bionordi classes mapped to Light Mode Taskly Theme */
   .card { @apply bg-white rounded-3xl border-0 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)]; }
