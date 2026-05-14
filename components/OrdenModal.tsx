@@ -148,54 +148,92 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
     const timelineRows = STEPS.map((step, i) => {
       const done = i < idx;
       const current = i === idx;
-      const bg = (done || current) ? '#4E60A9' : '#E2E8F0';
+      const isLast = i === STEPS.length - 1;
+      const circleBg = (done || current) ? '#4E60A9' : '#E8EFF8';
       const icon = done ? '&#10003;' : current ? '&#9679;' : '';
-      const iconColor = (done || current) ? 'white' : '#E2E8F0';
-      const nameColor = current ? '#4E60A9' : done ? '#1E293B' : '#94A3B8';
-      const op = i > idx ? '0.4' : '1';
-      return `<tr style="opacity:${op}"><td width="36" style="vertical-align:top;padding-right:12px;padding-top:2px;"><div style="width:28px;height:28px;border-radius:50%;background:${bg};text-align:center;line-height:28px;font-size:13px;color:${iconColor};font-weight:900;">${icon}</div></td><td style="padding-bottom:14px;"><div style="font-size:14px;font-weight:700;color:${nameColor};">${step.label}</div></td></tr>`;
+      const iconColor = (done || current) ? 'white' : '#CBD5E1';
+      const nameColor = current ? '#4E60A9' : done ? '#334155' : '#CBD5E1';
+      const weight = current ? '800' : done ? '600' : '500';
+      const badge = current ? `<span style="display:inline-block;font-size:9px;font-weight:800;color:#4E60A9;background:#EEF3FC;padding:2px 9px;border-radius:10px;margin-left:8px;vertical-align:middle;">EN CURSO</span>` : '';
+      const connectorColor = done ? '#4E60A9' : '#E8EFF8';
+      const stepRow = `<tr style="opacity:${i > idx ? '0.4' : '1'}"><td width="40" valign="middle" style="padding-right:14px;padding-top:0;"><div style="width:32px;height:32px;border-radius:50%;background:${circleBg};text-align:center;line-height:32px;font-size:15px;color:${iconColor};font-weight:900;">${icon}</div></td><td style="padding-top:6px;padding-bottom:6px;"><span style="font-size:14px;font-weight:${weight};color:${nameColor};">${step.label}</span>${badge}</td></tr>`;
+      const connRow = isLast ? '' : `<tr><td style="padding-right:14px;"><div style="width:2px;height:12px;background:${connectorColor};margin:0 15px;opacity:0.35;"></div></td><td></td></tr>`;
+      return stepRow + connRow;
     }).join('');
 
     const techNote = form.diagnostico || orden.diagnostico || '';
     const falla = form.falla_reportada || orden.falla_reportada || '';
+    const tecnico = form.tecnico || orden.tecnico || '';
     const equipo = [form.equipo_tipo || orden.equipo_tipo, form.equipo_marca || orden.equipo_marca, form.equipo_modelo || orden.equipo_modelo].filter(Boolean).join(' / ');
     const serie = form.equipo_num_serie || orden.equipo_num_serie || '';
     const fechaRaw = form.fecha_compromiso || orden.fecha_compromiso || '';
     const fechaStr = fechaRaw ? new Date(fechaRaw + 'T00:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '';
     const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-    const emailHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/></head><body style="margin:0;padding:0;background:#F4F7FB;font-family:Arial,Helvetica,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F4F7FB" style="padding:24px 16px;"><tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border-bottom:1px solid #E8EFF8;border-radius:16px 16px 0 0;">
+    const emailHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head><body style="margin:0;padding:0;background:#EEF3F9;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#EEF3F9" style="padding:28px 16px;"><tr><td align="center">
+<table width="580" cellpadding="0" cellspacing="0" style="max-width:580px;width:100%;">
+
+<!-- Accent bar -->
+<tr><td height="5" bgcolor="#4E60A9" style="border-radius:16px 16px 0 0;font-size:0;line-height:0;">&nbsp;</td></tr>
+
+<!-- Header -->
+<tr><td bgcolor="#FFFFFF" style="padding:24px 32px 20px;">
   <table width="100%" cellpadding="0" cellspacing="0"><tr>
-    <td><div style="font-size:17px;font-weight:900;color:#1E293B;letter-spacing:-0.03em;">BIONORDI</div><div style="font-size:9px;color:#4E60A9;font-weight:700;letter-spacing:0.1em;margin-top:2px;">MEDICAL TECHNOLOGY</div></td>
-    <td align="right"><span style="font-size:11px;font-weight:800;color:#4E60A9;background:#EEF3FC;padding:4px 12px;border-radius:20px;">Folio: ${orden.folio}</span></td>
+    <td valign="middle">
+      <div style="font-size:20px;font-weight:900;color:#1E293B;letter-spacing:-0.04em;">BIONORDI</div>
+      <div style="font-size:8px;font-weight:800;color:#4E60A9;letter-spacing:0.18em;margin-top:1px;text-transform:uppercase;">Medical Technology</div>
+    </td>
+    <td align="right" valign="middle">
+      <span style="font-size:11px;font-weight:800;color:#4E60A9;background:#EEF3FC;padding:5px 14px;border-radius:20px;border:1px solid #C7D6F5;">Folio: ${orden.folio}</span>
+    </td>
   </tr></table>
 </td></tr>
-<tr><td bgcolor="#FFFFFF" style="padding:28px 32px;border-bottom:1px solid #F1F5F9;">
-  <div style="font-size:22px;font-weight:900;color:#1E293B;margin-bottom:6px;">Actualización de Servicio</div>
-  <div style="font-size:13px;color:#64748B;margin-bottom:20px;">${hoy}</div>
-  <div style="display:inline-block;font-size:13px;font-weight:800;color:${st.color};background:${st.bg};padding:8px 20px;border-radius:20px;border:1px solid ${st.color}44;">${st.label}</div>
-  ${fechaStr ? `<div style="margin-top:20px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:14px 18px;"><div style="font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Entrega Estimada</div><div style="font-size:15px;font-weight:800;color:#1E293B;">${fechaStr}</div></div>` : ''}
+
+<!-- Hero: status -->
+<tr><td bgcolor="#FFFFFF" style="padding:24px 32px 28px;border-top:1px solid #F1F5F9;">
+  <div style="font-size:9px;font-weight:800;color:#94A3B8;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;">Actualización de Servicio</div>
+  <div style="font-size:24px;font-weight:900;color:#1E293B;margin-bottom:4px;letter-spacing:-0.03em;">Estado actual del equipo</div>
+  <div style="font-size:13px;color:#94A3B8;margin-bottom:22px;">${hoy}</div>
+  <div style="display:inline-block;font-size:14px;font-weight:800;color:${st.color};background:${st.bg};padding:10px 24px;border-radius:50px;border:1.5px solid ${st.color}44;">${st.label}</div>
+  ${fechaStr ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:18px;"><tr><td bgcolor="#F8FAFC" style="border:1px solid #E2E8F0;border-radius:12px;padding:14px 18px;"><div style="font-size:9px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:5px;">Entrega Estimada</div><div style="font-size:15px;font-weight:800;color:#1E293B;">${fechaStr}</div></td></tr></table>` : ''}
 </td></tr>
-${equipo || serie ? `<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border-bottom:1px solid #F1F5F9;">
-  <div style="font-size:10px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">Información del Equipo</div>
-  ${equipo ? `<div style="font-size:15px;font-weight:700;color:#1E293B;margin-bottom:8px;">${equipo}</div>` : ''}
-  ${serie ? `<span style="font-size:12px;font-weight:600;color:#4E60A9;background:#EEF3FC;padding:3px 10px;border-radius:6px;">No. Serie: ${serie}</span>` : ''}
+
+${equipo || serie ? `<!-- Equipment -->
+<tr><td bgcolor="#FFFFFF" style="padding:0 32px 24px;">
+  <table width="100%" cellpadding="0" cellspacing="0"><tr><td bgcolor="#F8FAFC" style="border:1px solid #E8EFF8;border-radius:14px;padding:16px 20px;">
+    <div style="font-size:9px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px;">Equipo en Servicio</div>
+    ${equipo ? `<div style="font-size:15px;font-weight:700;color:#1E293B;margin-bottom:8px;">${equipo}</div>` : ''}
+    <table cellpadding="0" cellspacing="0"><tr>
+      ${serie ? `<td><span style="font-size:11px;font-weight:700;color:#4E60A9;background:#EEF3FC;padding:3px 12px;border-radius:6px;border:1px solid #C7D6F5;">No. Serie: ${serie}</span></td>` : ''}
+      ${tecnico ? `<td style="padding-left:8px;"><span style="font-size:11px;font-weight:700;color:#64748B;background:#F1F5F9;padding:3px 12px;border-radius:6px;">Técnico: ${tecnico}</span></td>` : ''}
+    </tr></table>
+  </td></tr></table>
 </td></tr>` : ''}
-<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border-bottom:1px solid #F1F5F9;">
-  <div style="font-size:10px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;">Progreso del Servicio</div>
+
+<!-- Divider -->
+<tr><td bgcolor="#FFFFFF" style="padding:0 32px;"><div style="height:1px;background:#F1F5F9;"></div></td></tr>
+
+<!-- Timeline -->
+<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;">
+  <div style="font-size:9px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:20px;">Progreso del Servicio</div>
   <table width="100%" cellpadding="0" cellspacing="0">${timelineRows}</table>
 </td></tr>
-${falla || techNote ? `<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border-bottom:1px solid #F1F5F9;">
-  <div style="font-size:10px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">Notas del Servicio</div>
-  ${falla ? `<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:6px;">Falla reportada</div><div style="font-size:13px;color:#475569;background:#F8FAFC;padding:12px;border-radius:8px;border:1px solid #E2E8F0;line-height:1.6;">${falla.replace(/\n/g, '<br/>')}</div></div>` : ''}
-  ${techNote ? `<div><div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:6px;">Diagnóstico / Avance técnico</div><div style="font-size:13px;color:#475569;background:#F8FAFC;padding:12px;border-radius:8px;border:1px solid #E2E8F0;line-height:1.6;">${techNote.replace(/\n/g, '<br/>')}</div></div>` : ''}
+
+${falla || techNote ? `<!-- Notes -->
+<tr><td bgcolor="#F8FAFC" style="padding:24px 32px;border-top:1px solid #F1F5F9;">
+  <div style="font-size:9px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:16px;">Notas del Servicio</div>
+  ${falla ? `<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:6px;">Falla reportada</div><div style="font-size:13px;color:#475569;background:#FFFFFF;padding:12px 16px;border-radius:10px;border:1px solid #E2E8F0;line-height:1.7;">${falla.replace(/\n/g, '<br/>')}</div></div>` : ''}
+  ${techNote ? `<div><div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:6px;">Diagnóstico / Avance técnico</div><div style="font-size:13px;color:#475569;background:#FFFFFF;padding:12px 16px;border-radius:10px;border:1px solid #E2E8F0;line-height:1.7;">${techNote.replace(/\n/g, '<br/>')}</div></div>` : ''}
 </td></tr>` : ''}
-<tr><td bgcolor="#F8FAFC" style="padding:24px 32px;border-radius:0 0 16px 16px;border-top:1px solid #E8EFF8;">
-  <div style="font-size:12px;color:#64748B;line-height:1.7;text-align:center;"><strong style="color:#1E293B;">Bionordi Medical Technology</strong> | Servicio Técnico Especializado<br/>Para cualquier consulta, responda a este correo o comuníquese directamente con su asesor Bionordi.</div>
+
+<!-- Footer -->
+<tr><td bgcolor="#1E293B" style="padding:24px 32px;border-radius:0 0 16px 16px;">
+  <div style="font-size:14px;font-weight:900;color:#FFFFFF;margin-bottom:3px;">Bionordi Medical Technology</div>
+  <div style="font-size:12px;color:#64748B;margin-bottom:16px;">Servicio Técnico Especializado en Equipos de Ultrasonido</div>
+  <div style="font-size:11px;color:#475569;line-height:1.8;">Para cualquier consulta responda a este correo<br/>o comuníquese directamente con su asesor Bionordi.</div>
 </td></tr>
+
 </table></td></tr></table></body></html>`;
 
     try {
