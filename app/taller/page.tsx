@@ -229,7 +229,7 @@ export default function TallerPage() {
   };
 
   return (
-    <div className="h-full flex flex-col font-sans overflow-hidden">
+    <div className="flex-1 flex flex-col font-sans overflow-hidden">
 
       {/* Header */}
       <div className="px-4 md:px-4 pt-3 pb-2 bg-white border-b border-[#E8EFF8] shrink-0 space-y-3">

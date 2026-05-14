@@ -73,7 +73,7 @@ export default function CotizarPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#F4F7FB]">
+    <div className="flex-1 flex flex-col overflow-hidden bg-[#F4F7FB]">
 
       {/* Header */}
       <div className="bg-white border-b border-[#E8EFF8] px-5 md:px-8 py-4 md:py-5 shrink-0">
