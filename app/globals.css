@@ -44,19 +44,23 @@ html {
   }
 }
 
-/* Mobile: cap main to the visible area above the nav bar so nothing hides behind it */
+/*
+ * Mobile: fix main to the visual viewport above the nav bar.
+ * position:fixed + insets keeps main anchored to the VISUAL viewport,
+ * so when the keyboard opens the element resizes automatically with no
+ * gap between the content bottom and the fixed nav bar.
+ * height-based calc() doesn't work here because the element is placed
+ * in the layout viewport but sized from the visual viewport.
+ */
 @media (max-width: 767px) {
   main {
-    height: calc(100vh - 70px);
-    max-height: calc(100vh - 70px);
-  }
-}
-@supports (height: 100dvh) {
-  @media (max-width: 767px) {
-    main {
-      height: calc(100dvh - 70px);
-      max-height: calc(100dvh - 70px);
-    }
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 70px !important;
+    height: auto !important;
+    max-height: none !important;
   }
 }
 
