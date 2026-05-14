@@ -273,7 +273,7 @@ export default function TallerPage() {
       </div>
 
       {/* Kanban */}
-      <div className="flex-1 overflow-x-auto p-4 md:p-6 pt-2 snap-x snap-mandatory pb-24 md:pb-4">
+      <div className="flex-1 min-h-0 overflow-x-auto p-4 md:p-6 pt-2 snap-x snap-mandatory pb-24 md:pb-4">
         {loading ? (
           <div className="h-full flex items-center justify-center">
             <Activity size={24} className="animate-spin text-[#4E60A9]" />
@@ -292,7 +292,7 @@ export default function TallerPage() {
                   </div>
 
                   {/* Cards */}
-                  <div className="flex-1 overflow-y-auto space-y-2 pr-1 pb-4">
+                  <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1 pb-4">
                     {colOrdenes.length === 0 && (
                       <div className="py-6 text-center text-[11px] text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">Sin órdenes</div>
                     )}
