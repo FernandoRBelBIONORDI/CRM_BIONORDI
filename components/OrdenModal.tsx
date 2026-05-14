@@ -225,7 +225,7 @@ ${falla || techNote ? `<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border
     : null;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div className="fixed inset-0 z-[70] flex justify-end">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div ref={panelRef}
         className="relative w-full sm:w-[700px] h-full bg-white shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right"
@@ -280,10 +280,10 @@ ${falla || techNote ? `<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border
           )}
           
           {/* Tabs */}
-          <div className="flex items-center gap-4 mt-4 border-b border-gray-100 pb-0">
+          <div className="flex items-center gap-4 mt-4 border-b border-gray-100 pb-0 overflow-x-auto scrollbar-none">
             {TABS.map(t => (
               <button key={t.id} onClick={() => setActiveTab(t.id)}
-                className={`text-[12px] font-bold pb-2 transition-all ${activeTab === t.id ? 'text-[#4E60A9] border-b-2 border-[#4E60A9]' : 'text-gray-400 border-b-2 border-transparent hover:text-gray-600'}`}>
+                className={`text-[12px] font-bold pb-2 transition-all shrink-0 ${activeTab === t.id ? 'text-[#4E60A9] border-b-2 border-[#4E60A9]' : 'text-gray-400 border-b-2 border-transparent hover:text-gray-600'}`}>
                 {t.label}
               </button>
             ))}
@@ -407,18 +407,18 @@ ${falla || techNote ? `<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;border
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 shrink-0 flex items-center justify-between bg-white z-10">
+        <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-100 shrink-0 flex flex-col md:flex-row md:items-center md:justify-between gap-2 bg-white z-10">
           <button onClick={async () => {
             if (!window.confirm(`¿Eliminar orden ${orden.folio}?`)) return;
             const res = await fetch("/api/ordenes", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: orden.id }) });
             if (!res.ok) { alert("Error al eliminar la orden."); return; }
             onDelete(orden.id);
             onClose();
-          }} className="flex items-center gap-1.5 text-[12px] font-bold text-gray-400 hover:text-[#DC2626] hover:bg-[#FEF2F2] px-3 py-2 rounded-full transition-colors">
+          }} className="flex items-center gap-1.5 text-[12px] font-bold text-gray-400 hover:text-[#DC2626] hover:bg-[#FEF2F2] px-3 py-2 rounded-full transition-colors self-start md:self-auto">
             <Trash2 size={13} /> Eliminar Orden
           </button>
-          
-          <div className="flex items-center gap-3">
+
+          <div className="flex items-center justify-between md:justify-end gap-3">
             <button onClick={sendStatusEmail} disabled={sendingEmail}
               className="flex items-center gap-1.5 text-[12px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] px-3 py-2 rounded-full transition-colors disabled:opacity-50">
               <Mail size={13} /> {sendingEmail ? "Enviando…" : "Actualizar por correo"}
