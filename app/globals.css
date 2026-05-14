@@ -19,6 +19,25 @@
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
+/*
+ * iOS Safari 100vh bug fix:
+ * En iOS, 100vh = pantalla completa incluyendo la URL bar (aunque esté visible).
+ * Esto hace que el layout se extienda más allá del área visible y oculta
+ * elementos al fondo (como el input del chat).
+ * 100dvh = "dynamic viewport height" = área realmente visible. Soportado iOS 15.4+.
+ * -webkit-fill-available = fallback para iOS < 15.4.
+ * Como este CSS es "unlayered" (fuera de @layer), tiene precedencia sobre
+ * las utilidades de Tailwind (que van en @layer utilities).
+ */
+body {
+  height: -webkit-fill-available; /* iOS < 15.4 */
+}
+@supports (height: 100dvh) {
+  body {
+    height: 100dvh; /* iOS 15.4+, Chrome 108+, Firefox 101+ */
+  }
+}
+
 /* iOS Safari: habilitar momentum scroll en contenedores overflow */
 .overflow-y-auto,
 .overflow-y-scroll,
