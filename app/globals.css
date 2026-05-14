@@ -37,6 +37,22 @@ html {
   }
 }
 
+/* Mobile: cap main to the visible area above the nav bar so nothing hides behind it */
+@media (max-width: 767px) {
+  main {
+    height: calc(100vh - 70px);
+    max-height: calc(100vh - 70px);
+  }
+}
+@supports (height: 100dvh) {
+  @media (max-width: 767px) {
+    main {
+      height: calc(100dvh - 70px);
+      max-height: calc(100dvh - 70px);
+    }
+  }
+}
+
 @layer components {
   /* Restoring Original Bionordi classes mapped to Light Mode Taskly Theme */
   .card { @apply bg-white rounded-3xl border-0 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)]; }
