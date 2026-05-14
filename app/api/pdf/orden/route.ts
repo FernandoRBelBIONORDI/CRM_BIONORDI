@@ -151,30 +151,30 @@ export async function GET(req: Request) {
             </div>
           </div>
 
-          <!-- Reporte Técnico -->
+          <!-- Reporte Técnico: falla, diagnóstico, actividades, fotos actividades, refacciones, pruebas -->
           <div class="tech-card">
             <div class="card-title">Diagnóstico y Reporte Técnico</div>
-            
+
             ${orden.falla_reportada ? `
-            <div style="margin-bottom: 12px;">
+            <div style="margin-bottom:12px;">
               <div class="eq-lbl">Falla Reportada por el Cliente</div>
               <div class="diag-p">${orden.falla_reportada}</div>
             </div>` : ''}
-            
+
             ${orden.diagnostico ? `
-            <div style="margin-bottom: 12px;">
+            <div style="margin-bottom:12px;">
               <div class="eq-lbl">Diagnóstico Técnico</div>
               <div class="diag-p">${orden.diagnostico}</div>
             </div>` : ''}
 
             ${orden.actividades_realizadas ? `
-            <div style="margin-bottom: 12px;">
+            <div style="margin-bottom:12px;">
               <div class="eq-lbl">Actividades Realizadas</div>
               <div class="diag-p">${orden.actividades_realizadas}</div>
             </div>` : ''}
 
             ${fotosActB64.length > 0 ? `
-            <div style="margin-bottom:12px;page-break-inside:avoid;">
+            <div style="margin-bottom:12px;page-break-inside:avoid;break-inside:avoid;">
               <div class="eq-lbl" style="margin-bottom:8px;">Evidencia Fotográfica — Actividades Realizadas</div>
               <div style="display:flex;gap:10px;flex-wrap:wrap;">
                 ${fotosActB64.map((b64, i) => `
@@ -186,25 +186,30 @@ export async function GET(req: Request) {
             </div>` : ''}
 
             ${orden.refacciones_utilizadas ? `
-            <div style="margin-bottom: 12px;">
+            <div style="margin-bottom:12px;">
               <div class="eq-lbl">Refacciones Utilizadas</div>
               <div class="diag-p">${orden.refacciones_utilizadas}</div>
             </div>` : ''}
 
             ${orden.pruebas_realizadas ? `
-            <div style="margin-bottom: 12px;">
+            <div style="margin-bottom:0;">
               <div class="eq-lbl">Pruebas y Calibración</div>
-              <div class="diag-p">${orden.pruebas_realizadas}</div>
+              <div class="diag-p" style="margin-bottom:0;">${orden.pruebas_realizadas}</div>
             </div>` : ''}
-            
+          </div>
+
+          <!-- Conclusión técnica final + fotos resultado: tarjeta independiente, nunca se parte -->
+          ${orden.reporte_tecnico_final || fotosResB64.length > 0 ? `
+          <div class="tech-card avoid-break" style="border-left:4px solid #4E60A9;">
+            <div class="card-title" style="color:#4E60A9;">Conclusión Técnica Final</div>
+
             ${orden.reporte_tecnico_final ? `
-            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #E2E8F0;">
-              <div class="eq-lbl" style="color:#4E60A9;">Conclusión Técnica Final</div>
-              <div class="diag-p" style="color:#1E293B; font-weight:600; margin-top:4px;">${orden.reporte_tecnico_final}</div>
+            <div style="margin-bottom:${fotosResB64.length > 0 ? '16px' : '0'};">
+              <div class="diag-p" style="color:#1E293B;font-weight:600;">${orden.reporte_tecnico_final}</div>
             </div>` : ''}
 
             ${fotosResB64.length > 0 ? `
-            <div style="margin-top:15px;padding-top:15px;border-top:1px solid #E2E8F0;page-break-inside:avoid;">
+            <div>
               <div class="eq-lbl" style="color:#059669;margin-bottom:8px;">Evidencia Fotográfica — Estado Final del Equipo</div>
               <div style="display:flex;gap:10px;flex-wrap:wrap;">
                 ${fotosResB64.map((b64, i) => `
@@ -214,7 +219,7 @@ export async function GET(req: Request) {
                 </div>`).join('')}
               </div>
             </div>` : ''}
-          </div>
+          </div>` : ''}
 
           <!-- Recomendaciones y Garantía -->
           ${orden.recomendaciones || orden.garantia ? `
