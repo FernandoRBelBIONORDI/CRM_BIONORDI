@@ -37,6 +37,13 @@ html {
   }
 }
 
+/* Prevent iOS auto-zoom on input focus — iOS zooms when font-size < 16px */
+@media (max-width: 767px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
 /* Mobile: cap main to the visible area above the nav bar so nothing hides behind it */
 @media (max-width: 767px) {
   main {
