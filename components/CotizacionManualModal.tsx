@@ -674,10 +674,10 @@ export default function CotizacionManualModal({
       <div class="diag-grid">
         <div style="flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;height:148px;overflow:hidden;">
           <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="width:100%;height:140px;object-fit:contain;display:block;" />
-          <div style="position:absolute;top:calc(25% - 10px);left:calc(39% - 10px);width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;border:2px solid #fff;box-sizing:border-box;">1</div>
-          <div style="position:absolute;top:calc(20% - 10px);left:calc(55% - 10px);width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;border:2px solid #fff;box-sizing:border-box;">2</div>
-          <div style="position:absolute;top:calc(68% - 10px);left:calc(30% - 10px);width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;border:2px solid #fff;box-sizing:border-box;">3</div>
-          <div style="position:absolute;top:calc(88% - 10px);left:calc(82% - 10px);width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;border:2px solid #fff;box-sizing:border-box;">4</div>
+          <div style="position:absolute;top:25%;left:39%;margin-top:-10px;margin-left:-10px;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;border:2px solid #fff;box-sizing:border-box;">1</div>
+          <div style="position:absolute;top:20%;left:55%;margin-top:-10px;margin-left:-10px;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;border:2px solid #fff;box-sizing:border-box;">2</div>
+          <div style="position:absolute;top:68%;left:30%;margin-top:-10px;margin-left:-10px;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;border:2px solid #fff;box-sizing:border-box;">3</div>
+          <div style="position:absolute;top:88%;left:82%;margin-top:-10px;margin-left:-10px;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;border:2px solid #fff;box-sizing:border-box;">4</div>
         </div>
         <div class="diag-list" style="gap:8px;">
           <div class="d-item"><div class="d-num">1</div><div><strong>Lente Acústico / Membrana:</strong> Retiro del material desgastado, descontaminación del arreglo de cristales e inyección de nuevo polímero acústico con curado térmico.</div></div>
@@ -720,10 +720,10 @@ export default function CotizacionManualModal({
           <div class="img-container" style="height:220px;padding:4px;">
             <div style="position:relative;display:inline-block;height:100%;">
               <img src="${imgFront}" alt="Equipo Móvil Frente" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block;" />
-              <div class="dot" style="top:calc(15% - 10px);left:calc(50% - 10px);">1</div>
-              <div class="dot" style="top:calc(45% - 10px);left:calc(20% - 10px);">2</div>
-              <div class="dot" style="top:calc(45% - 10px);left:calc(80% - 10px);">3</div>
-              <div class="dot" style="top:calc(85% - 10px);left:calc(50% - 10px);">4</div>
+              <div class="dot" style="top:15%;left:50%;margin-top:-10px;margin-left:-10px;">1</div>
+              <div class="dot" style="top:45%;left:20%;margin-top:-10px;margin-left:-10px;">2</div>
+              <div class="dot" style="top:45%;left:80%;margin-top:-10px;margin-left:-10px;">3</div>
+              <div class="dot" style="top:85%;left:50%;margin-top:-10px;margin-left:-10px;">4</div>
             </div>
           </div>
           <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
@@ -738,9 +738,9 @@ export default function CotizacionManualModal({
           <div class="img-container" style="height:220px;padding:4px;">
             <div style="position:relative;display:inline-block;height:100%;">
               <img src="${imgBack}" alt="Equipo Móvil Trasera" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block;" />
-              <div class="dot" style="top:calc(15% - 10px);left:calc(50% - 10px);">A</div>
-              <div class="dot" style="top:calc(45% - 10px);left:calc(85% - 10px);">B</div>
-              <div class="dot" style="top:calc(80% - 10px);left:calc(30% - 10px);">C</div>
+              <div class="dot" style="top:15%;left:50%;margin-top:-10px;margin-left:-10px;">A</div>
+              <div class="dot" style="top:45%;left:85%;margin-top:-10px;margin-left:-10px;">B</div>
+              <div class="dot" style="top:80%;left:30%;margin-top:-10px;margin-left:-10px;">C</div>
             </div>
           </div>
           <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">

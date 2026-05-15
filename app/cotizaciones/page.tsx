@@ -348,21 +348,21 @@ export default function CotizacionesPage() {
 
       {/* PDF Viewer overlay */}
       {pdfViewerUrl && (
-        <div className="fixed inset-0 z-[80] flex flex-col bg-gray-950/90">
-          <div className="flex items-center justify-between px-4 py-2.5 bg-gray-900 border-b border-gray-700 shrink-0">
-            <span className="text-white text-[13px] font-bold">Vista previa — PDF</span>
+        <div className="fixed inset-0 z-[200] flex flex-col bg-gray-900">
+          <div className="flex items-center justify-between px-4 py-2 bg-gray-900 border-b border-gray-700 shrink-0">
+            <span className="text-white text-[12px] font-semibold tracking-wide">PDF — Cotización</span>
             <div className="flex items-center gap-2">
               <a href={pdfViewerUrl} download
                 className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg transition-colors">
                 <Download size={12} /> Descargar
               </a>
               <button onClick={() => setPdfViewerUrl(null)}
-                className="w-7 h-7 flex items-center justify-center rounded-full text-gray-300 hover:bg-gray-700 transition-colors">
-                <X size={15} />
+                className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-700 transition-colors">
+                <X size={14} />
               </button>
             </div>
           </div>
-          <iframe src={pdfViewerUrl} className="flex-1 w-full border-0" title="PDF de cotización" />
+          <iframe src={pdfViewerUrl} className="flex-1 min-h-0 w-full border-0 bg-white" title="PDF de cotización" />
         </div>
       )}
     </div>

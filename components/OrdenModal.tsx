@@ -701,21 +701,21 @@ ${falla || techNote ? `<!-- Notes -->
       )}
 
       {showPdfPreview && (
-        <div className="fixed inset-0 z-[100] flex flex-col bg-gray-950/90">
-          <div className="flex items-center justify-between px-4 py-2.5 bg-gray-900 border-b border-gray-700 shrink-0">
-            <span className="text-white text-[13px] font-bold">Reporte — {orden.folio}</span>
+        <div className="fixed inset-0 z-[200] flex flex-col bg-gray-900">
+          <div className="flex items-center justify-between px-4 py-2 bg-gray-900 border-b border-gray-700 shrink-0">
+            <span className="text-white text-[12px] font-semibold tracking-wide">Reporte — {orden.folio}</span>
             <div className="flex items-center gap-2">
               <a href={`/api/pdf/orden?id=${orden.id}`} download={`Orden_${orden.folio}.pdf`}
                 className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg transition-colors">
                 <Download size={12} /> Descargar
               </a>
               <button onClick={() => setShowPdfPreview(false)}
-                className="w-7 h-7 flex items-center justify-center rounded-full text-gray-300 hover:bg-gray-700 transition-colors">
-                <X size={15} />
+                className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-700 transition-colors">
+                <X size={14} />
               </button>
             </div>
           </div>
-          <iframe src={`/api/pdf/orden?id=${orden.id}`} className="flex-1 w-full border-0" title={`Reporte ${orden.folio}`} />
+          <iframe src={`/api/pdf/orden?id=${orden.id}`} className="flex-1 min-h-0 w-full border-0 bg-white" title={`Reporte ${orden.folio}`} />
         </div>
       )}
     </>

@@ -16,7 +16,6 @@ export async function POST(req: Request) {
         '--disable-gpu',
         '--no-first-run',
         '--no-zygote',
-        '--single-process',
       ],
     });
 
