@@ -119,6 +119,7 @@ function initDb(): Database.Database {
     `ALTER TABLE ordenes_trabajo ADD COLUMN firmas_json TEXT`,
     `ALTER TABLE ordenes_trabajo ADD COLUMN tiempos_servicio_json TEXT`,
     `ALTER TABLE ordenes_trabajo ADD COLUMN reporte_tecnico_final TEXT`,
+    `ALTER TABLE ordenes_trabajo ADD COLUMN tipo_orden TEXT DEFAULT 'reparacion'`,
   ]) { try { _db.exec(sql); } catch { /* column already exists */ } }
 
   _db.exec(`

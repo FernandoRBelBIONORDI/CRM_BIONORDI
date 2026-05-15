@@ -19,6 +19,7 @@ function NuevaOrdenModal({ onClose, onCreate, initialLeadId }: { onClose: () => 
   const [leads, setLeads] = useState<any[]>([]);
   const [form, setForm] = useState({
     lead_id: initialLeadId ? String(initialLeadId) : "",
+    tipo_orden: "reparacion",
     equipo_tipo: "", equipo_marca: "", equipo_modelo: "",
     equipo_num_serie: "", falla_reportada: "", fecha_ingreso: new Date().toISOString().slice(0, 10),
     fecha_compromiso: "", tecnico: "", presupuesto: "",
@@ -74,6 +75,24 @@ function NuevaOrdenModal({ onClose, onCreate, initialLeadId }: { onClose: () => 
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+          {/* Tipo de orden */}
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Tipo de orden</label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { val: "reparacion",    prefix: "BRT", label: "Reparación de Transductor" },
+                { val: "mantenimiento", prefix: "BME", label: "Mantenimiento de Equipo" },
+                { val: "venta",         prefix: "BVE", label: "Venta de Equipo" },
+              ].map(t => (
+                <button key={t.val} onClick={() => setForm(p => ({ ...p, tipo_orden: t.val }))}
+                  className={`text-left p-2.5 rounded-xl border transition-all ${form.tipo_orden === t.val ? "border-[#4E60A9] bg-[#EEF3FC]" : "border-gray-200 hover:border-gray-300 bg-gray-50"}`}>
+                  <div className={`text-[10px] font-black mono mb-0.5 ${form.tipo_orden === t.val ? "text-[#4E60A9]" : "text-gray-400"}`}>{t.prefix}</div>
+                  <div className={`text-[11px] font-bold leading-tight ${form.tipo_orden === t.val ? "text-[#1E293B]" : "text-gray-500"}`}>{t.label}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Vincular cliente */}
           <div>
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Vincular a lead (opcional)</label>

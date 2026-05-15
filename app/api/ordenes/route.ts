@@ -2,14 +2,21 @@ import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { requireAuth } from '@/lib/require-auth';
 
-function generarFolio(): string {
+const TIPO_PREFIJO: Record<string, string> = {
+  reparacion:    'BRT',
+  mantenimiento: 'BME',
+  venta:         'BVE',
+};
+
+function generarFolio(tipo?: string): string {
   const now = new Date();
   const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const prefix = TIPO_PREFIJO[tipo || ''] || 'BRT';
   const last = db.prepare(
     `SELECT folio FROM ordenes_trabajo WHERE folio LIKE ? ORDER BY id DESC LIMIT 1`
-  ).get(`OT-${ym}-%`) as any;
+  ).get(`${prefix}-${ym}-%`) as any;
   const seq = last ? parseInt(last.folio.split('-')[2]) + 1 : 1;
-  return `OT-${ym}-${String(seq).padStart(3, '0')}`;
+  return `${prefix}-${ym}-${String(seq).padStart(3, '0')}`;
 }
 
 const SELECT_BASE = `
@@ -52,7 +59,7 @@ export async function POST(req: Request) {
   try {
     const data = await req.json();
     const now = new Date().toISOString();
-    const folio = generarFolio();
+    const folio = generarFolio(data.tipo_orden);
 
     let fallbackData: any = {};
     if (data.lead_id) {
@@ -69,14 +76,14 @@ export async function POST(req: Request) {
 
     const { lastInsertRowid } = db.prepare(`
       INSERT INTO ordenes_trabajo (
-        folio, lead_id, cotizacion_id,
+        folio, tipo_orden, lead_id, cotizacion_id,
         datos_fiscales, datos_hospital, direccion, correo, telefono,
         equipo_tipo, equipo_marca, equipo_modelo, equipo_num_serie, equipo_version, equipo_ano, equipo_area_medica, accesorios_recibidos,
         falla_reportada, diagnostico, actividades_realizadas, mantenimiento_realizado, refacciones_utilizadas, pruebas_realizadas, notas_tecnicas, observaciones, recomendaciones, garantia, fotografias_json, firmas_json, tiempos_servicio_json, reporte_tecnico_final, tecnico,
         presupuesto, presupuesto_aprobado, precio_final,
         status, fecha_ingreso, fecha_compromiso, fecha_entrega, fecha_creacion
       ) VALUES (
-        @folio, @lead_id, @cotizacion_id,
+        @folio, @tipo_orden, @lead_id, @cotizacion_id,
         @datos_fiscales, @datos_hospital, @direccion, @correo, @telefono,
         @equipo_tipo, @equipo_marca, @equipo_modelo, @equipo_num_serie, @equipo_version, @equipo_ano, @equipo_area_medica, @accesorios_recibidos,
         @falla_reportada, @diagnostico, @actividades_realizadas, @mantenimiento_realizado, @refacciones_utilizadas, @pruebas_realizadas, @notas_tecnicas, @observaciones, @recomendaciones, @garantia, @fotografias_json, @firmas_json, @tiempos_servicio_json, @reporte_tecnico_final, @tecnico,
@@ -85,6 +92,7 @@ export async function POST(req: Request) {
       )
     `).run({
       folio,
+      tipo_orden:           data.tipo_orden     || 'reparacion',
       lead_id:              data.lead_id        || null,
       cotizacion_id:        data.cotizacion_id  || null,
       datos_fiscales:       data.datos_fiscales || null,
@@ -142,7 +150,7 @@ export async function PATCH(req: Request) {
     if (!id) return NextResponse.json({ error: 'id requerido' }, { status: 400 });
 
     const COLS = new Set([
-      'cotizacion_id',
+      'tipo_orden', 'cotizacion_id',
       'datos_fiscales', 'datos_hospital', 'direccion', 'correo', 'telefono',
       'equipo_tipo','equipo_marca','equipo_modelo','equipo_num_serie', 'equipo_version', 'equipo_ano', 'equipo_area_medica', 'accesorios_recibidos',
       'falla_reportada','diagnostico', 'actividades_realizadas', 'mantenimiento_realizado', 'refacciones_utilizadas', 'pruebas_realizadas',

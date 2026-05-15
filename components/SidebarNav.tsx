@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import {
   Home, Search, Database, Wrench, FileText,
-  Settings, ChevronLeft, ChevronRight, Layers, Users, MessageCircle, Map, FolderOpen, Mail, LogOut, UserCog, CalendarDays,
+  Settings, ChevronLeft, ChevronRight, Layers, Users, MessageCircle, Map, FolderOpen, Mail, LogOut, UserCog, CalendarDays, ClipboardList,
 } from "lucide-react";
 
 function Section({ label, collapsed }: { label: string; collapsed: boolean }) {
@@ -162,8 +162,9 @@ export default function SidebarNav() {
           <Section label="Taller"    collapsed={collapsed} />
           <NavItem href="/taller"     icon={Wrench}   label="Servicios"     active={is("/taller")}       collapsed={collapsed} color="#7C3AED" badge={tallerBadge} />
           <Section label="Herramientas" collapsed={collapsed} />
-          <NavItem href="/cotizar"    icon={FileText} label="Cotizar"      active={is("/cotizar")}      collapsed={collapsed} color="#059669" />
-          <NavItem href="/catalogo"   icon={Layers}   label="Catálogo"    active={is("/catalogo")}     collapsed={collapsed} color="#059669" />
+          <NavItem href="/cotizar"       icon={FileText} label="Cotizar"       active={is("/cotizar")}       collapsed={collapsed} color="#059669" />
+          <NavItem href="/cotizaciones"  icon={ClipboardList} label="Cotizaciones" active={is("/cotizaciones")} collapsed={collapsed} color="#059669" />
+          <NavItem href="/catalogo"      icon={Layers}   label="Catálogo"      active={is("/catalogo")}      collapsed={collapsed} color="#059669" />
           <NavItem href="/maps"       icon={Map}      label="Mapa leads"  active={is("/maps")}         collapsed={collapsed} color="#0E7490" />
           <NavItem href="/configuracion" icon={Settings} label="Config"   active={is("/configuracion")} collapsed={collapsed} />
           {isAdmin && (
@@ -293,6 +294,9 @@ export default function SidebarNav() {
                 </Link>
                 <Link onClick={() => setMobileMenuOpen(false)} href="/cotizar" className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
                   <FileText size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Cotizar</span>
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href="/cotizaciones" className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
+                  <ClipboardList size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Cotizaciones</span>
                 </Link>
                 <Link onClick={() => setMobileMenuOpen(false)} href="/maps" className="bg-cyan-50 text-cyan-600 hover:bg-cyan-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
                   <Map size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Mapa leads</span>

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { X, CheckCircle, Clock, FileText, ChevronRight, Trash2, Check, AlertTriangle, Activity, Mail, Camera } from "lucide-react";
 
 export interface Orden {
-  id: number; folio: string; lead_id?: number;
+  id: number; folio: string; tipo_orden?: string; lead_id?: number;
   lead_nombre?: string; lead_telefono?: string; lead_ciudad?: string;
   cotizacion_id?: number; cotizacion_folio?: string; cotizacion_monto?: number; cotizacion_tipo?: string;
 
@@ -303,15 +303,9 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
 <tr><td height="5" style="background:linear-gradient(90deg,#4E60A9,#38AD64);font-size:1px;line-height:5px;">&nbsp;</td></tr>
 
 <!-- Logo header -->
-<tr><td style="background:#ffffff;padding:18px 40px 14px;border-bottom:1px solid #E8EDF4;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-    <td valign="middle">
-      <img src="${LOGO}" alt="Bionordi Medical Technology" height="40" border="0" style="display:block;height:40px;width:auto;" />
-    </td>
-    <td align="right" valign="middle">
-      <span style="font-size:11px;font-weight:800;color:#4E60A9;background:#EEF3FC;padding:5px 14px;border-radius:20px;border:1px solid #C7D6F5;">Folio: ${orden.folio}</span>
-    </td>
-  </tr></table>
+<tr><td style="background:#ffffff;padding:18px 40px 16px;border-bottom:1px solid #E8EDF4;">
+  <img src="${LOGO}" alt="Bionordi Medical Technology" height="40" border="0" style="display:block;height:40px;width:auto;margin-bottom:10px;" />
+  <span style="display:inline-block;font-size:11px;font-weight:800;color:#4E60A9;background:#EEF3FC;padding:4px 14px;border-radius:20px;border:1px solid #C7D6F5;">Folio: ${orden.folio}</span>
 </td></tr>
 
 <!-- Hero: status -->

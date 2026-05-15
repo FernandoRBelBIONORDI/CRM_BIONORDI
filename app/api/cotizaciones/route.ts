@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 
+function generarFolioBCS(): string {
+  const now = new Date();
+  const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const last = db.prepare(
+    `SELECT folio FROM cotizaciones WHERE folio LIKE ? ORDER BY id DESC LIMIT 1`
+  ).get(`BCS-${ym}-%`) as any;
+  const seq = last ? parseInt(last.folio.split('-')[2]) + 1 : 1;
+  return `BCS-${ym}-${String(seq).padStart(3, '0')}`;
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const leadId = searchParams.get('lead_id');
@@ -14,9 +24,10 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const { lead_id, tipo, folio, monto_total, items_json, eq_tipo, eq_marca, eq_modelo, notas, status, pdf_path } = await req.json();
+    const { lead_id, tipo, folio: folioParam, monto_total, items_json, eq_tipo, eq_marca, eq_modelo, notas, status, pdf_path } = await req.json();
     if (!tipo) return NextResponse.json({ error: 'tipo requerido' }, { status: 400 });
 
+    const folio = folioParam || generarFolioBCS();
     const fecha = new Date().toISOString();
     const { lastInsertRowid } = db.prepare(`
       INSERT INTO cotizaciones (lead_id, tipo, folio, monto_total, items_json, eq_tipo, eq_marca, eq_modelo, notas, status, fecha, pdf_path)
