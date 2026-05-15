@@ -294,19 +294,19 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
     const fechaStr = fechaRaw ? new Date(fechaRaw + 'T00:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '';
     const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-    const emailHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head><body style="margin:0;padding:0;background:#EEF3F9;font-family:Arial,Helvetica,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#EEF3F9" style="padding:28px 16px;"><tr><td align="center">
-<table width="580" cellpadding="0" cellspacing="0" style="max-width:580px;width:100%;">
+    const LOGO = 'https://raw.githubusercontent.com/FernandoRBelBIONORDI/BIONORDI_IMAGENES/main/IMAGENES/LOGO_PRINCIPAL.png';
 
-<!-- Accent bar -->
-<tr><td height="5" bgcolor="#4E60A9" style="border-radius:16px 16px 0 0;font-size:0;line-height:0;">&nbsp;</td></tr>
+    const emailHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head><body style="margin:0;padding:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="border-collapse:collapse;">
 
-<!-- Header -->
-<tr><td bgcolor="#FFFFFF" style="padding:24px 32px 20px;">
-  <table width="100%" cellpadding="0" cellspacing="0"><tr>
+<!-- Top gradient bar -->
+<tr><td height="5" style="background:linear-gradient(90deg,#4E60A9,#38AD64);font-size:1px;line-height:5px;">&nbsp;</td></tr>
+
+<!-- Logo header -->
+<tr><td style="background:#ffffff;padding:18px 40px 14px;border-bottom:1px solid #E8EDF4;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
     <td valign="middle">
-      <div style="font-size:20px;font-weight:900;color:#1E293B;letter-spacing:-0.04em;">BIONORDI</div>
-      <div style="font-size:8px;font-weight:800;color:#4E60A9;letter-spacing:0.18em;margin-top:1px;text-transform:uppercase;">Medical Technology</div>
+      <img src="${LOGO}" alt="Bionordi Medical Technology" height="40" border="0" style="display:block;height:40px;width:auto;" />
     </td>
     <td align="right" valign="middle">
       <span style="font-size:11px;font-weight:800;color:#4E60A9;background:#EEF3FC;padding:5px 14px;border-radius:20px;border:1px solid #C7D6F5;">Folio: ${orden.folio}</span>
@@ -315,7 +315,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
 </td></tr>
 
 <!-- Hero: status -->
-<tr><td bgcolor="#FFFFFF" style="padding:24px 32px 28px;border-top:1px solid #F1F5F9;">
+<tr><td bgcolor="#FFFFFF" style="padding:32px 40px 28px;">
   <div style="font-size:9px;font-weight:800;color:#94A3B8;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;">Actualización de Servicio</div>
   <div style="font-size:24px;font-weight:900;color:#1E293B;margin-bottom:4px;letter-spacing:-0.03em;">Estado actual del equipo</div>
   <div style="font-size:13px;color:#94A3B8;margin-bottom:22px;">${hoy}</div>
@@ -324,7 +324,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
 </td></tr>
 
 ${equipo || serie ? `<!-- Equipment -->
-<tr><td bgcolor="#FFFFFF" style="padding:0 32px 24px;">
+<tr><td bgcolor="#FFFFFF" style="padding:0 40px 24px;">
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td bgcolor="#F8FAFC" style="border:1px solid #E8EFF8;border-radius:14px;padding:16px 20px;">
     <div style="font-size:9px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px;">Equipo en Servicio</div>
     ${equipo ? `<div style="font-size:15px;font-weight:700;color:#1E293B;margin-bottom:8px;">${equipo}</div>` : ''}
@@ -336,29 +336,42 @@ ${equipo || serie ? `<!-- Equipment -->
 </td></tr>` : ''}
 
 <!-- Divider -->
-<tr><td bgcolor="#FFFFFF" style="padding:0 32px;"><div style="height:1px;background:#F1F5F9;"></div></td></tr>
+<tr><td style="padding:0 40px;"><div style="height:1px;background:#E8EDF4;"></div></td></tr>
 
 <!-- Timeline -->
-<tr><td bgcolor="#FFFFFF" style="padding:24px 32px;">
+<tr><td bgcolor="#FFFFFF" style="padding:24px 40px;">
   <div style="font-size:9px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:20px;">Progreso del Servicio</div>
   <table width="100%" cellpadding="0" cellspacing="0">${timelineRows}</table>
 </td></tr>
 
 ${falla || techNote ? `<!-- Notes -->
-<tr><td bgcolor="#F8FAFC" style="padding:24px 32px;border-top:1px solid #F1F5F9;">
+<tr><td bgcolor="#F8FAFC" style="padding:24px 40px;border-top:1px solid #E8EDF4;">
   <div style="font-size:9px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:16px;">Notas del Servicio</div>
   ${falla ? `<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:6px;">Falla reportada</div><div style="font-size:13px;color:#475569;background:#FFFFFF;padding:12px 16px;border-radius:10px;border:1px solid #E2E8F0;line-height:1.7;">${falla.replace(/\n/g, '<br/>')}</div></div>` : ''}
   ${techNote ? `<div><div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:6px;">Diagnóstico / Avance técnico</div><div style="font-size:13px;color:#475569;background:#FFFFFF;padding:12px 16px;border-radius:10px;border:1px solid #E2E8F0;line-height:1.7;">${techNote.replace(/\n/g, '<br/>')}</div></div>` : ''}
 </td></tr>` : ''}
 
 <!-- Footer -->
-<tr><td bgcolor="#1E293B" style="padding:24px 32px;border-radius:0 0 16px 16px;">
-  <div style="font-size:14px;font-weight:900;color:#FFFFFF;margin-bottom:3px;">Bionordi Medical Technology</div>
-  <div style="font-size:12px;color:#64748B;margin-bottom:16px;">Servicio Técnico Especializado en Equipos de Ultrasonido</div>
-  <div style="font-size:11px;color:#475569;line-height:1.8;">Para cualquier consulta responda a este correo<br/>o comuníquese directamente con su asesor Bionordi.</div>
+<tr><td style="padding:20px 40px 24px;background:#F8FAFC;border-top:1px solid #E8EDF4;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:14px;"><tr>
+    <td valign="middle"><img src="${LOGO}" alt="Bionordi" height="28" border="0" style="display:block;height:28px;width:auto;" /></td>
+    <td align="right" valign="middle">
+      <a href="https://www.bionordi.com" style="font-size:11px;color:#94A3B8;text-decoration:none;font-family:Arial,Helvetica,sans-serif;" target="_blank">Sitio web</a>&nbsp;&nbsp;
+      <a href="mailto:contacto@bionordi.mx" style="font-size:11px;color:#94A3B8;text-decoration:none;font-family:Arial,Helvetica,sans-serif;">Contacto</a>
+    </td>
+  </tr></table>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;"><tr><td height="1" bgcolor="#E8EDF4" style="font-size:1px;line-height:1px;">&nbsp;</td></tr></table>
+  <p style="font-size:11px;color:#94A3B8;line-height:1.7;margin:0;font-family:Arial,Helvetica,sans-serif;">
+    <strong style="color:#64748B;">Bionordi S.A. de C.V.</strong><br/>
+    Laboratorio especializado en reparación y mantenimiento de transductores de ultrasonido.<br/>
+    Para cualquier consulta responda a este correo o comuníquese con su asesor Bionordi.
+  </p>
 </td></tr>
 
-</table></td></tr></table></body></html>`;
+<!-- Bottom gradient bar -->
+<tr><td height="5" style="background:linear-gradient(90deg,#4E60A9,#38AD64);font-size:1px;line-height:5px;">&nbsp;</td></tr>
+
+</table></body></html>`;
 
     try {
       const r = await fetch('/api/email', {
