@@ -405,7 +405,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
         />
       )}
 
-      <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#F4F7FB]">
+      <div className="flex-1 flex flex-col overflow-hidden bg-[#F4F7FB]">
 
         {/* ── Topbar ── */}
         <div className="bg-white border-b border-[#E8EFF8] px-8 py-4 shrink-0 flex items-center justify-between">
@@ -967,11 +967,33 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
           const sc = STATUS_COT[previewCot.status] || STATUS_COT.enviada;
           let items: { descripcion: string; cantidad: number; precioUnit: number }[] = [];
           try { if (previewCot.items_json) items = JSON.parse(previewCot.items_json); } catch {}
+          
+          if (previewCot.pdf_path) {
+            return (
+              <div className="fixed inset-0 z-[200] flex flex-col bg-gray-900">
+                <div className="flex items-center justify-between px-4 py-2 bg-gray-900 border-b border-gray-700 shrink-0">
+                  <span className="text-white text-[12px] font-semibold tracking-wide">Cotización — {previewCot.folio || `Cotización #${previewCot.id}`}</span>
+                  <div className="flex items-center gap-2">
+                    <a href={previewCot.pdf_path} download
+                      className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg transition-colors">
+                      <FileDown size={12} /> Descargar
+                    </a>
+                    <button onClick={() => setPreviewCot(null)}
+                      className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-700 transition-colors">
+                      <X size={14} />
+                    </button>
+                  </div>
+                </div>
+                <iframe src={previewCot.pdf_path} className="flex-1 min-h-0 w-full border-0 bg-white" title="Cotización PDF" />
+              </div>
+            );
+          }
+
           return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 z-[200] flex items-center justify-center">
               <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setPreviewCot(null)} />
               <div className="relative bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
-                style={{ width: previewCot.pdf_path ? "80vw" : 540, maxHeight: "90vh" }}>
+                style={{ width: 540, maxHeight: "90vh" }}>
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
                   <div>
                     <p className="text-[16px] font-extrabold text-[#1E293B]">{previewCot.folio || `Cotización #${previewCot.id}`}</p>
@@ -981,23 +1003,12 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                       <span className="text-[11px] text-gray-400">{fmtDate(previewCot.fecha)}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {previewCot.pdf_path && (
-                      <a href={previewCot.pdf_path} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-1.5 rounded-lg transition-colors">
-                        <FileDown size={13} /> Descargar PDF
-                      </a>
-                    )}
-                    <button onClick={() => setPreviewCot(null)}
-                      className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors">
-                      <X size={15} />
-                    </button>
-                  </div>
+                  <button onClick={() => setPreviewCot(null)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors">
+                    <X size={15} />
+                  </button>
                 </div>
-                {previewCot.pdf_path ? (
-                  <iframe src={previewCot.pdf_path} className="flex-1 w-full border-0" title="Cotización PDF" />
-                ) : (
-                  <div className="overflow-y-auto p-6 space-y-4">
+                <div className="overflow-y-auto p-6 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       {previewCot.eq_marca && (
                         <div>

@@ -191,7 +191,7 @@ export default function AgendaPage() {
   const weekDays  = view === "Semana" ? getWeekDays(anchor) : [];
 
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="flex flex-col h-full bg-white">
 
       {/* ── Header ── */}
       <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-4 shrink-0">
