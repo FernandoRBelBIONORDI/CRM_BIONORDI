@@ -1,18 +1,18 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, Wrench, Calendar, CheckCircle, Clock, DollarSign, User, FileText, ChevronRight, Trash2, Check, AlertTriangle, Link2, Activity, Mail, Camera } from "lucide-react";
+import { X, CheckCircle, Clock, FileText, ChevronRight, Trash2, Check, AlertTriangle, Activity, Mail, Camera } from "lucide-react";
 
 export interface Orden {
   id: number; folio: string; lead_id?: number;
   lead_nombre?: string; lead_telefono?: string; lead_ciudad?: string;
   cotizacion_id?: number; cotizacion_folio?: string; cotizacion_monto?: number; cotizacion_tipo?: string;
-  
+
   datos_fiscales?: string; datos_hospital?: string; direccion?: string; correo?: string; telefono?: string;
-  
+
   equipo_tipo?: string; equipo_marca?: string; equipo_modelo?: string; equipo_num_serie?: string;
   equipo_version?: string; equipo_ano?: string; equipo_area_medica?: string; accesorios_recibidos?: string;
-  
+
   falla_reportada?: string; diagnostico?: string; actividades_realizadas?: string; mantenimiento_realizado?: string;
   refacciones_utilizadas?: string; pruebas_realizadas?: string; notas_tecnicas?: string;
   observaciones?: string; recomendaciones?: string; garantia?: string; reporte_tecnico_final?: string;
@@ -43,6 +43,150 @@ interface Props {
   onDelete: (id: number) => void;
 }
 
+// ─── Diálogo de confirmación para cambio de estado ───────────────────────────
+function ConfirmStatusDialog({
+  currentStatus,
+  newStatus,
+  clientEmail,
+  onConfirm,
+  onCancel,
+}: {
+  currentStatus: string;
+  newStatus: string;
+  clientEmail: string;
+  onConfirm: (sendEmail: boolean) => void;
+  onCancel: () => void;
+}) {
+  const [sendEmail, setSendEmail] = useState(!!clientEmail);
+  const cur = stColor(currentStatus);
+  const nxt = stColor(newStatus);
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-[360px] max-w-[calc(100vw-32px)] overflow-hidden">
+        {/* Header */}
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#EEF3FC] flex items-center justify-center shrink-0">
+              <ChevronRight size={14} className="text-[#4E60A9]" />
+            </div>
+            <span className="text-[14px] font-bold text-[#1E293B]">Cambiar Estado</span>
+          </div>
+          <button onClick={onCancel} className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors">
+            <X size={14} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-5 py-4 space-y-4">
+          {/* Transición de estado */}
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Cambio de estado</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-bold px-3 py-1.5 rounded-full border"
+                style={{ color: cur.color, backgroundColor: cur.bg, borderColor: cur.color + "40" }}>
+                {cur.label}
+              </span>
+              <ChevronRight size={13} className="text-gray-300 shrink-0" />
+              <span className="text-[11px] font-bold px-3 py-1.5 rounded-full border"
+                style={{ color: nxt.color, backgroundColor: nxt.bg, borderColor: nxt.color + "40" }}>
+                {nxt.label}
+              </span>
+            </div>
+          </div>
+
+          {/* Toggle de notificación por correo */}
+          <div className={`flex items-center justify-between gap-3 p-3 rounded-xl border transition-opacity ${clientEmail ? "bg-[#F8FAFC] border-gray-100" : "bg-gray-50 border-gray-100 opacity-50"}`}>
+            <div className="flex items-center gap-2 min-w-0">
+              <Mail size={13} className="text-[#4E60A9] shrink-0" />
+              <div className="min-w-0">
+                <div className="text-[12px] font-bold text-[#1E293B]">Notificar al cliente</div>
+                <div className="text-[10px] text-gray-400 truncate">
+                  {clientEmail || "Sin correo registrado"}
+                </div>
+              </div>
+            </div>
+            {clientEmail && (
+              <button
+                onClick={() => setSendEmail(v => !v)}
+                className={`w-9 h-5 rounded-full flex items-center px-0.5 transition-colors shrink-0 ${sendEmail ? "bg-[#4E60A9]" : "bg-gray-300"}`}>
+                <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${sendEmail ? "translate-x-4" : ""}`} />
+              </button>
+            )}
+          </div>
+
+          {sendEmail && clientEmail && (
+            <p className="text-[11px] text-[#4E60A9] bg-[#EEF3FC] px-3 py-2 rounded-xl">
+              Se enviará el reporte de actualización al correo del cliente.
+            </p>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-end gap-2">
+          <button onClick={onCancel}
+            className="text-[12px] font-bold text-gray-400 hover:text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-xl transition-colors">
+            Cancelar
+          </button>
+          <button onClick={() => onConfirm(sendEmail)}
+            className="flex items-center gap-1.5 text-[12px] font-bold text-white bg-[#4E60A9] hover:bg-[#3B4F9A] px-4 py-2 rounded-xl transition-colors">
+            <Check size={12} /> Confirmar cambio
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Diálogo de confirmación para eliminación ─────────────────────────────────
+function ConfirmDeleteDialog({
+  folio,
+  onConfirm,
+  onCancel,
+}: {
+  folio: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-[360px] max-w-[calc(100vw-32px)] overflow-hidden">
+        {/* Header */}
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-[#FEF2F2] flex items-center justify-center shrink-0">
+            <Trash2 size={14} className="text-[#DC2626]" />
+          </div>
+          <span className="text-[14px] font-bold text-[#1E293B]">Eliminar Orden</span>
+        </div>
+
+        {/* Body */}
+        <div className="px-5 py-5">
+          <p className="text-[13px] text-[#475569] leading-relaxed">
+            ¿Deseas eliminar la orden{" "}
+            <span className="font-bold text-[#1E293B] font-mono">{folio}</span>?
+          </p>
+          <p className="text-[12px] text-[#94A3B8] mt-1">Esta acción es permanente y no se puede deshacer.</p>
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-end gap-2">
+          <button onClick={onCancel}
+            className="text-[12px] font-bold text-gray-400 hover:bg-gray-100 px-4 py-2 rounded-xl transition-colors">
+            Cancelar
+          </button>
+          <button onClick={onConfirm}
+            className="flex items-center gap-1.5 text-[12px] font-bold text-white bg-[#DC2626] hover:bg-[#B91C1C] px-4 py-2 rounded-xl transition-colors">
+            <Trash2 size={12} /> Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Modal principal ──────────────────────────────────────────────────────────
 export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props) {
   const [form, setForm] = useState<Partial<Orden>>({});
   const [saving, setSaving] = useState(false);
@@ -51,6 +195,9 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
   const [fotosResultado, setFotosResultado] = useState<string[]>([]);
   const [uploadingFoto, setUploadingFoto] = useState<'actividades' | 'resultado' | null>(null);
   const [activeTab, setActiveTab] = useState("cliente");
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -68,11 +215,19 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
+      if (pendingStatus || showDeleteConfirm) return;
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) onClose();
     };
     if (orden) document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [orden]);
+  }, [orden, pendingStatus, showDeleteConfirm]);
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 3500);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   const patch = async (updates: Partial<Orden>) => {
     if (!orden) return;
@@ -86,55 +241,24 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
     setSaving(false);
   };
 
-  const changeStatus = (s: string) => patch({ status: s });
   const saveField = (field: keyof Orden, val: any) => patch({ [field]: val || null });
 
-  const TABS = [
-    { id: "cliente", label: "Cliente" },
-    { id: "equipo", label: "Equipo" },
-    { id: "tecnico", label: "Servicio Técnico" },
-    { id: "reporte", label: "Reporte y Garantía" },
-    { id: "logistica", label: "Logística y Pagos" },
-  ];
-
-  const saveFotos = (act: string[], res: string[]) =>
-    patch({ fotografias_json: JSON.stringify({ actividades: act, resultado: res }) });
-
-  const handleFotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, tipo: 'actividades' | 'resultado') => {
-    const file = e.target.files?.[0]; if (!file) return;
-    e.target.value = '';
-    const current = tipo === 'actividades' ? fotosActividades : fotosResultado;
-    if (current.length >= 4) return;
-    setUploadingFoto(tipo);
-    try {
-      const fd = new FormData(); fd.append('file', file);
-      const res = await fetch(`/api/upload?subfolder=ordenes&filename=${encodeURIComponent(file.name)}`, { method: 'POST', body: fd }).then(r => r.json());
-      if (res.path) {
-        const next = [...current, res.path];
-        if (tipo === 'actividades') { setFotosActividades(next); saveFotos(next, fotosResultado); }
-        else { setFotosResultado(next); saveFotos(fotosActividades, next); }
-      }
-    } catch {}
-    setUploadingFoto(null);
+  // Abre el diálogo de confirmación en lugar de cambiar directamente
+  const handleStatusClick = (s: string) => {
+    if (s === (form.status || orden?.status)) return;
+    setPendingStatus(s);
   };
 
-  const removeFoto = (tipo: 'actividades' | 'resultado', idx: number) => {
-    if (tipo === 'actividades') {
-      const next = fotosActividades.filter((_, i) => i !== idx);
-      setFotosActividades(next); saveFotos(next, fotosResultado);
-    } else {
-      const next = fotosResultado.filter((_, i) => i !== idx);
-      setFotosResultado(next); saveFotos(fotosActividades, next);
-    }
-  };
-
-  const sendStatusEmail = async () => {
+  // Construye y envía el email de actualización con el formato oficial
+  const sendEmailForStatus = async (statusOverride: string) => {
     if (!orden) return;
     const dest = form.correo || orden.correo;
-    if (!dest) { alert("No hay correo registrado. Agrégalo en la pestaña Cliente."); return; }
+    if (!dest) {
+      setToast({ msg: "No hay correo registrado. Agrégalo en la pestaña Cliente.", ok: false });
+      return;
+    }
     setSendingEmail(true);
-    const st = stColor(form.status || orden.status);
-    const currentStatus = form.status || orden.status;
+    const st = stColor(statusOverride);
     const STEPS = [
       { id: "recibido",              label: "Equipo Recibido" },
       { id: "en_diagnostico",        label: "Evaluación Técnica" },
@@ -144,7 +268,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
       { id: "listo",                 label: "Servicio Finalizado" },
       { id: "entregado",             label: "Entregado" },
     ];
-    const idx = STEPS.findIndex(s => s.id === currentStatus);
+    const idx = STEPS.findIndex(s => s.id === statusOverride);
     const timelineRows = STEPS.map((step, i) => {
       const done = i < idx;
       const current = i === idx;
@@ -244,231 +368,330 @@ ${falla || techNote ? `<!-- Notes -->
       });
       const data = await r.json();
       if (data.error) throw new Error(data.error);
-      alert(`Correo enviado a ${dest}`);
+      setToast({ msg: `Correo enviado a ${dest}`, ok: true });
     } catch (e: any) {
-      alert(`Error al enviar correo: ${e.message}`);
+      setToast({ msg: `Error al enviar correo: ${e.message}`, ok: false });
     } finally {
       setSendingEmail(false);
     }
   };
 
+  const confirmStatusChange = async (sendEmail: boolean) => {
+    if (!pendingStatus) return;
+    const statusToSet = pendingStatus;
+    setPendingStatus(null);
+    await patch({ status: statusToSet });
+    if (sendEmail) {
+      await sendEmailForStatus(statusToSet);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!orden) return;
+    setShowDeleteConfirm(false);
+    const res = await fetch("/api/ordenes", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: orden.id }),
+    });
+    if (!res.ok) {
+      setToast({ msg: "Error al eliminar la orden.", ok: false });
+      return;
+    }
+    onDelete(orden.id);
+    onClose();
+  };
+
+  const TABS = [
+    { id: "cliente", label: "Cliente" },
+    { id: "equipo", label: "Equipo" },
+    { id: "tecnico", label: "Servicio Técnico" },
+    { id: "reporte", label: "Reporte y Garantía" },
+    { id: "logistica", label: "Logística y Pagos" },
+  ];
+
+  const saveFotos = (act: string[], res: string[]) =>
+    patch({ fotografias_json: JSON.stringify({ actividades: act, resultado: res }) });
+
+  const handleFotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, tipo: 'actividades' | 'resultado') => {
+    const file = e.target.files?.[0]; if (!file) return;
+    e.target.value = '';
+    const current = tipo === 'actividades' ? fotosActividades : fotosResultado;
+    if (current.length >= 4) return;
+    setUploadingFoto(tipo);
+    try {
+      const fd = new FormData(); fd.append('file', file);
+      const res = await fetch(`/api/upload?subfolder=ordenes&filename=${encodeURIComponent(file.name)}`, { method: 'POST', body: fd }).then(r => r.json());
+      if (res.path) {
+        const next = [...current, res.path];
+        if (tipo === 'actividades') { setFotosActividades(next); saveFotos(next, fotosResultado); }
+        else { setFotosResultado(next); saveFotos(fotosActividades, next); }
+      }
+    } catch {}
+    setUploadingFoto(null);
+  };
+
+  const removeFoto = (tipo: 'actividades' | 'resultado', idx: number) => {
+    if (tipo === 'actividades') {
+      const next = fotosActividades.filter((_, i) => i !== idx);
+      setFotosActividades(next); saveFotos(next, fotosResultado);
+    } else {
+      const next = fotosResultado.filter((_, i) => i !== idx);
+      setFotosResultado(next); saveFotos(fotosActividades, next);
+    }
+  };
+
   if (!orden) return null;
 
-  const st = stColor(form.status || orden.status);
   const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
   const comprFecha = form.fecha_compromiso ? new Date(form.fecha_compromiso + "T00:00:00") : null;
   const comprVencida = comprFecha && comprFecha < hoy && form.status !== "entregado";
   const diasRestantes = comprFecha
     ? Math.ceil((comprFecha.getTime() - hoy.getTime()) / 86400000)
     : null;
+  const clientEmail = form.correo || orden.correo || "";
 
   return (
-    <div className="fixed inset-0 z-[70] flex justify-end">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-      <div ref={panelRef}
-        className="relative w-full sm:w-[700px] h-full bg-white shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right"
-        style={{ borderLeft: "1px solid #E2E8F0" }}>
+    <>
+      <div className="fixed inset-0 z-[70] flex justify-end">
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+        <div ref={panelRef}
+          className="relative w-full sm:w-[700px] h-full bg-white shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right"
+          style={{ borderLeft: "1px solid #E2E8F0" }}>
 
-        {/* Header */}
-        <div className="px-6 pt-5 pb-4 border-b border-gray-100 shrink-0 bg-white z-10">
-          <div className="flex items-start justify-between gap-3 mb-3">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-2 py-0.5 rounded-full mono">{orden.folio}</span>
-                {saving && <span className="text-[10px] text-[#D97706] font-bold flex items-center gap-1"><Activity size={10} className="animate-spin" /> Guardando…</span>}
-              </div>
-              <h2 className="text-[22px] font-bold text-[#1E293B] tracking-tight leading-tight truncate">
-                {form.lead_nombre || "Sin cliente"}
-              </h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <a href={`/api/pdf/orden?id=${orden.id}`} target="_blank" rel="noreferrer"
-                className="w-8 h-8 flex items-center justify-center rounded-full text-red-500 bg-red-50 hover:bg-red-100 transition-colors shrink-0" title="Generar PDF">
-                <FileText size={15} />
-              </a>
-              <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors shrink-0">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-
-          {/* Status selector */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {STATUSES.map(s => (
-              <button key={s.value} onClick={() => changeStatus(s.value)}
-                className="text-[10px] font-bold px-3 py-1.5 rounded-full transition-all border"
-                style={form.status === s.value
-                  ? { color: s.color, backgroundColor: s.bg, borderColor: s.color + "40" }
-                  : { color: "#94A3B8", backgroundColor: "transparent", borderColor: "#E2E8F0" }}>
-                {s.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Alertas */}
-          {comprVencida && (
-            <div className="mt-3 flex items-center gap-2 text-[11px] font-bold text-[#DC2626] bg-[#FEF2F2] px-3 py-2 rounded-xl">
-              <AlertTriangle size={12} /> Fecha de entrega vencida
-            </div>
-          )}
-          {diasRestantes !== null && !comprVencida && diasRestantes <= 2 && form.status !== "entregado" && (
-            <div className="mt-3 flex items-center gap-2 text-[11px] font-bold text-[#D97706] bg-[#FFFBEB] px-3 py-2 rounded-xl">
-              <Clock size={12} /> {diasRestantes === 0 ? "Entrega hoy" : `${diasRestantes} día${diasRestantes > 1 ? "s" : ""} para entrega`}
-            </div>
-          )}
-          
-          {/* Tabs */}
-          <div className="flex items-center gap-4 mt-4 border-b border-gray-100 pb-0 overflow-x-auto scrollbar-none">
-            {TABS.map(t => (
-              <button key={t.id} onClick={() => setActiveTab(t.id)}
-                className={`text-[12px] font-bold pb-2 transition-all shrink-0 ${activeTab === t.id ? 'text-[#4E60A9] border-b-2 border-[#4E60A9]' : 'text-gray-400 border-b-2 border-transparent hover:text-gray-600'}`}>
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto bg-gray-50/30 p-6">
-          
-          {activeTab === "cliente" && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2"><Input label="Datos del Hospital / Clínica" field="datos_hospital" form={form} setForm={setForm} onBlur={saveField} /></div>
-                <div className="col-span-2"><Input label="Dirección completa" field="direccion" form={form} setForm={setForm} onBlur={saveField} /></div>
-                <div><Input label="Teléfono" field="telefono" form={form} setForm={setForm} onBlur={saveField} /></div>
-                <div><Input label="Correo electrónico" field="correo" form={form} setForm={setForm} onBlur={saveField} /></div>
-                <div className="col-span-2"><Textarea label="Datos Fiscales (RFC, Razón Social, etc)" field="datos_fiscales" form={form} setForm={setForm} onBlur={saveField} rows={2} /></div>
-              </div>
+          {/* Toast */}
+          {toast && (
+            <div className={`absolute top-4 left-4 right-4 z-20 flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-lg border pointer-events-none ${toast.ok ? "bg-[#ECFDF5] border-[#A7F3D0] text-[#059669]" : "bg-[#FEF2F2] border-[#FECACA] text-[#DC2626]"}`}>
+              {toast.ok ? <CheckCircle size={14} className="shrink-0" /> : <AlertTriangle size={14} className="shrink-0" />}
+              <span className="text-[12px] font-bold">{toast.msg}</span>
             </div>
           )}
 
-          {activeTab === "equipo" && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2"><Input label="Tipo de equipo" field="equipo_tipo" form={form} setForm={setForm} onBlur={saveField} /></div>
-                <div><Input label="Marca" field="equipo_marca" form={form} setForm={setForm} onBlur={saveField} /></div>
-                <div><Input label="Modelo" field="equipo_modelo" form={form} setForm={setForm} onBlur={saveField} /></div>
-                <div><Input label="Número de serie" field="equipo_num_serie" form={form} setForm={setForm} onBlur={saveField} /></div>
-                <div><Input label="Versión / Software" field="equipo_version" form={form} setForm={setForm} onBlur={saveField} /></div>
-                <div><Input label="Año de fabricación" field="equipo_ano" form={form} setForm={setForm} onBlur={saveField} /></div>
-                <div><Input label="Área Médica" field="equipo_area_medica" form={form} setForm={setForm} onBlur={saveField} /></div>
-                <div className="col-span-2"><Textarea label="Accesorios recibidos (cables, manuales, etc)" field="accesorios_recibidos" form={form} setForm={setForm} onBlur={saveField} rows={2} /></div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "tecnico" && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
-              <Textarea label="Falla reportada por el cliente" field="falla_reportada" form={form} setForm={setForm} onBlur={saveField} rows={2} />
-              <Textarea label="Diagnóstico Técnico" field="diagnostico" form={form} setForm={setForm} onBlur={saveField} rows={2} />
-              <Textarea label="Actividades Realizadas" field="actividades_realizadas" form={form} setForm={setForm} onBlur={saveField} rows={2} />
-              <FotoUploader
-                label="Fotos de actividades realizadas (máx. 4)"
-                fotos={fotosActividades}
-                onUpload={(e: React.ChangeEvent<HTMLInputElement>) => handleFotoUpload(e, 'actividades')}
-                onRemove={(i: number) => removeFoto('actividades', i)}
-                uploading={uploadingFoto === 'actividades'}
-              />
-              <Textarea label="Mantenimiento Realizado" field="mantenimiento_realizado" form={form} setForm={setForm} onBlur={saveField} rows={2} />
-              <Textarea label="Refacciones Utilizadas" field="refacciones_utilizadas" form={form} setForm={setForm} onBlur={saveField} rows={2} />
-              <Textarea label="Pruebas Realizadas" field="pruebas_realizadas" form={form} setForm={setForm} onBlur={saveField} rows={2} />
-              <Textarea label="Notas técnicas internas" field="notas_tecnicas" form={form} setForm={setForm} onBlur={saveField} rows={2} />
-            </div>
-          )}
-
-          {activeTab === "reporte" && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
-              <Textarea label="Observaciones" field="observaciones" form={form} setForm={setForm} onBlur={saveField} rows={2} />
-              <Textarea label="Recomendaciones" field="recomendaciones" form={form} setForm={setForm} onBlur={saveField} rows={2} />
-              <Input label="Garantía de Servicio (Tiempo y Condiciones)" field="garantia" form={form} setForm={setForm} onBlur={saveField} />
-              <Textarea label="Reporte Técnico Final (Conclusión)" field="reporte_tecnico_final" form={form} setForm={setForm} onBlur={saveField} rows={3} />
-              <FotoUploader
-                label="Fotos del equipo al finalizar (máx. 4)"
-                fotos={fotosResultado}
-                onUpload={(e: React.ChangeEvent<HTMLInputElement>) => handleFotoUpload(e, 'resultado')}
-                onRemove={(i: number) => removeFoto('resultado', i)}
-                uploading={uploadingFoto === 'resultado'}
-              />
-            </div>
-          )}
-
-          {activeTab === "logistica" && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
-              <div className="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-gray-100">
-                <div>
-                  <label className="text-[10px] font-bold text-gray-400 block mb-1">Presupuesto cotizado (MXN)</label>
-                  <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus-within:border-[#4E60A9]/40 focus-within:bg-white transition-all">
-                    <span className="text-[12px] text-gray-400 font-bold">$</span>
-                    <input type="number" min={0} value={form.presupuesto || ""}
-                      onChange={e => setForm(p => ({ ...p, presupuesto: Number(e.target.value) }))}
-                      onBlur={e => saveField("presupuesto", Number(e.target.value) || null)}
-                      className="flex-1 text-[13px] font-bold bg-transparent outline-none text-[#1E293B]" />
-                  </div>
+          {/* Header */}
+          <div className="px-6 pt-5 pb-4 border-b border-gray-100 shrink-0 bg-white z-10">
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-2 py-0.5 rounded-full mono">{orden.folio}</span>
+                  {saving && <span className="text-[10px] text-[#D97706] font-bold flex items-center gap-1"><Activity size={10} className="animate-spin" /> Guardando…</span>}
                 </div>
-                <div>
-                  <label className="text-[10px] font-bold text-gray-400 block mb-1">Precio final a cobrar (MXN)</label>
-                  <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus-within:border-[#4E60A9]/40 focus-within:bg-white transition-all">
-                    <span className="text-[12px] text-gray-400 font-bold">$</span>
-                    <input type="number" min={0} value={form.precio_final || ""}
-                      onChange={e => setForm(p => ({ ...p, precio_final: Number(e.target.value) }))}
-                      onBlur={e => saveField("precio_final", Number(e.target.value) || null)}
-                      className="flex-1 text-[13px] font-bold bg-transparent outline-none text-[#1E293B]" />
-                  </div>
+                <h2 className="text-[22px] font-bold text-[#1E293B] tracking-tight leading-tight truncate">
+                  {form.lead_nombre || "Sin cliente"}
+                </h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <a href={`/api/pdf/orden?id=${orden.id}`} target="_blank" rel="noreferrer"
+                  className="w-8 h-8 flex items-center justify-center rounded-full text-red-500 bg-red-50 hover:bg-red-100 transition-colors shrink-0" title="Generar PDF">
+                  <FileText size={15} />
+                </a>
+                <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors shrink-0">
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Status selector */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {STATUSES.map(s => (
+                <button key={s.value} onClick={() => handleStatusClick(s.value)}
+                  className="text-[10px] font-bold px-3 py-1.5 rounded-full transition-all border"
+                  style={form.status === s.value
+                    ? { color: s.color, backgroundColor: s.bg, borderColor: s.color + "40" }
+                    : { color: "#94A3B8", backgroundColor: "transparent", borderColor: "#E2E8F0" }}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Alertas */}
+            {comprVencida && (
+              <div className="mt-3 flex items-center gap-2 text-[11px] font-bold text-[#DC2626] bg-[#FEF2F2] px-3 py-2 rounded-xl">
+                <AlertTriangle size={12} /> Fecha de entrega vencida
+              </div>
+            )}
+            {diasRestantes !== null && !comprVencida && diasRestantes <= 2 && form.status !== "entregado" && (
+              <div className="mt-3 flex items-center gap-2 text-[11px] font-bold text-[#D97706] bg-[#FFFBEB] px-3 py-2 rounded-xl">
+                <Clock size={12} /> {diasRestantes === 0 ? "Entrega hoy" : `${diasRestantes} día${diasRestantes > 1 ? "s" : ""} para entrega`}
+              </div>
+            )}
+
+            {/* Tabs */}
+            <div className="flex items-center gap-4 mt-4 border-b border-gray-100 pb-0 overflow-x-auto scrollbar-none">
+              {TABS.map(t => (
+                <button key={t.id} onClick={() => setActiveTab(t.id)}
+                  className={`text-[12px] font-bold pb-2 transition-all shrink-0 ${activeTab === t.id ? 'text-[#4E60A9] border-b-2 border-[#4E60A9]' : 'text-gray-400 border-b-2 border-transparent hover:text-gray-600'}`}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Scrollable body */}
+          <div className="flex-1 overflow-y-auto bg-gray-50/30 p-6">
+
+            {activeTab === "cliente" && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2"><Input label="Datos del Hospital / Clínica" field="datos_hospital" form={form} setForm={setForm} onBlur={saveField} /></div>
+                  <div className="col-span-2"><Input label="Dirección completa" field="direccion" form={form} setForm={setForm} onBlur={saveField} /></div>
+                  <div><Input label="Teléfono" field="telefono" form={form} setForm={setForm} onBlur={saveField} /></div>
+                  <div><Input label="Correo electrónico" field="correo" form={form} setForm={setForm} onBlur={saveField} /></div>
+                  <div className="col-span-2"><Textarea label="Datos Fiscales (RFC, Razón Social, etc)" field="datos_fiscales" form={form} setForm={setForm} onBlur={saveField} rows={2} /></div>
                 </div>
-                <div className="col-span-2">
-                  <label className="flex items-center gap-2 cursor-pointer bg-gray-50 p-2 rounded-lg border border-gray-100">
-                    <div onClick={() => { const v = form.presupuesto_aprobado ? 0 : 1; setForm(p => ({ ...p, presupuesto_aprobado: v })); saveField("presupuesto_aprobado", v); }}
-                      className={`w-9 h-5 rounded-full transition-colors flex items-center px-0.5 ${form.presupuesto_aprobado ? "bg-[#34A853]" : "bg-gray-300"}`}>
-                      <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${form.presupuesto_aprobado ? "translate-x-4" : ""}`} />
+              </div>
+            )}
+
+            {activeTab === "equipo" && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2"><Input label="Tipo de equipo" field="equipo_tipo" form={form} setForm={setForm} onBlur={saveField} /></div>
+                  <div><Input label="Marca" field="equipo_marca" form={form} setForm={setForm} onBlur={saveField} /></div>
+                  <div><Input label="Modelo" field="equipo_modelo" form={form} setForm={setForm} onBlur={saveField} /></div>
+                  <div><Input label="Número de serie" field="equipo_num_serie" form={form} setForm={setForm} onBlur={saveField} /></div>
+                  <div><Input label="Versión / Software" field="equipo_version" form={form} setForm={setForm} onBlur={saveField} /></div>
+                  <div><Input label="Año de fabricación" field="equipo_ano" form={form} setForm={setForm} onBlur={saveField} /></div>
+                  <div><Input label="Área Médica" field="equipo_area_medica" form={form} setForm={setForm} onBlur={saveField} /></div>
+                  <div className="col-span-2"><Textarea label="Accesorios recibidos (cables, manuales, etc)" field="accesorios_recibidos" form={form} setForm={setForm} onBlur={saveField} rows={2} /></div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "tecnico" && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                <Textarea label="Falla reportada por el cliente" field="falla_reportada" form={form} setForm={setForm} onBlur={saveField} rows={2} />
+                <Textarea label="Diagnóstico Técnico" field="diagnostico" form={form} setForm={setForm} onBlur={saveField} rows={2} />
+                <Textarea label="Actividades Realizadas" field="actividades_realizadas" form={form} setForm={setForm} onBlur={saveField} rows={2} />
+                <FotoUploader
+                  label="Fotos de actividades realizadas (máx. 4)"
+                  fotos={fotosActividades}
+                  onUpload={(e: React.ChangeEvent<HTMLInputElement>) => handleFotoUpload(e, 'actividades')}
+                  onRemove={(i: number) => removeFoto('actividades', i)}
+                  uploading={uploadingFoto === 'actividades'}
+                />
+                <Textarea label="Mantenimiento Realizado" field="mantenimiento_realizado" form={form} setForm={setForm} onBlur={saveField} rows={2} />
+                <Textarea label="Refacciones Utilizadas" field="refacciones_utilizadas" form={form} setForm={setForm} onBlur={saveField} rows={2} />
+                <Textarea label="Pruebas Realizadas" field="pruebas_realizadas" form={form} setForm={setForm} onBlur={saveField} rows={2} />
+                <Textarea label="Notas técnicas internas" field="notas_tecnicas" form={form} setForm={setForm} onBlur={saveField} rows={2} />
+              </div>
+            )}
+
+            {activeTab === "reporte" && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                <Textarea label="Observaciones" field="observaciones" form={form} setForm={setForm} onBlur={saveField} rows={2} />
+                <Textarea label="Recomendaciones" field="recomendaciones" form={form} setForm={setForm} onBlur={saveField} rows={2} />
+                <Input label="Garantía de Servicio (Tiempo y Condiciones)" field="garantia" form={form} setForm={setForm} onBlur={saveField} />
+                <Textarea label="Reporte Técnico Final (Conclusión)" field="reporte_tecnico_final" form={form} setForm={setForm} onBlur={saveField} rows={3} />
+                <FotoUploader
+                  label="Fotos del equipo al finalizar (máx. 4)"
+                  fotos={fotosResultado}
+                  onUpload={(e: React.ChangeEvent<HTMLInputElement>) => handleFotoUpload(e, 'resultado')}
+                  onRemove={(i: number) => removeFoto('resultado', i)}
+                  uploading={uploadingFoto === 'resultado'}
+                />
+              </div>
+            )}
+
+            {activeTab === "logistica" && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                <div className="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-gray-100">
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-400 block mb-1">Presupuesto cotizado (MXN)</label>
+                    <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus-within:border-[#4E60A9]/40 focus-within:bg-white transition-all">
+                      <span className="text-[12px] text-gray-400 font-bold">$</span>
+                      <input type="number" min={0} value={form.presupuesto || ""}
+                        onChange={e => setForm(p => ({ ...p, presupuesto: Number(e.target.value) }))}
+                        onBlur={e => saveField("presupuesto", Number(e.target.value) || null)}
+                        className="flex-1 text-[13px] font-bold bg-transparent outline-none text-[#1E293B]" />
                     </div>
-                    <span className="text-[12px] font-bold text-gray-600">Presupuesto aprobado por el cliente</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <DateInput label="Fecha de ingreso" field="fecha_ingreso" form={form} setForm={setForm} onBlur={saveField} />
-                <DateInput label="Fecha comprometida" field="fecha_compromiso" form={form} setForm={setForm} onBlur={saveField} />
-                <div className="col-span-2">
-                  <Input label="Técnico Responsable" field="tecnico" form={form} setForm={setForm} onBlur={saveField} />
-                </div>
-                {form.status === "entregado" && (
-                  <div className="col-span-2">
-                    <DateInput label="Fecha de entrega real" field="fecha_entrega" form={form} setForm={setForm} onBlur={saveField} />
                   </div>
-                )}
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-400 block mb-1">Precio final a cobrar (MXN)</label>
+                    <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus-within:border-[#4E60A9]/40 focus-within:bg-white transition-all">
+                      <span className="text-[12px] text-gray-400 font-bold">$</span>
+                      <input type="number" min={0} value={form.precio_final || ""}
+                        onChange={e => setForm(p => ({ ...p, precio_final: Number(e.target.value) }))}
+                        onBlur={e => saveField("precio_final", Number(e.target.value) || null)}
+                        className="flex-1 text-[13px] font-bold bg-transparent outline-none text-[#1E293B]" />
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="flex items-center gap-2 cursor-pointer bg-gray-50 p-2 rounded-lg border border-gray-100">
+                      <div onClick={() => { const v = form.presupuesto_aprobado ? 0 : 1; setForm(p => ({ ...p, presupuesto_aprobado: v })); saveField("presupuesto_aprobado", v); }}
+                        className={`w-9 h-5 rounded-full transition-colors flex items-center px-0.5 ${form.presupuesto_aprobado ? "bg-[#34A853]" : "bg-gray-300"}`}>
+                        <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${form.presupuesto_aprobado ? "translate-x-4" : ""}`} />
+                      </div>
+                      <span className="text-[12px] font-bold text-gray-600">Presupuesto aprobado por el cliente</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <DateInput label="Fecha de ingreso" field="fecha_ingreso" form={form} setForm={setForm} onBlur={saveField} />
+                  <DateInput label="Fecha comprometida" field="fecha_compromiso" form={form} setForm={setForm} onBlur={saveField} />
+                  <div className="col-span-2">
+                    <Input label="Técnico Responsable" field="tecnico" form={form} setForm={setForm} onBlur={saveField} />
+                  </div>
+                  {form.status === "entregado" && (
+                    <div className="col-span-2">
+                      <DateInput label="Fecha de entrega real" field="fecha_entrega" form={form} setForm={setForm} onBlur={saveField} />
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-        </div>
+          </div>
 
-        {/* Footer */}
-        <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-100 shrink-0 flex flex-col md:flex-row md:items-center md:justify-between gap-2 bg-white z-10">
-          <button onClick={async () => {
-            if (!window.confirm(`¿Eliminar orden ${orden.folio}?`)) return;
-            const res = await fetch("/api/ordenes", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: orden.id }) });
-            if (!res.ok) { alert("Error al eliminar la orden."); return; }
-            onDelete(orden.id);
-            onClose();
-          }} className="flex items-center gap-1.5 text-[12px] font-bold text-gray-400 hover:text-[#DC2626] hover:bg-[#FEF2F2] px-3 py-2 rounded-full transition-colors self-start md:self-auto">
-            <Trash2 size={13} /> Eliminar Orden
-          </button>
-
-          <div className="flex items-center justify-between md:justify-end gap-3">
-            <button onClick={sendStatusEmail} disabled={sendingEmail}
-              className="flex items-center gap-1.5 text-[12px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] px-3 py-2 rounded-full transition-colors disabled:opacity-50">
-              <Mail size={13} /> {sendingEmail ? "Enviando…" : "Actualizar por correo"}
+          {/* Footer */}
+          <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-100 shrink-0 flex flex-col md:flex-row md:items-center md:justify-between gap-2 bg-white z-10">
+            <button onClick={() => setShowDeleteConfirm(true)}
+              className="flex items-center gap-1.5 text-[12px] font-bold text-gray-400 hover:text-[#DC2626] hover:bg-[#FEF2F2] px-3 py-2 rounded-full transition-colors self-start md:self-auto">
+              <Trash2 size={13} /> Eliminar Orden
             </button>
-            <span className="text-[11px] text-gray-400 font-medium flex items-center gap-1">
-              <Clock size={11} />
-              Ingresó {orden.fecha_ingreso ? new Date(orden.fecha_ingreso + "T00:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "—"}
-            </span>
+
+            <div className="flex items-center justify-between md:justify-end gap-3">
+              <button
+                onClick={() => {
+                  const dest = form.correo || orden.correo;
+                  if (!dest) {
+                    setToast({ msg: "No hay correo registrado. Agrégalo en la pestaña Cliente.", ok: false });
+                    return;
+                  }
+                  sendEmailForStatus(form.status || orden.status);
+                }}
+                disabled={sendingEmail}
+                className="flex items-center gap-1.5 text-[12px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] px-3 py-2 rounded-full transition-colors disabled:opacity-50">
+                <Mail size={13} /> {sendingEmail ? "Enviando…" : "Actualizar por correo"}
+              </button>
+              <span className="text-[11px] text-gray-400 font-medium flex items-center gap-1">
+                <Clock size={11} />
+                Ingresó {orden.fecha_ingreso ? new Date(orden.fecha_ingreso + "T00:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "—"}
+              </span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Diálogo de confirmación de cambio de estado */}
+      {pendingStatus && (
+        <ConfirmStatusDialog
+          currentStatus={form.status || orden.status}
+          newStatus={pendingStatus}
+          clientEmail={clientEmail}
+          onConfirm={confirmStatusChange}
+          onCancel={() => setPendingStatus(null)}
+        />
+      )}
+
+      {/* Diálogo de confirmación de eliminación */}
+      {showDeleteConfirm && (
+        <ConfirmDeleteDialog
+          folio={orden.folio}
+          onConfirm={handleDelete}
+          onCancel={() => setShowDeleteConfirm(false)}
+        />
+      )}
+    </>
   );
 }
 

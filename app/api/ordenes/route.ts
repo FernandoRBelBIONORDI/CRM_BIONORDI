@@ -154,57 +154,8 @@ export async function PATCH(req: Request) {
     const safe = Object.fromEntries(Object.entries(updates).filter(([k]) => COLS.has(k)));
     if (Object.keys(safe).length === 0) return NextResponse.json({ success: true });
 
-    // Obtener orden anterior para ver si cambió de estado
-    const oldOrden: any = db.prepare(`
-      SELECT o.status, o.folio, o.correo, l.correo as lead_correo 
-      FROM ordenes_trabajo o
-      LEFT JOIN leads l ON o.lead_id = l.id
-      WHERE o.id = ?
-    `).get(id);
-
     const setStr = Object.keys(safe).map(k => `${k} = @${k}`).join(', ');
     db.prepare(`UPDATE ordenes_trabajo SET ${setStr} WHERE id = @id`).run({ ...safe, id });
-
-    // Notificar al cliente si el estado cambió
-    if (safe.status && oldOrden && oldOrden.status !== safe.status) {
-      const emailTo = oldOrden.correo || oldOrden.lead_correo;
-      if (emailTo) {
-        const ESTADOS: Record<string, string> = {
-          recibido: "Recibido / En cola",
-          diagnostico: "En diagnóstico",
-          cotizacion: "Esperando cotización",
-          reparacion: "En reparación",
-          listo: "Listo para entrega",
-          entregado: "Entregado / Finalizado",
-          cancelado: "Cancelado / Rechazado",
-        };
-        const stLabel = ESTADOS[safe.status as string] || safe.status;
-        const html = `
-          <div style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto;border:1px solid #E2E8F0;border-radius:12px;padding:20px;">
-            <h2 style="color:#4E60A9;margin-top:0;">Actualización de Servicio</h2>
-            <p style="font-size:14px;">Hola,</p>
-            <p style="font-size:14px;line-height:1.5;">El estado de tu equipo en servicio (Orden <strong>${oldOrden.folio}</strong>) ha cambiado a: <strong style="color:#4E60A9;text-transform:uppercase;">${stLabel}</strong>.</p>
-            <p style="font-size:14px;line-height:1.5;">Puedes dar seguimiento en tiempo real y ver todos los detalles en tu portal de cliente:</p>
-            <div style="text-align:center;margin-top:25px;margin-bottom:10px;">
-              <a href="https://crm.bionordi.com/seguimiento/${oldOrden.folio}" style="display:inline-block;padding:12px 24px;background:#4E60A9;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:14px;">Ver Estado de mi Orden</a>
-            </div>
-          </div>
-        `;
-        
-        // Enviar de forma asíncrona (sin await para no bloquear la respuesta al cliente)
-        const protocol = req.headers.get('x-forwarded-proto') || 'http';
-        const host = req.headers.get('host');
-        fetch(`${protocol}://${host}/api/email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Cookie': req.headers.get('cookie') || '' },
-          body: JSON.stringify({
-            to: emailTo,
-            subject: `Actualización de Orden de Servicio ${oldOrden.folio}`,
-            html
-          })
-        }).catch(err => console.error("Error enviando email de estado", err));
-      }
-    }
 
     const orden = db.prepare(`${SELECT_BASE} WHERE o.id = ?`).get(id);
 
