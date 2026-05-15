@@ -1248,7 +1248,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   );
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose}/>
       <div className="relative bg-white sm:rounded-2xl shadow-2xl w-full h-full sm:w-[700px] sm:h-auto sm:max-h-[94vh] flex flex-col overflow-hidden">
 
