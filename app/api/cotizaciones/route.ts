@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 
+const TIPO_PREFIJO: Record<string, string> = {
+  reparacion:    'BRT',
+  mantenimiento: 'BME',
+  venta:         'BVE',
+  consumibles:   'BCS',
+};
+
 function mmddyy(): string {
   const now = new Date();
   const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -9,22 +16,24 @@ function mmddyy(): string {
   return `${mm}${dd}${yy}`;
 }
 
-function generarFolioBCS(): string {
+function generarFolio(tipo?: string): string {
   const date = mmddyy();
+  const prefix = TIPO_PREFIJO[tipo || ''] || 'BRT';
   const last = db.prepare(
     `SELECT folio FROM cotizaciones WHERE folio LIKE ? ORDER BY id DESC LIMIT 1`
-  ).get(`BCS-${date}-%`) as any;
+  ).get(`${prefix}-${date}-%`) as any;
   const seq = last ? parseInt(last.folio.split('-')[2]) + 1 : 1;
-  return `BCS-${date}-${String(seq).padStart(3, '0')}`;
+  return `${prefix}-${date}-${String(seq).padStart(3, '0')}`;
 }
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const leadId = searchParams.get('lead_id');
   const nextfolio = searchParams.get('nextfolio');
+  const tipoParam = searchParams.get('tipo');
 
   if (nextfolio) {
-    return NextResponse.json({ folio: generarFolioBCS() });
+    return NextResponse.json({ folio: generarFolio(tipoParam || undefined) });
   }
 
   const rows = leadId
@@ -39,7 +48,7 @@ export async function POST(req: Request) {
     const { lead_id, tipo, folio: folioParam, monto_total, items_json, eq_tipo, eq_marca, eq_modelo, notas, status, pdf_path } = await req.json();
     if (!tipo) return NextResponse.json({ error: 'tipo requerido' }, { status: 400 });
 
-    const folio = folioParam || generarFolioBCS();
+    const folio = folioParam || generarFolio(tipo);
     const fecha = new Date().toISOString();
     const { lastInsertRowid } = db.prepare(`
       INSERT INTO cotizaciones (lead_id, tipo, folio, monto_total, items_json, eq_tipo, eq_marca, eq_modelo, notas, status, fecha, pdf_path)

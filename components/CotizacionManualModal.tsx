@@ -645,7 +645,7 @@ export default function CotizacionManualModal({
     const fecha    = new Date().toLocaleDateString("es-MX", { day:"2-digit", month:"long", year:"numeric" });
     let folio = folioOverride;
     if (!folio) {
-      const res = await fetch('/api/cotizaciones?nextfolio=1');
+      const res = await fetch(`/api/cotizaciones?nextfolio=1&tipo=${tipo}`);
       const data = await res.json();
       folio = data.folio as string;
     }
@@ -1102,7 +1102,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     const fecha    = new Date().toLocaleDateString("es-MX", { day:"2-digit", month:"long", year:"numeric" });
     let folio = savedCot?.folio;
     if (!folio) {
-      const res = await fetch('/api/cotizaciones?nextfolio=1');
+      const res = await fetch(`/api/cotizaciones?nextfolio=1&tipo=${tipo}`);
       const data = await res.json();
       folio = data.folio as string;
     }
