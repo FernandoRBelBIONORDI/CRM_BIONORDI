@@ -186,6 +186,8 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
 
   // Cotizar
   const [showQuote, setShowQuote] = useState(false);
+  const [showQuoteTypePicker, setShowQuoteTypePicker] = useState(false);
+  const [quoteType, setQuoteType] = useState<string>("reparacion");
 
   // OT
   const [creatingOT, setCreatingOT] = useState<number | null>(null);
@@ -364,8 +366,31 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
   return (
     <>
       <ConfirmDialog />
+      {showQuoteTypePicker && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowQuoteTypePicker(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-[320px] flex flex-col gap-2.5">
+            <h3 className="text-[15px] font-extrabold text-[#1E293B] mb-1">Tipo de cotización</h3>
+            {[
+              { val: "reparacion",    label: "Reparación de Transductores", color: "#4E60A9", bg: "#EEF3FC" },
+              { val: "mantenimiento", label: "Mantenimiento de Equipo",      color: "#059669", bg: "#ECFDF5" },
+              { val: "venta",         label: "Venta de Equipo",              color: "#7C3AED", bg: "#F5F3FF" },
+              { val: "consumibles",   label: "Venta de Consumibles",         color: "#D97706", bg: "#FFFBEB" },
+            ].map(t => (
+              <button key={t.val}
+                onClick={() => { setQuoteType(t.val); setShowQuoteTypePicker(false); setShowQuote(true); }}
+                className="flex items-center px-4 py-3 rounded-xl border-2 text-left transition-all hover:scale-[1.01]"
+                style={{ background: t.bg, borderColor: t.color + "30" }}>
+                <span className="text-[13px] font-bold" style={{ color: t.color }}>{t.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {showQuote && lead && (
         <CotizacionManualModal
+          initialTipo={quoteType as any}
           initialLead={{
             id: lead.id,
             nombre: lead.nombre,
@@ -494,7 +519,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
 
                 {/* Action buttons */}
                 <div className="mt-3 flex items-center gap-2 flex-wrap">
-                  <button onClick={() => setShowQuote(true)}
+                  <button onClick={() => setShowQuoteTypePicker(true)}
                     className="flex items-center gap-1.5 text-[12px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-2 rounded-full transition-colors shadow-sm">
                     <FileText size={13} /> Cotizar
                   </button>
@@ -802,7 +827,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <h3 className="text-[13px] font-extrabold text-[#1E293B]">Cotizaciones</h3>
-              <button onClick={() => setShowQuote(true)}
+              <button onClick={() => setShowQuoteTypePicker(true)}
                 className="flex items-center gap-1.5 text-[11px] font-bold text-[#059669] bg-[#ECFDF5] hover:bg-[#D1FAE5] px-3 py-1.5 rounded-lg transition-colors">
                 <Plus size={12} />Nueva cotización
               </button>

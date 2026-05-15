@@ -1190,38 +1190,10 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
     // Generate PDF attachment
     let attachments: { filename: string; content: string; type: string }[] = [];
-    let cotizacionId: number | null = null;
     try {
       const { html: pdfHtml } = await buildPDFHtml(folio);
       const pdfB64 = await generarPDFBase64(pdfHtml);
       attachments = [{ filename: `${folio}.pdf`, content: pdfB64, type: "application/pdf" }];
-
-      // Save to DB once — reusar el registro si ya fue guardado en esta sesión
-      if (leadId) {
-        cotizacionId = savedCot?.id ?? null;
-        if (!savedCot) {
-          const dbRes = await fetch("/api/cotizaciones", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              lead_id: leadId, tipo, folio, monto_total: total,
-              items_json: validItems.map(i => ({ descripcion: i.descripcion, cantidad: i.cantidad, precioUnit: i.precioUnit })),
-              eq_tipo: eqTipo || null, eq_marca: eqMarca || null, eq_modelo: eqModelo || null,
-              notas: notas || null, status: "enviada",
-            }),
-          });
-          const dbData = await dbRes.json();
-          cotizacionId = dbData.id ?? null;
-          if (cotizacionId) setSavedCot({ id: cotizacionId, folio });
-        }
-
-        // Save PDF to expediente
-        await fetch("/api/expediente", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ leadId, folio, pdfBase64: pdfB64, cotizacionId }),
-        });
-      }
     } catch { /* PDF generation failed — send email without attachment */ }
 
     try {
@@ -1236,8 +1208,21 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         }),
       });
       const data = await res.json();
-      if (data.success) { setEmailStatus("ok"); setEmailMsg(`Enviado a ${emailTo}`); onSuccess?.(folio); }
-      else { setEmailStatus("error"); setEmailMsg(data.error || "Error al enviar"); }
+      if (data.success) {
+        setEmailStatus("ok"); setEmailMsg(`Enviado a ${emailTo}`); onSuccess?.(folio);
+        if (leadId) {
+          fetch("/api/interactions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              lead_id: Number(leadId),
+              tipo: "email",
+              contenido: `Cotización ${folio} enviada por correo — ${TIPO_LABELS[tipo]} · ${$f(total)} a ${emailTo.trim()}`,
+              resultado: "sin_respuesta",
+            }),
+          }).catch(() => {});
+        }
+      } else { setEmailStatus("error"); setEmailMsg(data.error || "Error al enviar"); }
     } catch {
       setEmailStatus("error"); setEmailMsg("Error de red");
     }
