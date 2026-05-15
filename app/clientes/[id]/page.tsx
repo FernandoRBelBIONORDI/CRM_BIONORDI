@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { initials, avatarColor, fmtDate, fmtDatetime, waLink } from "@/lib/ui";
 import CotizacionManualModal from "@/components/CotizacionManualModal";
+import { useConfirm } from "@/hooks/useConfirm";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -146,6 +147,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
   const router = useRouter();
   const { data: session } = useSession();
   const myName = session?.user?.name || "";
+  const { confirm, ConfirmDialog } = useConfirm();
 
   const [lead,          setLead]          = useState<Lead | null>(null);
   const [interacciones, setInteracciones] = useState<Interaccion[]>([]);
@@ -301,9 +303,13 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
   };
 
   const deleteCotizacion = async (cid: number) => {
-    if (!confirm("¿Eliminar esta cotización?")) return;
-    await fetch(`/api/cotizaciones/${cid}`, { method: "DELETE" });
-    setCotizaciones(p => p.filter(c => c.id !== cid));
+    confirm({
+      message: "¿Eliminar esta cotización?",
+      onConfirm: async () => {
+        await fetch(`/api/cotizaciones/${cid}`, { method: "DELETE" });
+        setCotizaciones(p => p.filter(c => c.id !== cid));
+      }
+    });
   };
 
   const addEquipo = async () => {
@@ -326,9 +332,13 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
 
   const deleteLead = async () => {
     if (!lead) return;
-    if (!confirm(`¿Eliminar "${lead.nombre}"? Esta acción no se puede deshacer.`)) return;
-    await fetch("/api/leads", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: Number(id) }) });
-    router.push("/crm");
+    confirm({
+      message: `¿Eliminar "${lead.nombre}"? Esta acción no se puede deshacer.`,
+      onConfirm: async () => {
+        await fetch("/api/leads", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: Number(id) }) });
+        router.push("/crm");
+      }
+    });
   };
 
   if (loading) return (
@@ -353,6 +363,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
 
   return (
     <>
+      <ConfirmDialog />
       {showQuote && lead && (
         <CotizacionManualModal
           initialLead={{

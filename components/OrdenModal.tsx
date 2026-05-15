@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, CheckCircle, Clock, FileText, ChevronRight, Trash2, Check, AlertTriangle, Activity, Mail, Camera } from "lucide-react";
+import { X, CheckCircle, Clock, FileText, ChevronRight, Trash2, Check, AlertTriangle, Activity, Mail, Camera, Download } from "lucide-react";
 
 export interface Orden {
   id: number; folio: string; tipo_orden?: string; lead_id?: number;
@@ -197,6 +197,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
   const [activeTab, setActiveTab] = useState("cliente");
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -487,10 +488,10 @@ ${falla || techNote ? `<!-- Notes -->
                 </h2>
               </div>
               <div className="flex items-center gap-2">
-                <a href={`/api/pdf/orden?id=${orden.id}`} target="_blank" rel="noreferrer"
-                  className="w-8 h-8 flex items-center justify-center rounded-full text-red-500 bg-red-50 hover:bg-red-100 transition-colors shrink-0" title="Generar PDF">
+                <button onClick={() => setShowPdfPreview(true)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full text-red-500 bg-red-50 hover:bg-red-100 transition-colors shrink-0" title="Ver PDF">
                   <FileText size={15} />
-                </a>
+                </button>
                 <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors shrink-0">
                   <X size={16} />
                 </button>
@@ -697,6 +698,25 @@ ${falla || techNote ? `<!-- Notes -->
           onConfirm={handleDelete}
           onCancel={() => setShowDeleteConfirm(false)}
         />
+      )}
+
+      {showPdfPreview && (
+        <div className="fixed inset-0 z-[100] flex flex-col bg-gray-950/90">
+          <div className="flex items-center justify-between px-4 py-2.5 bg-gray-900 border-b border-gray-700 shrink-0">
+            <span className="text-white text-[13px] font-bold">Reporte — {orden.folio}</span>
+            <div className="flex items-center gap-2">
+              <a href={`/api/pdf/orden?id=${orden.id}`} download={`Orden_${orden.folio}.pdf`}
+                className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg transition-colors">
+                <Download size={12} /> Descargar
+              </a>
+              <button onClick={() => setShowPdfPreview(false)}
+                className="w-7 h-7 flex items-center justify-center rounded-full text-gray-300 hover:bg-gray-700 transition-colors">
+                <X size={15} />
+              </button>
+            </div>
+          </div>
+          <iframe src={`/api/pdf/orden?id=${orden.id}`} className="flex-1 w-full border-0" title={`Reporte ${orden.folio}`} />
+        </div>
       )}
     </>
   );

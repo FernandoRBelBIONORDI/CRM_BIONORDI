@@ -51,11 +51,11 @@ export async function GET(
   const mime = MIME[ext] || 'application/octet-stream';
   const nodeBuffer = fs.readFileSync(filePath);
 
-  const isDownload = ['pdf','doc','docx','xls','xlsx','ppt','pptx','zip','txt'].includes(ext);
+  const isDownload = ['doc','docx','xls','xlsx','ppt','pptx','zip'].includes(ext);
   const cacheControl = isDownload ? 'no-store' : 'public, max-age=31536000, immutable';
   const disposition = isDownload
     ? `attachment; filename="${path.basename(filePath)}"`
-    : 'inline';
+    : `inline; filename="${path.basename(filePath)}"`;
 
   return new Response(new Uint8Array(nodeBuffer), {
     headers: {

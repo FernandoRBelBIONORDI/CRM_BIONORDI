@@ -11,6 +11,7 @@ import municipiosData from "@/data/municipios_mexico.json";
 import NuevoLeadModal from "@/components/NuevoLeadModal";
 import { ESPECIALIDADES_DOCTORALIA } from "@/lib/doctoralia";
 import Link from "next/link";
+import { useConfirm } from "@/hooks/useConfirm";
 
 interface Lead {
   id:number; nombre:string; telefono?:string; whatsapp?:string; correo?:string; sitio_web?:string;
@@ -78,6 +79,7 @@ const GRUPOS_ESP = (() => {
 export default function EncontrarPage() {
   const { data: session } = useSession();
   const myName = session?.user?.name || "";
+  const { confirm, ConfirmDialog } = useConfirm();
   const [mounted, setMounted]       = useState(false);
   const [nicho, setNicho]           = useState(nichos[0]);
   const [loading, setLoading]       = useState(false);
@@ -287,7 +289,7 @@ export default function EncontrarPage() {
 
   return (
     <div className="h-full flex flex-col font-sans">
-
+      <ConfirmDialog />
       {/* Header */}
       <div className="flex justify-between items-center px-8 py-4 pb-2">
         <div className="flex items-center gap-5">
@@ -561,9 +563,13 @@ export default function EncontrarPage() {
                           </div>
                           <button suppressHydrationWarning onClick={e=>{
                             e.stopPropagation();
-                            if(!confirm(`¿Eliminar "${b.nombre}"?`)) return;
-                            fetch("/api/barridos",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:b.id})})
-                              .then(()=>{ if(barridoFiltro===b.id) setBarridoFiltro(null); fetchLeads(); });
+                            confirm({
+                              message: `¿Eliminar "${b.nombre}"?`,
+                              onConfirm: () => {
+                                fetch("/api/barridos",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:b.id})})
+                                  .then(()=>{ if(barridoFiltro===b.id) setBarridoFiltro(null); fetchLeads(); });
+                              }
+                            });
                           }} className="w-6 h-6 flex items-center justify-center rounded-full text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors shrink-0">
                             <Trash2 size={11}/>
                           </button>

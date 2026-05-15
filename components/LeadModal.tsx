@@ -11,6 +11,7 @@ import {
 import QuoteModal from "@/components/QuoteModal";
 import Link from "next/link";
 import { waLink } from "@/lib/ui";
+import { useConfirm } from "@/hooks/useConfirm";
 
 interface Lead {
   id: number; nombre: string; telefono?: string; whatsapp?: string; correo?: string; sitio_web?: string;
@@ -104,6 +105,7 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   const { data: session } = useSession();
   const isAdmin = (session?.user as any)?.role === "admin";
   const myName = session?.user?.name || "";
+  const { confirm, ConfirmDialog } = useConfirm();
 
   const [ints, setInts]               = useState<Interaccion[]>([]);
   const [equipos, setEquipos]         = useState<Equipo[]>([]);
@@ -335,6 +337,7 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
 
   return (
     <>
+      <ConfirmDialog />
       {showQuote && <QuoteModal lead={lead} onClose={() => setShowQuote(false)} />}
 
       <div className="fixed inset-0 z-50 flex justify-end">
@@ -768,7 +771,10 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
           {/* Footer */}
           <div className="px-6 py-4 border-t border-gray-100 shrink-0 flex items-center justify-between bg-gray-50/50">
             <button onClick={() => {
-              if (window.confirm(`¿Eliminar "${lead.nombre}"?`)) { onDelete(lead.id); onClose(); }
+              confirm({
+                message: `¿Eliminar "${lead.nombre}"?`,
+                onConfirm: () => { onDelete(lead.id); onClose(); }
+              });
             }} className="flex items-center gap-1.5 text-[12px] font-bold text-gray-400 hover:text-[#DC2626] hover:bg-[#FEF2F2] px-3 py-2 rounded-full transition-colors">
               <Trash2 size={13} /> Eliminar
             </button>

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Search, Plus, X, ExternalLink, Trash2, ChevronDown, Activity, Check, Clock } from "lucide-react";
+import { FileText, Search, Plus, X, ExternalLink, Trash2, ChevronDown, Activity, Check, Clock, Download, Eye } from "lucide-react";
 import Link from "next/link";
+import { useConfirm } from "@/hooks/useConfirm";
 
 interface Cotizacion {
   id: number;
@@ -38,6 +39,7 @@ function tipoInfo(t: string) { return TIPO_INFO[t] || { label: t, color: "#64748
 function statusInfo(s: string) { return STATUS_INFO[s] || { label: s, color: "#64748B", bg: "#F1F5F9" }; }
 
 export default function CotizacionesPage() {
+  const { confirm, ConfirmDialog } = useConfirm();
   const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
@@ -45,6 +47,7 @@ export default function CotizacionesPage() {
   const [filtroStatus, setFiltroStatus] = useState("todos");
   const [selected, setSelected] = useState<Cotizacion | null>(null);
   const [changingStatus, setChangingStatus] = useState(false);
+  const [pdfViewerUrl, setPdfViewerUrl] = useState<string | null>(null);
 
   const fetchCotizaciones = async () => {
     setLoading(true);
@@ -101,7 +104,7 @@ export default function CotizacionesPage() {
 
   return (
     <div className="flex-1 flex flex-col font-sans overflow-hidden">
-
+      <ConfirmDialog />
       {/* Header */}
       <div className="px-4 md:px-6 pt-4 pb-3 bg-white border-b border-[#E8EFF8] shrink-0 space-y-3">
         <div className="flex items-center justify-between">
@@ -309,10 +312,16 @@ export default function CotizacionesPage() {
 
               {/* PDF */}
               {selected.pdf_path && (
-                <a href={selected.pdf_path} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-2 text-[12px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] px-3 py-2.5 rounded-xl border border-[#4E60A9]/20 transition-colors">
-                  <ExternalLink size={13} /> Ver PDF de la cotización
-                </a>
+                <div className="flex gap-2">
+                  <button onClick={() => setPdfViewerUrl(selected.pdf_path!)}
+                    className="flex-1 flex items-center justify-center gap-2 text-[12px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] px-3 py-2.5 rounded-xl border border-[#4E60A9]/20 transition-colors">
+                    <Eye size={13} /> Ver PDF
+                  </button>
+                  <a href={selected.pdf_path} download
+                    className="flex items-center gap-1.5 text-[12px] font-bold text-gray-500 hover:bg-gray-100 px-3 py-2.5 rounded-xl border border-gray-200 transition-colors">
+                    <Download size={13} />
+                  </a>
+                </div>
               )}
             </div>
 
@@ -320,8 +329,10 @@ export default function CotizacionesPage() {
             <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
               <button
                 onClick={() => {
-                  if (!confirm(`¿Eliminar cotización ${selected.folio}?`)) return;
-                  deleteCot(selected.id);
+                  confirm({
+                    message: `¿Eliminar cotización ${selected.folio}?`,
+                    onConfirm: () => deleteCot(selected.id)
+                  });
                 }}
                 className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-[#DC2626] hover:bg-[#FEF2F2] px-3 py-2 rounded-full transition-colors">
                 <Trash2 size={12} /> Eliminar
@@ -334,6 +345,26 @@ export default function CotizacionesPage() {
           </div>
         )}
       </div>
+
+      {/* PDF Viewer overlay */}
+      {pdfViewerUrl && (
+        <div className="fixed inset-0 z-[80] flex flex-col bg-gray-950/90">
+          <div className="flex items-center justify-between px-4 py-2.5 bg-gray-900 border-b border-gray-700 shrink-0">
+            <span className="text-white text-[13px] font-bold">Vista previa — PDF</span>
+            <div className="flex items-center gap-2">
+              <a href={pdfViewerUrl} download
+                className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg transition-colors">
+                <Download size={12} /> Descargar
+              </a>
+              <button onClick={() => setPdfViewerUrl(null)}
+                className="w-7 h-7 flex items-center justify-center rounded-full text-gray-300 hover:bg-gray-700 transition-colors">
+                <X size={15} />
+              </button>
+            </div>
+          </div>
+          <iframe src={pdfViewerUrl} className="flex-1 w-full border-0" title="PDF de cotización" />
+        </div>
+      )}
     </div>
   );
 }

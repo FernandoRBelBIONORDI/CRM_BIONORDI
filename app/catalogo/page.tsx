@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Plus, Pencil, Trash2, X, ImageIcon, Search, FileText, ExternalLink, Camera, Upload, RefreshCw, CheckCircle, AlertCircle, Share2, Copy, Check } from "lucide-react";
+import { useConfirm } from "@/hooks/useConfirm";
 
 interface Equipo {
   id: number;
@@ -378,6 +379,7 @@ type SyncResult = { activados: number; desactivados: number; insertados: number;
 export default function CatalogoPage() {
   const [equipos, setEquipos] = useState<Equipo[]>([]);
   const [loading, setLoading] = useState(true);
+  const { confirm, ConfirmDialog } = useConfirm();
   const [modal, setModal] = useState<"new" | Equipo | null>(null);
   const [query, setQuery] = useState("");
   const [tipoFilt, setTipoFilt] = useState("todos");
@@ -423,9 +425,13 @@ export default function CatalogoPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("¿Eliminar este equipo del catálogo?")) return;
-    await fetch(`/api/catalogo/${id}`, { method: "DELETE" });
-    setEquipos(prev => prev.filter(e => e.id !== id));
+    confirm({
+      message: "¿Eliminar este equipo del catálogo?",
+      onConfirm: async () => {
+        await fetch(`/api/catalogo/${id}`, { method: "DELETE" });
+        setEquipos(prev => prev.filter(e => e.id !== id));
+      }
+    });
   };
 
   const filtered = equipos.filter(e => {
@@ -437,7 +443,7 @@ export default function CatalogoPage() {
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#F4F7FB]">
-
+      <ConfirmDialog />
       {/* Header */}
       <div className="bg-white border-b border-[#E8EFF8] px-8 py-5 flex items-center justify-between shrink-0">
         <div>

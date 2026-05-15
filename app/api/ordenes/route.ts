@@ -8,15 +8,22 @@ const TIPO_PREFIJO: Record<string, string> = {
   venta:         'BVE',
 };
 
-function generarFolio(tipo?: string): string {
+function mmddyy(): string {
   const now = new Date();
-  const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const yy = String(now.getFullYear()).slice(-2);
+  return `${mm}${dd}${yy}`;
+}
+
+function generarFolio(tipo?: string): string {
+  const date = mmddyy();
   const prefix = TIPO_PREFIJO[tipo || ''] || 'BRT';
   const last = db.prepare(
     `SELECT folio FROM ordenes_trabajo WHERE folio LIKE ? ORDER BY id DESC LIMIT 1`
-  ).get(`${prefix}-${ym}-%`) as any;
+  ).get(`${prefix}-${date}-%`) as any;
   const seq = last ? parseInt(last.folio.split('-')[2]) + 1 : 1;
-  return `${prefix}-${ym}-${String(seq).padStart(3, '0')}`;
+  return `${prefix}-${date}-${String(seq).padStart(3, '0')}`;
 }
 
 const SELECT_BASE = `

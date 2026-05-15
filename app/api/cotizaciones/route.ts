@@ -1,19 +1,31 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 
-function generarFolioBCS(): string {
+function mmddyy(): string {
   const now = new Date();
-  const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const yy = String(now.getFullYear()).slice(-2);
+  return `${mm}${dd}${yy}`;
+}
+
+function generarFolioBCS(): string {
+  const date = mmddyy();
   const last = db.prepare(
     `SELECT folio FROM cotizaciones WHERE folio LIKE ? ORDER BY id DESC LIMIT 1`
-  ).get(`BCS-${ym}-%`) as any;
+  ).get(`BCS-${date}-%`) as any;
   const seq = last ? parseInt(last.folio.split('-')[2]) + 1 : 1;
-  return `BCS-${ym}-${String(seq).padStart(3, '0')}`;
+  return `BCS-${date}-${String(seq).padStart(3, '0')}`;
 }
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const leadId = searchParams.get('lead_id');
+  const nextfolio = searchParams.get('nextfolio');
+
+  if (nextfolio) {
+    return NextResponse.json({ folio: generarFolioBCS() });
+  }
 
   const rows = leadId
     ? db.prepare(`SELECT * FROM cotizaciones WHERE lead_id = ? ORDER BY fecha DESC`).all(Number(leadId))

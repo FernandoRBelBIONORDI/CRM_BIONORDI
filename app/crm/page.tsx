@@ -7,6 +7,7 @@ import { Activity, Search, Download, MessageCircle, Sparkles, ChevronDown, Chevr
 import NuevoLeadModal from "@/components/NuevoLeadModal";
 import QuoteModal from "@/components/QuoteModal";
 import { waLink } from "@/lib/ui";
+import { useConfirm } from "@/hooks/useConfirm";
 
 interface Lead {
   id:number; nombre:string; telefono?:string; whatsapp?:string; correo?:string; sitio_web?:string;
@@ -36,6 +37,7 @@ export default function CRMPage() {
   const { data: session } = useSession();
   const myName = session?.user?.name || "";
   const router = useRouter();
+  const { confirm, ConfirmDialog } = useConfirm();
 
   const [leads, setLeads]         = useState<Lead[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -165,10 +167,14 @@ export default function CRMPage() {
   };
 
   const deleteLead = async (id:number, nombre:string) => {
-    if(!window.confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`)) return;
-    await fetch("/api/leads",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
-    setLeads(p=>p.filter(l=>l.id!==id));
-    if(expanded===id) setExpanded(null);
+    confirm({
+      message: `¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`,
+      onConfirm: async () => {
+        await fetch("/api/leads",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
+        setLeads(p=>p.filter(l=>l.id!==id));
+        if(expanded===id) setExpanded(null);
+      }
+    });
   };
 
   const toggleSelect = (id:number) => setSelectedIds(p=>{ const n=new Set(p); n.has(id)?n.delete(id):n.add(id); return n; });
@@ -182,12 +188,16 @@ export default function CRMPage() {
   };
 
   const bulkDelete = async () => {
-    if(!window.confirm(`¿Eliminar ${selectedIds.size} leads? Esta acción no se puede deshacer.`)) return;
-    await Promise.all([...selectedIds].map(id=>
-      fetch("/api/leads",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})})
-    ));
-    setLeads(p=>p.filter(l=>!selectedIds.has(l.id)));
-    setSelectedIds(new Set());
+    confirm({
+      message: `¿Eliminar ${selectedIds.size} leads? Esta acción no se puede deshacer.`,
+      onConfirm: async () => {
+        await Promise.all([...selectedIds].map(id=>
+          fetch("/api/leads",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})})
+        ));
+        setLeads(p=>p.filter(l=>!selectedIds.has(l.id)));
+        setSelectedIds(new Set());
+      }
+    });
   };
 
   const nichosUnicos = [...new Set(leads.map(l=>l.nicho).filter(Boolean))] as string[];
@@ -195,7 +205,7 @@ export default function CRMPage() {
 
   return (
     <div className="h-full flex flex-col font-sans relative">
-
+      <ConfirmDialog />
       {/* Header */}
       <div className="bg-white border-b border-[#E8EFF8] md:bg-transparent md:border-b-0 px-4 pt-3 md:pt-0 pb-2 md:mb-2 space-y-2">
 

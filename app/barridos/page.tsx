@@ -8,6 +8,7 @@ import {
   Stethoscope, Globe, Database, Calendar, Users, UserCheck,
   Star, FolderOpen, Activity, Check,
 } from "lucide-react";
+import { useConfirm } from "@/hooks/useConfirm";
 
 // -- Constantes ----------------------------------------------------------------
 
@@ -72,6 +73,7 @@ function breakdown(leads: Lead[]): StatusEntry[] {
 export default function BarridosPage() {
   const [barridos, setBarridos]         = useState<Barrido[]>([]);
   const [selected, setSelected]         = useState<Barrido | null>(null);
+  const { confirm, ConfirmDialog } = useConfirm();
   const [leads, setLeads]               = useState<Lead[]>([]);
   const [loadingLeads, setLoadingLeads] = useState(false);
   const [search, setSearch]             = useState("");
@@ -130,13 +132,17 @@ export default function BarridosPage() {
   };
 
   const deleteBarrido = async (b: Barrido) => {
-    if (!confirm(`¿Eliminar "${b.nombre}" y desvincular sus ${b.leads_actuales} leads?`)) return;
-    await fetch("/api/barridos", {
-      method: "DELETE", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: b.id }),
+    confirm({
+      message: `¿Eliminar "${b.nombre}" y desvincular sus ${b.leads_actuales} leads?`,
+      onConfirm: async () => {
+        await fetch("/api/barridos", {
+          method: "DELETE", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: b.id }),
+        });
+        setBarridos(p => p.filter(x => x.id !== b.id));
+        if (selected?.id === b.id) { setSelected(null); setLeads([]); }
+      }
     });
-    setBarridos(p => p.filter(x => x.id !== b.id));
-    if (selected?.id === b.id) { setSelected(null); setLeads([]); }
   };
 
   const patchStatus = async (leadId: number, status: string) => {
@@ -177,7 +183,7 @@ export default function BarridosPage() {
 
   return (
     <div className="h-full flex flex-col bg-[#F4F7FB] font-sans">
-
+      <ConfirmDialog />
       {/* Header */}
       <div className="px-8 py-4 bg-white border-b border-[#E8EFF8] shrink-0">
         <h1 className="text-[24px] font-extrabold text-[#1E293B] tracking-tight leading-tight">Barridos de Prospección</h1>
