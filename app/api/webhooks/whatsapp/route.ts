@@ -11,12 +11,15 @@ const UPLOAD_DIR = path.join(process.cwd(), "db", "uploads", "wa-media");
 
 function baileyStatusToString(status: number | string): string {
   const n = Number(status);
-  if (n >= 4) return "read";
-  if (n === 3) return "delivered";
+  if (!isNaN(n)) {
+    if (n >= 4) return "read";
+    if (n === 3) return "delivered";
+    return "sent";
+  }
   if (typeof status === "string") {
-    const s = status.toLowerCase();
-    if (s === "read") return "read";
-    if (s === "delivered") return "delivered";
+    const s = status.toUpperCase();
+    if (s.includes("READ") || s.includes("PLAYED")) return "read";
+    if (s.includes("DELIVER")) return "delivered";
   }
   return "sent";
 }
@@ -277,12 +280,12 @@ export async function POST(req: Request) {
       }
 
       // ─── TICKS ──────────────────────────────────────────────────────────
-      if (eventName.includes("update") || eventName.includes("receipt") || eventName.includes("recibo")) {
+      if (eventName.includes("update") || eventName.includes("receipt") || eventName.includes("recibo") || eventName.includes("ack")) {
         const updates = Array.isArray(ev.data) ? ev.data : [ev.data];
         for (const upd of updates) {
           if (!upd) continue;
           const msgId = upd?.key?.id || upd?.id;
-          const rawStatus = upd?.update?.status ?? upd?.status ?? (upd?.receipt?.readTimestamp ? 4 : undefined);
+          const rawStatus = upd?.update?.status ?? upd?.status ?? upd?.receipt?.status ?? (upd?.receipt?.readTimestamp ? 4 : (upd?.receipt?.receiptTimestamp ? 3 : undefined));
           if (!msgId || rawStatus === undefined) continue;
           const s = baileyStatusToString(rawStatus);
 
