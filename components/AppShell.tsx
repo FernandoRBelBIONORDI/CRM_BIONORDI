@@ -21,7 +21,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <SidebarNav />
-      <main className="flex-1 flex flex-col overflow-hidden relative pb-[70px] md:pb-0">
+      <main className="flex-1 flex flex-col overflow-hidden relative md:pb-0">
         {children}
       </main>
     </SessionProvider>
