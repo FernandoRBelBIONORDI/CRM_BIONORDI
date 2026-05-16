@@ -43,6 +43,8 @@ export async function POST(req: Request) {
       // Intentar obtener el ID real del mensaje (para que los ticks de estado lo encuentren)
       const msgId: string =
         data?.data?.key?.id ||
+        data?.key?.id ||
+        data?.message?.key?.id ||
         data?.data?.id ||
         data?.id ||
         `out-${ts}-${Math.random().toString(36).slice(2, 7)}`;

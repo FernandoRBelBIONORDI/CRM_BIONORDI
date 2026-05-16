@@ -54,7 +54,11 @@ export async function POST(req: Request) {
     if (res.ok && data.success !== false) {
       const msgId: string =
         data?.data?.key?.id ||
+        data?.key?.id ||
+        data?.message?.key?.id ||
         data?.data?.msgId?.toString() ||
+        data?.data?.id ||
+        data?.id ||
         `out-media-${ts}-${Math.random().toString(36).slice(2, 7)}`;
 
       db.prepare(`
