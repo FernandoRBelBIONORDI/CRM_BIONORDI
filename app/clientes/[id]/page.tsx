@@ -8,7 +8,7 @@ import {
   FileText, Wrench, Package, Plus, Trash2, ChevronDown,
   Star, Calendar, Building2, Clock, CheckCircle2, XCircle,
   Edit2, Save, X, FileDown, Users, UserCheck,
-  ExternalLink, Check, ClipboardList, Activity,
+  Shield, Check, ClipboardList, Activity, Bell,
 } from "lucide-react";
 import { initials, avatarColor, fmtDate, fmtDatetime, waLink } from "@/lib/ui";
 import CotizacionManualModal from "@/components/CotizacionManualModal";
@@ -116,25 +116,89 @@ const ESTADO_EQUIPO = [
   { value: "dado_baja", label: "Dado de baja", color: "#94A3B8" },
 ];
 
-function waTemplates(lead: Lead) {
-  return [
-    {
-      label: "Primer contacto",
-      texto: `Hola, buenos días. Le contacto de parte de *Bionordi*, empresa especializada en reparación de transductores de ultrasonido médico.\n\nNos dedicamos a devolver la funcionalidad a equipos que presentan fallas, con garantía de 6 meses y tiempo de entrega de 5–7 días hábiles.\n\n¿Actualmente cuentan con algún transductor fuera de servicio o con fallas? Con gusto le brindamos diagnóstico sin costo.\n\nQuedo a sus órdenes. 🩺`,
-    },
-    {
-      label: "Seguimiento (sin respuesta)",
-      texto: `Hola, buen día. Le escribo nuevamente de *Bionordi*.\n\nHace unos días le contacté sobre nuestro servicio de reparación de transductores de ultrasonido. ¿Tuvieron oportunidad de revisarlo?\n\nEntendemos que el tiempo es valioso; si lo prefieren puedo agendar una llamada rápida de 5 minutos para resolver sus dudas.\n\n¿Les viene bien esta semana? 🙏`,
-    },
-    {
-      label: "Cotización enviada",
-      texto: `Hola, buenos días. Le escribo de *Bionordi* para dar seguimiento a la cotización que les enviamos.\n\n¿Tuvieron oportunidad de revisarla? Con gusto aclaro cualquier punto o ajusto según sus necesidades.\n\nRecuerden que el diagnóstico es sin costo y trabajamos con garantía de 6 meses en todas nuestras reparaciones. ✅`,
-    },
-    {
-      label: "Seguimiento post-venta (6 meses)",
-      texto: `Hola, buen día. Le contactamos de *Bionordi*.\n\nHan pasado aproximadamente 6 meses desde que realizamos la reparación de su transductor. Esperamos que el equipo haya funcionado sin inconvenientes. 😊\n\n¿Cuentan actualmente con algún transductor con fallas o que requiera mantenimiento preventivo? Con gusto les atendemos con la misma calidad y garantía.\n\nQuedo a sus órdenes.`,
-    },
-  ];
+interface ProximoEvento {
+  key: string;
+  Icon: any;
+  color: string;
+  bg: string;
+  titulo: string;
+  detalle: string;
+  fecha: Date;
+  diffDias: number;
+}
+
+function computeEventos(cotizaciones: Cotizacion[], ordenes: Orden[], lead: Lead): ProximoEvento[] {
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const eventos: ProximoEvento[] = [];
+
+  // Cotizaciones enviadas — vencen 15 días después de la fecha de emisión
+  for (const c of cotizaciones) {
+    if (c.status !== "enviada") continue;
+    const vence = new Date(c.fecha); vence.setDate(vence.getDate() + 15); vence.setHours(0,0,0,0);
+    const diff = Math.ceil((vence.getTime() - hoy.getTime()) / 86400000);
+    if (diff > 30) continue;
+    eventos.push({
+      key: `cot-${c.id}`, Icon: FileText,
+      color: diff < 0 ? "#DC2626" : diff <= 3 ? "#D97706" : "#4E60A9",
+      bg:    diff < 0 ? "#FEF2F2" : diff <= 3 ? "#FFFBEB" : "#EEF3FC",
+      titulo: diff < 0 ? "Cotización vencida" : "Cotización por vencer",
+      detalle: `${c.folio || `#${c.id}`} · ${TIPO_COT[c.tipo] || c.tipo} · ${$f(c.monto_total)}`,
+      fecha: vence, diffDias: diff,
+    });
+  }
+
+  // Órdenes entregadas — garantía (6 meses) y próximo servicio (12 meses)
+  for (const o of ordenes) {
+    if (o.status !== "entregado" || !o.fecha_entrega) continue;
+    const base = new Date(o.fecha_entrega + "T00:00:00");
+    const equipo = [o.equipo_tipo, o.equipo_marca, o.equipo_modelo].filter(Boolean).join(" ") || "Equipo";
+
+    // Garantía: 180 días
+    const venceGar = new Date(base); venceGar.setDate(venceGar.getDate() + 180);
+    const diffG = Math.ceil((venceGar.getTime() - hoy.getTime()) / 86400000);
+    if (diffG <= 60 && diffG >= -30) {
+      eventos.push({
+        key: `gar-${o.id}`, Icon: Shield,
+        color: diffG < 0 ? "#94A3B8" : diffG <= 14 ? "#D97706" : "#059669",
+        bg:    diffG < 0 ? "#F1F5F9" : diffG <= 14 ? "#FFFBEB" : "#ECFDF5",
+        titulo: diffG < 0 ? "Garantía vencida" : "Garantía por vencer",
+        detalle: `${o.folio} · ${equipo}`,
+        fecha: venceGar, diffDias: diffG,
+      });
+    }
+
+    // Próximo servicio: 365 días
+    const proxSvc = new Date(base); proxSvc.setDate(proxSvc.getDate() + 365);
+    const diffS = Math.ceil((proxSvc.getTime() - hoy.getTime()) / 86400000);
+    if (diffS <= 60 && diffS >= -14) {
+      eventos.push({
+        key: `svc-${o.id}`, Icon: Wrench,
+        color: diffS < 0 ? "#D97706" : "#7C3AED",
+        bg:    diffS < 0 ? "#FFFBEB" : "#F5F3FF",
+        titulo: diffS < 0 ? "Mantenimiento pendiente" : "Próximo mantenimiento",
+        detalle: `${o.folio} · ${equipo}`,
+        fecha: proxSvc, diffDias: diffS,
+      });
+    }
+  }
+
+  // Próximo contacto agendado
+  if (lead.fecha_proximo_contacto) {
+    const prox = new Date(lead.fecha_proximo_contacto + "T00:00:00");
+    const diff = Math.ceil((prox.getTime() - hoy.getTime()) / 86400000);
+    if (diff <= 14 && diff >= -30) {
+      eventos.push({
+        key: "contacto", Icon: Calendar,
+        color: diff < 0 ? "#DC2626" : diff === 0 ? "#4E60A9" : "#0EA5E9",
+        bg:    diff < 0 ? "#FEF2F2" : diff === 0 ? "#EEF3FC" : "#F0F9FF",
+        titulo: diff < 0 ? "Seguimiento vencido" : diff === 0 ? "Seguimiento hoy" : "Próximo seguimiento",
+        detalle: prox.toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" }),
+        fecha: prox, diffDias: diff,
+      });
+    }
+  }
+
+  return eventos.sort((a, b) => a.diffDias - b.diffDias);
 }
 
 const sel = "sel text-[12px]";
@@ -180,9 +244,6 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
   // Notas
   const [editNotas, setEditNotas] = useState(false);
   const [notasVal,  setNotasVal]  = useState("");
-
-  // Mensajes WA
-  const [copiedTpl, setCopiedTpl] = useState<number | null>(null);
 
   // Cotizar
   const [showQuote, setShowQuote] = useState(false);
@@ -356,6 +417,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
 
   const st = S[statusEdit] || S.nuevo;
   const color = avatarColor(lead.nombre);
+  const eventos = computeEventos(cotizaciones, ordenes, lead);
   const totalCot = cotizaciones.reduce((a, c) => a + (c.monto_total || 0), 0);
   const totalOrd = ordenes.filter(o => o.precio_final).reduce((a, o) => a + (o.precio_final || 0), 0);
   const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
@@ -685,33 +747,53 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                 )}
               </div>
 
-              {/* Mensajes rápidos WA */}
+              {/* Próximos eventos */}
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-5">
-                <h3 className="text-[13px] font-extrabold text-[#1E293B] mb-3">Mensajes rápidos WA</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {waTemplates(lead).map((tpl, i) => (
-                    <div key={i} className="bg-gray-50 rounded-xl border border-gray-100 overflow-hidden flex flex-col">
-                      <div className="px-2.5 pt-2 pb-1.5 border-b border-gray-100">
-                        <span className="text-[11px] font-bold text-[#1E293B] block truncate">{tpl.label}</span>
-                      </div>
-                      <p className="px-2.5 py-2 text-[10px] text-gray-500 leading-relaxed whitespace-pre-wrap line-clamp-3 flex-1">{tpl.texto}</p>
-                      <div className="px-2.5 pb-2 pt-1 border-t border-gray-100 flex items-center gap-1.5 justify-end">
-                        <button onClick={() => { navigator.clipboard.writeText(tpl.texto); setCopiedTpl(i); setTimeout(() => setCopiedTpl(null), 2000); }}
-                          className="flex items-center gap-0.5 text-[9px] font-bold text-gray-400 hover:text-[#4E60A9] transition-colors px-1.5 py-1 rounded-lg hover:bg-[#EEF3FC]">
-                          {copiedTpl === i ? <Check size={9} className="text-[#34A853]" /> : <MessageCircle size={9} />}
-                          {copiedTpl === i ? "Copiado" : "Copiar"}
-                        </button>
-                        {waLink(lead.whatsapp || lead.telefono) && (
-                          <a href={waLink(lead.whatsapp || lead.telefono, tpl.texto)!}
-                            target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-0.5 text-[9px] font-bold text-green-600 hover:text-white hover:bg-green-500 transition-colors px-1.5 py-1 rounded-lg bg-green-50">
-                            <ExternalLink size={9} /> Enviar
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Bell size={13} className="text-[#4E60A9]" />
+                    <h3 className="text-[13px] font-extrabold text-[#1E293B]">Próximos eventos</h3>
+                  </div>
+                  {eventos.length > 0 && (
+                    <span className="w-5 h-5 rounded-full bg-[#4E60A9] text-white text-[10px] font-bold flex items-center justify-center">
+                      {eventos.length}
+                    </span>
+                  )}
                 </div>
+                {eventos.length === 0 ? (
+                  <div className="flex flex-col items-center py-6 gap-2 text-gray-300">
+                    <CheckCircle2 size={26} />
+                    <p className="text-[11px] font-semibold text-gray-400">Sin eventos próximos</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {eventos.map(ev => {
+                      const Icon = ev.Icon;
+                      const diffAbs = Math.abs(ev.diffDias);
+                      const diffLabel = ev.diffDias < 0
+                        ? `Hace ${diffAbs}d`
+                        : ev.diffDias === 0 ? "Hoy"
+                        : ev.diffDias === 1 ? "Mañana"
+                        : `En ${ev.diffDias}d`;
+                      return (
+                        <div key={ev.key} className="flex items-center gap-3 p-2.5 rounded-xl" style={{ background: ev.bg }}>
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                            style={{ background: ev.color + "22" }}>
+                            <Icon size={13} style={{ color: ev.color }} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[11px] font-bold leading-tight truncate" style={{ color: ev.color }}>{ev.titulo}</p>
+                            <p className="text-[10px] text-gray-500 truncate mt-0.5">{ev.detalle}</p>
+                          </div>
+                          <span className="text-[9px] font-extrabold px-2 py-1 rounded-full shrink-0 whitespace-nowrap"
+                            style={{ background: ev.color + "22", color: ev.color }}>
+                            {diffLabel}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
             </div>
