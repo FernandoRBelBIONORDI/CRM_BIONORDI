@@ -970,21 +970,26 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
           
           if (previewCot.pdf_path) {
             return (
-              <div className="fixed inset-0 z-[200] flex flex-col bg-gray-900">
-                <div className="flex items-center justify-between px-4 py-2 bg-gray-900 border-b border-gray-700 shrink-0">
-                  <span className="text-white text-[12px] font-semibold tracking-wide">Cotización — {previewCot.folio || `Cotización #${previewCot.id}`}</span>
-                  <div className="flex items-center gap-2">
-                    <a href={previewCot.pdf_path} download
-                      className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg transition-colors">
-                      <FileDown size={12} /> Descargar
-                    </a>
-                    <button onClick={() => setPreviewCot(null)}
-                      className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-700 transition-colors">
-                      <X size={14} />
-                    </button>
+              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6">
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setPreviewCot(null)} />
+                <div className="relative w-full max-w-5xl h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+                  <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-white shrink-0">
+                    <div className="flex flex-col">
+                      <span className="text-[16px] font-extrabold text-[#1E293B]">Cotización — {previewCot.folio || `Cotización #${previewCot.id}`}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <a href={previewCot.pdf_path} download
+                        className="flex items-center gap-2 text-[12px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-4 py-2 rounded-xl transition-colors">
+                        <FileDown size={16} /> Descargar
+                      </a>
+                      <button onClick={() => setPreviewCot(null)}
+                        className="w-9 h-9 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+                        <X size={18} />
+                      </button>
+                    </div>
                   </div>
+                  <iframe src={previewCot.pdf_path} className="flex-1 w-full border-0 bg-gray-50 rounded-b-2xl" title="Cotización PDF" />
                 </div>
-                <iframe src={previewCot.pdf_path} className="flex-1 min-h-0 w-full border-0 bg-white" title="Cotización PDF" />
               </div>
             );
           }

@@ -285,7 +285,7 @@ export async function POST(req: Request) {
         for (const upd of updates) {
           if (!upd) continue;
           const msgId = upd?.key?.id || upd?.id;
-          const rawStatus = upd?.update?.status ?? upd?.status ?? upd?.receipt?.status ?? (upd?.receipt?.readTimestamp ? 4 : (upd?.receipt?.receiptTimestamp ? 3 : undefined));
+          const rawStatus = upd?.update?.status ?? upd?.status ?? upd?.receipt?.status ?? upd?.type ?? upd?.receipt?.type ?? (upd?.receipt?.readTimestamp ? 4 : (upd?.receipt?.receiptTimestamp ? 3 : undefined));
           if (!msgId || rawStatus === undefined) continue;
           const s = baileyStatusToString(rawStatus);
 
