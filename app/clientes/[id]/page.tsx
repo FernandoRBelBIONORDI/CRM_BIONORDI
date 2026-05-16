@@ -1059,7 +1059,6 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                       </div>
                     )}
                   </div>
-                )}
               </div>
             </div>
           );
