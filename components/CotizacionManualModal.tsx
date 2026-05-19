@@ -198,6 +198,7 @@ export default function CotizacionManualModal({
   initialTipo = "reparacion",
   onSuccess,
   initialLead,
+  initialCotizacion,
 }: {
   onClose: () => void;
   initialTipo?: TipoCotizacion;
@@ -211,9 +212,10 @@ export default function CotizacionManualModal({
     estado_republica?: string;
     direccion?: string;
   };
+  initialCotizacion?: any; // any for simplicity, contains the cotizacion object
 }) {
   // ── Estado ────────────────────────────────────────────────────────────────
-  const [tipo, setTipo] = useState<TipoCotizacion>(initialTipo);
+  const [tipo, setTipo] = useState<TipoCotizacion>(initialCotizacion?.tipo || initialTipo);
   const [bn, setBn] = useState<BionordiCfg>({
     razonSocial:"Bionordi S.A. de C.V.", rfc:"—", banco:"—", cuenta:"—",
     clabe:"—", direccionFiscal:"Ciudad de México, CDMX",
@@ -292,16 +294,39 @@ export default function CotizacionManualModal({
   }, []);
 
   useEffect(() => {
-    if (!initialLead) return;
-    setLeadId(initialLead.id);
-    setCliNombre(initialLead.nombre || "");
-    setCliTel(initialLead.telefono || "");
-    setCliCorreo(initialLead.correo || "");
-    setCliCiudad(initialLead.ciudad || "");
-    setCliEstado(initialLead.estado_republica || "");
-    setCliDireccion(initialLead.direccion || "");
-    if (initialLead.correo) setEmailTo(initialLead.correo);
-  }, []);
+    if (initialCotizacion) {
+      setLeadId(initialCotizacion.lead_id || null);
+      if (initialCotizacion.lead_nombre) setCliNombre(initialCotizacion.lead_nombre);
+      setEqTipo(initialCotizacion.eq_tipo || "");
+      setEqMarca(initialCotizacion.eq_marca || "");
+      setEqModelo(initialCotizacion.eq_modelo || "");
+      setNotas(initialCotizacion.notas || "");
+      setSavedCot({ id: initialCotizacion.id, folio: initialCotizacion.folio });
+      if (initialCotizacion.items_json) {
+        try {
+          const parsed = JSON.parse(initialCotizacion.items_json);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setItems(parsed.map((item: any) => ({
+              id: Math.random().toString(36).slice(2),
+              descripcion: item.descripcion || "",
+              cantidad: item.cantidad || 1,
+              precioUnit: item.precioUnit || 0
+            })));
+          }
+        } catch {}
+      }
+    } else if (initialLead) {
+      setLeadId(initialLead.id);
+      setCliNombre(initialLead.nombre || "");
+      setCliTel(initialLead.telefono || "");
+      setCliCorreo(initialLead.correo || "");
+      setCliCiudad(initialLead.ciudad || "");
+      setCliEstado(initialLead.estado_republica || "");
+      setCliDireccion(initialLead.direccion || "");
+      if (initialLead.correo) setEmailTo(initialLead.correo);
+    }
+  }, [initialCotizacion, initialLead]);
+
 
   useEffect(() => {
     fetch("/api/config").then(r => r.json()).then(d => {
@@ -472,10 +497,10 @@ export default function CotizacionManualModal({
   };
 
   const getVentaFeatures = (modelo: string | undefined, desc: string | undefined) => {
-    if (!modelo) return desc ? [desc] : ["Excelente equipo médico con altos estándares de calidad y precisión diagnóstica."];
-    const foundKey = Object.keys(VENTA_FEATURES).find(k => modelo.toLowerCase().includes(k.toLowerCase()));
+    const foundKey = modelo ? Object.keys(VENTA_FEATURES).find(k => modelo.toLowerCase().includes(k.toLowerCase())) : null;
     if (foundKey) return VENTA_FEATURES[foundKey];
-    return desc ? [desc] : ["Excelente equipo médico con altos estándares de calidad y precisión diagnóstica."];
+    if (desc) return desc.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 4);
+    return ["Excelente equipo médico con altos estándares de calidad y precisión diagnóstica."];
   };
   const currentFeatures = getVentaFeatures(eqModelo, eqDescripcion);
 
@@ -834,7 +859,7 @@ export default function CotizacionManualModal({
         <div class="eq-item"><div class="eq-lbl">Marca</div><div class="eq-val">${eqMarca || "—"}</div></div>
         <div class="eq-item"><div class="eq-lbl">Modelo</div><div class="eq-val">${eqModelo || "—"}</div></div>
         <div class="eq-item"><div class="eq-lbl">No. de Serie</div><div class="eq-val">${eqSerie || "—"}</div></div>
-        ${eqDescripcion && tipo !== "reparacion" ? `<div class="eq-full"><div class="eq-lbl">Descripción</div><div class="eq-val" style="margin-top:2px;">${eqDescripcion}</div></div>` : ""}
+        ${eqDescripcion ? `<div class="eq-full"><div class="eq-lbl">Descripción</div><div class="eq-val" style="margin-top:2px;line-height:1.4;">${eqDescripcion.replace(/\n/g, '<br/>')}</div></div>` : ""}
         ${eqFalla ? `<div class="eq-full"><div class="eq-lbl" style="color:#B91C1C;">Falla Reportada / Síntoma</div><div class="eq-val" style="color:#7F1D1D;margin-top:2px;">${eqFalla}</div></div>` : ""}
       </div>
     </div>`
@@ -846,7 +871,6 @@ export default function CotizacionManualModal({
         ${eqMarca ? `<div class="eq-item"><div class="eq-lbl">Marca</div><div class="eq-val">${eqMarca}</div></div>` : ""}
         ${eqModelo ? `<div class="eq-item"><div class="eq-lbl">Modelo</div><div class="eq-val">${eqModelo}</div></div>` : ""}
         ${eqSerie ? `<div class="eq-item"><div class="eq-lbl">No. de Serie</div><div class="eq-val">${eqSerie}</div></div>` : ""}
-        ${eqDescripcion ? `<div class="eq-full"><div class="eq-lbl">Descripción</div><div class="eq-val" style="margin-top:2px;">${eqDescripcion}</div></div>` : ""}
       </div>
     </div>` : "";
 
@@ -1026,26 +1050,32 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     return { html, folio };
   };
 
+  const persistToDB = async (folioGenerado: string) => {
+    if (!leadId) return null;
+    const body = {
+      lead_id: leadId, tipo, folio: folioGenerado, monto_total: total,
+      items_json: validItems.map(i => ({ descripcion: i.descripcion, cantidad: i.cantidad, precioUnit: i.precioUnit })),
+      eq_tipo: eqTipo || null, eq_marca: eqMarca || null, eq_modelo: eqModelo || null,
+      notas: notas || null, status: savedCot ? undefined : "guardada",
+    };
+    if (savedCot) {
+      await fetch(`/api/cotizaciones/${savedCot.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      return savedCot.id;
+    } else {
+      const dbRes = await fetch("/api/cotizaciones", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const data = await dbRes.json();
+      if (data.id) setSavedCot({ id: data.id, folio: folioGenerado });
+      return data.id;
+    }
+  };
+
   const generarPDF = async () => {
     const { html, folio } = await buildPDFHtml(savedCot?.folio);
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     window.open(url, "_blank");
     setTimeout(() => URL.revokeObjectURL(url), 30000);
-
-    if (leadId && !savedCot) {
-      fetch("/api/cotizaciones", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lead_id: leadId, tipo, folio, monto_total: total,
-          items_json: validItems.map(i => ({ descripcion: i.descripcion, cantidad: i.cantidad, precioUnit: i.precioUnit })),
-          eq_tipo: eqTipo || null, eq_marca: eqMarca || null, eq_modelo: eqModelo || null,
-          notas: notas || null, status: "enviada",
-        }),
-      }).then(r => r.json()).then(d => { if (d.id) setSavedCot({ id: d.id, folio }); }).catch(() => {});
-    }
-    onSuccess?.(folio);
+    await persistToDB(folio);
   };
 
   const guardarEnExpediente = async () => {
@@ -1055,23 +1085,8 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       const { html, folio } = await buildPDFHtml(savedCot?.folio);
 
       // 1. Guardar cotizacion en DB (siempre — es el paso crítico)
-      let cotizacionId = savedCot?.id ?? null;
-      if (!savedCot) {
-        const dbRes = await fetch("/api/cotizaciones", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            lead_id: leadId, tipo, folio, monto_total: total,
-            items_json: validItems.map(i => ({ descripcion: i.descripcion, cantidad: i.cantidad, precioUnit: i.precioUnit })),
-            eq_tipo: eqTipo || null, eq_marca: eqMarca || null, eq_modelo: eqModelo || null,
-            notas: notas || null, status: "guardada",
-          }),
-        });
-        const data = await dbRes.json();
-        if (!dbRes.ok) throw new Error(data.error || "Error al guardar en base de datos");
-        cotizacionId = data.id ?? null;
-        if (cotizacionId) setSavedCot({ id: cotizacionId, folio });
-      }
+      const cotizacionId = await persistToDB(folio);
+      if (!cotizacionId) throw new Error("No se pudo guardar la cotización");
 
       // 2. Intentar generar PDF (no-fatal: si falla, la cotización ya está guardada)
       try {
@@ -1086,12 +1101,14 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       }
 
       setSaveStatus("ok");
-      onSuccess?.(folio);
+      setTimeout(() => {
+        onSuccess?.(folio);
+      }, 1500);
     } catch (err: any) {
       console.error("[cotizacion] error fatal al guardar:", err?.message);
       setSaveStatus("error");
+      setTimeout(() => setSaveStatus("idle"), 5000);
     }
-    setTimeout(() => setSaveStatus("idle"), 5000);
   };
 
   const enviarPorCorreo = async () => {
@@ -1209,7 +1226,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       });
       const data = await res.json();
       if (data.success) {
-        setEmailStatus("ok"); setEmailMsg(`Enviado a ${emailTo}`); onSuccess?.(folio);
+        setEmailStatus("ok"); setEmailMsg(`Enviado a ${emailTo}`);
         if (leadId) {
           fetch("/api/interactions", {
             method: "POST",
@@ -1226,6 +1243,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     } catch {
       setEmailStatus("error"); setEmailMsg("Error de red");
     }
+    await persistToDB(folio);
     setTimeout(() => setEmailStatus("idle"), 6000);
   };
 
@@ -1475,6 +1493,18 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                         <input value={eqFalla} onChange={e => setEqFalla(e.target.value)} placeholder="Sin imagen, cable dañado…" className={inp}/>
                       </Field>
                     )}
+                  </div>
+
+                  <div className="mb-3">
+                    <Field label="Características / Descripción (una por línea, máx. 4)">
+                      <textarea
+                        value={eqDescripcion}
+                        onChange={e => setEqDescripcion(e.target.value)}
+                        placeholder="Pantalla de alta resolución...\nTransductores incluidos...\n..."
+                        className={`${inp} min-h-[80px] resize-none leading-relaxed py-2`}
+                        maxLength={350}
+                      />
+                    </Field>
                   </div>
 
                   {/* Subida de foto/diagrama para venta y mantenimiento en modo manual */}

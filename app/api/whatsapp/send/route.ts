@@ -60,8 +60,12 @@ export async function POST(req: Request) {
 
       // Guardar el mensaje enviado en mensajes_wa para que aparezca en el chat
       db.prepare(`
-        INSERT OR IGNORE INTO mensajes_wa (id, chat_id, from_me, text, timestamp, status)
+        INSERT INTO mensajes_wa (id, chat_id, from_me, text, timestamp, status)
         VALUES (?, ?, 1, ?, ?, 'sent')
+        ON CONFLICT(id) DO UPDATE SET
+          text = excluded.text,
+          timestamp = excluded.timestamp,
+          chat_id = excluded.chat_id
       `).run(msgId, normalizedChatId, message, ts);
 
       return NextResponse.json({ ok: true });

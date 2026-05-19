@@ -70,9 +70,15 @@ export async function POST(req: Request) {
       `).run(normalizedChatId, phone, phone, displayText, ts);
 
       db.prepare(`
-        INSERT OR IGNORE INTO mensajes_wa (id, chat_id, from_me, text, timestamp, status)
-        VALUES (?, ?, 1, ?, ?, 'sent')
-      `).run(msgId, normalizedChatId, displayText, ts);
+        INSERT INTO mensajes_wa (id, chat_id, from_me, text, timestamp, status, media_type, media_url)
+        VALUES (?, ?, 1, ?, ?, 'sent', ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          text = excluded.text,
+          timestamp = excluded.timestamp,
+          chat_id = excluded.chat_id,
+          media_type = excluded.media_type,
+          media_url = excluded.media_url
+      `).run(msgId, normalizedChatId, displayText, ts, type, fileUrl);
 
       return NextResponse.json({ ok: true });
     }
