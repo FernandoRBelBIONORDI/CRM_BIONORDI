@@ -217,6 +217,7 @@ function initDb(): Database.Database {
     `ALTER TABLE catalogo_equipos ADD COLUMN fotos_json TEXT`,
     `ALTER TABLE catalogo_equipos ADD COLUMN brochure_path TEXT`,
     `ALTER TABLE cotizaciones ADD COLUMN pdf_path TEXT`,
+    `ALTER TABLE cotizaciones ADD COLUMN eq_descripcion TEXT`,
   ]) { try { _db.exec(col); } catch {} }
 
   // Migración: desactivar productos retirados del inventario (ya no están en bionordi.com)
