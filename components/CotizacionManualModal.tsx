@@ -329,6 +329,33 @@ export default function CotizacionManualModal({
               cantidad: item.cantidad || 1,
               precioUnit: item.precioUnit || 0
             })));
+          } else if (parsed && parsed.items && Array.isArray(parsed.items)) {
+            setItems(parsed.items.map((item: any) => ({
+              id: item.id || Math.random().toString(36).slice(2),
+              descripcion: item.descripcion || "",
+              cantidad: item.cantidad || 1,
+              precioUnit: item.precioUnit || 0
+            })));
+            if (parsed.meta) {
+              const m = parsed.meta;
+              if (m.cliContacto !== undefined) setCliContacto(m.cliContacto);
+              if (m.cliTel !== undefined) setCliTel(m.cliTel);
+              if (m.cliCorreo !== undefined) setCliCorreo(m.cliCorreo);
+              if (m.cliDireccion !== undefined) setCliDireccion(m.cliDireccion);
+              if (m.cliCiudad !== undefined) setCliCiudad(m.cliCiudad);
+              if (m.cliEstado !== undefined) setCliEstado(m.cliEstado);
+              if (m.eqFalla !== undefined) setEqFalla(m.eqFalla);
+              if (m.eqSerie !== undefined) setEqSerie(m.eqSerie);
+              if (m.descuento !== undefined) setDescuento(m.descuento);
+              if (m.conIVA !== undefined) setConIVA(m.conIVA);
+              if (m.firmaUserId !== undefined) setFirmaUserId(m.firmaUserId);
+              if (m.facRazonSoc !== undefined) setFacRazonSoc(m.facRazonSoc);
+              if (m.facRFC !== undefined) setFacRFC(m.facRFC);
+              if (m.facRegimen !== undefined) setFacRegimen(m.facRegimen);
+              if (m.facCFDI !== undefined) setFacCFDI(m.facCFDI);
+              if (m.facDirFiscal !== undefined) setFacDirFiscal(m.facDirFiscal);
+              if (m.facCorreo !== undefined) setFacCorreo(m.facCorreo);
+            }
           }
         } catch {}
       }
@@ -343,6 +370,22 @@ export default function CotizacionManualModal({
       if (initialLead.correo) setEmailTo(initialLead.correo);
     }
   }, [initialCotizacion, initialLead]);
+
+  useEffect(() => {
+    if (initialCotizacion && catalogo.length > 0 && eqMarca) {
+       const found = catalogo.find(c => c.marca === eqMarca && c.modelo === eqModelo);
+       if (found) {
+         if (found.fotos_json) {
+           try { setEqFotos(JSON.parse(found.fotos_json)); } catch {}
+         }
+         if (found.imagen_path) {
+           fetchBase64(found.imagen_path).then(b64 => {
+             setImgEquipoB64(prev => prev || b64);
+           });
+         }
+       }
+    }
+  }, [initialCotizacion, catalogo, eqMarca, eqModelo]);
 
 
   useEffect(() => {
@@ -1104,7 +1147,15 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     if (!leadId) return null;
     const body = {
       lead_id: leadId, tipo, folio: folioGenerado, monto_total: total,
-      items_json: validItems.map(i => ({ descripcion: i.descripcion, cantidad: i.cantidad, precioUnit: i.precioUnit })),
+      items_json: {
+        items: validItems.map(i => ({ id: i.id, descripcion: i.descripcion, cantidad: i.cantidad, precioUnit: i.precioUnit })),
+        meta: {
+          cliContacto, cliTel, cliCorreo, cliDireccion, cliCiudad, cliEstado,
+          eqFalla, eqSerie,
+          descuento, conIVA, firmaUserId,
+          facRazonSoc, facRFC, facRegimen, facCFDI, facDirFiscal, facCorreo
+        }
+      },
       eq_tipo: eqTipo || null, eq_marca: eqMarca || null, eq_modelo: eqModelo || null,
       notas: notas || null, status: savedCot ? undefined : "guardada",
     };
