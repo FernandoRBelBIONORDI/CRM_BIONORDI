@@ -290,6 +290,7 @@ export default function CotizacionManualModal({
   const [emailStatus,  setEmailStatus]  = useState<"idle"|"sending"|"ok"|"error">("idle");
   const [emailMsg,     setEmailMsg]     = useState("");
   const [saveStatus,   setSaveStatus]   = useState<"idle"|"saving"|"ok"|"error">("idle");
+  const [saveError,    setSaveError]    = useState<string>("");
 
   // Cotización ya guardada en esta sesión — evita duplicados entre Generar, Guardar y Enviar
   const [savedCot, setSavedCot] = useState<{ id: number; folio: string } | null>(null);
@@ -1157,13 +1158,22 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         }
       },
       eq_tipo: eqTipo || null, eq_marca: eqMarca || null, eq_modelo: eqModelo || null,
+      eq_descripcion: eqDescripcion || null,
       notas: notas || null, status: savedCot ? undefined : "guardada",
     };
     if (savedCot) {
-      await fetch(`/api/cotizaciones/${savedCot.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const patchRes = await fetch(`/api/cotizaciones/${savedCot.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (!patchRes.ok) {
+        const err = await patchRes.json().catch(() => ({}));
+        throw new Error(err.error || `Error al actualizar cotización (${patchRes.status})`);
+      }
       return savedCot.id;
     } else {
       const dbRes = await fetch("/api/cotizaciones", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (!dbRes.ok) {
+        const err = await dbRes.json().catch(() => ({}));
+        throw new Error(err.error || `Error al crear cotización (${dbRes.status})`);
+      }
       const data = await dbRes.json();
       if (data.id) setSavedCot({ id: data.id, folio: folioGenerado });
       return data.id;
@@ -1207,8 +1217,9 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       }, 1500);
     } catch (err: any) {
       console.error("[cotizacion] error fatal al guardar:", err?.message);
+      setSaveError(err?.message || "Error desconocido");
       setSaveStatus("error");
-      setTimeout(() => setSaveStatus("idle"), 5000);
+      setTimeout(() => { setSaveStatus("idle"); setSaveError(""); }, 5000);
     }
   };
 
@@ -1934,7 +1945,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
             }`}>
             {saveStatus === "saving" ? <><Save size={13} className="animate-pulse"/>Guardando…</> :
              saveStatus === "ok"     ? <><Check size={13}/>PDF guardado en expediente</> :
-             saveStatus === "error"  ? <><AlertCircle size={13}/>Error al guardar</> :
+             saveStatus === "error"  ? <><AlertCircle size={13}/>{saveError ? `Error: ${saveError}` : "Error al guardar"}</> :
              <><Save size={13}/>Guardar PDF en expediente</>}
           </button>
 
