@@ -8,7 +8,7 @@ import {
   FileText, Wrench, Package, Plus, Trash2, ChevronDown,
   Star, Calendar, Building2, Clock, CheckCircle2, XCircle,
   Edit2, Save, X, FileDown, Users, UserCheck,
-  Shield, Check, ClipboardList, Activity, Bell,
+  Shield, Check, ClipboardList, Activity, Bell, Edit3,
 } from "lucide-react";
 import { initials, avatarColor, fmtDate, fmtDatetime, waLink } from "@/lib/ui";
 import CotizacionManualModal from "@/components/CotizacionManualModal";
@@ -219,7 +219,8 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
   const [equipos,       setEquipos]       = useState<Equipo[]>([]);
   const [ordenes,       setOrdenes]       = useState<Orden[]>([]);
   const [loading,       setLoading]       = useState(true);
-  const [previewCot,    setPreviewCot]    = useState<Cotizacion | null>(null);
+  const [previewCot,      setPreviewCot]      = useState<Cotizacion | null>(null);
+  const [editingCotizacion, setEditingCotizacion] = useState<Cotizacion | null>(null);
   const [usuarios,      setUsuarios]      = useState<{id:number;nombre:string}[]>([]);
 
   // Editable estados del lead
@@ -969,6 +970,10 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                               <a href={c.pdf_path} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
                                 className="text-[#4E60A9] hover:text-[#3d4e8a] transition-colors"><FileDown size={14} /></a>
                             )}
+                            <button onClick={e => { e.stopPropagation(); setEditingCotizacion(c); }}
+                              className="text-gray-400 hover:text-[#4E60A9] transition-colors" title="Editar cotización">
+                              <Edit3 size={13} />
+                            </button>
                             <button onClick={() => deleteCotizacion(c.id)} className="text-gray-300 hover:text-red-400 transition-colors">
                               <Trash2 size={13} />
                             </button>
@@ -1060,7 +1065,11 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                       <span className="text-[16px] font-extrabold text-[#1E293B]">Cotización — {previewCot.folio || `Cotización #${previewCot.id}`}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <a href={previewCot.pdf_path} download
+                      <button onClick={() => { setEditingCotizacion(previewCot); setPreviewCot(null); }}
+                        className="flex items-center gap-2 text-[12px] font-bold text-gray-500 hover:bg-gray-100 px-3 py-2 rounded-xl transition-colors">
+                        <Edit3 size={14} /> Editar
+                      </button>
+                      <a href={previewCot.pdf_path!} download
                         className="flex items-center gap-2 text-[12px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-4 py-2 rounded-xl transition-colors">
                         <FileDown size={16} /> Descargar
                       </a>
@@ -1090,10 +1099,16 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                       <span className="text-[11px] text-gray-400">{fmtDate(previewCot.fecha)}</span>
                     </div>
                   </div>
-                  <button onClick={() => setPreviewCot(null)}
-                    className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors">
-                    <X size={15} />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => { setEditingCotizacion(previewCot); setPreviewCot(null); }}
+                      className="flex items-center gap-1.5 text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-1.5 rounded-xl transition-colors">
+                      <Edit3 size={13} /> Editar / Ver PDF
+                    </button>
+                    <button onClick={() => setPreviewCot(null)}
+                      className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors">
+                      <X size={15} />
+                    </button>
+                  </div>
                 </div>
                 <div className="overflow-y-auto p-6 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
@@ -1150,6 +1165,14 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
             </div>
           );
         })()}
+
+        {editingCotizacion && (
+          <CotizacionManualModal
+            initialCotizacion={editingCotizacion}
+            onClose={() => setEditingCotizacion(null)}
+            onSuccess={() => { setEditingCotizacion(null); reload(); }}
+          />
+        )}
 
       </div>
     </>
