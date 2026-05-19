@@ -6,9 +6,9 @@ import {
   X, Phone, Mail, Globe, MapPin, Calendar, MessageCircle, Sparkles,
   Activity, Check, ChevronDown, Clock, Trash2, Plus, ExternalLink,
   Tag, BarChart2, Building2, User, Wrench, FileText, ClipboardList,
-  UserCheck, ArrowRight, Users
+  UserCheck, ArrowRight, Users, Edit3
 } from "lucide-react";
-import QuoteModal from "@/components/QuoteModal";
+import CotizacionManualModal from "@/components/CotizacionManualModal";
 import Link from "next/link";
 import { waLink } from "@/lib/ui";
 import { useConfirm } from "@/hooks/useConfirm";
@@ -123,6 +123,7 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   const [savingNota, setSavingNota]   = useState(false);
   const [showEquipoForm, setShowEquipoForm] = useState(false);
   const [showQuote, setShowQuote]     = useState(false);
+  const [editingCotizacion, setEditingCotizacion] = useState<Cotizacion | null>(null);
   const [editWA, setEditWA]           = useState(false);
   const [waVal, setWaVal]             = useState("");
   const [copiedTpl, setCopiedTpl]     = useState<number | null>(null);
@@ -155,13 +156,13 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      // No cerrar si hay un modal hijo abierto (QuoteModal u otros portals)
-      if (showQuote) return;
+      // No cerrar si hay un modal hijo abierto (CotizacionManualModal u otros portals)
+      if (showQuote || editingCotizacion) return;
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) onClose();
     };
     if (lead) document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [lead, showQuote]);
+  }, [lead, showQuote, editingCotizacion]);
 
   const loadInts = async (id: number) => {
     setLoadingInts(true);
@@ -338,7 +339,8 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   return (
     <>
       <ConfirmDialog />
-      {showQuote && <QuoteModal lead={lead} onClose={() => setShowQuote(false)} />}
+      {showQuote && <CotizacionManualModal initialLead={lead} onClose={() => setShowQuote(false)} onSuccess={() => loadCotizaciones(lead.id)} />}
+      {editingCotizacion && <CotizacionManualModal initialCotizacion={editingCotizacion as any} onClose={() => setEditingCotizacion(null)} onSuccess={() => loadCotizaciones(lead.id)} />}
 
       <div className="fixed inset-0 z-50 flex justify-end">
         {/* Overlay */}
@@ -640,6 +642,10 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                           </div>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
+                          <button onClick={() => setEditingCotizacion(cot)}
+                            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#4E60A9] hover:bg-blue-50 transition-colors">
+                            <Edit3 size={13} />
+                          </button>
                           {!isAprobada && !isRechazada && (
                             <>
                               <button onClick={() => updateCotStatus(cot.id, "aprobada")}

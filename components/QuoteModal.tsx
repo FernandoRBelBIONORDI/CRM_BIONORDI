@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { X, Printer, FileText, ChevronDown, ChevronUp } from "lucide-react";
@@ -88,6 +88,13 @@ export default function QuoteModal({ lead, onClose }: Props) {
     });
   }, []);
 
+  const [usuariosList, setUsuariosList] = useState<{ id: number; nombre: string; cargo?: string }[]>([]);
+  const [firmaUserId, setFirmaUserId] = useState<number | "bionordi">("bionordi");
+
+  useEffect(() => {
+    fetch("/api/usuarios").then(r => r.json()).then(d => setUsuariosList(d.usuarios || [])).catch(() => {});
+  }, []);
+
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [descuento, setDescuento] = useState(0);
   const [conIVA, setConIVA] = useState(true);
@@ -138,6 +145,16 @@ export default function QuoteModal({ lead, onClose }: Props) {
     const fecha = new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
     const folio = `BNRD-${new Date().getFullYear().toString().slice(-2)}-C-${Date.now().toString().slice(-4)}`;
     const vigencia = new Date(Date.now() + 15 * 86400000).toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
+
+    let sigName = bn.representante;
+    let sigRole = bn.cargo;
+    if (firmaUserId !== "bionordi") {
+      const u = usuariosList.find(u => u.id === firmaUserId);
+      if (u) {
+        sigName = u.nombre;
+        sigRole = u.cargo || "Ejecutivo";
+      }
+    }
 
     const rows = items.map((s, i) => `
       <tr>
@@ -349,11 +366,12 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   </ul>
 </div>
 
+<div class="signatures-wrapper">
 <div class="signatures">
   <div class="sig-box">
     <div class="sig-line">
-      <div class="sig-name">${bn.representante}</div>
-      <div class="sig-role">${bn.cargo}</div>
+      <div class="sig-name">${sigName}</div>
+      <div class="sig-role">${sigRole}</div>
       <div class="sig-role" style="color:#4E60A9; font-weight:800; margin-top:4px;">${bn.razonSocial}</div>
     </div>
   </div>
@@ -363,8 +381,27 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   <strong>${bn.razonSocial}</strong> · ${bn.direccionFiscal} · Contacto: ${bn.correo}<br/>
   Documento generado digitalmente por el sistema de Gestión Bionordi.
 </div>
+</div>
 
 </div>
+<script>
+  function adjustFooter() {
+    const A4_HEIGHT = 1122.5;
+    const sigEl = document.querySelector('.signatures-wrapper');
+    if (sigEl) {
+       const rect = sigEl.getBoundingClientRect();
+       const bottomPage = Math.floor((rect.bottom - 1) / A4_HEIGHT);
+       const targetBottom = (bottomPage + 1) * A4_HEIGHT - 40;
+       const pushAmount = targetBottom - rect.bottom;
+       if (pushAmount > 0) {
+         const currentMargin = parseFloat(window.getComputedStyle(sigEl).marginTop || "0");
+         sigEl.style.marginTop = (currentMargin + pushAmount) + "px";
+       }
+    }
+  }
+  adjustFooter();
+  window.addEventListener("load", adjustFooter);
+</script>
 </body>
 </html>`;
 
@@ -497,21 +534,35 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-100 space-y-3 shrink-0 bg-gray-50/60">
-          <div className="flex items-center gap-4">
-            <button onClick={() => setConIVA(p => !p)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${conIVA ? "bg-[#4E60A9] border-[#4E60A9] text-white" : "bg-white border-gray-200 text-gray-500"}`}>
-              IVA 16%
-            </button>
-            <div className="flex items-center gap-2">
-              <label className="text-[12px] font-bold text-gray-500">Descuento</label>
-              <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5">
-                <input type="number" min={0} max={80} value={descuento}
-                  onChange={e => setDescuento(Math.min(80, Math.max(0, Number(e.target.value))))}
-                  className="w-10 text-[12px] font-bold text-center outline-none" />
-                <span className="text-[11px] text-gray-400 font-bold">%</span>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <button onClick={() => setConIVA(p => !p)}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${conIVA ? "bg-[#4E60A9] border-[#4E60A9] text-white" : "bg-white border-gray-200 text-gray-500"}`}>
+                IVA 16%
+              </button>
+              <div className="flex items-center gap-2">
+                <label className="text-[12px] font-bold text-gray-500">Descuento</label>
+                <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5">
+                  <input type="number" min={0} max={80} value={descuento}
+                    onChange={e => setDescuento(Math.min(80, Math.max(0, Number(e.target.value))))}
+                    className="w-10 text-[12px] font-bold text-center outline-none" />
+                  <span className="text-[11px] text-gray-400 font-bold">%</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-[12px] font-bold text-gray-500">Generado por</label>
+                <select 
+                  value={firmaUserId} 
+                  onChange={e => setFirmaUserId(e.target.value === "bionordi" ? "bionordi" : Number(e.target.value))}
+                  className="text-[12px] bg-white border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#4E60A9]/30"
+                >
+                  <option value="bionordi">{bn.representante} ({bn.cargo})</option>
+                  {usuariosList.map(u => (
+                    <option key={u.id} value={u.id}>{u.nombre} {u.cargo ? `(${u.cargo})` : ""}</option>
+                  ))}
+                </select>
               </div>
             </div>
-            <div className="flex-1" />
             <div className="text-right">
               {descuento > 0 && <div className="text-[10px] text-gray-400 line-through">${subtotal.toLocaleString("es-MX")}</div>}
               {conIVA && <div className="text-[10px] text-gray-400">+ IVA ${iva.toLocaleString("es-MX")}</div>}

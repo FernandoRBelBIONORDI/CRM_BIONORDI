@@ -169,7 +169,20 @@ async function generarPDFBase64(htmlString: string): Promise<string> {
           }
         });
 
-          const canvas = await html2canvas(doc.documentElement, {
+        // Push .signatures-wrapper to the bottom of its page
+        const sigEl = doc.querySelector('.signatures-wrapper') as HTMLElement;
+        if (sigEl) {
+           const rect = sigEl.getBoundingClientRect();
+           const bottomPage = Math.floor(rect.bottom / A4_HEIGHT);
+           const targetBottom = (bottomPage + 1) * A4_HEIGHT - 50; // 50px margin from bottom
+           const pushAmount = targetBottom - rect.bottom;
+           if (pushAmount > 0) {
+             const currentMargin = parseFloat(doc.defaultView?.getComputedStyle(sigEl).marginTop || "0");
+             sigEl.style.marginTop = `${currentMargin + pushAmount}px`;
+           }
+        }
+
+        const canvas = await html2canvas(doc.documentElement, {
           scale: 5, useCORS: true, allowTaint: true,
           width: 794, windowWidth: 794, logging: false,
         });
@@ -245,6 +258,8 @@ export default function CotizacionManualModal({
   const [leadId,        setLeadId]        = useState<number | null>(null);
   const [leadSearch,    setLeadSearch]    = useState("");
   const [leadsList,     setLeadsList]     = useState<{ id: number; nombre: string; ciudad?: string; nicho?: string; telefono?: string; correo?: string; direccion?: string; estado_republica?: string }[]>([]);
+  const [usuariosList,  setUsuariosList]  = useState<{ id: number; nombre: string; cargo?: string }[]>([]);
+  const [firmaUserId,   setFirmaUserId]   = useState<number | "bionordi">("bionordi");
 
   // Catálogo de equipos
   const [catalogo, setCatalogo] = useState<{
@@ -291,6 +306,7 @@ export default function CotizacionManualModal({
   useEffect(() => {
     fetch("/api/catalogo").then(r => r.json()).then(d => setCatalogo(d.equipos || [])).catch(() => {});
     fetch("/api/leads").then(r => r.json()).then(d => setLeadsList(d.leads || [])).catch(() => {});
+    fetch("/api/usuarios").then(r => r.json()).then(d => setUsuariosList(d.usuarios || [])).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -300,6 +316,7 @@ export default function CotizacionManualModal({
       setEqTipo(initialCotizacion.eq_tipo || "");
       setEqMarca(initialCotizacion.eq_marca || "");
       setEqModelo(initialCotizacion.eq_modelo || "");
+      setEqDescripcion(initialCotizacion.eq_descripcion || "");
       setNotas(initialCotizacion.notas || "");
       setSavedCot({ id: initialCotizacion.id, folio: initialCotizacion.folio });
       if (initialCotizacion.items_json) {
@@ -662,6 +679,17 @@ export default function CotizacionManualModal({
         fetchBase64("/equipo_movil_back.png.png"),
       ]);
     }
+    
+    let sigName = bn.representante;
+    let sigRole = bn.cargo;
+    if (firmaUserId !== "bionordi") {
+      const u = usuariosList.find(u => u.id === firmaUserId);
+      if (u) {
+        sigName = u.nombre;
+        sigRole = u.cargo || "Ejecutivo";
+      }
+    }
+
     // Fotos del catálogo para venta (se necesita b64 para funcionar en el blob HTML)
     const eqFotosB64: string[] = tipo === "venta" && eqFotos.length > 0
       ? await Promise.all(eqFotos.slice(0, 4).map(f => fetchBase64(f)))
@@ -1014,6 +1042,9 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     <div class="b-step"><span class="b-icon">4.</span><div>Su factura será procesada en un lapso no mayor a 24 horas hábiles.</div></div>
   </div>
   <div class="totals-card">
+    <div class="t-row"><div>Subtotal</div><div class="t-val">${$f(subtotal)}</div></div>
+    ${descuento > 0 ? `<div class="t-row"><div>Descuento (${descuento}%)</div><div class="t-val" style="color:#EF4444;">−${$f(descMonto)}</div></div>` : ""}
+    ${conIVA ? `<div class="t-row"><div>IVA (16%)</div><div class="t-val">${$f(iva)}</div></div>` : ""}
     <div class="t-row final"><div>Total (MXN)</div><div class="t-val">${$f(total)}</div></div>
   </div>
 </div>
@@ -1030,21 +1061,40 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   </ul>
 </div>
 
-<div class="signatures">
-  <div class="sig-box">
-    <div class="sig-line">
-      <div class="sig-name">${bn.representante}</div>
-      <div class="sig-role">${bn.cargo}</div>
-      <div class="sig-role" style="color:#4E60A9;font-weight:800;margin-top:4px;">${bn.razonSocial}</div>
+<div class="signatures-wrapper">
+  <div class="signatures">
+    <div class="sig-box">
+      <div class="sig-line">
+        <div class="sig-name">${sigName}</div>
+        <div class="sig-role">${sigRole}</div>
+        <div class="sig-role" style="color:#4E60A9;font-weight:800;margin-top:4px;">${bn.razonSocial}</div>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="footer">
-  <strong>${bn.razonSocial}</strong> · ${bn.direccionFiscal} · ${bn.correo}<br/>
-  Documento generado digitalmente por el sistema de Gestión Bionordi.
+  <div class="footer">
+    <strong>${bn.razonSocial}</strong> · ${bn.direccionFiscal} · ${bn.correo}<br/>
+    Documento generado digitalmente por el sistema de Gestión Bionordi.
+  </div>
 </div>
-
+<script>
+  function adjustFooter() {
+    const A4_HEIGHT = 1122.5;
+    const sigEl = document.querySelector('.signatures-wrapper');
+    if (sigEl) {
+       const rect = sigEl.getBoundingClientRect();
+       const bottomPage = Math.floor((rect.bottom - 1) / A4_HEIGHT);
+       const targetBottom = (bottomPage + 1) * A4_HEIGHT - 40;
+       const pushAmount = targetBottom - rect.bottom;
+       if (pushAmount > 0) {
+         const currentMargin = parseFloat(window.getComputedStyle(sigEl).marginTop || "0");
+         sigEl.style.marginTop = (currentMargin + pushAmount) + "px";
+       }
+    }
+  }
+  adjustFooter();
+  window.addEventListener("load", adjustFooter);
+</script>
 </div></body></html>`;
 
     return { html, folio };
@@ -1172,9 +1222,20 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     <p style="margin:0;font-size:13px;color:#334155;line-height:1.8;">${propInfoEmail.parrafoEmail}</p>
   </td></tr>
   <tr><td style="padding:20px 36px;background:#EEF0F7;border-top:2px solid #C5CAE0;">
-    <p style="margin:0 0 6px;font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;">Inversi&#243;n Total</p>
-    <p style="margin:0;font-size:32px;font-weight:900;color:#4E60A9;letter-spacing:-1px;">${$f(total)}</p>
-    <p style="margin:4px 0 0;font-size:11px;color:#64748B;">${propInfoEmail.subtituloTotal}${conIVA ? " &middot; IVA incluido" : " &middot; M&#225;s IVA"}</p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td valign="bottom">
+          <p style="margin:0 0 6px;font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;">Inversi&#243;n Total (MXN)</p>
+          <p style="margin:0;font-size:32px;font-weight:900;color:#4E60A9;letter-spacing:-1px;">${$f(total)}</p>
+          <p style="margin:4px 0 0;font-size:11px;color:#64748B;">${propInfoEmail.subtituloTotal}</p>
+        </td>
+        <td align="right" valign="bottom">
+          <p style="margin:0;font-size:12px;color:#64748B;">Subtotal: <strong style="color:#1E293B;">${$f(subtotal)}</strong></p>
+          ${descuento > 0 ? `<p style="margin:4px 0 0;font-size:12px;color:#64748B;">Descuento: <strong style="color:#EF4444;">-${$f(descMonto)}</strong></p>` : ""}
+          ${conIVA ? `<p style="margin:4px 0 0;font-size:12px;color:#64748B;">IVA (16%): <strong style="color:#1E293B;">${$f(iva)}</strong></p>` : ""}
+        </td>
+      </tr>
+    </table>
   </td></tr>
 
   <tr><td style="padding:20px 36px;border-top:1px solid #E2E8F0;">
@@ -1496,14 +1557,38 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                   </div>
 
                   <div className="mb-3">
-                    <Field label="Características / Descripción (una por línea, máx. 4)">
-                      <textarea
-                        value={eqDescripcion}
-                        onChange={e => setEqDescripcion(e.target.value)}
-                        placeholder="Pantalla de alta resolución...\nTransductores incluidos...\n..."
-                        className={`${inp} min-h-[80px] resize-none leading-relaxed py-2`}
-                        maxLength={350}
-                      />
+                    <Field label="Características / Descripción (máx. 4 puntos)">
+                      <div className="space-y-2 mt-1">
+                        {eqDescripcion.split('\n').map((carac, i) => (
+                          <div key={i} className="flex gap-2 items-center">
+                            <span className="text-[10px] text-gray-400 font-bold w-4 text-right">{i + 1}.</span>
+                            <input
+                              value={carac}
+                              onChange={e => {
+                                const arr = eqDescripcion.split('\n');
+                                arr[i] = e.target.value;
+                                setEqDescripcion(arr.join('\n'));
+                              }}
+                              placeholder={i === 0 ? "Ej: Pantalla de alta resolución..." : "..."}
+                              className={inp}
+                              maxLength={90}
+                            />
+                            {eqDescripcion.split('\n').length > 1 && (
+                              <button onClick={() => {
+                                const arr = eqDescripcion.split('\n');
+                                arr.splice(i, 1);
+                                setEqDescripcion(arr.join('\n'));
+                              }} className="text-red-400 hover:text-red-600 px-1 font-bold text-[14px]">×</button>
+                            )}
+                          </div>
+                        ))}
+                        {eqDescripcion.split('\n').length < 4 && (
+                          <button onClick={() => setEqDescripcion(eqDescripcion + '\n')}
+                            className="text-[10px] text-[#4E60A9] font-bold mt-1 ml-6 flex items-center gap-1 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors">
+                            <Plus size={12}/> Agregar punto
+                          </button>
+                        )}
+                      </div>
                     </Field>
                   </div>
 
@@ -1717,21 +1802,35 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-100 space-y-3 shrink-0 bg-gray-50/60">
-          <div className="flex items-center gap-4">
-            <button onClick={() => setConIVA(p => !p)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${conIVA ? "bg-[#4E60A9] border-[#4E60A9] text-white" : "bg-white border-gray-200 text-gray-500"}`}>
-              IVA 16%
-            </button>
-            <div className="flex items-center gap-2">
-              <label className="text-[12px] font-bold text-gray-500">Descuento</label>
-              <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5">
-                <input type="number" min={0} max={80} value={descuento}
-                  onChange={e => setDescuento(Math.min(80, Math.max(0, Number(e.target.value))))}
-                  className="w-10 text-[12px] font-bold text-center outline-none"/>
-                <span className="text-[11px] text-gray-400 font-bold">%</span>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <button onClick={() => setConIVA(p => !p)}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${conIVA ? "bg-[#4E60A9] border-[#4E60A9] text-white" : "bg-white border-gray-200 text-gray-500"}`}>
+                IVA 16%
+              </button>
+              <div className="flex items-center gap-2">
+                <label className="text-[12px] font-bold text-gray-500">Descuento</label>
+                <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5">
+                  <input type="number" min={0} max={80} value={descuento}
+                    onChange={e => setDescuento(Math.min(80, Math.max(0, Number(e.target.value))))}
+                    className="w-10 text-[12px] font-bold text-center outline-none"/>
+                  <span className="text-[11px] text-gray-400 font-bold">%</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-[12px] font-bold text-gray-500">Generado por</label>
+                <select 
+                  value={firmaUserId} 
+                  onChange={e => setFirmaUserId(e.target.value === "bionordi" ? "bionordi" : Number(e.target.value))}
+                  className="text-[12px] bg-white border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#4E60A9]/30"
+                >
+                  <option value="bionordi">{bn.representante} ({bn.cargo})</option>
+                  {usuariosList.map(u => (
+                    <option key={u.id} value={u.id}>{u.nombre} {u.cargo ? `(${u.cargo})` : ""}</option>
+                  ))}
+                </select>
               </div>
             </div>
-            <div className="flex-1"/>
             <div className="text-right">
               {descuento > 0 && <div className="text-[10px] text-gray-400 line-through">${subtotal.toLocaleString("es-MX")}</div>}
               {conIVA && <div className="text-[10px] text-gray-400">+ IVA ${iva.toLocaleString("es-MX")}</div>}

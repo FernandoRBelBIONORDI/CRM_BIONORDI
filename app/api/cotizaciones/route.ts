@@ -45,14 +45,14 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const { lead_id, tipo, folio: folioParam, monto_total, items_json, eq_tipo, eq_marca, eq_modelo, notas, status, pdf_path } = await req.json();
+    const { lead_id, tipo, folio: folioParam, monto_total, items_json, eq_tipo, eq_marca, eq_modelo, eq_descripcion, notas, status, pdf_path } = await req.json();
     if (!tipo) return NextResponse.json({ error: 'tipo requerido' }, { status: 400 });
 
     const folio = folioParam || generarFolio(tipo);
     const fecha = new Date().toISOString();
     const { lastInsertRowid } = db.prepare(`
-      INSERT INTO cotizaciones (lead_id, tipo, folio, monto_total, items_json, eq_tipo, eq_marca, eq_modelo, notas, status, fecha, pdf_path)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO cotizaciones (lead_id, tipo, folio, monto_total, items_json, eq_tipo, eq_marca, eq_modelo, eq_descripcion, notas, status, fecha, pdf_path)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       lead_id || null,
       tipo,
@@ -62,8 +62,9 @@ export async function POST(req: Request) {
       eq_tipo || null,
       eq_marca || null,
       eq_modelo || null,
+      eq_descripcion || null,
       notas || null,
-      status || 'enviada',
+      status || 'borrador',
       fecha,
       pdf_path || null,
     );

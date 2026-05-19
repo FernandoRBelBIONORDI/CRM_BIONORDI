@@ -10,7 +10,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
 
   try {
-    const { nombre, email, password, rol, activo } = await req.json();
+    const { nombre, email, password, rol, activo, cargo } = await req.json();
     const { id: rawId } = await params;
     const id = Number(rawId);
 
@@ -19,9 +19,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       db.prepare(`UPDATE usuarios SET password_hash = ? WHERE id = ?`).run(hash, id);
     }
 
-    const COLS = new Set(['nombre', 'email', 'rol', 'activo']);
+    const COLS = new Set(['nombre', 'email', 'rol', 'activo', 'cargo']);
     const updates: Record<string, any> = {};
-    for (const [k, v] of Object.entries({ nombre, email, rol, activo })) {
+    for (const [k, v] of Object.entries({ nombre, email, rol, activo, cargo })) {
       if (v !== undefined && COLS.has(k)) updates[k] = v;
     }
 
@@ -30,7 +30,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       db.prepare(`UPDATE usuarios SET ${setStr} WHERE id = @id`).run({ ...updates, id });
     }
 
-    const usuario = db.prepare(`SELECT id, nombre, email, rol, activo, created_at FROM usuarios WHERE id = ?`).get(id);
+    const usuario = db.prepare(`SELECT id, nombre, email, rol, activo, cargo, created_at FROM usuarios WHERE id = ?`).get(id);
     return NextResponse.json({ success: true, usuario });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

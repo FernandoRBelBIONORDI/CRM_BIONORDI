@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Search, Plus, X, ExternalLink, Trash2, ChevronDown, Activity, Check, Clock, Download, Eye } from "lucide-react";
+import { FileText, Search, Plus, X, ExternalLink, Trash2, ChevronDown, Activity, Check, Clock, Download, Eye, Edit3 } from "lucide-react";
 import Link from "next/link";
 import { useConfirm } from "@/hooks/useConfirm";
+import CotizacionManualModal from "@/components/CotizacionManualModal";
 
 interface Cotizacion {
   id: number;
@@ -48,6 +49,7 @@ export default function CotizacionesPage() {
   const [selected, setSelected] = useState<Cotizacion | null>(null);
   const [changingStatus, setChangingStatus] = useState(false);
   const [pdfViewerUrl, setPdfViewerUrl] = useState<string | null>(null);
+  const [editingCotizacion, setEditingCotizacion] = useState<Cotizacion | null>(null);
 
   const fetchCotizaciones = async () => {
     setLoading(true);
@@ -337,10 +339,16 @@ export default function CotizacionesPage() {
                 className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-[#DC2626] hover:bg-[#FEF2F2] px-3 py-2 rounded-full transition-colors">
                 <Trash2 size={12} /> Eliminar
               </button>
-              <Link href="/cotizar"
-                className="flex items-center gap-1.5 text-[11px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] px-3 py-2 rounded-full transition-colors">
-                <Plus size={12} /> Nueva cotización
-              </Link>
+              <div className="flex gap-1.5">
+                <button onClick={() => setEditingCotizacion(selected)}
+                  className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 hover:text-[#1E293B] hover:bg-gray-100 px-3 py-2 rounded-full transition-colors">
+                  <Edit3 size={12} /> Editar
+                </button>
+                <Link href="/cotizar"
+                  className="flex items-center gap-1.5 text-[11px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] px-3 py-2 rounded-full transition-colors">
+                  <Plus size={12} /> Nueva
+                </Link>
+              </div>
             </div>
           </div>
         )}
@@ -367,6 +375,18 @@ export default function CotizacionesPage() {
             <iframe src={pdfViewerUrl} className="flex-1 w-full border-0 bg-gray-50 rounded-b-2xl" title="PDF de cotización" />
           </div>
         </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingCotizacion && (
+        <CotizacionManualModal
+          initialCotizacion={editingCotizacion}
+          onClose={() => setEditingCotizacion(null)}
+          onSuccess={(folio) => {
+            setEditingCotizacion(null);
+            fetchCotizaciones(); // refetch list
+          }}
+        />
       )}
     </div>
   );

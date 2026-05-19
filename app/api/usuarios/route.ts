@@ -9,7 +9,7 @@ export async function GET() {
   if ((session?.user as any)?.role !== 'admin')
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
 
-  const usuarios = db.prepare(`SELECT id, nombre, email, rol, activo, created_at FROM usuarios ORDER BY id ASC`).all();
+  const usuarios = db.prepare(`SELECT id, nombre, email, rol, activo, cargo, created_at FROM usuarios ORDER BY id ASC`).all();
   return NextResponse.json({ usuarios });
 }
 
@@ -19,16 +19,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
 
   try {
-    const { nombre, email, password, rol } = await req.json();
+    const { nombre, email, password, rol, cargo } = await req.json();
     if (!nombre || !email || !password)
       return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 });
 
     const hash = bcrypt.hashSync(password, 10);
     const result = db.prepare(`
-      INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES (?, ?, ?, ?)
-    `).run(nombre, email, hash, rol || 'operador');
+      INSERT INTO usuarios (nombre, email, password_hash, rol, cargo) VALUES (?, ?, ?, ?, ?)
+    `).run(nombre, email, hash, rol || 'operador', cargo || null);
 
-    const usuario = db.prepare(`SELECT id, nombre, email, rol, activo, created_at FROM usuarios WHERE id = ?`).get(result.lastInsertRowid);
+    const usuario = db.prepare(`SELECT id, nombre, email, rol, activo, cargo, created_at FROM usuarios WHERE id = ?`).get(result.lastInsertRowid);
     return NextResponse.json({ success: true, usuario });
   } catch (e: any) {
     if (e.message?.includes('UNIQUE')) return NextResponse.json({ error: 'El email ya existe' }, { status: 409 });
