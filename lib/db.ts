@@ -245,18 +245,20 @@ function initDb(): Database.Database {
 
   _db.exec(`
     CREATE TABLE IF NOT EXISTS cotizaciones (
-      id          INTEGER PRIMARY KEY AUTOINCREMENT,
-      lead_id     INTEGER REFERENCES leads(id) ON DELETE SET NULL,
-      tipo        TEXT NOT NULL,
-      folio       TEXT,
-      monto_total REAL DEFAULT 0,
-      items_json  TEXT,
-      eq_tipo     TEXT,
-      eq_marca    TEXT,
-      eq_modelo   TEXT,
-      notas       TEXT,
-      status      TEXT DEFAULT 'enviada',
-      fecha       TEXT DEFAULT (datetime('now','localtime'))
+      id             INTEGER PRIMARY KEY AUTOINCREMENT,
+      lead_id        INTEGER REFERENCES leads(id) ON DELETE SET NULL,
+      tipo           TEXT NOT NULL,
+      folio          TEXT,
+      monto_total    REAL DEFAULT 0,
+      items_json     TEXT,
+      eq_tipo        TEXT,
+      eq_marca       TEXT,
+      eq_modelo      TEXT,
+      eq_descripcion TEXT,
+      notas          TEXT,
+      status         TEXT DEFAULT 'enviada',
+      fecha          TEXT DEFAULT (datetime('now','localtime')),
+      pdf_path       TEXT
     )
   `);
 
@@ -327,10 +329,12 @@ function initDb(): Database.Database {
       email         TEXT UNIQUE NOT NULL,
       password_hash TEXT NOT NULL,
       rol           TEXT DEFAULT 'operador',
+      cargo         TEXT,
       activo        INTEGER DEFAULT 1,
       created_at    TEXT DEFAULT (datetime('now','localtime'))
     )
   `);
+  try { _db.exec(`ALTER TABLE usuarios ADD COLUMN cargo TEXT`); } catch {}
 
   const hayUsuarios = _db.prepare("SELECT COUNT(*) as c FROM usuarios").get() as { c: number };
   if (hayUsuarios.c === 0) {
