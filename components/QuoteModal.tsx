@@ -324,7 +324,7 @@ export default function QuoteModal({ lead, onClose }: Props) {
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #334155; background: #fff; font-size: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .page { padding: 40px 50px; max-width: 850px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; min-height: 262mm; }
-  .page-spacer { flex: 1; min-height: 40px; }
+  .page-spacer { flex: 1; min-height: 5px; }
   .avoid-break { page-break-inside: avoid; }
   .text-muted { color: #94A3B8; }
   .b { font-weight: 700; }
@@ -383,12 +383,12 @@ export default function QuoteModal({ lead, onClose }: Props) {
   .cond-list { list-style: none; padding: 0; }
   .cond-list li { position: relative; padding-left: 14px; font-size: 10px; color: #475569; margin-bottom: 6px; line-height: 1.5; }
   .cond-list li::before { content: "•"; position: absolute; left: 0; color: #3B82F6; font-weight: bold; font-size: 14px; line-height: 1; top: -1px; }
-  .signatures { margin-top: 40px; display: flex; justify-content: flex-end; page-break-inside: avoid; }
+  .signatures { margin-top: 15px; display: flex; justify-content: flex-end; page-break-inside: avoid; }
   .sig-box { text-align: center; width: 240px; }
   .sig-line { border-top: 2px solid #CBD5E1; margin-bottom: 10px; padding-top: 10px; }
   .sig-name { font-size: 13px; font-weight: 800; color: #4E60A9; }
   .sig-role { font-size: 10px; font-weight: 600; color: #64748B; text-transform: uppercase; margin-top: 2px; }
-  .footer { text-align: center; border-top: 1px solid #E2E8F0; padding-top: 15px; margin-top: 30px; font-size: 10px; color: #94A3B8; line-height: 1.6; }
+  .footer { text-align: center; border-top: 1px solid #E2E8F0; padding-top: 15px; margin-top: 15px; font-size: 10px; color: #94A3B8; line-height: 1.6; }
   @media print { body { padding: 0; } .page { padding: 20px; box-shadow: none; } .cond-section { page-break-after: avoid; break-after: avoid; } .signatures-wrapper { page-break-before: avoid; break-before: avoid; page-break-inside: avoid; break-inside: avoid; } }
 </style>
 </head>
