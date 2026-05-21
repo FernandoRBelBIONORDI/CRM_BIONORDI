@@ -5,6 +5,7 @@ import { FileText, Search, Plus, X, Trash2, Activity, Check, Clock, Download, Ey
 import Link from "next/link";
 import { useConfirm } from "@/hooks/useConfirm";
 import CotizacionManualModal from "@/components/CotizacionManualModal";
+import DocumentViewerModal from "@/components/DocumentViewerModal";
 
 interface Cotizacion {
   id: number;
@@ -363,25 +364,19 @@ export default function CotizacionesPage() {
 
       {/* PDF Viewer overlay */}
       {pdfViewerUrl && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setPdfViewerUrl(null)} />
-          <div className="relative w-full max-w-5xl h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-white shrink-0">
-              <span className="text-[16px] font-extrabold text-[#1E293B]">PDF — Cotización</span>
-              <div className="flex items-center gap-3">
-                <a href={pdfViewerUrl} download
-                  className="flex items-center gap-2 text-[12px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-4 py-2 rounded-xl transition-colors">
-                  <Download size={16} /> Descargar
-                </a>
-                <button onClick={() => setPdfViewerUrl(null)}
-                  className="w-9 h-9 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-            <iframe src={pdfViewerUrl} className="flex-1 w-full border-0 bg-gray-50 rounded-b-2xl" title="PDF de cotización" />
-          </div>
-        </div>
+        <DocumentViewerModal
+          title={`Cotización — ${selected?.folio || "Documento"}`}
+          url={pdfViewerUrl}
+          downloadName={`${selected?.folio || "cotizacion"}.pdf`}
+          onClose={() => setPdfViewerUrl(null)}
+          editAction={{
+            label: "Editar",
+            onClick: () => {
+              setEditingCotizacion(selected);
+              setPdfViewerUrl(null);
+            }
+          }}
+        />
       )}
 
       {/* Edit Modal */}

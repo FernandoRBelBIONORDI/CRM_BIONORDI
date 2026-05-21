@@ -20,6 +20,8 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
       "connect-src 'self' https:",
+      "frame-src 'self' blob: data:",
+      "object-src 'self' blob:",
       "frame-ancestors 'self'",
     ].join("; "),
   },

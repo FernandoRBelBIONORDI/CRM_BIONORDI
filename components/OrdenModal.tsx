@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { X, CheckCircle, Clock, FileText, ChevronRight, Trash2, Check, AlertTriangle, Activity, Mail, Camera, Download } from "lucide-react";
+import DocumentViewerModal from "@/components/DocumentViewerModal";
 
 export interface Orden {
   id: number; folio: string; tipo_orden?: string; lead_id?: number;
@@ -701,25 +702,12 @@ ${falla || techNote ? `<!-- Notes -->
       )}
 
       {showPdfPreview && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPdfPreview(false)} />
-          <div className="relative w-full max-w-5xl h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-white shrink-0">
-              <span className="text-[16px] font-extrabold text-[#1E293B]">Reporte — {orden.folio}</span>
-              <div className="flex items-center gap-3">
-                <a href={`/api/pdf/orden?id=${orden.id}`} download={`Orden_${orden.folio}.pdf`}
-                  className="flex items-center gap-2 text-[12px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-4 py-2 rounded-xl transition-colors">
-                  <Download size={16} /> Descargar
-                </a>
-                <button onClick={() => setShowPdfPreview(false)}
-                  className="w-9 h-9 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-            <iframe src={`/api/pdf/orden?id=${orden.id}`} className="flex-1 w-full border-0 bg-gray-50 rounded-b-2xl" title={`Reporte ${orden.folio}`} />
-          </div>
-        </div>
+        <DocumentViewerModal
+          title={`Reporte — ${orden.folio}`}
+          url={`/api/pdf/orden?id=${orden.id}`}
+          downloadName={`Orden_${orden.folio}.pdf`}
+          onClose={() => setShowPdfPreview(false)}
+        />
       )}
     </>
   );
