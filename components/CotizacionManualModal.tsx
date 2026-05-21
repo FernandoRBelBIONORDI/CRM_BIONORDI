@@ -1187,7 +1187,6 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         const err = await patchRes.json().catch(() => ({}));
         throw new Error(err.error || `Error al actualizar cotización (${patchRes.status})`);
       }
-      onSuccess?.(folioGenerado);
       return savedCotRef.current.id;
     } else {
       const dbRes = await fetch("/api/cotizaciones", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -1200,7 +1199,6 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         const newCot = { id: data.id, folio: folioGenerado };
         savedCotRef.current = newCot;
         setSavedCot(newCot);
-        onSuccess?.(folioGenerado);
       }
       return data.id;
     }
@@ -1450,9 +1448,16 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
   const anyLoading = generating || saveStatus === "saving" || emailStatus === "sending";
 
+  const handleClose = () => {
+    if (savedCotRef.current) {
+      onSuccess?.(savedCotRef.current.folio);
+    }
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose}/>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose}/>
       <div className="relative bg-white sm:rounded-2xl shadow-2xl w-full h-full sm:w-[700px] sm:h-auto sm:max-h-[94vh] flex flex-col overflow-hidden">
 
         {/* Header */}
@@ -1461,7 +1466,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
             <h3 className="font-bold text-[#1E293B] text-[15px] leading-tight">{TIPO_LABELS[tipo]}</h3>
             <p className="text-[11px] text-gray-400 font-medium">Nueva cotización</p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
+          <button onClick={handleClose} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
             <X size={15}/>
           </button>
         </div>
@@ -1987,7 +1992,11 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               />
             </div>
             <button
-              onClick={enviarPorCorreo}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                enviarPorCorreo();
+              }}
               disabled={anyLoading || !canGenerar || !emailTo.trim()}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12px] font-bold transition-all shrink-0 ${
                 emailStatus === "ok"    ? "bg-[#059669] text-white" :
@@ -2007,7 +2016,11 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           )}
 
           <button
-            onClick={guardarEnExpediente}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              guardarEnExpediente();
+            }}
             disabled={anyLoading || !canGenerar}
             className={`w-full flex items-center justify-center gap-2 text-[12px] font-bold py-2.5 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
               saveStatus === "ok"    ? "bg-[#059669] text-white" :
@@ -2020,7 +2033,13 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
              <><Save size={13}/>Guardar PDF en expediente</>}
           </button>
 
-          <button onClick={generarPDF} disabled={!canGenerar || anyLoading}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              generarPDF();
+            }}
+            disabled={!canGenerar || anyLoading}
             className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-white bg-[#4E60A9] hover:bg-[#3d4e8a] py-3 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm">
             {generating ? (
               <>
