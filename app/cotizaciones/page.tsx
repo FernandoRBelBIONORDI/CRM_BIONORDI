@@ -317,11 +317,11 @@ export default function CotizacionesPage() {
               <div className="flex gap-2">
                 {selected.pdf_path ? (
                   <>
-                    <button onClick={() => setPdfViewerUrl(selected.pdf_path!)}
+                    <button onClick={() => setPdfViewerUrl(`${selected.pdf_path}?t=${Date.now()}`)}
                       className="flex-1 flex items-center justify-center gap-2 text-[12px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] px-3 py-2.5 rounded-xl border border-[#4E60A9]/20 transition-colors">
                       <Eye size={13} /> Ver PDF
                     </button>
-                    <a href={selected.pdf_path} download
+                    <a href={`${selected.pdf_path}?t=${Date.now()}`} download
                       className="flex items-center gap-1.5 text-[12px] font-bold text-gray-500 hover:bg-gray-100 px-3 py-2.5 rounded-xl border border-gray-200 transition-colors">
                       <Download size={13} />
                     </a>

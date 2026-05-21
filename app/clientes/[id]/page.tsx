@@ -968,7 +968,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                               );
                             })()}
                             {c.pdf_path && (
-                              <a href={c.pdf_path} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+                              <a href={`${c.pdf_path}?t=${Date.now()}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
                                 className="text-[#4E60A9] hover:text-[#3d4e8a] transition-colors"><FileDown size={14} /></a>
                             )}
                             <button onClick={e => { e.stopPropagation(); setEditingCotizacion(c); }}
@@ -1060,7 +1060,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
             return (
               <DocumentViewerModal
                 title={`Cotización — ${previewCot.folio || `Cotización #${previewCot.id}`}`}
-                url={previewCot.pdf_path!}
+                url={`${previewCot.pdf_path}?t=${Date.now()}`}
                 downloadName={`${previewCot.folio || `cotizacion_${previewCot.id}`}.pdf`}
                 onClose={() => setPreviewCot(null)}
                 editAction={{
