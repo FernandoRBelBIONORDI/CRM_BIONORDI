@@ -20,17 +20,17 @@ interface LineItem {
 }
 
 const USOS_CFDI = [
-  { clave:"G03", desc:"Gastos en general" },
-  { clave:"G01", desc:"Adquisición de mercancias" },
-  { clave:"D01", desc:"Honorarios médicos" },
-  { clave:"P01", desc:"Por definir" },
+  { clave: "G03", desc: "Gastos en general" },
+  { clave: "G01", desc: "Adquisición de mercancias" },
+  { clave: "D01", desc: "Honorarios médicos" },
+  { clave: "P01", desc: "Por definir" },
 ];
 
 const REGIMENES = [
-  { clave:"612", desc:"Personas Físicas con Act. Empresariales" },
-  { clave:"601", desc:"General de Ley Personas Morales" },
-  { clave:"626", desc:"Régimen Simplificado de Confianza" },
-  { clave:"605", desc:"Sueldos y Salarios" },
+  { clave: "612", desc: "Personas Físicas con Act. Empresariales" },
+  { clave: "601", desc: "General de Ley Personas Morales" },
+  { clave: "626", desc: "Régimen Simplificado de Confianza" },
+  { clave: "605", desc: "Sueldos y Salarios" },
 ];
 
 const TIPOS_TRANSDUCTOR = [
@@ -52,41 +52,41 @@ const TIPOS_EQUIPO = [
 
 const SERVICIOS_RAPIDOS: Record<TipoCotizacion, { nombre: string; precio: number }[]> = {
   reparacion: [
-    { nombre:"Diagnóstico técnico de transductor",   precio:1500  },
-    { nombre:"Reparación transductor lineal",         precio:6500  },
-    { nombre:"Reparación transductor convex",         precio:6500  },
-    { nombre:"Reparación transductor sectorial",      precio:7500  },
-    { nombre:"Reparación transductor intracavitario", precio:8500  },
-    { nombre:"Reparación transductor TEE",            precio:12000 },
-    { nombre:"Reparación transductor 3D/4D",          precio:9500  },
-    { nombre:"Cambio de cable del transductor",       precio:3200  },
-    { nombre:"Reencapsulado (carcasa)",               precio:2800  },
+    { nombre: "Diagnóstico técnico de transductor", precio: 1500 },
+    { nombre: "Reparación transductor lineal", precio: 6500 },
+    { nombre: "Reparación transductor convex", precio: 6500 },
+    { nombre: "Reparación transductor sectorial", precio: 7500 },
+    { nombre: "Reparación transductor intracavitario", precio: 8500 },
+    { nombre: "Reparación transductor TEE", precio: 12000 },
+    { nombre: "Reparación transductor 3D/4D", precio: 9500 },
+    { nombre: "Cambio de cable del transductor", precio: 3200 },
+    { nombre: "Reencapsulado (carcasa)", precio: 2800 },
   ],
   mantenimiento: [
-    { nombre:"Mantenimiento preventivo",              precio:2500  },
-    { nombre:"Limpieza y calibración",                precio:1800  },
-    { nombre:"Revisión general de sistema",           precio:3500  },
-    { nombre:"Mantenimiento correctivo",              precio:4500  },
+    { nombre: "Mantenimiento preventivo", precio: 2500 },
+    { nombre: "Limpieza y calibración", precio: 1800 },
+    { nombre: "Revisión general de sistema", precio: 3500 },
+    { nombre: "Mantenimiento correctivo", precio: 4500 },
   ],
   venta: [],
   consumibles: [
-    { nombre:"Gel conductor de ultrasonido 1 L",          precio:150  },
-    { nombre:"Gel conductor de ultrasonido 5 L",          precio:580  },
-    { nombre:"Fundas desechables para transductor c/100", precio:320  },
-    { nombre:"Papel térmico para impresora de US (3 rollos)", precio:95 },
-    { nombre:"Alcohol isopropílico 1 L",                  precio:120  },
-    { nombre:"Solución limpiadora para transductores",    precio:280  },
-    { nombre:"Bolsas esterilizables para transductor c/10",precio:450 },
-    { nombre:"Electrodos desechables c/50",               precio:180  },
-    { nombre:"Paño absorbente/desechable c/100",          precio:95   },
+    { nombre: "Gel conductor de ultrasonido 1 L", precio: 150 },
+    { nombre: "Gel conductor de ultrasonido 5 L", precio: 580 },
+    { nombre: "Fundas desechables para transductor c/100", precio: 320 },
+    { nombre: "Papel térmico para impresora de US (3 rollos)", precio: 95 },
+    { nombre: "Alcohol isopropílico 1 L", precio: 120 },
+    { nombre: "Solución limpiadora para transductores", precio: 280 },
+    { nombre: "Bolsas esterilizables para transductor c/10", precio: 450 },
+    { nombre: "Electrodos desechables c/50", precio: 180 },
+    { nombre: "Paño absorbente/desechable c/100", precio: 95 },
   ],
 };
 
 const TIPO_LABELS: Record<TipoCotizacion, string> = {
-  reparacion:    "Reparación de Transductores",
-  venta:         "Venta de Equipo",
+  reparacion: "Reparación de Transductores",
+  venta: "Venta de Equipo",
   mantenimiento: "Mantenimiento de Equipo",
-  consumibles:   "Venta de Consumibles",
+  consumibles: "Venta de Consumibles",
 };
 
 const inp = "w-full text-[16px] md:text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white";
@@ -139,7 +139,7 @@ async function generarPDFBase64(htmlString: string): Promise<string> {
       width: "794px", height: "1123px", border: "none", opacity: "0", pointerEvents: "none",
     });
     document.body.appendChild(iframe);
-    const cleanup = () => { try { document.body.removeChild(iframe); } catch {} };
+    const cleanup = () => { try { document.body.removeChild(iframe); } catch { } };
 
     iframe.onload = async () => {
       try {
@@ -148,16 +148,16 @@ async function generarPDFBase64(htmlString: string): Promise<string> {
         const { jsPDF } = await import("jspdf");
         const doc = iframe.contentDocument;
         if (!doc) { cleanup(); reject(new Error("No se pudo acceder al iframe")); return; }
-        
+
         // Simular page-breaks para html2canvas (ya que no los soporta nativamente)
         const A4_HEIGHT = 1123;
         const elementsToCheck = doc.querySelectorAll('table, [style*="page-break-before:always"], [style*="page-break-before: always"], .avoid-break');
-        
+
         elementsToCheck.forEach(el => {
           // Medir posición actual (puede haber cambiado si empujamos elementos previos)
           const rect = el.getBoundingClientRect();
           const isPageBreak = el.tagName === 'TABLE' || (el.getAttribute('style') || '').includes('page-break-before');
-          
+
           if (isPageBreak) {
             const currentPos = rect.top;
             const pageNumber = Math.floor(currentPos / A4_HEIGHT);
@@ -184,14 +184,14 @@ async function generarPDFBase64(htmlString: string): Promise<string> {
         // Push .signatures-wrapper to the bottom of its page
         const sigEl = doc.querySelector('.signatures-wrapper') as HTMLElement;
         if (sigEl) {
-           const rect = sigEl.getBoundingClientRect();
-           const bottomPage = Math.floor(rect.bottom / A4_HEIGHT);
-           const targetBottom = (bottomPage + 1) * A4_HEIGHT - 50; // 50px margin from bottom
-           const pushAmount = targetBottom - rect.bottom;
-           if (pushAmount > 0) {
-             const currentMargin = parseFloat(doc.defaultView?.getComputedStyle(sigEl).marginTop || "0");
-             sigEl.style.marginTop = `${currentMargin + pushAmount}px`;
-           }
+          const rect = sigEl.getBoundingClientRect();
+          const bottomPage = Math.floor(rect.bottom / A4_HEIGHT);
+          const targetBottom = (bottomPage + 1) * A4_HEIGHT - 50; // 50px margin from bottom
+          const pushAmount = targetBottom - rect.bottom;
+          if (pushAmount > 0) {
+            const currentMargin = parseFloat(doc.defaultView?.getComputedStyle(sigEl).marginTop || "0");
+            sigEl.style.marginTop = `${currentMargin + pushAmount}px`;
+          }
         }
 
         const canvas = await html2canvas(doc.documentElement, {
@@ -242,36 +242,36 @@ export default function CotizacionManualModal({
   // ── Estado ────────────────────────────────────────────────────────────────
   const [tipo, setTipo] = useState<TipoCotizacion>(initialCotizacion?.tipo || initialTipo);
   const [bn, setBn] = useState<BionordiCfg>({
-    razonSocial:"Bionordi S.A. de C.V.", rfc:"—", banco:"—", cuenta:"—",
-    clabe:"—", direccionFiscal:"Ciudad de México, CDMX",
-    correo:"contacto@bionordi.mx", representante:"Fernando Rosas", cargo:"Director General",
+    razonSocial: "Bionordi S.A. de C.V.", rfc: "—", banco: "—", cuenta: "—",
+    clabe: "—", direccionFiscal: "Ciudad de México, CDMX",
+    correo: "contacto@bionordi.mx", representante: "Fernando Rosas", cargo: "Director General",
   });
 
   // Cliente
-  const [cliNombre,   setCliNombre]   = useState("");
+  const [cliNombre, setCliNombre] = useState("");
   const [cliContacto, setCliContacto] = useState("");
-  const [cliTel,      setCliTel]      = useState("");
-  const [cliCorreo,   setCliCorreo]   = useState("");
-  const [cliDireccion,setCliDireccion]= useState("");
-  const [cliCiudad,   setCliCiudad]   = useState("");
-  const [cliEstado,   setCliEstado]   = useState("");
+  const [cliTel, setCliTel] = useState("");
+  const [cliCorreo, setCliCorreo] = useState("");
+  const [cliDireccion, setCliDireccion] = useState("");
+  const [cliCiudad, setCliCiudad] = useState("");
+  const [cliEstado, setCliEstado] = useState("");
 
   // Equipo (reparacion / mantenimiento)
-  const [eqTipo,   setEqTipo]   = useState("");
-  const [eqMarca,  setEqMarca]  = useState("");
+  const [eqTipo, setEqTipo] = useState("");
+  const [eqMarca, setEqMarca] = useState("");
   const [eqModelo, setEqModelo] = useState("");
-  const [eqSerie,  setEqSerie]  = useState("");
-  const [eqFalla,  setEqFalla]  = useState("");
+  const [eqSerie, setEqSerie] = useState("");
+  const [eqFalla, setEqFalla] = useState("");
 
   // Items
   const [items, setItems] = useState<LineItem[]>([newItem()]);
 
   // Vincular con lead existente
-  const [leadId,        setLeadId]        = useState<number | null>(null);
-  const [leadSearch,    setLeadSearch]    = useState("");
-  const [leadsList,     setLeadsList]     = useState<{ id: number; nombre: string; ciudad?: string; nicho?: string; telefono?: string; correo?: string; direccion?: string; estado_republica?: string }[]>([]);
-  const [usuariosList,  setUsuariosList]  = useState<{ id: number; nombre: string; cargo?: string }[]>([]);
-  const [firmaUserId,   setFirmaUserId]   = useState<number | "bionordi">("bionordi");
+  const [leadId, setLeadId] = useState<number | null>(null);
+  const [leadSearch, setLeadSearch] = useState("");
+  const [leadsList, setLeadsList] = useState<{ id: number; nombre: string; ciudad?: string; nicho?: string; telefono?: string; correo?: string; direccion?: string; estado_republica?: string }[]>([]);
+  const [usuariosList, setUsuariosList] = useState<{ id: number; nombre: string; cargo?: string }[]>([]);
+  const [firmaUserId, setFirmaUserId] = useState<number | "bionordi">("bionordi");
 
   // Catálogo de equipos
   const [catalogo, setCatalogo] = useState<{
@@ -284,29 +284,29 @@ export default function CotizacionManualModal({
 
   // Datos del equipo cargados desde el catálogo (para personalizar el PDF)
   const [eqDescripcion, setEqDescripcion] = useState("");
-  const [eqFotos,       setEqFotos]       = useState<string[]>([]);
+  const [eqFotos, setEqFotos] = useState<string[]>([]);
   const [eqBrochureB64, setEqBrochureB64] = useState<string | null>(null);
 
   // Imagen del transductor (diagrama) y evidencias fotográficas
   const [imgEquipoB64, setImgEquipoB64] = useState<string | null>(null);
-  const [evidencias,   setEvidencias]   = useState<{ b64: string; caption: string }[]>([]);
+  const [evidencias, setEvidencias] = useState<{ b64: string; caption: string }[]>([]);
 
   // Ajustes
   const [descuento, setDescuento] = useState(0);
-  const [conIVA,    setConIVA]    = useState(true);
-  const [notas,     setNotas]     = useState("");
-  const [showFact,  setShowFact]  = useState(false);
+  const [conIVA, setConIVA] = useState(true);
+  const [notas, setNotas] = useState("");
+  const [showFact, setShowFact] = useState(false);
 
   // Email
-  const [emailTo,      setEmailTo]      = useState("");
-  const [emailStatus,  setEmailStatus]  = useState<"idle"|"sending"|"ok"|"error">("idle");
-  const [emailMsg,     setEmailMsg]     = useState("");
-  const [saveStatus,   setSaveStatus]   = useState<"idle"|"saving"|"ok"|"error">("idle");
-  const [saveError,    setSaveError]    = useState<string>("");
-  const [previewHtml,  setPreviewHtml]  = useState<string | null>(null);
+  const [emailTo, setEmailTo] = useState("");
+  const [emailStatus, setEmailStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
+  const [emailMsg, setEmailMsg] = useState("");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "ok" | "error">("idle");
+  const [saveError, setSaveError] = useState<string>("");
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
   const [previewFolio, setPreviewFolio] = useState<string>("");
-  const [generating,   setGenerating]   = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   // Cotización ya guardada en esta sesión — evita duplicados entre Generar, Guardar y Enviar
   const [savedCot, setSavedCot] = useState<{ id: number; folio: string } | null>(null);
@@ -317,12 +317,12 @@ export default function CotizacionManualModal({
   }, [savedCot]);
 
   // Facturación
-  const [facRazonSoc,  setFacRazonSoc]  = useState("");
-  const [facRFC,       setFacRFC]       = useState("");
-  const [facRegimen,   setFacRegimen]   = useState("612");
-  const [facCFDI,      setFacCFDI]      = useState("G03");
+  const [facRazonSoc, setFacRazonSoc] = useState("");
+  const [facRFC, setFacRFC] = useState("");
+  const [facRegimen, setFacRegimen] = useState("612");
+  const [facCFDI, setFacCFDI] = useState("G03");
   const [facDirFiscal, setFacDirFiscal] = useState("");
-  const [facCorreo,    setFacCorreo]    = useState("");
+  const [facCorreo, setFacCorreo] = useState("");
 
   const pdfB64Ref = useRef<string | null>(null);
 
@@ -342,9 +342,9 @@ export default function CotizacionManualModal({
 
   // ── Efectos ───────────────────────────────────────────────────────────────
   useEffect(() => {
-    fetch("/api/catalogo").then(r => r.json()).then(d => setCatalogo(d.equipos || [])).catch(() => {});
-    fetch("/api/leads").then(r => r.json()).then(d => setLeadsList(d.leads || [])).catch(() => {});
-    fetch("/api/usuarios").then(r => r.json()).then(d => setUsuariosList(d.usuarios || [])).catch(() => {});
+    fetch("/api/catalogo").then(r => r.json()).then(d => setCatalogo(d.equipos || [])).catch(() => { });
+    fetch("/api/leads").then(r => r.json()).then(d => setLeadsList(d.leads || [])).catch(() => { });
+    fetch("/api/usuarios").then(r => r.json()).then(d => setUsuariosList(d.usuarios || [])).catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -395,7 +395,7 @@ export default function CotizacionManualModal({
               if (m.facCorreo !== undefined) setFacCorreo(m.facCorreo);
             }
           }
-        } catch {}
+        } catch { }
       }
     } else if (initialLead) {
       setLeadId(initialLead.id);
@@ -411,17 +411,17 @@ export default function CotizacionManualModal({
 
   useEffect(() => {
     if (initialCotizacion && catalogo.length > 0 && eqMarca) {
-       const found = catalogo.find(c => c.marca === eqMarca && c.modelo === eqModelo);
-       if (found) {
-         if (found.fotos_json) {
-           try { setEqFotos(JSON.parse(found.fotos_json)); } catch {}
-         }
-         if (found.imagen_path) {
-           fetchBase64(found.imagen_path).then(b64 => {
-             setImgEquipoB64(prev => prev || b64);
-           });
-         }
-       }
+      const found = catalogo.find(c => c.marca === eqMarca && c.modelo === eqModelo);
+      if (found) {
+        if (found.fotos_json) {
+          try { setEqFotos(JSON.parse(found.fotos_json)); } catch { }
+        }
+        if (found.imagen_path) {
+          fetchBase64(found.imagen_path).then(b64 => {
+            setImgEquipoB64(prev => prev || b64);
+          });
+        }
+      }
     }
   }, [initialCotizacion, catalogo, eqMarca, eqModelo]);
 
@@ -430,17 +430,17 @@ export default function CotizacionManualModal({
     fetch("/api/config").then(r => r.json()).then(d => {
       const c = d.config || {};
       setBn({
-        razonSocial:    c.fact_razon_social        || "Bionordi S.A. de C.V.",
-        rfc:            c.fact_rfc                 || "—",
-        banco:          c.fact_banco               || "—",
-        cuenta:         c.fact_cuenta              || "—",
-        clabe:          c.fact_clabe               || "—",
-        direccionFiscal:c.fact_direccion_fiscal    || "Ciudad de México, CDMX",
-        correo:         c.fact_correo_facturacion  || "contacto@bionordi.mx",
-        representante:  c.nombre_representante     || "Fernando Rosas",
-        cargo:          c.fact_cargo_representante || "Director General",
+        razonSocial: c.fact_razon_social || "Bionordi S.A. de C.V.",
+        rfc: c.fact_rfc || "—",
+        banco: c.fact_banco || "—",
+        cuenta: c.fact_cuenta || "—",
+        clabe: c.fact_clabe || "—",
+        direccionFiscal: c.fact_direccion_fiscal || "Ciudad de México, CDMX",
+        correo: c.fact_correo_facturacion || "contacto@bionordi.mx",
+        representante: c.nombre_representante || "Fernando Rosas",
+        cargo: c.fact_cargo_representante || "Director General",
       });
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
 
@@ -459,11 +459,11 @@ export default function CotizacionManualModal({
   };
 
   const validItems = items.filter(i => i.descripcion.trim() !== "");
-  const subtotal   = validItems.reduce((a, i) => a + i.cantidad * i.precioUnit, 0);
-  const descMonto  = Math.round(subtotal * descuento / 100);
-  const baseNeta   = subtotal - descMonto;
-  const iva        = conIVA ? Math.round(baseNeta * 0.16) : 0;
-  const total      = baseNeta + iva;
+  const subtotal = validItems.reduce((a, i) => a + i.cantidad * i.precioUnit, 0);
+  const descMonto = Math.round(subtotal * descuento / 100);
+  const baseNeta = subtotal - descMonto;
+  const iva = conIVA ? Math.round(baseNeta * 0.16) : 0;
+  const total = baseNeta + iva;
   const $f = (n: number) => `$${n.toLocaleString("es-MX")}`;
 
   const canGenerar = cliNombre.trim() !== "" && validItems.length > 0;
@@ -493,7 +493,7 @@ export default function CotizacionManualModal({
     setEqDescripcion(eq.descripcion || "");
     // Fotos del producto
     let fotos: string[] = [];
-    if (eq.fotos_json) { try { fotos = JSON.parse(eq.fotos_json); } catch {} }
+    if (eq.fotos_json) { try { fotos = JSON.parse(eq.fotos_json); } catch { } }
     setEqFotos(fotos);
     // Diagrama técnico del catálogo
     if (eq.imagen_path) {
@@ -642,7 +642,7 @@ export default function CotizacionManualModal({
     if (t.includes("desfibrilador")) return MANTENIMIENTO_FEATURES["desfibrilador"];
     if (t.includes("electro")) return MANTENIMIENTO_FEATURES["electrocardiografo"];
     if (t.includes("ultrasonido") || t.includes("transductor")) return MANTENIMIENTO_FEATURES["ultrasonido"];
-    
+
     return [
       "<strong>Diagnóstico General:</strong> Revisión sistemática de componentes físicos, electrónicos y pruebas de encendido.",
       "<strong>Limpieza Preventiva:</strong> Descontaminación interior y exterior, retiro de polvo y lubricación de partes móviles.",
@@ -693,23 +693,23 @@ export default function CotizacionManualModal({
     const nombres = validItems.map(i => i.descripcion.trim()).filter(Boolean);
     const listaTexto = nombres.length === 0 ? "los servicios/insumos solicitados"
       : nombres.length === 1 ? nombres[0].toLowerCase()
-      : nombres.slice(0, -1).map(n => n.toLowerCase()).join(", ") + " y " + nombres[nombres.length - 1].toLowerCase();
-      
+        : nombres.slice(0, -1).map(n => n.toLowerCase()).join(", ") + " y " + nombres[nombres.length - 1].toLowerCase();
+
     const equipoRef = [eqMarca, eqModelo].filter(Boolean).join(" ");
     const sobreEquipo = equipoRef ? ` sobre el equipo ${equipoRef}` : "";
-    
+
     let titulo = "";
     let subtituloTotal = "";
     let parrafoPDF = "";
     let parrafoEmail = "";
-    
+
     if (tipo === "reparacion") {
       titulo = "Propuesta Técnica de Servicio";
       subtituloTotal = "Incluye materiales, mano de obra y garantía de 12 meses";
       parrafoPDF = generarParrafoAlcance();
       const falla = eqFalla ? ` La falla reportada («${eqFalla}») será atendida de manera integral.` : "";
       parrafoEmail = `Nos complace presentarle la siguiente propuesta técnica para la realización de: ${listaTexto}${sobreEquipo}.${falla} El servicio comprende diagnóstico técnico, mano de obra calificada y refacciones, con garantía escrita de 12 meses. El detalle completo se encuentra en el documento adjunto.`;
-    } 
+    }
     else if (tipo === "mantenimiento") {
       titulo = "Propuesta Técnica de Mantenimiento";
       subtituloTotal = "Incluye refacciones preventivas, mano de obra y reporte técnico";
@@ -742,8 +742,8 @@ export default function CotizacionManualModal({
 
   const buildPDFHtml = async (folioOverride?: string): Promise<{ html: string; folio: string }> => {
     let imgTransductor = "/transductor.png";
-    let imgFront       = "/equipo_movil_front.png";
-    let imgBack        = "/equipo_movil_back.png.png";
+    let imgFront = "/equipo_movil_front.png";
+    let imgBack = "/equipo_movil_back.png.png";
 
     if (tipo === "reparacion") {
       imgTransductor = imgEquipoB64 || await fetchBase64("/transductor.png");
@@ -760,7 +760,7 @@ export default function CotizacionManualModal({
         fetchBase64("/equipo_movil_back.png.png"),
       ]);
     }
-    
+
     let sigName = bn.representante;
     let sigRole = bn.cargo;
     if (firmaUserId !== "bionordi") {
@@ -776,14 +776,14 @@ export default function CotizacionManualModal({
       ? await Promise.all(eqFotos.slice(0, 4).map(f => fetchBase64(f)))
       : [];
 
-    const fecha    = new Date().toLocaleDateString("es-MX", { day:"2-digit", month:"long", year:"numeric" });
+    const fecha = new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
     let folio = folioOverride;
     if (!folio) {
       const res = await fetch(`/api/cotizaciones?nextfolio=1&tipo=${tipo}`);
       const data = await res.json();
       folio = data.folio as string;
     }
-    const vigencia = new Date(Date.now() + 15 * 86400000).toLocaleDateString("es-MX", { day:"2-digit", month:"long", year:"numeric" });
+    const vigencia = new Date(Date.now() + 15 * 86400000).toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
 
     const logoB64 = await fetchBase64("/LOGO_PRINCIPAL.png");
 
@@ -823,7 +823,7 @@ export default function CotizacionManualModal({
         </div>
       </div>
     </div>`
-    : tipo === "mantenimiento" ? (imgEquipoB64 ? `
+      : tipo === "mantenimiento" ? (imgEquipoB64 ? `
     <div class="tech-card avoid-break">
       <div class="card-title">Alcance del Mantenimiento — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Equipo"}</div>
       <p class="diag-p">
@@ -887,7 +887,7 @@ export default function CotizacionManualModal({
         </div>
       </div>
     </div>`))
-    : tipo === "venta" ? (eqFotosB64.length > 0 ? `
+        : tipo === "venta" ? (eqFotosB64.length > 0 ? `
     <div class="tech-card avoid-break">
       <div class="card-title">Galería del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
       <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
@@ -935,8 +935,8 @@ export default function CotizacionManualModal({
 
     const evidenciaLabel = tipo === "reparacion" ? "Evidencia Fotográfica del Defecto"
       : tipo === "mantenimiento" ? "Fotos del Mantenimiento"
-      : tipo === "venta" ? "Fotos del Equipo"
-      : "Fotos de Productos";
+        : tipo === "venta" ? "Fotos del Equipo"
+          : "Fotos de Productos";
     const evidenciaColor = tipo === "reparacion" ? "#B91C1C" : "#4E60A9";
     const evidenciaBorder = tipo === "reparacion" ? "#FECACA" : "#E2E8F0";
     const evidenciaImgBorder = tipo === "reparacion" ? "#FECACA" : "#E2E8F0";
@@ -947,9 +947,9 @@ export default function CotizacionManualModal({
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
         ${evidencias.map((ev, i) => `
           <div style="flex:1;min-width:130px;max-width:200px;">
-            <img src="${ev.b64}" alt="Evidencia ${i+1}" style="max-width:100%;max-height:140px;width:auto;height:auto;background:white;border-radius:6px;border:1px solid ${evidenciaImgBorder};display:block;margin:0 auto;" />
+            <img src="${ev.b64}" alt="Evidencia ${i + 1}" style="max-width:100%;max-height:140px;width:auto;height:auto;background:white;border-radius:6px;border:1px solid ${evidenciaImgBorder};display:block;margin:0 auto;" />
             <div style="margin-top:4px;font-size:9px;color:${evidenciaTextColor};font-weight:600;text-align:center;">
-              Foto ${i+1}${ev.caption ? ` — ${ev.caption}` : ""}
+              Foto ${i + 1}${ev.caption ? ` — ${ev.caption}` : ""}
             </div>
           </div>`).join("")}
       </div>
@@ -974,7 +974,7 @@ export default function CotizacionManualModal({
         ${eqFalla ? `<div class="eq-full"><div class="eq-lbl" style="color:#B91C1C;">Falla Reportada / Síntoma</div><div class="eq-val" style="color:#7F1D1D;margin-top:2px;">${eqFalla}</div></div>` : ""}
       </div>
     </div>`
-    : tipo === "venta" && (eqMarca || eqModelo || eqTipo) ? `
+      : tipo === "venta" && (eqMarca || eqModelo || eqTipo) ? `
     <div class="eq-card">
       <div class="card-title" style="border:none;padding:0;margin-bottom:12px;">Equipo Cotizado</div>
       <div class="eq-grid">
@@ -1050,12 +1050,12 @@ export default function CotizacionManualModal({
   .cond-list{list-style:none;padding:0}
   .cond-list li{position:relative;padding-left:14px;font-size:10px;color:#475569;margin-bottom:6px;line-height:1.5}
   .cond-list li::before{content:"•";position:absolute;left:0;color:#38AD64;font-weight:bold;font-size:14px;line-height:1;top:-1px}
-  .signatures{margin-top:40px;display:flex;justify-content:flex-end;page-break-inside:avoid}
+  .signatures{margin-top:35px;display:flex;justify-content:flex-end;page-break-inside:avoid}
   .sig-box{text-align:center;width:240px}
   .sig-line{border-top:2px solid #CBD5E1;margin-bottom:10px;padding-top:10px}
   .sig-name{font-size:13px;font-weight:800;color:#4E60A9}
   .sig-role{font-size:10px;font-weight:600;color:#64748B;text-transform:uppercase;margin-top:2px}
-  .footer{text-align:center;border-top:1px solid #E2E8F0;padding-top:15px;margin-top:30px;font-size:10px;color:#94A3B8;line-height:1.6}
+  .footer{text-align:center;border-top:1px solid #E2E8F0;padding-top:15px;margin-top:25px;font-size:10px;color:#94A3B8;line-height:1.6}
   @media print{body{padding:0}.page{padding:40px 70px}.cond-section{page-break-after:avoid;break-after:avoid}.signatures-wrapper{page-break-before:avoid;break-before:avoid;page-break-inside:avoid;break-inside:avoid}}
 </style>
 </head>
@@ -1211,7 +1211,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     try {
       const { html, folio } = await buildPDFHtml(savedCotRef.current?.folio);
       setPreviewFolio(folio);
-      
+
       try {
         let pdfB64 = pdfB64Ref.current;
         if (!pdfB64) {
@@ -1224,7 +1224,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         console.warn("[cotizacion] Falló la generación de PDF para previsualizar, usando HTML fallback:", pdfErr);
         setPreviewHtml(html);
       }
-      
+
       await persistToDB(folio);
     } catch (err) {
       console.error("[cotizacion] Error en generarPDF:", err);
@@ -1274,14 +1274,14 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     setEmailStatus("sending"); setEmailMsg("");
 
     const origin = "https://raw.githubusercontent.com/FernandoRBelBIONORDI/BIONORDI_IMAGENES/main/IMAGENES";
-    const fecha    = new Date().toLocaleDateString("es-MX", { day:"2-digit", month:"long", year:"numeric" });
+    const fecha = new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
     let folio = savedCotRef.current?.folio;
     if (!folio) {
       const res = await fetch(`/api/cotizaciones?nextfolio=1&tipo=${tipo}`);
       const data = await res.json();
       folio = data.folio as string;
     }
-    const vigencia = new Date(Date.now() + 15 * 86400000).toLocaleDateString("es-MX", { day:"2-digit", month:"long", year:"numeric" });
+    const vigencia = new Date(Date.now() + 15 * 86400000).toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
 
     const propInfoEmail = getPropuestaInfo();
 
@@ -1429,7 +1429,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               contenido: `Cotización ${folio} enviada por correo — ${TIPO_LABELS[tipo]} · ${$f(total)} a ${emailTo.trim()}`,
               resultado: "sin_respuesta",
             }),
-          }).catch(() => {});
+          }).catch(() => { });
         }
       } else { setEmailStatus("error"); setEmailMsg(data.error || "Error al enviar"); }
     } catch {
@@ -1459,7 +1459,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose}/>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
       <div className="relative bg-white sm:rounded-2xl shadow-2xl w-full h-full sm:w-[700px] sm:h-auto sm:max-h-[94vh] flex flex-col overflow-hidden">
 
         {/* Header */}
@@ -1469,7 +1469,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
             <p className="text-[11px] text-gray-400 font-medium">Nueva cotización</p>
           </div>
           <button onClick={handleClose} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
-            <X size={15}/>
+            <X size={15} />
           </button>
         </div>
 
@@ -1547,29 +1547,29 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
             <div className="grid grid-cols-2 gap-3 mb-3">
               <Field label="Nombre / Institución *">
-                <input value={cliNombre} onChange={e => setCliNombre(e.target.value)} placeholder="Hospital / Clínica / Nombre" className={inp}/>
+                <input value={cliNombre} onChange={e => setCliNombre(e.target.value)} placeholder="Hospital / Clínica / Nombre" className={inp} />
               </Field>
               <Field label="Contacto / Dr.">
-                <input value={cliContacto} onChange={e => setCliContacto(e.target.value)} placeholder="Dr. Nombre Apellido" className={inp}/>
+                <input value={cliContacto} onChange={e => setCliContacto(e.target.value)} placeholder="Dr. Nombre Apellido" className={inp} />
               </Field>
             </div>
             <div className="grid grid-cols-2 gap-3 mb-3">
               <Field label="Teléfono">
-                <input value={cliTel} onChange={e => setCliTel(e.target.value)} placeholder="55 0000 0000" className={inp}/>
+                <input value={cliTel} onChange={e => setCliTel(e.target.value)} placeholder="55 0000 0000" className={inp} />
               </Field>
               <Field label="Correo">
-                <input value={cliCorreo} onChange={e => setCliCorreo(e.target.value)} placeholder="correo@ejemplo.com" className={inp}/>
+                <input value={cliCorreo} onChange={e => setCliCorreo(e.target.value)} placeholder="correo@ejemplo.com" className={inp} />
               </Field>
             </div>
             <div className="grid grid-cols-3 gap-3">
               <Field label="Dirección">
-                <input value={cliDireccion} onChange={e => setCliDireccion(e.target.value)} placeholder="Calle y número" className={inp}/>
+                <input value={cliDireccion} onChange={e => setCliDireccion(e.target.value)} placeholder="Calle y número" className={inp} />
               </Field>
               <Field label="Ciudad / Municipio">
-                <input value={cliCiudad} onChange={e => setCliCiudad(e.target.value)} placeholder="Ciudad" className={inp}/>
+                <input value={cliCiudad} onChange={e => setCliCiudad(e.target.value)} placeholder="Ciudad" className={inp} />
               </Field>
               <Field label="Estado">
-                <input value={cliEstado} onChange={e => setCliEstado(e.target.value)} placeholder="CDMX" className={inp}/>
+                <input value={cliEstado} onChange={e => setCliEstado(e.target.value)} placeholder="CDMX" className={inp} />
               </Field>
             </div>
           </div>
@@ -1637,15 +1637,15 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                     <Field label={tipo === "reparacion" ? "Tipo de transductor" : "Tipo de equipo"}>
                       {tipo === "reparacion"
                         ? <select value={eqTipo} onChange={e => setEqTipo(e.target.value)} className={sel}>
-                            <option value="">— Seleccionar —</option>
-                            {TIPOS_TRANSDUCTOR.map(t => <option key={t}>{t}</option>)}
-                          </select>
+                          <option value="">— Seleccionar —</option>
+                          {TIPOS_TRANSDUCTOR.map(t => <option key={t}>{t}</option>)}
+                        </select>
                         : tipo === "mantenimiento" || tipo === "venta"
-                        ? <select value={eqTipo} onChange={e => setEqTipo(e.target.value)} className={sel}>
+                          ? <select value={eqTipo} onChange={e => setEqTipo(e.target.value)} className={sel}>
                             <option value="">— Seleccionar tipo —</option>
                             {TIPOS_EQUIPO.map(t => <option key={t} value={t}>{t}</option>)}
                           </select>
-                        : <input value={eqTipo} onChange={e => setEqTipo(e.target.value)} placeholder="Ultrasonido, Monitor…" className={inp}/>
+                          : <input value={eqTipo} onChange={e => setEqTipo(e.target.value)} placeholder="Ultrasonido, Monitor…" className={inp} />
                       }
                     </Field>
 
@@ -1658,7 +1658,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                         </select>
                       ) : (
                         <input value={eqMarca} onChange={e => setEqMarca(e.target.value)}
-                          placeholder="GE, Philips, Mindray…" className={inp}/>
+                          placeholder="GE, Philips, Mindray…" className={inp} />
                       )}
                     </Field>
                   </div>
@@ -1681,56 +1681,56 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                         </select>
                       ) : (
                         <input value={eqModelo} onChange={e => setEqModelo(e.target.value)}
-                          placeholder="Modelo" className={inp}/>
+                          placeholder="Modelo" className={inp} />
                       )}
                     </Field>
 
                     <Field label="No. de Serie">
-                      <input value={eqSerie} onChange={e => setEqSerie(e.target.value)} placeholder="SN-XXXXXX" className={inp}/>
+                      <input value={eqSerie} onChange={e => setEqSerie(e.target.value)} placeholder="SN-XXXXXX" className={inp} />
                     </Field>
                     {tipo !== "venta" && (
                       <Field label="Falla / Síntoma">
-                        <input value={eqFalla} onChange={e => setEqFalla(e.target.value)} placeholder="Sin imagen, cable dañado…" className={inp}/>
+                        <input value={eqFalla} onChange={e => setEqFalla(e.target.value)} placeholder="Sin imagen, cable dañado…" className={inp} />
                       </Field>
                     )}
                   </div>
 
                   {tipo !== "reparacion" && (
-                  <div className="mb-3">
-                    <Field label="Características / Descripción (máx. 4 puntos)">
-                      <div className="space-y-2 mt-1">
-                        {eqDescripcion.split('\n').map((carac, i) => (
-                          <div key={i} className="flex gap-2 items-center">
-                            <span className="text-[10px] text-gray-400 font-bold w-4 text-right">{i + 1}.</span>
-                            <input
-                              value={carac}
-                              onChange={e => {
-                                const arr = eqDescripcion.split('\n');
-                                arr[i] = e.target.value;
-                                setEqDescripcion(arr.join('\n'));
-                              }}
-                              placeholder={i === 0 ? "Ej: Pantalla de alta resolución..." : "..."}
-                              className={inp}
-                              maxLength={90}
-                            />
-                            {eqDescripcion.split('\n').length > 1 && (
-                              <button onClick={() => {
-                                const arr = eqDescripcion.split('\n');
-                                arr.splice(i, 1);
-                                setEqDescripcion(arr.join('\n'));
-                              }} className="text-red-400 hover:text-red-600 px-1 font-bold text-[14px]">×</button>
-                            )}
-                          </div>
-                        ))}
-                        {eqDescripcion.split('\n').length < 4 && (
-                          <button onClick={() => setEqDescripcion(eqDescripcion + '\n')}
-                            className="text-[10px] text-[#4E60A9] font-bold mt-1 ml-6 flex items-center gap-1 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors">
-                            <Plus size={12}/> Agregar punto
-                          </button>
-                        )}
-                      </div>
-                    </Field>
-                  </div>
+                    <div className="mb-3">
+                      <Field label="Características / Descripción (máx. 4 puntos)">
+                        <div className="space-y-2 mt-1">
+                          {eqDescripcion.split('\n').map((carac, i) => (
+                            <div key={i} className="flex gap-2 items-center">
+                              <span className="text-[10px] text-gray-400 font-bold w-4 text-right">{i + 1}.</span>
+                              <input
+                                value={carac}
+                                onChange={e => {
+                                  const arr = eqDescripcion.split('\n');
+                                  arr[i] = e.target.value;
+                                  setEqDescripcion(arr.join('\n'));
+                                }}
+                                placeholder={i === 0 ? "Ej: Pantalla de alta resolución..." : "..."}
+                                className={inp}
+                                maxLength={90}
+                              />
+                              {eqDescripcion.split('\n').length > 1 && (
+                                <button onClick={() => {
+                                  const arr = eqDescripcion.split('\n');
+                                  arr.splice(i, 1);
+                                  setEqDescripcion(arr.join('\n'));
+                                }} className="text-red-400 hover:text-red-600 px-1 font-bold text-[14px]">×</button>
+                              )}
+                            </div>
+                          ))}
+                          {eqDescripcion.split('\n').length < 4 && (
+                            <button onClick={() => setEqDescripcion(eqDescripcion + '\n')}
+                              className="text-[10px] text-[#4E60A9] font-bold mt-1 ml-6 flex items-center gap-1 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors">
+                              <Plus size={12} /> Agregar punto
+                            </button>
+                          )}
+                        </div>
+                      </Field>
+                    </div>
                   )}
 
                   {/* Subida de foto/diagrama para venta y mantenimiento en modo manual */}
@@ -1741,15 +1741,15 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                       </label>
                       {imgEquipoB64 ? (
                         <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                          <img src={imgEquipoB64} alt="diagrama" className="h-8 w-12 object-contain rounded border border-blue-200 bg-white shrink-0"/>
+                          <img src={imgEquipoB64} alt="diagrama" className="h-8 w-12 object-contain rounded border border-blue-200 bg-white shrink-0" />
                           <span className="text-[10px] text-blue-700 font-medium flex-1">Imagen cargada — aparecerá en el PDF</span>
                           <button onClick={() => setImgEquipoB64(null)} className="text-[10px] text-blue-400 hover:text-blue-600">Quitar</button>
                         </div>
                       ) : (
                         <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-dashed border-blue-200 hover:border-[#4E60A9] text-[11px] text-[#4E60A9] font-medium transition-all bg-blue-50/40 hover:bg-blue-50">
-                          <Plus size={12}/>
+                          <Plus size={12} />
                           Subir imagen
-                          <input type="file" accept="image/*" className="hidden" onChange={handleImgEquipo}/>
+                          <input type="file" accept="image/*" className="hidden" onChange={handleImgEquipo} />
                         </label>
                       )}
                     </div>
@@ -1763,8 +1763,8 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                   {eqFotos[0]
                     ? <img src={eqFotos[0]} alt="foto" className="h-10 w-14 object-cover rounded border border-blue-200 shrink-0" />
                     : imgEquipoB64
-                    ? <img src={imgEquipoB64} alt="diagrama" className="h-10 w-14 object-contain rounded border border-blue-200 bg-white shrink-0" />
-                    : null}
+                      ? <img src={imgEquipoB64} alt="diagrama" className="h-10 w-14 object-contain rounded border border-blue-200 bg-white shrink-0" />
+                      : null}
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-bold text-[#4E60A9]">
                       {equipoMode === "catalogo" ? "Datos del catálogo cargados en el PDF" : "Imagen cargada en el PDF"}
@@ -1786,13 +1786,13 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           <div className="px-6 py-4 border-b border-gray-100">
             <div className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${tipo === "reparacion" ? "text-red-700" : "text-[#4E60A9]"}`}>
               {tipo === "reparacion" ? "Evidencia fotográfica del defecto" :
-               tipo === "mantenimiento" ? "Fotos del mantenimiento (antes / después)" :
-               tipo === "venta" ? "Fotos adicionales del equipo" :
-               "Fotos de productos / referencia"}
+                tipo === "mantenimiento" ? "Fotos del mantenimiento (antes / después)" :
+                  tipo === "venta" ? "Fotos adicionales del equipo" :
+                    "Fotos de productos / referencia"}
             </div>
             {tipo === "reparacion" && imgEquipoB64 && (
               <div className="flex items-center gap-2 mb-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                <img src={imgEquipoB64} alt="diagrama" className="h-8 w-12 object-contain rounded border border-blue-200 bg-white shrink-0"/>
+                <img src={imgEquipoB64} alt="diagrama" className="h-8 w-12 object-contain rounded border border-blue-200 bg-white shrink-0" />
                 <span className="text-[10px] text-blue-700 font-medium flex-1">Diagrama cargado desde catálogo</span>
                 <button onClick={() => setImgEquipoB64(null)} className="text-[10px] text-blue-400 hover:text-blue-600">Quitar</button>
               </div>
@@ -1800,30 +1800,29 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
             <div className="space-y-2">
               {evidencias.map((ev, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <img src={ev.b64} alt={`ev${i}`} className={`h-10 w-16 object-cover rounded shrink-0 ${tipo === "reparacion" ? "border border-red-200" : "border border-blue-200"}`}/>
+                  <img src={ev.b64} alt={`ev${i}`} className={`h-10 w-16 object-cover rounded shrink-0 ${tipo === "reparacion" ? "border border-red-200" : "border border-blue-200"}`} />
                   <input
                     value={ev.caption}
                     onChange={e => setEvidenciaCaption(i, e.target.value)}
                     placeholder={tipo === "reparacion" ? "Descripción del defecto (opcional)" : "Descripción (opcional)"}
-                    className="flex-1 text-[11px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#4E60A9]/40"/>
+                    className="flex-1 text-[11px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#4E60A9]/40" />
                   <button onClick={() => removeEvidencia(i)} className={`w-7 h-7 flex items-center justify-center rounded hover:bg-red-50 ${tipo === "reparacion" ? "text-red-300 hover:text-red-500" : "text-gray-300 hover:text-red-400"}`}>
-                    <Trash2 size={12}/>
+                    <Trash2 size={12} />
                   </button>
                 </div>
               ))}
               {evidencias.length < 4 && (
-                <label className={`cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-dashed text-[11px] font-medium transition-all ${
-                  tipo === "reparacion"
+                <label className={`cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-dashed text-[11px] font-medium transition-all ${tipo === "reparacion"
                     ? "border-red-200 hover:border-red-400 text-red-500 bg-red-50/40 hover:bg-red-50"
                     : "border-blue-200 hover:border-[#4E60A9] text-[#4E60A9] bg-blue-50/40 hover:bg-blue-50"
-                }`}>
-                  <Plus size={12}/>
+                  }`}>
+                  <Plus size={12} />
                   {tipo === "reparacion" ? "Agregar foto de defecto" :
-                   tipo === "mantenimiento" ? "Agregar foto del mantenimiento" :
-                   tipo === "venta" ? "Agregar foto del equipo" :
-                   "Agregar foto de producto"}
+                    tipo === "mantenimiento" ? "Agregar foto del mantenimiento" :
+                      tipo === "venta" ? "Agregar foto del equipo" :
+                        "Agregar foto de producto"}
                   <input type="file" accept="image/*" className="hidden"
-                    onChange={e => handleEvidencia(e, evidencias.length)}/>
+                    onChange={e => handleEvidencia(e, evidencias.length)} />
                 </label>
               )}
             </div>
@@ -1853,7 +1852,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               </div>
               <button onClick={addItem}
                 className="flex items-center gap-1 text-[11px] font-bold text-[#4E60A9] hover:bg-blue-50 px-2 py-1 rounded-lg transition-all">
-                <Plus size={13}/> Agregar línea
+                <Plus size={13} /> Agregar línea
               </button>
             </div>
 
@@ -1863,7 +1862,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               <div className="text-[10px] font-bold text-gray-400 uppercase text-center">Cant.</div>
               <div className="text-[10px] font-bold text-gray-400 uppercase text-right">Precio Unit.</div>
               <div className="text-[10px] font-bold text-gray-400 uppercase text-right">Importe</div>
-              <div/>
+              <div />
             </div>
 
             <div className="space-y-2">
@@ -1873,18 +1872,18 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                     value={item.descripcion}
                     onChange={e => updateItem(item.id, "descripcion", e.target.value)}
                     placeholder={tipo === "venta" ? "Nombre del producto/equipo" : "Descripción del servicio"}
-                    className={inp}/>
+                    className={inp} />
                   <input
                     type="number" min={1}
                     value={item.cantidad}
                     onChange={e => updateItem(item.id, "cantidad", Math.max(1, Number(e.target.value)))}
-                    className="text-[12px] border border-gray-200 rounded-lg px-2 py-2 outline-none text-center focus:border-[#4E60A9]/40 bg-white w-full"/>
+                    className="text-[12px] border border-gray-200 rounded-lg px-2 py-2 outline-none text-center focus:border-[#4E60A9]/40 bg-white w-full" />
                   <input
                     type="number" min={0}
                     value={item.precioUnit || ""}
                     onChange={e => updateItem(item.id, "precioUnit", Number(e.target.value))}
                     placeholder="0"
-                    className="text-[12px] border border-gray-200 rounded-lg px-2 py-2 outline-none text-right focus:border-[#4E60A9]/40 bg-white w-full"/>
+                    className="text-[12px] border border-gray-200 rounded-lg px-2 py-2 outline-none text-right focus:border-[#4E60A9]/40 bg-white w-full" />
                   <div className="text-[12px] font-bold text-[#4E60A9] text-right pr-1 tabular-nums">
                     {item.cantidad > 0 && item.precioUnit > 0
                       ? `$${(item.cantidad * item.precioUnit).toLocaleString("es-MX")}`
@@ -1892,7 +1891,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                   </div>
                   <button onClick={() => removeItem(item.id)}
                     className="w-8 h-8 flex items-center justify-center text-gray-300 hover:text-red-400 rounded-lg hover:bg-red-50 transition-all">
-                    <Trash2 size={13}/>
+                    <Trash2 size={13} />
                   </button>
                 </div>
               ))}
@@ -1904,16 +1903,16 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
             <button onClick={() => setShowFact(p => !p)}
               className="w-full flex items-center justify-between text-[10px] font-bold text-[#4E60A9] uppercase tracking-widest">
               <span>Datos de facturación del cliente</span>
-              {showFact ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
+              {showFact ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
             {showFact && (
               <div className="mt-3 space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Razón Social">
-                    <input value={facRazonSoc} onChange={e => setFacRazonSoc(e.target.value)} placeholder="Nombre o empresa" className={inp}/>
+                    <input value={facRazonSoc} onChange={e => setFacRazonSoc(e.target.value)} placeholder="Nombre o empresa" className={inp} />
                   </Field>
                   <Field label="RFC">
-                    <input value={facRFC} onChange={e => setFacRFC(e.target.value.toUpperCase())} placeholder="XXXX000000XX0" className={inp}/>
+                    <input value={facRFC} onChange={e => setFacRFC(e.target.value.toUpperCase())} placeholder="XXXX000000XX0" className={inp} />
                   </Field>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -1930,10 +1929,10 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Correo para factura">
-                    <input value={facCorreo} onChange={e => setFacCorreo(e.target.value)} placeholder="correo@ejemplo.com" className={inp}/>
+                    <input value={facCorreo} onChange={e => setFacCorreo(e.target.value)} placeholder="correo@ejemplo.com" className={inp} />
                   </Field>
                   <Field label="Dirección fiscal">
-                    <input value={facDirFiscal} onChange={e => setFacDirFiscal(e.target.value)} placeholder="Calle, colonia, CP" className={inp}/>
+                    <input value={facDirFiscal} onChange={e => setFacDirFiscal(e.target.value)} placeholder="Calle, colonia, CP" className={inp} />
                   </Field>
                 </div>
               </div>
@@ -1954,14 +1953,14 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                 <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5">
                   <input type="number" min={0} max={80} value={descuento}
                     onChange={e => setDescuento(Math.min(80, Math.max(0, Number(e.target.value))))}
-                    className="w-10 text-[12px] font-bold text-center outline-none"/>
+                    className="w-10 text-[12px] font-bold text-center outline-none" />
                   <span className="text-[11px] text-gray-400 font-bold">%</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <label className="text-[12px] font-bold text-gray-500">Generado por</label>
-                <select 
-                  value={firmaUserId} 
+                <select
+                  value={firmaUserId}
                   onChange={e => setFirmaUserId(e.target.value === "bionordi" ? "bionordi" : Number(e.target.value))}
                   className="text-[12px] bg-white border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#4E60A9]/30"
                 >
@@ -1980,7 +1979,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           </div>
           <textarea value={notas} onChange={e => setNotas(e.target.value)} rows={2}
             placeholder="Notas adicionales (opcional)…"
-            className="w-full text-[12px] font-medium bg-white border border-gray-200 rounded-xl px-3 py-2.5 outline-none resize-none placeholder:text-gray-400 focus:border-[#4E60A9]/30 transition-all"/>
+            className="w-full text-[12px] font-medium bg-white border border-gray-200 rounded-xl px-3 py-2.5 outline-none resize-none placeholder:text-gray-400 focus:border-[#4E60A9]/30 transition-all" />
           {/* Envío por correo */}
           <div className="flex gap-2">
             <div className="relative flex-1">
@@ -2000,15 +1999,14 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                 enviarPorCorreo();
               }}
               disabled={anyLoading || !canGenerar || !emailTo.trim()}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12px] font-bold transition-all shrink-0 ${
-                emailStatus === "ok"    ? "bg-[#059669] text-white" :
-                emailStatus === "error" ? "bg-[#DC2626] text-white" :
-                "bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-40 disabled:cursor-not-allowed"
-              }`}>
-              {emailStatus === "sending" ? <><Mail size={13} className="animate-pulse"/>Enviando…</> :
-               emailStatus === "ok"      ? <><Check size={13}/>Enviado</> :
-               emailStatus === "error"   ? <><AlertCircle size={13}/>Error</> :
-               <><Mail size={13}/>Enviar</>}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12px] font-bold transition-all shrink-0 ${emailStatus === "ok" ? "bg-[#059669] text-white" :
+                  emailStatus === "error" ? "bg-[#DC2626] text-white" :
+                    "bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                }`}>
+              {emailStatus === "sending" ? <><Mail size={13} className="animate-pulse" />Enviando…</> :
+                emailStatus === "ok" ? <><Check size={13} />Enviado</> :
+                  emailStatus === "error" ? <><AlertCircle size={13} />Error</> :
+                    <><Mail size={13} />Enviar</>}
             </button>
           </div>
           {emailMsg && (
@@ -2024,15 +2022,14 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               guardarEnExpediente();
             }}
             disabled={anyLoading || !canGenerar}
-            className={`w-full flex items-center justify-center gap-2 text-[12px] font-bold py-2.5 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-              saveStatus === "ok"    ? "bg-[#059669] text-white" :
-              saveStatus === "error" ? "bg-[#DC2626] text-white" :
-              "bg-white border border-[#4E60A9] text-[#4E60A9] hover:bg-[#EEF0F7]"
-            }`}>
-            {saveStatus === "saving" ? <><Save size={13} className="animate-pulse"/>Guardando…</> :
-             saveStatus === "ok"     ? <><Check size={13}/>PDF guardado en expediente</> :
-             saveStatus === "error"  ? <><AlertCircle size={13}/>{saveError ? `Error: ${saveError}` : "Error al guardar"}</> :
-             <><Save size={13}/>Guardar PDF en expediente</>}
+            className={`w-full flex items-center justify-center gap-2 text-[12px] font-bold py-2.5 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${saveStatus === "ok" ? "bg-[#059669] text-white" :
+                saveStatus === "error" ? "bg-[#DC2626] text-white" :
+                  "bg-white border border-[#4E60A9] text-[#4E60A9] hover:bg-[#EEF0F7]"
+              }`}>
+            {saveStatus === "saving" ? <><Save size={13} className="animate-pulse" />Guardando…</> :
+              saveStatus === "ok" ? <><Check size={13} />PDF guardado en expediente</> :
+                saveStatus === "error" ? <><AlertCircle size={13} />{saveError ? `Error: ${saveError}` : "Error al guardar"}</> :
+                  <><Save size={13} />Guardar PDF en expediente</>}
           </button>
 
           <button
@@ -2050,7 +2047,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               </>
             ) : (
               <>
-                <Printer size={15}/>
+                <Printer size={15} />
                 <span>{!canGenerar ? "Completa nombre del cliente y al menos un servicio" : `Generar PDF · ${TIPO_LABELS[tipo]}`}</span>
               </>
             )}
