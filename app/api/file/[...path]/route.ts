@@ -65,7 +65,8 @@ export async function GET(
   const nodeBuffer = fs.readFileSync(filePath);
 
   const isDownload = ['doc','docx','xls','xlsx','ppt','pptx','zip'].includes(ext);
-  const cacheControl = isDownload ? 'no-store' : 'public, max-age=31536000, immutable';
+  const isPdf = ext === 'pdf';
+  const cacheControl = isDownload || isPdf ? 'no-store' : 'public, max-age=31536000, immutable';
   const disposition = isDownload
     ? `attachment; filename="${path.basename(filePath)}"`
     : `inline; filename="${path.basename(filePath)}"`;
