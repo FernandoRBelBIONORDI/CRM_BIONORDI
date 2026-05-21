@@ -356,10 +356,10 @@ export default function QuoteModal({ lead, onClose }: Props) {
   .diag-p { font-size: 11px; color: #475569; line-height: 1.5; margin-bottom: 15px; }
   .diag-grid { display: flex; gap: 20px; align-items: center; }
   .img-container { flex: 0.8; position: relative; border: 1px solid #CBD5E1; border-radius: 8px; background:#fff; padding: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-  .dot { position: absolute; width: 18px; height: 18px; background: #3B82F6; color: #fff; border-radius: 50%; font-size: 10px; font-weight: 800; text-align: center; line-height: 1; padding-top: 2px; border: 2px solid #fff; box-sizing: border-box; }
+  .dot { position: absolute; width: 18px; height: 18px; background: #3B82F6; color: #fff; border-radius: 50%; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-sizing: border-box; }
   .diag-list { flex: 1.2; display: flex; flex-direction: column; gap: 12px; }
   .d-item { display: flex; gap: 10px; font-size: 10.5px; color: #334155; line-height: 1.4; align-items: flex-start; }
-  .d-num { width: 18px; height: 18px; background: #DBEAFE; color: #1D4ED8; border-radius: 50%; font-size: 9px; font-weight: 800; text-align: center; line-height: 1; padding-top: 4px; flex-shrink: 0; margin-top: 1px; box-sizing: border-box; }
+  .d-num { width: 18px; height: 18px; background: #DBEAFE; color: #1D4ED8; border-radius: 50%; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; box-sizing: border-box; }
   table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 20px; }
   th { background: #F1F5F9; color: #475569; font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 10px 15px; text-align: left; letter-spacing: 1px; border-bottom: 2px solid #CBD5E1; }
   th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }

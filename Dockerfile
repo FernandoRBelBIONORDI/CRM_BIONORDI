@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y \
   chromium \
   build-essential \
   python3 \
+  tini \
   --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
@@ -19,4 +20,5 @@ COPY . .
 RUN npm run build
 
 EXPOSE 3000
+ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["npm", "run", "start"]
