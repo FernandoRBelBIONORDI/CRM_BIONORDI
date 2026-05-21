@@ -323,7 +323,7 @@ export default function QuoteModal({ lead, onClose }: Props) {
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #334155; background: #fff; font-size: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .page { padding: 40px 50px; max-width: 850px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; min-height: 262mm; }
+  .page { padding: 40px 50px; max-width: 850px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; min-height: 524mm; }
   .page-spacer { flex: 1; min-height: 5px; }
   .avoid-break { page-break-inside: avoid; }
   .text-muted { color: #94A3B8; }
