@@ -201,7 +201,7 @@ export default function CRMPage() {
   };
 
   const nichosUnicos = [...new Set(leads.map(l=>l.nicho).filter(Boolean))] as string[];
-  const activeFilters = (filterNicho ? 1 : 0) + (filterAgente ? 1 : 0);
+  const activeFilters = (filterNicho ? 1 : 0) + (filterAgente ? 1 : 0) + (filterMios ? 1 : 0);
 
   return (
     <div className="h-full flex flex-col font-sans relative">
@@ -338,7 +338,7 @@ export default function CRMPage() {
               {usuarios.map(u=><option key={u.id} value={u.nombre}>{u.nombre}</option>)}
             </select>
             {activeFilters > 0 && (
-              <button onClick={()=>{ setFilterNicho(""); setFilterAgente(""); }}
+              <button onClick={()=>{ setFilterNicho(""); setFilterAgente(""); setFilterMios(false); }}
                 className="flex items-center gap-1.5 text-[12px] font-bold text-red-400 hover:text-red-600 bg-red-50 px-3 py-2 rounded-full transition-colors">
                 <X size={12}/> Limpiar filtros
               </button>
@@ -379,7 +379,7 @@ export default function CRMPage() {
                   const st    = S[lead.status_crm] || S.nuevo;
                   const isExp = expanded === lead.id;
                   const isSel = selectedIds.has(lead.id);
-                  const proxFecha = lead.fecha_proximo_contacto ? new Date(lead.fecha_proximo_contacto) : null;
+                  const proxFecha = lead.fecha_proximo_contacto ? new Date(lead.fecha_proximo_contacto + "T00:00:00") : null;
                   const hoy = new Date(); hoy.setHours(0,0,0,0);
                   const proxVencida = proxFecha && proxFecha < hoy;
                   const proxHoy = proxFecha && proxFecha.toDateString() === hoy.toDateString();
@@ -453,7 +453,7 @@ export default function CRMPage() {
                               </a>
                             )}
                             <button onClick={()=>{ genScript(lead); setExpanded(lead.id); }}
-                              disabled={loadScr !== null}
+                              disabled={loadScr === lead.id}
                               className="w-8 h-8 flex items-center justify-center rounded-full text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
                               {loadScr===lead.id ? <Activity size={14} className="animate-spin"/> : <Sparkles size={14} fill="currentColor"/>}
                             </button>
@@ -596,7 +596,7 @@ export default function CRMPage() {
                         className="text-[12px] font-bold text-gray-400 hover:text-[#4E60A9] transition-colors disabled:opacity-50">
                         {loadingMore
                           ? <span className="flex items-center justify-center gap-1.5"><Activity size={12} className="animate-spin"/>Cargando...</span>
-                          : `? Cargar más · ${total - leads.length} restantes`}
+                          : `Cargar más · ${total - leads.length} restantes`}
                       </button>
                     </td>
                   </tr>
@@ -757,13 +757,15 @@ export default function CRMPage() {
                       <div className="text-[15px] font-extrabold text-[#1E293B]">{agente}</div>
                       <div className="text-[11px] text-gray-400">{agLeads.length} lead{agLeads.length!==1?"s":""}</div>
                     </div>
-                    <button onClick={()=>setFilterAgente(sinAsignar?"":agente)}
-                      className="ml-auto text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-3 py-1 rounded-full hover:bg-[#4E60A9] hover:text-white transition-colors">
-                      Ver solo estos
-                    </button>
+                    {!sinAsignar && (
+                      <button onClick={()=>setFilterAgente(agente)}
+                        className="ml-auto text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-3 py-1 rounded-full hover:bg-[#4E60A9] hover:text-white transition-colors">
+                        Ver solo estos
+                      </button>
+                    )}
                   </div>
                   {/* Grid de leads */}
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2">
                     {agLeads.map(lead=>{
                       const st = S[lead.status_crm] || S.nuevo;
                       const proxFecha = lead.fecha_proximo_contacto ? new Date(lead.fecha_proximo_contacto+"T00:00:00") : null;
