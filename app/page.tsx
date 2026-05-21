@@ -219,7 +219,7 @@ export default function Dashboard() {
             { v: m.diagnostico, l: "En diagnóstico" },
             { v: m.cliente,     l: "Clientes", good: true },
           ]}
-          cta="Abrir CRM ?"
+          cta="Abrir CRM"
         />
         <SubCard
           icon={Wrench} title="Taller & Reparaciones" sub="Órdenes de trabajo activas"
@@ -229,7 +229,7 @@ export default function Dashboard() {
             { v: taller.metrics.listas,  l: "Listas",   good: taller.metrics.listas > 0 },
             { v: taller.metrics.vencidas,l: "Vencidas",  urgent: taller.metrics.vencidas > 0 },
           ]}
-          cta="Ver órdenes ?"
+          cta="Ver órdenes"
         />
         <SubCard
           icon={FileText} title="Cotizaciones" sub="Genera propuestas técnicas en PDF"
@@ -239,7 +239,7 @@ export default function Dashboard() {
             { v: cot.venta       ?? 0, l: "Venta" },
             { v: cot.mantenimiento ?? 0, l: "Mantenimiento" },
           ]}
-          cta="Nueva cotización ?"
+          cta="Nueva cotización"
           onClick={() => setShowCotizacion(true)}
         />
       </div>
@@ -350,8 +350,9 @@ export default function Dashboard() {
                         {waLink(l.whatsapp || l.telefono) && (
                           <button
                             onClick={(e) => { e.stopPropagation(); e.preventDefault(); window.location.href = waLink(l.whatsapp || l.telefono)!; }}
-                            className="w-6 h-6 flex items-center justify-center rounded-full bg-green-100 text-green-600 hover:bg-green-500 hover:text-white transition-colors">
-                            <MessageCircle size={11}/>
+                            aria-label={`Contactar a ${l.nombre} por WhatsApp`}
+                            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-green-100 text-green-600 hover:bg-green-500 hover:text-white transition-colors">
+                            <MessageCircle size={14}/>
                           </button>
                         )}
                         <ChevronRight size={13} className="text-gray-300 group-hover:text-[#4E60A9] transition-colors"/>

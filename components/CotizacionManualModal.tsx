@@ -1126,18 +1126,31 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     const A4_HEIGHT = 1122.5;
     const sigEl = document.querySelector('.signatures-wrapper');
     if (sigEl) {
+       sigEl.style.marginTop = "40px";
        const rect = sigEl.getBoundingClientRect();
-       const bottomPage = Math.floor((rect.bottom - 1) / A4_HEIGHT);
+       const absoluteBottom = rect.bottom + (window.scrollY || window.pageYOffset || 0);
+       const bottomPage = Math.floor((absoluteBottom - 1) / A4_HEIGHT);
        const targetBottom = (bottomPage + 1) * A4_HEIGHT - 40;
-       const pushAmount = targetBottom - rect.bottom;
+       const pushAmount = targetBottom - absoluteBottom;
        if (pushAmount > 0) {
-         const currentMargin = parseFloat(window.getComputedStyle(sigEl).marginTop || "0");
-         sigEl.style.marginTop = (currentMargin + pushAmount) + "px";
+         sigEl.style.marginTop = (40 + pushAmount) + "px";
        }
     }
   }
-  adjustFooter();
-  window.addEventListener("load", adjustFooter);
+  
+  // Run on DOMContentLoaded and load
+  if (document.readyState === "complete") {
+    adjustFooter();
+  } else {
+    document.addEventListener("DOMContentLoaded", adjustFooter);
+    window.addEventListener("load", adjustFooter);
+  }
+  
+  // Run on beforeprint to ensure print view matches
+  window.addEventListener("beforeprint", adjustFooter);
+  
+  // Extra safety timeout
+  setTimeout(adjustFooter, 200);
 </script>
 </div></body></html>`;
 
@@ -1145,9 +1158,8 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   };
 
   const persistToDB = async (folioGenerado: string) => {
-    if (!leadId) return null;
     const body = {
-      lead_id: leadId, tipo, folio: folioGenerado, monto_total: total,
+      lead_id: leadId || null, tipo, folio: folioGenerado, monto_total: total,
       items_json: {
         items: validItems.map(i => ({ id: i.id, descripcion: i.descripcion, cantidad: i.cantidad, precioUnit: i.precioUnit })),
         meta: {
@@ -1181,16 +1193,21 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   };
 
   const generarPDF = async () => {
+    // Open window synchronously inside the click handler — any await before this blocks the popup
+    const w = window.open("", "_blank");
+    if (!w) {
+      alert("El navegador bloqueó la ventana emergente. Habilita las ventanas emergentes para este sitio.");
+      return;
+    }
     const { html, folio } = await buildPDFHtml(savedCot?.folio);
-    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
-    setTimeout(() => URL.revokeObjectURL(url), 30000);
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
     await persistToDB(folio);
   };
 
   const guardarEnExpediente = async () => {
-    if (!leadId || !canGenerar) return;
+    if (!canGenerar) return;
     setSaveStatus("saving");
     try {
       const { html, folio } = await buildPDFHtml(savedCot?.folio);
@@ -1936,8 +1953,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
           <button
             onClick={guardarEnExpediente}
-            disabled={!leadId || saveStatus === "saving" || !canGenerar}
-            title={!leadId ? "Vincula un cliente/lead para poder guardar el PDF en su expediente" : undefined}
+            disabled={saveStatus === "saving" || !canGenerar}
             className={`w-full flex items-center justify-center gap-2 text-[12px] font-bold py-2.5 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
               saveStatus === "ok"    ? "bg-[#059669] text-white" :
               saveStatus === "error" ? "bg-[#DC2626] text-white" :

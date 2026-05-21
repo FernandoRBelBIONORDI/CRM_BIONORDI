@@ -607,13 +607,14 @@ export default function CRMPage() {
         </div>
       ) : view === "kanban" ? (
         /* -- KANBAN VIEW -- */
-        <div className="flex-1 overflow-x-auto p-4 md:p-6 pt-2 md:pt-4 snap-x snap-mandatory pb-24 md:pb-4">
-          <div className="flex gap-4 h-full">
+        <div className="flex-1 relative min-h-0 flex flex-col">
+          <div className="flex-1 min-h-0 overflow-x-auto overscroll-x-contain snap-x snap-mandatory p-4 md:p-6 pt-2 md:pt-4 pb-24 md:pb-4">
+          <div className="flex gap-4 h-full min-h-0">
             {KANBAN_COLS.map(col=>{
               const st = S[col];
               const colLeads = leads.filter(l=>l.status_crm===col);
               return (
-                <div key={col} className="flex flex-col gap-2 shrink-0 w-[85vw] md:w-[252px] snap-center">
+                <div key={col} className="flex flex-col gap-2 min-h-0 shrink-0 w-[85vw] md:w-[252px] snap-center">
                   {/* Column header */}
                   <div className="flex items-center justify-between px-3 py-2 rounded-[13px] border"
                     style={{backgroundColor: st.bg, borderColor: `${st.color}20`}}>
@@ -624,7 +625,7 @@ export default function CRMPage() {
                     <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-white/70" style={{color:st.color}}>{colLeads.length}</span>
                   </div>
                   {/* Cards */}
-                  <div className="flex-1 overflow-y-auto space-y-2 pb-4" style={{maxHeight:"calc(100vh - 230px)"}}>
+                  <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain touch-pan-y space-y-2 pb-4">
                     {colLeads.length===0 && (
                       <div className="py-8 text-center text-[11px] text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">Sin leads</div>
                     )}
@@ -716,6 +717,9 @@ export default function CRMPage() {
               );
             })}
           </div>
+          </div>
+          <div className="md:hidden absolute right-0 top-0 bottom-24 w-10 pointer-events-none"
+            style={{background: "linear-gradient(to right, transparent, rgba(244,247,251,0.9))"}} />
         </div>
       ) : (
         /* -- POR AGENTE VIEW -- */

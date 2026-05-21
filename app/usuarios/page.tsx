@@ -1,11 +1,12 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { UserPlus, Key, Power, Trash2, Shield, User } from "lucide-react";
+import { UserPlus, Key, Power, Trash2, Shield, User, X } from "lucide-react";
 
 type Usuario = {
   id: number; nombre: string; email: string;
   rol: string; activo: number; created_at: string;
+  cargo?: string;
 };
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
@@ -14,7 +15,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-[16px] font-bold text-[#1E293B]">{title}</h2>
-          <button onClick={onClose} className="text-[#94A3B8] hover:text-[#475569] text-xl font-bold">×</button>
+          <button onClick={onClose} aria-label="Cerrar" className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#94A3B8] hover:text-[#475569] hover:bg-gray-50 transition-colors shrink-0"><X size={18} /></button>
         </div>
         {children}
       </div>
@@ -32,7 +33,7 @@ export default function UsuariosPage() {
   const [showPassword, setShowPassword] = useState<Usuario | null>(null);
   const [error, setError] = useState("");
 
-  const [form, setForm] = useState({ nombre: "", email: "", password: "", rol: "operador" });
+  const [form, setForm] = useState({ nombre: "", email: "", password: "", rol: "operador", cargo: "" });
   const [newPassword, setNewPassword] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -61,7 +62,7 @@ export default function UsuariosPage() {
     const data = await res.json();
     if (!res.ok) { setError(data.error || "Error"); setSaving(false); return; }
     setShowCreate(false);
-    setForm({ nombre: "", email: "", password: "", rol: "operador" });
+    setForm({ nombre: "", email: "", password: "", rol: "operador", cargo: "" });
     load();
     setSaving(false);
   };
@@ -105,7 +106,7 @@ export default function UsuariosPage() {
             <table className="w-full text-[13px]">
               <thead>
                 <tr className="border-b border-[#E8EFF8] bg-[#F8FAFC]">
-                  {["Usuario", "Email", "Rol", "Estado", "Creado", "Acciones"].map(h => (
+                  {["Usuario", "Cargo", "Email", "Rol", "Estado", "Creado", "Acciones"].map(h => (
                     <th key={h} className="text-left px-5 py-3 text-[11px] font-bold text-[#94A3B8] uppercase tracking-wide">{h}</th>
                   ))}
                 </tr>
@@ -121,6 +122,7 @@ export default function UsuariosPage() {
                         <span className="font-semibold text-[#1E293B]">{u.nombre}</span>
                       </div>
                     </td>
+                    <td className="px-5 py-3.5 font-medium text-[#1E293B]">{u.cargo || "—"}</td>
                     <td className="px-5 py-3.5 text-[#64748B]">{u.email}</td>
                     <td className="px-5 py-3.5">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${u.rol === 'admin' ? 'bg-[#4E60A9]/10 text-[#4E60A9]' : 'bg-[#F1F5F9] text-[#64748B]'}`}>
@@ -162,6 +164,7 @@ export default function UsuariosPage() {
             {error && <p className="text-red-500 text-[12px]">{error}</p>}
             {[
               { label: "Nombre", key: "nombre", type: "text", placeholder: "Ej. María García" },
+              { label: "Cargo", key: "cargo", type: "text", placeholder: "Ej. Director General, Vendedor..." },
               { label: "Email", key: "email", type: "email", placeholder: "usuario@empresa.com" },
               { label: "Contraseña", key: "password", type: "password", placeholder: "Mínimo 6 caracteres" },
             ].map(({ label, key, type, placeholder }) => (

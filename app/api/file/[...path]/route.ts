@@ -37,9 +37,22 @@ export async function GET(
 
   // Prevent path traversal
   const safe = segments.map(s => path.basename(s));
-  const filePath = path.join(UPLOAD_ROOT, ...safe);
+  
+  const dbRoot = path.join(process.cwd(), 'db', 'uploads');
+  const publicRoot = path.join(process.cwd(), 'public', 'uploads');
 
-  if (!filePath.startsWith(UPLOAD_ROOT)) {
+  let filePath = path.join(dbRoot, ...safe);
+  let resolvedRoot = dbRoot;
+
+  if (!fs.existsSync(filePath)) {
+    const fallbackPath = path.join(publicRoot, ...safe);
+    if (fs.existsSync(fallbackPath)) {
+      filePath = fallbackPath;
+      resolvedRoot = publicRoot;
+    }
+  }
+
+  if (!filePath.startsWith(resolvedRoot)) {
     return new Response('Forbidden', { status: 403 });
   }
 

@@ -100,6 +100,7 @@ export default function QuoteModal({ lead, onClose }: Props) {
   const [conIVA, setConIVA] = useState(true);
   const [notas, setNotas] = useState("");
   const [showFact, setShowFact] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   // Equipo
   const [eqTipo, setEqTipo] = useState("");
@@ -131,6 +132,14 @@ export default function QuoteModal({ lead, onClose }: Props) {
   const isRepair = items.some(i => i.cat === "Reparación" || i.cat === "Diagnóstico");
 
   const generarPDF = async () => {
+    // Open window synchronously inside the click handler — any await before this blocks the popup
+    const w = window.open("", "_blank");
+    if (!w) {
+      alert("El navegador bloqueó la ventana emergente. Habilita las ventanas emergentes para este sitio.");
+      return;
+    }
+    setGenerating(true);
+    try {
     let imgSrc = "/transductor.png";
     try {
       const res = await fetch("/transductor.png");
@@ -389,27 +398,42 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     const A4_HEIGHT = 1122.5;
     const sigEl = document.querySelector('.signatures-wrapper');
     if (sigEl) {
+       sigEl.style.marginTop = "40px";
        const rect = sigEl.getBoundingClientRect();
-       const bottomPage = Math.floor((rect.bottom - 1) / A4_HEIGHT);
+       const absoluteBottom = rect.bottom + (window.scrollY || window.pageYOffset || 0);
+       const bottomPage = Math.floor((absoluteBottom - 1) / A4_HEIGHT);
        const targetBottom = (bottomPage + 1) * A4_HEIGHT - 40;
-       const pushAmount = targetBottom - rect.bottom;
+       const pushAmount = targetBottom - absoluteBottom;
        if (pushAmount > 0) {
-         const currentMargin = parseFloat(window.getComputedStyle(sigEl).marginTop || "0");
-         sigEl.style.marginTop = (currentMargin + pushAmount) + "px";
+         sigEl.style.marginTop = (40 + pushAmount) + "px";
        }
     }
   }
-  adjustFooter();
-  window.addEventListener("load", adjustFooter);
+  
+  // Run on DOMContentLoaded and load
+  if (document.readyState === "complete") {
+    adjustFooter();
+  } else {
+    document.addEventListener("DOMContentLoaded", adjustFooter);
+    window.addEventListener("load", adjustFooter);
+  }
+  
+  // Run on beforeprint to ensure print view matches
+  window.addEventListener("beforeprint", adjustFooter);
+  
+  // Extra safety timeout
+  setTimeout(adjustFooter, 200);
 </script>
 </body>
 </html>`;
 
-    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const w = window.open(url, "_blank");
-    if (w) w.addEventListener("load", () => setTimeout(() => { w.focus(); w.print(); }, 300));
-    setTimeout(() => URL.revokeObjectURL(url), 15000);
+      w.addEventListener("load", () => setTimeout(() => { w.focus(); w.print(); }, 300));
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
@@ -572,10 +596,10 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           <textarea value={notas} onChange={e => setNotas(e.target.value)} rows={2}
             placeholder="Notas adicionales (opcional)…"
             className="w-full text-[12px] font-medium bg-white border border-gray-200 rounded-xl px-3 py-2.5 outline-none resize-none placeholder:text-gray-400 focus:border-[#4E60A9]/30 transition-all" />
-          <button onClick={generarPDF} disabled={selected.size === 0}
+          <button onClick={generarPDF} disabled={selected.size === 0 || generating}
             className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-white bg-[#4E60A9] hover:bg-[#1e40af] py-3 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm">
             <Printer size={15} />
-            {selected.size === 0 ? "Selecciona al menos un servicio" : `Generar PDF · ${selected.size} servicio${selected.size > 1 ? "s" : ""}`}
+            {generating ? "Generando…" : selected.size === 0 ? "Selecciona al menos un servicio" : `Generar PDF · ${selected.size} servicio${selected.size > 1 ? "s" : ""}`}
           </button>
         </div>
       </div>

@@ -114,7 +114,7 @@ html {
 
   .btn-primary { @apply flex items-center justify-center gap-2 bg-[#2D2F3C] text-white text-[12px] font-bold px-6 py-2.5 rounded-full hover:bg-[#1A1C24] transition-all transform hover:-translate-y-[1px] shadow-sm; }
   .btn-ghost { @apply flex items-center gap-2 text-[12px] font-bold text-gray-500 px-4 py-2.5 rounded-full hover:bg-gray-50 transition-colors; }
-  .cfg-input { @apply bg-transparent text-sm outline-none text-[#202538] w-full placeholder:text-gray-400 font-medium; }
+  .cfg-input { @apply bg-transparent text-sm outline-none text-[#202538] w-full placeholder:text-gray-400 font-medium focus:ring-2 focus:ring-[#5A85F1]/20 rounded; }
 }
 
 .leaflet-container {

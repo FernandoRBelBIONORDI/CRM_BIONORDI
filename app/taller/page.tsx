@@ -292,17 +292,18 @@ export default function TallerPage() {
       </div>
 
       {/* Kanban */}
-      <div className="flex-1 min-h-0 overflow-x-auto overscroll-x-contain p-4 md:p-6 pt-2 snap-x snap-mandatory">
+      <div className="flex-1 relative min-h-0 flex flex-col">
+      <div className="flex-1 min-h-0 overflow-x-auto overscroll-x-contain snap-x snap-mandatory p-4 md:p-6 pt-2 pb-24 md:pb-4">
         {loading ? (
           <div className="h-full flex items-center justify-center">
             <Activity size={24} className="animate-spin text-[#4E60A9]" />
           </div>
         ) : (
-          <div className="flex gap-4 h-full">
+          <div className="flex gap-4 h-full min-h-0">
             {cols.map(col => {
               const colOrdenes = filtered.filter(o => o.status === col.value);
               return (
-                <div key={col.value} className="w-[85vw] md:w-[240px] flex flex-col gap-2 shrink-0 snap-center">
+                <div key={col.value} className="w-[85vw] md:w-[240px] flex flex-col gap-2 min-h-0 shrink-0 snap-center">
                   {/* Col header */}
                   <div className="flex items-center justify-between px-3 py-2 rounded-xl border"
                     style={{ backgroundColor: col.bg, borderColor: col.color + "30" }}>
@@ -409,6 +410,9 @@ export default function TallerPage() {
             })}
           </div>
         )}
+      </div>
+      <div className="md:hidden absolute right-0 top-0 bottom-24 w-10 pointer-events-none"
+        style={{background: "linear-gradient(to right, transparent, rgba(244,247,251,0.9))"}} />
       </div>
 
       {/* Modals */}

@@ -13,7 +13,7 @@ function Section({ label, collapsed }: { label: string; collapsed: boolean }) {
   if (collapsed) return <div className="h-px bg-[#E2E8F4] mx-2.5 my-2" />;
   return (
     <div className="px-3.5 pt-3 pb-1">
-      <span className="text-[9px] font-extrabold tracking-[0.12em] text-[#CBD5E1] uppercase">{label}</span>
+      <span className="text-[11px] font-extrabold tracking-[0.1em] text-[#94A3B8] uppercase">{label}</span>
     </div>
   );
 }
@@ -78,6 +78,7 @@ export default function SidebarNav() {
   const isAdmin = (session?.user as any)?.role === "admin";
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [crmBadge, setCrmBadge] = useState(0);
   const [tallerBadge, setTallerBadge] = useState(0);
@@ -88,6 +89,11 @@ export default function SidebarNav() {
     try {
       if (localStorage.getItem("sidebar-collapsed") === "true") setCollapsed(true);
     } catch {}
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, []);
 
   const toggle = () => setCollapsed(p => {
@@ -124,13 +130,13 @@ export default function SidebarNav() {
     <>
       <aside
         className="hidden md:flex shrink-0 flex-col h-screen bg-white border-r border-[#E8EFF8] px-2 overflow-hidden"
-        style={{ width: w, transition: mounted ? "width .22s cubic-bezier(.4,0,.2,1)" : "none" }}>
+        style={{ width: w, transition: mounted && !reducedMotion ? "width .22s cubic-bezier(.4,0,.2,1)" : "none" }}>
 
         {/* Logo + botón colapsar */}
         <div className={`flex items-center pt-5 pb-4 px-1 gap-2 ${collapsed ? "justify-center" : "justify-between"}`}>
           {!collapsed && (
             <div className="flex items-center gap-2.5 min-w-0">
-              <img src="/ISOTIPO.png" alt="Bionordi" className="w-8 h-8 shrink-0 object-contain" />
+              <img src="/ISOTIPO.png" alt="" className="w-8 h-8 shrink-0 object-contain" />
               <div className="min-w-0">
                 <div className="text-[14px] font-extrabold text-[#1E293B] tracking-[-0.03em] leading-none">Bionordi</div>
                 <div className="text-[9px] text-[#94A3B8] font-semibold tracking-[0.05em] mt-0.5">PLATAFORMA OPS</div>
@@ -141,7 +147,9 @@ export default function SidebarNav() {
             <img src="/ISOTIPO.png" alt="Bionordi" className="w-8 h-8 shrink-0 object-contain" />
           )}
           <button onClick={toggle} suppressHydrationWarning
-            className="w-6 h-6 rounded-md border border-[#E2E8F4] bg-[#F8FAFC] flex items-center justify-center text-[#94A3B8] hover:text-[#475569] transition-colors cursor-pointer shrink-0">
+            aria-label={collapsed ? "Expandir menú" : "Colapsar menú"}
+            aria-expanded={!collapsed}
+            className="min-w-[44px] min-h-[44px] rounded-xl border border-[#E2E8F4] bg-[#F8FAFC] flex items-center justify-center text-[#94A3B8] hover:text-[#475569] transition-colors cursor-pointer shrink-0">
             {collapsed
               ? <ChevronRight size={12} strokeWidth={2.5} />
               : <ChevronLeft  size={12} strokeWidth={2.5} />}
@@ -175,8 +183,8 @@ export default function SidebarNav() {
           {!collapsed && agenda.length > 0 && (
             <div className="mt-3 mx-1 mb-1">
               <div className="px-2.5 pt-1 pb-1.5 flex items-center justify-between">
-                <span className="text-[9px] font-extrabold tracking-[0.12em] text-[#CBD5E1] uppercase">Próximos</span>
-                <Link href="/agenda" className="text-[9px] font-bold text-[#4E60A9] hover:underline">Ver todo</Link>
+                <span className="text-[11px] font-extrabold tracking-[0.08em] text-[#94A3B8] uppercase">Próximos</span>
+                <Link href="/agenda" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver todo</Link>
               </div>
               <div className="rounded-xl border border-[#E8EFF8] bg-[#F8FAFC] overflow-hidden divide-y divide-[#E8EFF8]">
                 {agenda.slice(0, 4).map((ev, i) => {
@@ -188,8 +196,8 @@ export default function SidebarNav() {
                     <div key={i} className="flex items-center gap-2 px-2.5 py-2">
                       <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${vencido ? "bg-red-400" : esHoy ? "bg-[#4E60A9]" : "bg-[#94A3B8]"}`} />
                       <div className="flex-1 min-w-0">
-                        <div className="text-[10px] font-bold text-[#334155] truncate">{ev.lead_nombre}</div>
-                        <div className={`text-[9px] font-semibold ${vencido ? "text-red-400" : esHoy ? "text-[#4E60A9]" : "text-[#94A3B8]"}`}>
+                        <div className="text-[11px] font-bold text-[#334155] truncate">{ev.lead_nombre}</div>
+                        <div className={`text-[11px] font-semibold ${vencido ? "text-red-400" : esHoy ? "text-[#4E60A9]" : "text-[#94A3B8]"}`}>
                           {esHoy ? "Hoy" : vencido ? "Vencido" : fecha.toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
                         </div>
                       </div>
@@ -197,7 +205,7 @@ export default function SidebarNav() {
                   );
                 })}
                 {agenda.length > 4 && (
-                  <Link href="/agenda" className="block px-2.5 py-1.5 text-center text-[9px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] transition-colors">
+                  <Link href="/agenda" className="block px-2.5 py-1.5 text-center text-[11px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] transition-colors">
                     +{agenda.length - 4} más
                   </Link>
                 )}
@@ -221,9 +229,9 @@ export default function SidebarNav() {
           </div>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            title="Cerrar sesión"
+            aria-label="Cerrar sesión"
             suppressHydrationWarning
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-[#94A3B8] hover:text-[#EF4444] hover:bg-red-50 transition-colors cursor-pointer shrink-0">
+            className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-[#94A3B8] hover:text-[#EF4444] hover:bg-red-50 transition-colors cursor-pointer shrink-0">
             <LogOut size={14} strokeWidth={2} />
           </button>
         </div>
@@ -258,7 +266,7 @@ export default function SidebarNav() {
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-[65] bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => setMobileMenuOpen(false)}>
-          <div className="absolute bottom-[70px] left-0 right-0 bg-white rounded-t-[32px] overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom-4 duration-300 ease-out shadow-[0_-10px_40px_rgba(0,0,0,0.1)]" onClick={e => e.stopPropagation()}>
+          <div className="absolute bottom-[70px] left-0 right-0 bg-white rounded-t-[32px] overflow-hidden flex flex-col max-h-[85vh] motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-300 motion-safe:ease-out shadow-[0_-10px_40px_rgba(0,0,0,0.1)]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-4 mb-2" />
             <div className="px-6 py-2">
               <h2 className="font-extrabold text-[#1E293B] text-[20px] tracking-tight">Menú Principal</h2>
