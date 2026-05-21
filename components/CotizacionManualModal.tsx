@@ -310,6 +310,11 @@ export default function CotizacionManualModal({
 
   // Cotización ya guardada en esta sesión — evita duplicados entre Generar, Guardar y Enviar
   const [savedCot, setSavedCot] = useState<{ id: number; folio: string } | null>(null);
+  const savedCotRef = useRef<{ id: number; folio: string } | null>(null);
+
+  useEffect(() => {
+    savedCotRef.current = savedCot;
+  }, [savedCot]);
 
   // Facturación
   const [facRazonSoc,  setFacRazonSoc]  = useState("");
@@ -318,6 +323,22 @@ export default function CotizacionManualModal({
   const [facCFDI,      setFacCFDI]      = useState("G03");
   const [facDirFiscal, setFacDirFiscal] = useState("");
   const [facCorreo,    setFacCorreo]    = useState("");
+
+  const pdfB64Ref = useRef<string | null>(null);
+
+  // Invalidate PDF cache and clean up browser blob URL on any input change
+  useEffect(() => {
+    pdfB64Ref.current = null;
+    if (previewPdfUrl) {
+      URL.revokeObjectURL(previewPdfUrl);
+      setPreviewPdfUrl(null);
+    }
+  }, [
+    tipo, cliNombre, cliContacto, cliTel, cliCorreo, cliDireccion, cliCiudad, cliEstado,
+    eqTipo, eqMarca, eqModelo, eqSerie, eqFalla, items, eqDescripcion, descuento, conIVA,
+    notas, firmaUserId, imgEquipoB64, evidencias, facRazonSoc, facRFC, facRegimen, facCFDI,
+    facDirFiscal, facCorreo
+  ]);
 
   // ── Efectos ───────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -787,10 +808,10 @@ export default function CotizacionManualModal({
       <div class="diag-grid">
         <div style="flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;height:148px;overflow:hidden;">
           <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="width:100%;height:140px;object-fit:contain;display:block;" />
-          <div style="position:absolute;top:25%;left:39%;margin-top:-10px;margin-left:-10px;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;border:2px solid #fff;box-sizing:border-box;">1</div>
-          <div style="position:absolute;top:20%;left:55%;margin-top:-10px;margin-left:-10px;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;border:2px solid #fff;box-sizing:border-box;">2</div>
-          <div style="position:absolute;top:68%;left:30%;margin-top:-10px;margin-left:-10px;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;border:2px solid #fff;box-sizing:border-box;">3</div>
-          <div style="position:absolute;top:88%;left:82%;margin-top:-10px;margin-left:-10px;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;border:2px solid #fff;box-sizing:border-box;">4</div>
+          <div class="dot" style="top:25%;left:39%;margin-top:-10px;margin-left:-10px;">1</div>
+          <div class="dot" style="top:20%;left:55%;margin-top:-10px;margin-left:-10px;">2</div>
+          <div class="dot" style="top:68%;left:30%;margin-top:-10px;margin-left:-10px;">3</div>
+          <div class="dot" style="top:88%;left:82%;margin-top:-10px;margin-left:-10px;">4</div>
         </div>
         <div class="diag-list" style="gap:8px;">
           <div class="d-item"><div class="d-num">1</div><div><strong>Lente Acústico / Membrana:</strong> Retiro del material desgastado, descontaminación del arreglo de cristales e inyección de nuevo polímero acústico con curado térmico.</div></div>
@@ -1001,10 +1022,10 @@ export default function CotizacionManualModal({
   .diag-p{font-size:11px;color:#475569;line-height:1.5;margin-bottom:15px}
   .diag-grid{display:flex;gap:20px;align-items:center}
   .img-container{flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-  .dot{position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;line-height:16px;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,.3);border:2px solid #fff;box-sizing:border-box;}
+  .dot{position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.3);border:2px solid #fff;box-sizing:border-box;}
   .diag-list{flex:1.2;display:flex;flex-direction:column;gap:12px}
   .d-item{display:flex;gap:10px;font-size:10.5px;color:#334155;line-height:1.4;align-items:flex-start}
-  .d-num{width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;line-height:18px;text-align:center;flex-shrink:0;margin-top:1px;}
+  .d-num{width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
   table{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:20px;page-break-before:always}
   th{background:#F1F5F9;color:#475569;font-size:10px;font-weight:800;text-transform:uppercase;padding:10px 15px;text-align:left;letter-spacing:1px;border-bottom:2px solid #CBD5E1}
   th:first-child{border-top-left-radius:8px;border-bottom-left-radius:8px}
@@ -1158,15 +1179,16 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       },
       eq_tipo: eqTipo || null, eq_marca: eqMarca || null, eq_modelo: eqModelo || null,
       eq_descripcion: eqDescripcion || null,
-      notas: notas || null, status: savedCot ? undefined : "guardada",
+      notas: notas || null, status: savedCotRef.current ? undefined : "guardada",
     };
-    if (savedCot) {
-      const patchRes = await fetch(`/api/cotizaciones/${savedCot.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (savedCotRef.current) {
+      const patchRes = await fetch(`/api/cotizaciones/${savedCotRef.current.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!patchRes.ok) {
         const err = await patchRes.json().catch(() => ({}));
         throw new Error(err.error || `Error al actualizar cotización (${patchRes.status})`);
       }
-      return savedCot.id;
+      onSuccess?.(folioGenerado);
+      return savedCotRef.current.id;
     } else {
       const dbRes = await fetch("/api/cotizaciones", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!dbRes.ok) {
@@ -1174,7 +1196,12 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         throw new Error(err.error || `Error al crear cotización (${dbRes.status})`);
       }
       const data = await dbRes.json();
-      if (data.id) setSavedCot({ id: data.id, folio: folioGenerado });
+      if (data.id) {
+        const newCot = { id: data.id, folio: folioGenerado };
+        savedCotRef.current = newCot;
+        setSavedCot(newCot);
+        onSuccess?.(folioGenerado);
+      }
       return data.id;
     }
   };
@@ -1182,11 +1209,15 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   const generarPDF = async () => {
     setGenerating(true);
     try {
-      const { html, folio } = await buildPDFHtml(savedCot?.folio);
+      const { html, folio } = await buildPDFHtml(savedCotRef.current?.folio);
       setPreviewFolio(folio);
       
       try {
-        const pdfB64 = await generarPDFBase64(html);
+        let pdfB64 = pdfB64Ref.current;
+        if (!pdfB64) {
+          pdfB64 = await generarPDFBase64(html);
+          pdfB64Ref.current = pdfB64;
+        }
         const url = b64toBlobUrl(pdfB64);
         setPreviewPdfUrl(url);
       } catch (pdfErr) {
@@ -1206,7 +1237,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     if (!canGenerar) return;
     setSaveStatus("saving");
     try {
-      const { html, folio } = await buildPDFHtml(savedCot?.folio);
+      const { html, folio } = await buildPDFHtml(savedCotRef.current?.folio);
 
       // 1. Guardar cotizacion en DB (siempre — es el paso crítico)
       const cotizacionId = await persistToDB(folio);
@@ -1214,7 +1245,11 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
       // 2. Intentar generar PDF (no-fatal: si falla, la cotización ya está guardada)
       try {
-        const pdfB64 = await generarPDFBase64(html);
+        let pdfB64 = pdfB64Ref.current;
+        if (!pdfB64) {
+          pdfB64 = await generarPDFBase64(html);
+          pdfB64Ref.current = pdfB64;
+        }
         await fetch("/api/expediente", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1240,7 +1275,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
     const origin = "https://raw.githubusercontent.com/FernandoRBelBIONORDI/BIONORDI_IMAGENES/main/IMAGENES";
     const fecha    = new Date().toLocaleDateString("es-MX", { day:"2-digit", month:"long", year:"numeric" });
-    let folio = savedCot?.folio;
+    let folio = savedCotRef.current?.folio;
     if (!folio) {
       const res = await fetch(`/api/cotizaciones?nextfolio=1&tipo=${tipo}`);
       const data = await res.json();
@@ -1351,7 +1386,11 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       cotizacionId = await persistToDB(folio);
 
       // 2. Generar el archivo PDF
-      pdfB64 = await generarPDFBase64(pdfHtml);
+      pdfB64 = pdfB64Ref.current || "";
+      if (!pdfB64) {
+        pdfB64 = await generarPDFBase64(pdfHtml);
+        pdfB64Ref.current = pdfB64;
+      }
       attachments = [{ filename: `${folio}.pdf`, content: pdfB64, type: "application/pdf" }];
 
       // 3. Subir PDF al expediente del lead para habilitar el visualizador exacto
@@ -1408,6 +1447,8 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   const modelosPorMarca = transductores.filter(e =>
     !eqMarca || equipoMode === "manual" || e.marca === eqMarca || !e.marca
   );
+
+  const anyLoading = generating || saveStatus === "saving" || emailStatus === "sending";
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center">
@@ -1947,7 +1988,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
             </div>
             <button
               onClick={enviarPorCorreo}
-              disabled={emailStatus === "sending" || !canGenerar || !emailTo.trim()}
+              disabled={anyLoading || !canGenerar || !emailTo.trim()}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12px] font-bold transition-all shrink-0 ${
                 emailStatus === "ok"    ? "bg-[#059669] text-white" :
                 emailStatus === "error" ? "bg-[#DC2626] text-white" :
@@ -1967,7 +2008,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
           <button
             onClick={guardarEnExpediente}
-            disabled={saveStatus === "saving" || !canGenerar}
+            disabled={anyLoading || !canGenerar}
             className={`w-full flex items-center justify-center gap-2 text-[12px] font-bold py-2.5 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
               saveStatus === "ok"    ? "bg-[#059669] text-white" :
               saveStatus === "error" ? "bg-[#DC2626] text-white" :
@@ -1979,7 +2020,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
              <><Save size={13}/>Guardar PDF en expediente</>}
           </button>
 
-          <button onClick={generarPDF} disabled={!canGenerar || generating}
+          <button onClick={generarPDF} disabled={!canGenerar || anyLoading}
             className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-white bg-[#4E60A9] hover:bg-[#3d4e8a] py-3 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm">
             {generating ? (
               <>
