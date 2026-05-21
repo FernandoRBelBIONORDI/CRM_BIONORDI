@@ -768,7 +768,7 @@ export default function CotizacionManualModal({
     <div class="tech-card avoid-break" style="margin-top:10px;margin-bottom:10px;">
       <div class="card-title">Alcance Técnico y Diagnóstico Integral${eqMarca || eqModelo ? ` — ${[eqMarca, eqModelo].filter(Boolean).join(" ")}` : ""}</div>
       <p class="diag-p" style="margin-bottom:8px;">
-        ${eqDescripcion ? `<strong>${eqDescripcion}.</strong> ` : ""}Todo equipo ingresado a laboratorio es sometido a un <strong>diagnóstico técnico automatizado</strong>.
+        Todo equipo ingresado a laboratorio es sometido a un <strong>diagnóstico técnico automatizado</strong>.
         Realizamos pruebas de pulso-eco, medición de capacitancia, análisis de cristales piezoeléctricos y revisión de fugas eléctricas para garantizar la seguridad del paciente y la resolución óptima de imagen.
       </p>
       <div class="diag-grid">
@@ -934,7 +934,7 @@ export default function CotizacionManualModal({
         <div class="eq-item"><div class="eq-lbl">Marca</div><div class="eq-val">${eqMarca || "—"}</div></div>
         <div class="eq-item"><div class="eq-lbl">Modelo</div><div class="eq-val">${eqModelo || "—"}</div></div>
         <div class="eq-item"><div class="eq-lbl">No. de Serie</div><div class="eq-val">${eqSerie || "—"}</div></div>
-        ${eqDescripcion ? `<div class="eq-full"><div class="eq-lbl">Descripción</div><div class="eq-val" style="margin-top:2px;line-height:1.4;">${eqDescripcion.replace(/\n/g, '<br/>')}</div></div>` : ""}
+        ${eqDescripcion && tipo !== "reparacion" ? `<div class="eq-full"><div class="eq-lbl">Descripción</div><div class="eq-val" style="margin-top:2px;line-height:1.4;">${eqDescripcion.replace(/\n/g, '<br/>')}</div></div>` : ""}
         ${eqFalla ? `<div class="eq-full"><div class="eq-lbl" style="color:#B91C1C;">Falla Reportada / Síntoma</div><div class="eq-val" style="color:#7F1D1D;margin-top:2px;">${eqFalla}</div></div>` : ""}
       </div>
     </div>`
@@ -1946,6 +1946,8 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           title={`Cotización — ${previewFolio}`}
           html={previewHtml}
           onClose={() => setPreviewHtml(null)}
+          hidePrint
+          hideDownload
         />
       )}
     </div>

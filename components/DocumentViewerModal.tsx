@@ -9,6 +9,8 @@ interface DocumentViewerModalProps {
   html?: string;
   onClose: () => void;
   downloadName?: string;
+  hidePrint?: boolean;
+  hideDownload?: boolean;
   editAction?: {
     label: string;
     onClick: () => void;
@@ -21,6 +23,8 @@ export default function DocumentViewerModal({
   html,
   onClose,
   downloadName,
+  hidePrint = false,
+  hideDownload = false,
   editAction,
 }: DocumentViewerModalProps) {
   const [loading, setLoading] = useState(true);
@@ -77,20 +81,22 @@ export default function DocumentViewerModal({
             )}
 
             {/* Print Button (Inline) */}
-            <button 
-              onClick={handlePrint}
-              disabled={loading || !hasContent}
-              className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-400 hover:text-white bg-emerald-500/10 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:text-emerald-400 disabled:hover:bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 rounded-xl transition-all shadow-sm"
-              title="Imprimir documento sin abrir ventanas emergentes"
-            >
-              <Printer size={14} />
-              <span className="hidden xs:inline">Imprimir</span>
-            </button>
+            {!hidePrint && (
+              <button
+                onClick={handlePrint}
+                disabled={loading || !hasContent}
+                className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-400 hover:text-white bg-emerald-500/10 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:text-emerald-400 disabled:hover:bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 rounded-xl transition-all shadow-sm"
+                title="Imprimir documento sin abrir ventanas emergentes"
+              >
+                <Printer size={14} />
+                <span className="hidden xs:inline">Imprimir</span>
+              </button>
+            )}
 
             {/* Download Button */}
-            {url && (
-              <a 
-                href={url} 
+            {!hideDownload && url && (
+              <a
+                href={url}
                 download={downloadName || "documento.pdf"}
                 className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-400 hover:text-white bg-indigo-500/10 hover:bg-indigo-500 px-3 py-2 rounded-xl transition-all border border-indigo-500/20 shadow-sm"
               >

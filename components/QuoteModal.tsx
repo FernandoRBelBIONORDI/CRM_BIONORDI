@@ -574,6 +574,8 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           title={`Propuesta Técnica — ${previewFolio}`}
           html={previewHtml}
           onClose={() => setPreviewHtml(null)}
+          hidePrint
+          hideDownload
         />
       )}
     </div>
