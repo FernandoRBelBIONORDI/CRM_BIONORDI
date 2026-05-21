@@ -12,8 +12,8 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+COPY package*.json .npmrc* ./
+RUN npm ci --legacy-peer-deps
 
 COPY . .
 RUN npm run build

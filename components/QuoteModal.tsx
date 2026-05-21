@@ -290,10 +290,12 @@ export default function QuoteModal({ lead, onClose }: Props) {
       </p>
       <div class="diag-grid">
         <div class="img-container">
-          <img src="${imgSrc}" alt="Diagrama Transductor" style="max-width:100%; max-height:155px; width:auto; height:auto; background:white;" />
-          <div class="dot" style="top: 25%; left: 39%; margin-top:-9px; margin-left:-9px;">1</div>
-          <div class="dot" style="top: 20%; left: 55%; margin-top:-9px; margin-left:-9px;">2</div>
-          <div class="dot" style="bottom: 12%; right: 18%; margin-bottom:-9px; margin-right:-9px;">3</div>
+          <div style="position:relative;display:inline-block;">
+            <img src="${imgSrc}" alt="Diagrama Transductor" style="max-width:100%; max-height:155px; width:auto; height:auto; background:white; display:block;" />
+            <div class="dot" style="top: 25%; left: 39%; margin-top:-9px; margin-left:-9px;">1</div>
+            <div class="dot" style="top: 20%; left: 55%; margin-top:-9px; margin-left:-9px;">2</div>
+            <div class="dot" style="bottom: 12%; right: 18%; margin-bottom:-9px; margin-right:-9px;">3</div>
+          </div>
         </div>
         <div class="diag-list">
           <div class="d-item">

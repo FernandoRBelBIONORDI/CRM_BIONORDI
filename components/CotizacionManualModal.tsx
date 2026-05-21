@@ -806,12 +806,14 @@ export default function CotizacionManualModal({
         Realizamos pruebas de pulso-eco, medición de capacitancia, análisis de cristales piezoeléctricos y revisión de fugas eléctricas para garantizar la seguridad del paciente y la resolución óptima de imagen.
       </p>
       <div class="diag-grid">
-        <div style="flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;height:148px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
-          <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="max-width:100%;max-height:140px;width:auto;height:auto;display:block;" />
-          <div class="dot" style="top:25%;left:39%;margin-top:-10px;margin-left:-10px;">1</div>
-          <div class="dot" style="top:20%;left:55%;margin-top:-10px;margin-left:-10px;">2</div>
-          <div class="dot" style="top:68%;left:30%;margin-top:-10px;margin-left:-10px;">3</div>
-          <div class="dot" style="top:88%;left:82%;margin-top:-10px;margin-left:-10px;">4</div>
+        <div style="flex:.8;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;height:148px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <div style="position:relative;display:inline-block;">
+            <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="max-width:100%;max-height:140px;width:auto;height:auto;display:block;" />
+            <div class="dot" style="top:25%;left:39%;margin-top:-10px;margin-left:-10px;">1</div>
+            <div class="dot" style="top:20%;left:55%;margin-top:-10px;margin-left:-10px;">2</div>
+            <div class="dot" style="top:68%;left:30%;margin-top:-10px;margin-left:-10px;">3</div>
+            <div class="dot" style="top:88%;left:82%;margin-top:-10px;margin-left:-10px;">4</div>
+          </div>
         </div>
         <div class="diag-list" style="gap:8px;">
           <div class="d-item"><div class="d-num">1</div><div><strong>Lente Acústico / Membrana:</strong> Retiro del material desgastado, descontaminación del arreglo de cristales e inyección de nuevo polímero acústico con curado térmico.</div></div>
