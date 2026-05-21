@@ -296,6 +296,8 @@ export default function CotizacionManualModal({
   const [conIVA, setConIVA] = useState(true);
   const [notas, setNotas] = useState("");
   const [showFact, setShowFact] = useState(false);
+  const [showPropuesta, setShowPropuesta] = useState(false);
+  const [propuestaPDF, setPropuestaPDF] = useState("");
 
   // Email
   const [emailTo, setEmailTo] = useState("");
@@ -1024,10 +1026,10 @@ export default function CotizacionManualModal({
   .diag-p{font-size:11px;color:#475569;line-height:1.5;margin-bottom:15px}
   .diag-grid{display:flex;gap:20px;align-items:center}
   .img-container{flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-  .dot{position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;}
+  .dot{position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:block;text-align:center;line-height:16px;border:2px solid #fff;box-sizing:border-box;margin:0;}
   .diag-list{flex:1.2;display:flex;flex-direction:column;gap:12px}
   .d-item{display:flex;gap:10px;font-size:10.5px;color:#334155;line-height:1.4;align-items:flex-start}
-  .d-num{width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;}
+  .d-num{width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:block;text-align:center;line-height:18px;flex-shrink:0;margin-top:1px;box-sizing:border-box;margin-left:0;margin-right:0;padding:0;}
   table{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:20px;page-break-before:always}
   th{background:#F1F5F9;color:#475569;font-size:10px;font-weight:800;text-transform:uppercase;padding:10px 15px;text-align:left;letter-spacing:1px;border-bottom:2px solid #CBD5E1}
   th:first-child{border-top-left-radius:8px;border-bottom-left-radius:8px}
@@ -1101,7 +1103,7 @@ ${brochureHTML}
 
 <div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;page-break-before:always;">
   <div class="card-title">${propInfo.titulo}</div>
-  <p style="font-size:12px;color:#334155;line-height:1.75;margin-bottom:16px;">${propInfo.parrafoPDF}</p>
+  <p style="font-size:12px;color:#334155;line-height:1.75;margin-bottom:16px;">${propuestaPDF.trim() || propInfo.parrafoPDF}</p>
   <div style="background:#EEF0F7;border:1px solid #C5CAE0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
     <div>
       <div style="font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Inversión Total</div>
@@ -1896,6 +1898,33 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Texto de la propuesta técnica */}
+          <div className="px-6 py-4 border-b border-gray-100">
+            <button onClick={() => setShowPropuesta(p => !p)}
+              className="w-full flex items-center justify-between text-[10px] font-bold text-[#4E60A9] uppercase tracking-widest">
+              <span>Texto de la propuesta en el PDF</span>
+              {showPropuesta ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+            {showPropuesta && (
+              <div className="mt-3">
+                <div className="flex justify-end mb-1.5">
+                  <button
+                    onClick={() => setPropuestaPDF(getPropuestaInfo().parrafoPDF)}
+                    className="text-[10px] text-[#4E60A9] font-bold hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors">
+                    ↺ Generar automáticamente
+                  </button>
+                </div>
+                <textarea
+                  value={propuestaPDF}
+                  onChange={e => setPropuestaPDF(e.target.value)}
+                  placeholder="Deja vacío para generar automáticamente según el equipo y servicios, o escribe un texto personalizado aquí…"
+                  rows={6}
+                  className="w-full text-[12px] font-medium bg-white border border-gray-200 rounded-xl px-3 py-2.5 outline-none resize-y placeholder:text-gray-400 focus:border-[#4E60A9]/30 transition-all leading-relaxed"
+                />
+              </div>
+            )}
           </div>
 
           {/* Facturación */}
