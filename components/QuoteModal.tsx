@@ -148,7 +148,7 @@ async function generarPDFBase64(htmlString: string): Promise<string> {
         }
 
         const canvas = await html2canvas(doc.documentElement, {
-          scale: 5, useCORS: true, allowTaint: true,
+          scale: 2, useCORS: true, allowTaint: true,
           width: 794, windowWidth: 794, logging: false,
         });
         const pdf = new jsPDF({ format: "a4", unit: "mm", orientation: "portrait" });
