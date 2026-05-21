@@ -214,7 +214,8 @@ export default function QuoteModal({ lead, onClose }: Props) {
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #334155; background: #fff; font-size: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .page { padding: 40px 50px; max-width: 850px; margin: 0 auto; background: #fff; }
+  .page { padding: 40px 50px; max-width: 850px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; min-height: 262mm; }
+  .page-spacer { flex: 1; min-height: 40px; }
   .avoid-break { page-break-inside: avoid; }
   .text-muted { color: #94A3B8; }
   .b { font-weight: 700; }
@@ -372,6 +373,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   </ul>
 </div>
 
+<div class="page-spacer"></div>
 <div class="signatures-wrapper">
 <div class="signatures">
   <div class="sig-box">
@@ -390,32 +392,6 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 </div>
 
 </div>
-<script>
-  function adjustFooter() {
-    const A4_HEIGHT = 1122.5;
-    const sigEl = document.querySelector('.signatures-wrapper');
-    if (sigEl) {
-       sigEl.style.marginTop = "40px";
-       const rect = sigEl.getBoundingClientRect();
-       const absoluteBottom = rect.bottom + (window.scrollY || window.pageYOffset || 0);
-       const bottomPage = Math.floor((absoluteBottom - 1) / A4_HEIGHT);
-       const targetBottom = (bottomPage + 1) * A4_HEIGHT - 40;
-       const pushAmount = targetBottom - absoluteBottom;
-       if (pushAmount > 0) {
-         sigEl.style.marginTop = (40 + pushAmount) + "px";
-       }
-     }
-  }
-  
-  if (document.readyState === "complete") {
-    adjustFooter();
-  } else {
-    document.addEventListener("DOMContentLoaded", adjustFooter);
-    window.addEventListener("load", adjustFooter);
-  }
-  window.addEventListener("beforeprint", adjustFooter);
-  setTimeout(adjustFooter, 200);
-</script>
 </body>
 </html>`;
 

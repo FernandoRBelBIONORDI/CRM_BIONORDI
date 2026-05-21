@@ -958,7 +958,8 @@ export default function CotizacionManualModal({
   @page:first{margin-top:0}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#334155;background:#fff;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .page{padding:40px 70px;max-width:850px;margin:0 auto}
+  .page{padding:40px 70px;max-width:850px;margin:0 auto;display:flex;flex-direction:column;min-height:262mm}
+  .page-spacer{flex:1;min-height:40px}
   .avoid-break{page-break-inside:avoid}
   .text-muted{color:#94A3B8}.b{font-weight:700}.c{text-align:center}.r{text-align:right}
   .hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:15px}
@@ -1108,6 +1109,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   </ul>
 </div>
 
+<div class="page-spacer"></div>
 <div class="signatures-wrapper">
   <div class="signatures">
     <div class="sig-box">
@@ -1124,37 +1126,6 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     Documento generado digitalmente por el sistema de Gestión Bionordi.
   </div>
 </div>
-<script>
-  function adjustFooter() {
-    const A4_HEIGHT = 1122.5;
-    const sigEl = document.querySelector('.signatures-wrapper');
-    if (sigEl) {
-       sigEl.style.marginTop = "40px";
-       const rect = sigEl.getBoundingClientRect();
-       const absoluteBottom = rect.bottom + (window.scrollY || window.pageYOffset || 0);
-       const bottomPage = Math.floor((absoluteBottom - 1) / A4_HEIGHT);
-       const targetBottom = (bottomPage + 1) * A4_HEIGHT - 40;
-       const pushAmount = targetBottom - absoluteBottom;
-       if (pushAmount > 0) {
-         sigEl.style.marginTop = (40 + pushAmount) + "px";
-       }
-    }
-  }
-  
-  // Run on DOMContentLoaded and load
-  if (document.readyState === "complete") {
-    adjustFooter();
-  } else {
-    document.addEventListener("DOMContentLoaded", adjustFooter);
-    window.addEventListener("load", adjustFooter);
-  }
-  
-  // Run on beforeprint to ensure print view matches
-  window.addEventListener("beforeprint", adjustFooter);
-  
-  // Extra safety timeout
-  setTimeout(adjustFooter, 200);
-</script>
 </div></body></html>`;
 
     return { html, folio };
@@ -1379,7 +1350,6 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     } catch {
       setEmailStatus("error"); setEmailMsg("Error de red");
     }
-    await persistToDB(folio);
     setTimeout(() => setEmailStatus("idle"), 6000);
   };
 
@@ -1631,6 +1601,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                     )}
                   </div>
 
+                  {tipo !== "reparacion" && (
                   <div className="mb-3">
                     <Field label="Características / Descripción (máx. 4 puntos)">
                       <div className="space-y-2 mt-1">
@@ -1666,6 +1637,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                       </div>
                     </Field>
                   </div>
+                  )}
 
                   {/* Subida de foto/diagrama para venta y mantenimiento en modo manual */}
                   {tipo !== "reparacion" && (
