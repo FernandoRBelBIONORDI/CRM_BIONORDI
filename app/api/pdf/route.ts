@@ -1,17 +1,42 @@
+// ⚠️  ARCHIVO PROTEGIDO — ver CLAUDE.md antes de modificar
+// puppeteer-core + Chromium del sistema (nixpacks.toml) para Railway.
+// NO cambiar a 'puppeteer' ni modificar los parámetros de launch.
 import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
+import { existsSync } from 'fs';
+
+const SYSTEM_CHROMIUM_PATHS = [
+  process.env.CHROMIUM_PATH,
+  '/run/current-system/sw/bin/chromium',  // Railway/Nixpacks
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+];
+
+async function getChromiumExecPath(): Promise<string> {
+  for (const p of SYSTEM_CHROMIUM_PATHS) {
+    if (p && existsSync(p)) return p;
+  }
+  return await chromium.executablePath(); // fallback @sparticuz
+}
 
 export async function POST(req: Request) {
   try {
     const { html } = await req.json();
     if (!html) return NextResponse.json({ error: 'html requerido' }, { status: 400 });
 
+    const executablePath = await getChromiumExecPath();
     const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
+      executablePath,
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-zygote',
+      ],
     });
 
     try {

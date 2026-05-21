@@ -1,6 +1,22 @@
+// ⚠️  ARCHIVO PROTEGIDO — ver CLAUDE.md antes de modificar
 import { NextResponse } from 'next/server';
-import puppeteer from 'puppeteer';
-import fs from 'fs';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
+import fs, { existsSync } from 'fs';
+
+const SYSTEM_CHROMIUM_PATHS = [
+  process.env.CHROMIUM_PATH,
+  '/run/current-system/sw/bin/chromium',  // Railway/Nixpacks
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+];
+
+async function getChromiumExecPath(): Promise<string> {
+  for (const p of SYSTEM_CHROMIUM_PATHS) {
+    if (p && existsSync(p)) return p;
+  }
+  return await chromium.executablePath();
+}
 import path from 'path';
 import db from '@/lib/db';
 import { requireAuth } from '@/lib/require-auth';
@@ -263,10 +279,18 @@ export async function GET(req: Request) {
       </html>
     `;
 
+    const executablePath = await getChromiumExecPath();
     const browser = await puppeteer.launch({
+      executablePath,
       headless: true,
-      executablePath: process.env.CHROMIUM_PATH || process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-zygote',
+      ],
     });
 
     try {
