@@ -105,6 +105,17 @@ function newItem(): LineItem {
   return { id: Math.random().toString(36).slice(2), descripcion: "", cantidad: 1, precioUnit: 0 };
 }
 
+function b64toBlobUrl(b64: string, type: string = "application/pdf"): string {
+  const bin = window.atob(b64);
+  const len = bin.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = bin.charCodeAt(i);
+  }
+  const blob = new Blob([bytes], { type });
+  return URL.createObjectURL(blob);
+}
+
 async function generarPDFBase64(htmlString: string): Promise<string> {
   // Primario: Puppeteer server-side (alta calidad — requiere chromium-browser en Railway)
   try {
@@ -293,7 +304,9 @@ export default function CotizacionManualModal({
   const [saveStatus,   setSaveStatus]   = useState<"idle"|"saving"|"ok"|"error">("idle");
   const [saveError,    setSaveError]    = useState<string>("");
   const [previewHtml,  setPreviewHtml]  = useState<string | null>(null);
+  const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
   const [previewFolio, setPreviewFolio] = useState<string>("");
+  const [generating,   setGenerating]   = useState(false);
 
   // Cotización ya guardada en esta sesión — evita duplicados entre Generar, Guardar y Enviar
   const [savedCot, setSavedCot] = useState<{ id: number; folio: string } | null>(null);
@@ -1167,10 +1180,26 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   };
 
   const generarPDF = async () => {
-    const { html, folio } = await buildPDFHtml(savedCot?.folio);
-    setPreviewFolio(folio);
-    setPreviewHtml(html);
-    await persistToDB(folio);
+    setGenerating(true);
+    try {
+      const { html, folio } = await buildPDFHtml(savedCot?.folio);
+      setPreviewFolio(folio);
+      
+      try {
+        const pdfB64 = await generarPDFBase64(html);
+        const url = b64toBlobUrl(pdfB64);
+        setPreviewPdfUrl(url);
+      } catch (pdfErr) {
+        console.warn("[cotizacion] Falló la generación de PDF para previsualizar, usando HTML fallback:", pdfErr);
+        setPreviewHtml(html);
+      }
+      
+      await persistToDB(folio);
+    } catch (err) {
+      console.error("[cotizacion] Error en generarPDF:", err);
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const guardarEnExpediente = async () => {
@@ -1950,21 +1979,38 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
              <><Save size={13}/>Guardar PDF en expediente</>}
           </button>
 
-          <button onClick={generarPDF} disabled={!canGenerar}
+          <button onClick={generarPDF} disabled={!canGenerar || generating}
             className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-white bg-[#4E60A9] hover:bg-[#3d4e8a] py-3 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm">
-            <Printer size={15}/>
-            {!canGenerar ? "Completa nombre del cliente y al menos un servicio" : `Generar PDF · ${TIPO_LABELS[tipo]}`}
+            {generating ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
+                <span>Generando...</span>
+              </>
+            ) : (
+              <>
+                <Printer size={15}/>
+                <span>{!canGenerar ? "Completa nombre del cliente y al menos un servicio" : `Generar PDF · ${TIPO_LABELS[tipo]}`}</span>
+              </>
+            )}
           </button>
         </div>
       </div>
 
-      {previewHtml && (
+      {(previewPdfUrl || previewHtml) && (
         <DocumentViewerModal
           title={`Cotización — ${previewFolio}`}
-          html={previewHtml}
-          onClose={() => setPreviewHtml(null)}
-          hidePrint
-          hideDownload
+          url={previewPdfUrl || undefined}
+          html={previewHtml || undefined}
+          downloadName={`${previewFolio}.pdf`}
+          onClose={() => {
+            if (previewPdfUrl) {
+              URL.revokeObjectURL(previewPdfUrl);
+              setPreviewPdfUrl(null);
+            }
+            setPreviewHtml(null);
+          }}
+          hidePrint={!previewPdfUrl}
+          hideDownload={!previewPdfUrl}
         />
       )}
     </div>
