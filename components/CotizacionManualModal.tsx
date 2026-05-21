@@ -195,7 +195,7 @@ async function generarPDFBase64(htmlString: string): Promise<string> {
         }
 
         const canvas = await html2canvas(doc.documentElement, {
-          scale: 2, useCORS: true, allowTaint: true,
+          scale: 3, useCORS: true, allowTaint: true,
           width: 794, windowWidth: 794, logging: false,
         });
         const pdf = new jsPDF({ format: "a4", unit: "mm", orientation: "portrait" });
@@ -945,7 +945,7 @@ export default function CotizacionManualModal({
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
         ${evidencias.map((ev, i) => `
           <div style="flex:1;min-width:130px;max-width:200px;">
-            <img src="${ev.b64}" alt="Evidencia ${i+1}" style="width:100%;max-height:140px;object-fit:contain;background:white;border-radius:6px;border:1px solid ${evidenciaImgBorder};" />
+            <img src="${ev.b64}" alt="Evidencia ${i+1}" style="max-width:100%;max-height:140px;width:auto;height:auto;background:white;border-radius:6px;border:1px solid ${evidenciaImgBorder};display:block;margin:0 auto;" />
             <div style="margin-top:4px;font-size:9px;color:${evidenciaTextColor};font-weight:600;text-align:center;">
               Foto ${i+1}${ev.caption ? ` — ${ev.caption}` : ""}
             </div>
@@ -1022,10 +1022,10 @@ export default function CotizacionManualModal({
   .diag-p{font-size:11px;color:#475569;line-height:1.5;margin-bottom:15px}
   .diag-grid{display:flex;gap:20px;align-items:center}
   .img-container{flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-  .dot{position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,.3);border:2px solid #fff;box-sizing:border-box;}
+  .dot{position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;text-align:center;line-height:16px;box-shadow:0 2px 5px rgba(0,0,0,.3);border:2px solid #fff;box-sizing:border-box;}
   .diag-list{flex:1.2;display:flex;flex-direction:column;gap:12px}
   .d-item{display:flex;gap:10px;font-size:10.5px;color:#334155;line-height:1.4;align-items:flex-start}
-  .d-num{width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1;text-align:center;flex-shrink:0;margin-top:1px;}
+  .d-num{width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;text-align:center;line-height:18px;flex-shrink:0;margin-top:1px;box-sizing:border-box;}
   table{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:20px;page-break-before:always}
   th{background:#F1F5F9;color:#475569;font-size:10px;font-weight:800;text-transform:uppercase;padding:10px 15px;text-align:left;letter-spacing:1px;border-bottom:2px solid #CBD5E1}
   th:first-child{border-top-left-radius:8px;border-bottom-left-radius:8px}
