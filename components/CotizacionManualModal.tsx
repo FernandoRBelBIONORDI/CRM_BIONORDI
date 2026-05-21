@@ -1020,7 +1020,7 @@ export default function CotizacionManualModal({
   .sig-name{font-size:13px;font-weight:800;color:#4E60A9}
   .sig-role{font-size:10px;font-weight:600;color:#64748B;text-transform:uppercase;margin-top:2px}
   .footer{text-align:center;border-top:1px solid #E2E8F0;padding-top:15px;margin-top:30px;font-size:10px;color:#94A3B8;line-height:1.6}
-  @media print{body{padding:0}.page{padding:40px 70px}}
+  @media print{body{padding:0}.page{padding:40px 70px}.cond-section{page-break-after:avoid;break-after:avoid}.signatures-wrapper{page-break-before:avoid;break-before:avoid;page-break-inside:avoid;break-inside:avoid}}
 </style>
 </head>
 <body><div class="page">
@@ -1196,9 +1196,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       }
 
       setSaveStatus("ok");
-      setTimeout(() => {
-        onSuccess?.(folio);
-      }, 1500);
+      setTimeout(() => setSaveStatus("idle"), 4000);
     } catch (err: any) {
       console.error("[cotizacion] error fatal al guardar:", err?.message);
       setSaveError(err?.message || "Error desconocido");
@@ -1258,7 +1256,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       ${eqMarca ? `<tr><td width="90" valign="top" style="padding:3px 0;font-size:12px;color:#64748B;font-weight:600;">Marca</td><td style="padding:3px 0;font-size:12px;color:#1E293B;font-weight:600;">${eqMarca}</td></tr>` : ""}
       ${eqModelo ? `<tr><td valign="top" style="padding:3px 0;font-size:12px;color:#64748B;font-weight:600;">Modelo</td><td style="padding:3px 0;font-size:12px;color:#1E293B;font-weight:600;">${eqModelo}</td></tr>` : ""}
       ${eqTipo ? `<tr><td valign="top" style="padding:3px 0;font-size:12px;color:#64748B;font-weight:600;">Tipo</td><td style="padding:3px 0;font-size:12px;color:#1E293B;">${eqTipo}</td></tr>` : ""}
-      ${eqDescripcion ? `<tr><td colspan="2" style="padding:8px 0 0;font-size:11px;color:#64748B;">${eqDescripcion}</td></tr>` : ""}
+      ${eqDescripcion && tipo !== "reparacion" ? `<tr><td colspan="2" style="padding:8px 0 0;font-size:11px;color:#64748B;">${eqDescripcion}</td></tr>` : ""}
       ${eqFalla ? `<tr><td colspan="2" style="padding-top:8px;"><table cellpadding="8" cellspacing="0" border="0" width="100%" style="border-left:3px solid #EF4444;background:#FEF2F2;border-collapse:collapse;"><tr><td style="font-size:12px;color:#7F1D1D;"><strong>Falla reportada:</strong> ${eqFalla}</td></tr></table></td></tr>` : ""}
     </table>
   </td></tr>` : ""}

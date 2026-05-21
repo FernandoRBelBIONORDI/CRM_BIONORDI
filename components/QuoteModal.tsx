@@ -280,7 +280,7 @@ export default function QuoteModal({ lead, onClose }: Props) {
   .sig-name { font-size: 13px; font-weight: 800; color: #4E60A9; }
   .sig-role { font-size: 10px; font-weight: 600; color: #64748B; text-transform: uppercase; margin-top: 2px; }
   .footer { text-align: center; border-top: 1px solid #E2E8F0; padding-top: 15px; margin-top: 30px; font-size: 10px; color: #94A3B8; line-height: 1.6; }
-  @media print { body { padding: 0; } .page { padding: 20px; box-shadow: none; } }
+  @media print { body { padding: 0; } .page { padding: 20px; box-shadow: none; } .cond-section { page-break-after: avoid; break-after: avoid; } .signatures-wrapper { page-break-before: avoid; break-before: avoid; page-break-inside: avoid; break-inside: avoid; } }
 </style>
 </head>
 <body>
