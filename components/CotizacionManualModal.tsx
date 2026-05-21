@@ -806,8 +806,8 @@ export default function CotizacionManualModal({
         Realizamos pruebas de pulso-eco, medición de capacitancia, análisis de cristales piezoeléctricos y revisión de fugas eléctricas para garantizar la seguridad del paciente y la resolución óptima de imagen.
       </p>
       <div class="diag-grid">
-        <div style="flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;height:148px;overflow:hidden;">
-          <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="width:100%;height:140px;object-fit:contain;display:block;" />
+        <div style="flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;height:148px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="max-width:100%;max-height:140px;width:auto;height:auto;display:block;" />
           <div class="dot" style="top:25%;left:39%;margin-top:-10px;margin-left:-10px;">1</div>
           <div class="dot" style="top:20%;left:55%;margin-top:-10px;margin-left:-10px;">2</div>
           <div class="dot" style="top:68%;left:30%;margin-top:-10px;margin-left:-10px;">3</div>
@@ -830,7 +830,7 @@ export default function CotizacionManualModal({
       <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
         <div style="flex:0 0 240px;">
           <div class="img-container" style="height:200px;">
-            <img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ")}" style="width:100%;height:100%;object-fit:contain;background:white;" />
+            <img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ")}" style="max-width:100%;max-height:192px;width:auto;height:auto;background:white;" />
           </div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding-top:4px;">
@@ -891,7 +891,7 @@ export default function CotizacionManualModal({
       <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
         <div style="flex:0 0 280px;">
           <div class="img-container" style="height:250px;padding:10px;">
-            <img src="${eqFotosB64[0]}" alt="Foto Principal" style="width:100%;height:100%;object-fit:contain;background:white;" />
+            <img src="${eqFotosB64[0]}" alt="Foto Principal" style="max-width:100%;max-height:228px;width:auto;height:auto;background:white;" />
           </div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding-top:4px;">
@@ -906,7 +906,7 @@ export default function CotizacionManualModal({
       <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
         <div style="flex:0 0 280px;">
           <div class="img-container" style="height:250px;padding:10px;">
-            <img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ")}" style="width:100%;height:100%;object-fit:contain;background:white;" />
+            <img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ")}" style="max-width:100%;max-height:228px;width:auto;height:auto;background:white;" />
           </div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding-top:4px;">
@@ -922,11 +922,11 @@ export default function CotizacionManualModal({
       <div style="display:flex;gap:16px;margin-top:4px;">
         <div style="flex:1;">
           <div style="font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;text-align:center;">Vista Frontal</div>
-          <div class="img-container" style="height:200px;"><img src="${imgFront}" alt="Equipo Frente" style="width:100%;height:100%;object-fit:contain;background:white;" /></div>
+          <div class="img-container" style="height:200px;"><img src="${imgFront}" alt="Equipo Frente" style="max-width:100%;max-height:192px;width:auto;height:auto;background:white;" /></div>
         </div>
         <div style="flex:1;">
           <div style="font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;text-align:center;">Vista Posterior</div>
-          <div class="img-container" style="height:200px;"><img src="${imgBack}" alt="Equipo Trasera" style="width:100%;height:100%;object-fit:contain;background:white;" /></div>
+          <div class="img-container" style="height:200px;"><img src="${imgBack}" alt="Equipo Trasera" style="max-width:100%;max-height:192px;width:auto;height:auto;background:white;" /></div>
         </div>
       </div>
     </div>`) : "";
@@ -1022,10 +1022,10 @@ export default function CotizacionManualModal({
   .diag-p{font-size:11px;color:#475569;line-height:1.5;margin-bottom:15px}
   .diag-grid{display:flex;gap:20px;align-items:center}
   .img-container{flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-  .dot{position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.3);border:2px solid #fff;box-sizing:border-box;}
+  .dot{position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,.3);border:2px solid #fff;box-sizing:border-box;}
   .diag-list{flex:1.2;display:flex;flex-direction:column;gap:12px}
   .d-item{display:flex;gap:10px;font-size:10.5px;color:#334155;line-height:1.4;align-items:flex-start}
-  .d-num{width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .d-num{width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1;text-align:center;flex-shrink:0;margin-top:1px;}
   table{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:20px;page-break-before:always}
   th{background:#F1F5F9;color:#475569;font-size:10px;font-weight:800;text-transform:uppercase;padding:10px 15px;text-align:left;letter-spacing:1px;border-bottom:2px solid #CBD5E1}
   th:first-child{border-top-left-radius:8px;border-bottom-left-radius:8px}
