@@ -1310,13 +1310,32 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 </table>
 </body></html>`;
 
-    // Generate PDF attachment
+    // Generar adjunto PDF, guardar en Base de Datos y almacenar en expediente del Lead
     let attachments: { filename: string; content: string; type: string }[] = [];
+    let pdfB64 = "";
+    let cotizacionId: number | null = null;
     try {
-      const { html: pdfHtml } = await buildPDFHtml(folio);
-      const pdfB64 = await generarPDFBase64(pdfHtml);
+      const { html: pdfHtml, folio: finalFolio } = await buildPDFHtml(folio);
+      folio = finalFolio;
+
+      // 1. Guardar cotización en la base de datos (paso crítico)
+      cotizacionId = await persistToDB(folio);
+
+      // 2. Generar el archivo PDF
+      pdfB64 = await generarPDFBase64(pdfHtml);
       attachments = [{ filename: `${folio}.pdf`, content: pdfB64, type: "application/pdf" }];
-    } catch { /* PDF generation failed — send email without attachment */ }
+
+      // 3. Subir PDF al expediente del lead para habilitar el visualizador exacto
+      if (cotizacionId && leadId) {
+        await fetch("/api/expediente", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadId, folio, pdfBase64: pdfB64, cotizacionId }),
+        }).catch(err => console.warn("[cotizacion] No se pudo guardar en el expediente:", err));
+      }
+    } catch (pdfErr) {
+      console.warn("[cotizacion] Error persistiendo o generando PDF:", pdfErr);
+    }
 
     try {
       const res = await fetch("/api/email", {
