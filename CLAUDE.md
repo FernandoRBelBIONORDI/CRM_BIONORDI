@@ -9,6 +9,8 @@ Los siguientes archivos están en producción y funcionan correctamente.
 |---|---|
 | `app/api/pdf/route.ts` | Usa `puppeteer-core` + `@sparticuz/chromium`. Esta combinación específica resuelve el problema de Chromium en Railway. Cambiar la librería o los parámetros de launch rompe la generación de PDFs en producción. |
 | `app/api/pdf/orden/route.ts` | Mismo motivo. |
+| `components/CotizacionManualModal.tsx` | Contiene el motor CSS del PDF manual con calibración de altura de página (`524mm`), pie de página elástico (`.page-spacer`) y centrado vertical milimétrico de círculos numéricos (`.dot` y `.d-num`). NO alterar. |
+| `components/QuoteModal.tsx` | Contiene el motor CSS del PDF estándar con idéntica calibración matemática para 2 páginas exactas sin desborde. NO alterar. |
 
 ## Reglas generales
 

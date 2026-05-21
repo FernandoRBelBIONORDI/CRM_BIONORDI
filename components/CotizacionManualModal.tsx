@@ -996,7 +996,9 @@ export default function CotizacionManualModal({
   @page:first{margin-top:0}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#334155;background:#fff;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* PROTECCIÓN DE ALTURA FÍSICA: min-height de 524mm garantiza exactamente 2 páginas A4 en Chromium sin desbordes. NO REDUCIR NI ELIMINAR */
   .page{padding:40px 70px;max-width:850px;margin:0 auto;display:flex;flex-direction:column;min-height:524mm}
+  /* EMPUJE ELÁSTICO DE FIRMAS: flex:1 y min-height de 5px empujan dinámicamente el pie de página al borde inferior sin romper el layout. NO ELIMINAR */
   .page-spacer{flex:1;min-height:5px}
   .avoid-break{page-break-inside:avoid}
   .text-muted{color:#94A3B8}.b{font-weight:700}.c{text-align:center}.r{text-align:right}
@@ -1026,9 +1028,11 @@ export default function CotizacionManualModal({
   .diag-p{font-size:11px;color:#475569;line-height:1.5;margin-bottom:15px}
   .diag-grid{display:flex;gap:20px;align-items:center}
   .img-container{flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  /* CENTRADO VERTICAL DE NUMERACIÓN EN IMAGEN (DIAGRAMA): width/height de 20px requiere line-height exacto de 16px con display:block y bordes de 2px para alineación perfecta de glifo. */
   .dot{position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:block;text-align:center;line-height:16px;border:2px solid #fff;box-sizing:border-box;margin:0;}
   .diag-list{flex:1.2;display:flex;flex-direction:column;gap:12px}
   .d-item{display:flex;gap:10px;font-size:10.5px;color:#334155;line-height:1.4;align-items:flex-start}
+  /* CENTRADO VERTICAL DE NUMERACIÓN EN LISTA: width/height de 18px requiere line-height exacto de 18px con display:block y sin padding para centrado absoluto. */
   .d-num{width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:block;text-align:center;line-height:18px;flex-shrink:0;margin-top:1px;box-sizing:border-box;margin-left:0;margin-right:0;padding:0;}
   table{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:20px;page-break-before:always}
   th{background:#F1F5F9;color:#475569;font-size:10px;font-weight:800;text-transform:uppercase;padding:10px 15px;text-align:left;letter-spacing:1px;border-bottom:2px solid #CBD5E1}
