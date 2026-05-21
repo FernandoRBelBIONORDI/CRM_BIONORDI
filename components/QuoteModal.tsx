@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, Printer, FileText, ChevronDown, ChevronUp } from "lucide-react";
+import DocumentViewerModal from "@/components/DocumentViewerModal";
 
 interface BionordiCfg {
   razonSocial: string; rfc: string; banco: string; cuenta: string;
@@ -101,6 +102,8 @@ export default function QuoteModal({ lead, onClose }: Props) {
   const [notas, setNotas] = useState("");
   const [showFact, setShowFact] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+  const [previewFolio, setPreviewFolio] = useState<string>("");
 
   // Equipo
   const [eqTipo, setEqTipo] = useState("");
@@ -132,12 +135,6 @@ export default function QuoteModal({ lead, onClose }: Props) {
   const isRepair = items.some(i => i.cat === "Reparación" || i.cat === "Diagnóstico");
 
   const generarPDF = async () => {
-    // Open window synchronously inside the click handler — any await before this blocks the popup
-    const w = window.open("", "_blank");
-    if (!w) {
-      alert("El navegador bloqueó la ventana emergente. Habilita las ventanas emergentes para este sitio.");
-      return;
-    }
     setGenerating(true);
     try {
     let imgSrc = "/transductor.png";
@@ -407,30 +404,23 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
        if (pushAmount > 0) {
          sigEl.style.marginTop = (40 + pushAmount) + "px";
        }
-    }
+     }
   }
   
-  // Run on DOMContentLoaded and load
   if (document.readyState === "complete") {
     adjustFooter();
   } else {
     document.addEventListener("DOMContentLoaded", adjustFooter);
     window.addEventListener("load", adjustFooter);
   }
-  
-  // Run on beforeprint to ensure print view matches
   window.addEventListener("beforeprint", adjustFooter);
-  
-  // Extra safety timeout
   setTimeout(adjustFooter, 200);
 </script>
 </body>
 </html>`;
 
-      w.addEventListener("load", () => setTimeout(() => { w.focus(); w.print(); }, 300));
-      w.document.open();
-      w.document.write(html);
-      w.document.close();
+    setPreviewFolio(folio);
+    setPreviewHtml(html);
     } finally {
       setGenerating(false);
     }
@@ -603,6 +593,13 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           </button>
         </div>
       </div>
+      {previewHtml && (
+        <DocumentViewerModal
+          title={`Propuesta Técnica — ${previewFolio}`}
+          html={previewHtml}
+          onClose={() => setPreviewHtml(null)}
+        />
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { X, Printer, Plus, Trash2, ChevronDown, ChevronUp, Layers, Mail, Check, AlertCircle, Save, Loader2 } from "lucide-react";
+import DocumentViewerModal from "@/components/DocumentViewerModal";
 
 type TipoCotizacion = "reparacion" | "venta" | "mantenimiento" | "consumibles";
 
@@ -291,6 +292,8 @@ export default function CotizacionManualModal({
   const [emailMsg,     setEmailMsg]     = useState("");
   const [saveStatus,   setSaveStatus]   = useState<"idle"|"saving"|"ok"|"error">("idle");
   const [saveError,    setSaveError]    = useState<string>("");
+  const [previewHtml,  setPreviewHtml]  = useState<string | null>(null);
+  const [previewFolio, setPreviewFolio] = useState<string>("");
 
   // Cotización ya guardada en esta sesión — evita duplicados entre Generar, Guardar y Enviar
   const [savedCot, setSavedCot] = useState<{ id: number; folio: string } | null>(null);
@@ -1193,16 +1196,9 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
   };
 
   const generarPDF = async () => {
-    // Open window synchronously inside the click handler — any await before this blocks the popup
-    const w = window.open("", "_blank");
-    if (!w) {
-      alert("El navegador bloqueó la ventana emergente. Habilita las ventanas emergentes para este sitio.");
-      return;
-    }
     const { html, folio } = await buildPDFHtml(savedCot?.folio);
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
+    setPreviewFolio(folio);
+    setPreviewHtml(html);
     await persistToDB(folio);
   };
 
@@ -1972,6 +1968,14 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           </button>
         </div>
       </div>
+
+      {previewHtml && (
+        <DocumentViewerModal
+          title={`Cotización — ${previewFolio}`}
+          html={previewHtml}
+          onClose={() => setPreviewHtml(null)}
+        />
+      )}
     </div>
   );
 }
