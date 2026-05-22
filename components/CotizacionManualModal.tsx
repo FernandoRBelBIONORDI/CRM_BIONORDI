@@ -888,7 +888,7 @@ export default function CotizacionManualModal({
       <div style="display:flex;gap:16px;margin-top:4px;">
         <div style="flex:1;">
           <div style="font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;text-align:center;">Vista Frontal</div>
-          <div class="img-container" style="height:220px;padding:4px;">
+          <div class="img-container" style="height:165px;padding:4px;">
             <div style="position:relative;display:inline-block;height:100%;">
               <img src="${imgFront}" alt="Equipo Móvil Frente" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block;" />
               <div class="dot" style="top:15%;left:50%;margin-top:-10px;margin-left:-10px;">1</div>
@@ -906,7 +906,7 @@ export default function CotizacionManualModal({
         </div>
         <div style="flex:1;">
           <div style="font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;text-align:center;">Vista Posterior</div>
-          <div class="img-container" style="height:220px;padding:4px;">
+          <div class="img-container" style="height:165px;padding:4px;">
             <div style="position:relative;display:inline-block;height:100%;">
               <img src="${imgBack}" alt="Equipo Móvil Trasera" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block;" />
               <div class="dot" style="top:15%;left:50%;margin-top:-10px;margin-left:-10px;">A</div>
@@ -927,8 +927,8 @@ export default function CotizacionManualModal({
       <div class="card-title">Galería del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
       <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
         <div style="flex:0 0 280px;">
-          <div class="img-container" style="height:250px;padding:10px;">
-            <img src="${eqFotosB64[0]}" alt="Foto Principal" style="max-width:100%;max-height:228px;width:auto;height:auto;background:white;" />
+          <div class="img-container" style="height:190px;padding:10px;">
+            <img src="${eqFotosB64[0]}" alt="Foto Principal" style="max-width:100%;max-height:170px;width:auto;height:auto;background:white;" />
           </div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding-top:4px;">
@@ -942,8 +942,8 @@ export default function CotizacionManualModal({
       <div class="card-title">Características del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
       <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
         <div style="flex:0 0 280px;">
-          <div class="img-container" style="height:250px;padding:10px;">
-            <img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ")}" style="max-width:100%;max-height:228px;width:auto;height:auto;background:white;" />
+          <div class="img-container" style="height:190px;padding:10px;">
+            <img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ")}" style="max-width:100%;max-height:170px;width:auto;height:auto;background:white;" />
           </div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding-top:4px;">
@@ -959,11 +959,11 @@ export default function CotizacionManualModal({
       <div style="display:flex;gap:16px;margin-top:4px;">
         <div style="flex:1;">
           <div style="font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;text-align:center;">Vista Frontal</div>
-          <div class="img-container" style="height:200px;"><img src="${imgFront}" alt="Equipo Frente" style="max-width:100%;max-height:192px;width:auto;height:auto;background:white;" /></div>
+          <div class="img-container" style="height:150px;"><img src="${imgFront}" alt="Equipo Frente" style="max-width:100%;max-height:142px;width:auto;height:auto;background:white;" /></div>
         </div>
         <div style="flex:1;">
           <div style="font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;text-align:center;">Vista Posterior</div>
-          <div class="img-container" style="height:200px;"><img src="${imgBack}" alt="Equipo Trasera" style="max-width:100%;max-height:192px;width:auto;height:auto;background:white;" /></div>
+          <div class="img-container" style="height:150px;"><img src="${imgBack}" alt="Equipo Trasera" style="max-width:100%;max-height:142px;width:auto;height:auto;background:white;" /></div>
         </div>
       </div>
     </div>`) : "";
@@ -1030,12 +1030,12 @@ export default function CotizacionManualModal({
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#334155;background:#fff;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   /* PROTECCIÓN DE ALTURA FÍSICA: min-height de 524mm garantiza exactamente 2 páginas A4 en Chromium sin desbordes. NO REDUCIR NI ELIMINAR */
-  .page{padding:40px 70px;max-width:850px;margin:0 auto;display:flex;flex-direction:column;min-height:524mm}
+  .page{padding:30px 65px;max-width:850px;margin:0 auto;display:flex;flex-direction:column;min-height:524mm}
   /* EMPUJE ELÁSTICO DE FIRMAS: flex:1 y min-height de 5px empujan dinámicamente el pie de página al borde inferior sin romper el layout. NO ELIMINAR */
   .page-spacer{flex:1;min-height:5px}
   .avoid-break{page-break-inside:avoid}
   .text-muted{color:#94A3B8}.b{font-weight:700}.c{text-align:center}.r{text-align:right}
-  .hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:15px}
+  .hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px}
   .logo{font-size:34px;font-weight:900;color:#4E60A9;letter-spacing:-1px;line-height:1}
   .logo span{color:#38AD64}
   .logo-sub{font-size:10px;font-weight:600;color:#64748B;margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
@@ -1044,21 +1044,21 @@ export default function CotizacionManualModal({
   .meta-grid{display:grid;grid-template-columns:auto auto;gap:4px 15px;justify-content:end;font-size:11px}
   .meta-lbl{font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px}
   .meta-val{color:#1E293B;font-weight:600}
-  .divider{height:4px;background:linear-gradient(90deg,#4E60A9,#38AD64,#E2E8F0);border-radius:4px;margin-bottom:15px}
-  .info-section{display:flex;gap:20px;margin-bottom:12px}
-  .info-card{flex:1;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px}
+  .divider{height:4px;background:linear-gradient(90deg,#4E60A9,#38AD64,#E2E8F0);border-radius:4px;margin-bottom:10px}
+  .info-section{display:flex;gap:20px;margin-bottom:8px}
+  .info-card{flex:1;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px 14px}
   .card-title{font-size:10px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;border-bottom:2px solid #E2E8F0;padding-bottom:6px}
   .i-row{display:flex;margin-bottom:5px;font-size:11px;line-height:1.4}
   .i-lbl{width:85px;color:#64748B;font-weight:700}
   .i-val{flex:1;color:#1E293B;font-weight:500}
-  .eq-card{background:#fff;border:1px solid #CBD5E1;border-radius:12px;padding:12px 16px;margin-bottom:12px;border-left:4px solid #4E60A9}
+  .eq-card{background:#fff;border:1px solid #CBD5E1;border-radius:12px;padding:10px 14px;margin-bottom:8px;border-left:4px solid #4E60A9}
   .eq-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
   .eq-item{display:flex;flex-direction:column;gap:4px}
   .eq-lbl{font-size:9px;color:#64748B;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
   .eq-val{font-size:12px;color:#0F172A;font-weight:600}
   .eq-full{grid-column:span 4;background:#FEF2F2;padding:8px 12px;border-radius:8px;border-left:3px solid #EF4444;margin-top:5px}
-  .tech-card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-top:12px;margin-bottom:12px}
-  .diag-p{font-size:11px;color:#475569;line-height:1.5;margin-bottom:15px}
+  .tech-card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px 14px;margin-top:8px;margin-bottom:8px}
+  .diag-p{font-size:11px;color:#475569;line-height:1.5;margin-bottom:10px}
   .diag-grid{display:flex;gap:20px;align-items:center}
   .img-container{flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
   /* CENTRADO VERTICAL DE NUMERACIÓN EN IMAGEN (DIAGRAMA): width/height de 20px requiere line-height exacto de 16px con display:block y bordes de 2px para alineación perfecta de glifo. */
@@ -1073,29 +1073,29 @@ export default function CotizacionManualModal({
   th:last-child{border-top-right-radius:8px;border-bottom-right-radius:8px}
   td{padding:12px 15px;font-size:12px;color:#1E293B;border-bottom:1px solid #E2E8F0;vertical-align:middle}
   .s-name{font-weight:600;color:#0F172A}
-  .bottom-flex{display:flex;gap:20px;margin-bottom:25px;align-items:flex-start}
-  .totals-card{flex:1;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:16px}
+  .bottom-flex{display:flex;gap:20px;margin-bottom:15px;align-items:flex-start}
+  .totals-card{flex:1;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px}
   .t-row{display:flex;justify-content:space-between;font-size:12px;color:#64748B;margin-bottom:8px}
   .t-row .t-val{font-weight:600;color:#1E293B}
   .t-row.final{border-top:2px solid #E2E8F0;padding-top:12px;margin-top:4px;font-size:16px;font-weight:900;color:#4E60A9}
   .t-row.final .t-val{color:#4E60A9}
-  .billing-instructions{flex:1;background:#EEF0F7;border:1px solid #C5CAE0;border-radius:12px;padding:16px}
+  .billing-instructions{flex:1;background:#EEF0F7;border:1px solid #C5CAE0;border-radius:12px;padding:12px}
   .billing-instructions .card-title{color:#4E60A9;border-bottom-color:#C5CAE0}
   .b-step{display:flex;gap:8px;font-size:10.5px;color:#4E60A9;margin-bottom:8px;line-height:1.4}
   .b-step strong{font-weight:800}
   .b-icon{font-weight:bold;color:#4E60A9}
-  .cond-section{margin-bottom:20px;page-break-inside:avoid}
+  .cond-section{margin-bottom:12px;page-break-inside:avoid}
   .cond-title{font-size:11px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
   .cond-list{list-style:none;padding:0}
   .cond-list li{position:relative;padding-left:14px;font-size:10px;color:#475569;margin-bottom:6px;line-height:1.5}
   .cond-list li::before{content:"•";position:absolute;left:0;color:#38AD64;font-weight:bold;font-size:14px;line-height:1;top:-1px}
-  .signatures{margin-top:15px;display:flex;justify-content:flex-end;page-break-inside:avoid}
+  .signatures{margin-top:8px;display:flex;justify-content:flex-end;page-break-inside:avoid}
   .sig-box{text-align:center;width:240px}
   .sig-line{border-top:2px solid #CBD5E1;margin-bottom:10px;padding-top:10px}
   .sig-name{font-size:13px;font-weight:800;color:#4E60A9}
   .sig-role{font-size:10px;font-weight:600;color:#64748B;text-transform:uppercase;margin-top:2px}
-  .footer{text-align:center;border-top:1px solid #E2E8F0;padding-top:15px;margin-top:15px;font-size:10px;color:#94A3B8;line-height:1.6}
-  @media print{body{padding:0}.page{padding:40px 70px}.cond-section{page-break-after:avoid;break-after:avoid}.signatures-wrapper{page-break-before:avoid;break-before:avoid;page-break-inside:avoid;break-inside:avoid}}
+  .footer{text-align:center;border-top:1px solid #E2E8F0;padding-top:10px;margin-top:10px;font-size:10px;color:#94A3B8;line-height:1.6}
+  @media print{body{padding:0}.page{padding:30px 65px}.cond-section{page-break-after:avoid;break-after:avoid}.signatures-wrapper{page-break-before:avoid;break-before:avoid;page-break-inside:avoid;break-inside:avoid}}
 </style>
 </head>
 <body><div class="page">
@@ -1140,7 +1140,7 @@ ${brochureHTML}
 
 <div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;page-break-before:always;">
   <div class="card-title">${propInfo.titulo}</div>
-  <p style="font-size:12px;color:#334155;line-height:1.75;margin-bottom:16px;">${propuestaPDF.trim() || propInfo.parrafoPDF}</p>
+  <p style="font-size:11px;color:#334155;line-height:1.5;margin-bottom:10px;">${propuestaPDF.trim() || propInfo.parrafoPDF}</p>
   <div style="background:#EEF0F7;border:1px solid #C5CAE0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
     <div>
       <div style="font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Inversión Total</div>

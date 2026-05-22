@@ -12,6 +12,10 @@ const SYSTEM_CHROMIUM_PATHS = [
   '/run/current-system/sw/bin/chromium',  // Railway/Nixpacks
   '/usr/bin/chromium',
   '/usr/bin/chromium-browser',
+  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+  'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
 ];
 
 async function getChromiumExecPath(): Promise<string> {

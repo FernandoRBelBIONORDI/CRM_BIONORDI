@@ -324,7 +324,7 @@ export default function QuoteModal({ lead, onClose }: Props) {
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #334155; background: #fff; font-size: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   /* PROTECCIÓN DE ALTURA FÍSICA: min-height de 524mm garantiza exactamente 2 páginas A4 en Chromium sin desbordes. NO REDUCIR NI ELIMINAR */
-  .page { padding: 40px 50px; max-width: 850px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; min-height: 524mm; }
+  .page { padding: 30px 65px; max-width: 850px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; min-height: 524mm; }
   /* EMPUJE ELÁSTICO DE FIRMAS: flex:1 y min-height de 5px empujan dinámicamente el pie de página al borde inferior sin romper el layout. NO ELIMINAR */
   .page-spacer { flex: 1; min-height: 5px; }
   .avoid-break { page-break-inside: avoid; }
@@ -332,7 +332,7 @@ export default function QuoteModal({ lead, onClose }: Props) {
   .b { font-weight: 700; }
   .c { text-align: center; }
   .r { text-align: right; }
-  .hdr { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; }
+  .hdr { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
   .logo { font-size: 34px; font-weight: 900; color: #4E60A9; letter-spacing: -1px; line-height: 1; }
   .logo span { color: #3B82F6; }
   .logo-sub { font-size: 10px; font-weight: 600; color: #64748B; margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
@@ -341,21 +341,21 @@ export default function QuoteModal({ lead, onClose }: Props) {
   .meta-grid { display: grid; grid-template-columns: auto auto; gap: 4px 15px; justify-content: end; font-size: 11px; }
   .meta-lbl { font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; }
   .meta-val { color: #1E293B; font-weight: 600; }
-  .divider { height: 4px; background: linear-gradient(90deg, #4E60A9, #3B82F6, #E2E8F0); border-radius: 4px; margin-bottom: 25px; }
-  .info-section { display: flex; gap: 20px; margin-bottom: 20px; }
-  .info-card { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; }
+  .divider { height: 4px; background: linear-gradient(90deg, #4E60A9, #3B82F6, #E2E8F0); border-radius: 4px; margin-bottom: 10px; }
+  .info-section { display: flex; gap: 20px; margin-bottom: 8px; }
+  .info-card { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 10px 14px; }
   .card-title { font-size: 10px; font-weight: 800; color: #4E60A9; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 2px solid #E2E8F0; padding-bottom: 6px; }
   .i-row { display: flex; margin-bottom: 5px; font-size: 11px; line-height: 1.4; }
   .i-lbl { width: 85px; color: #64748B; font-weight: 700; }
   .i-val { flex: 1; color: #1E293B; font-weight: 500; }
-  .eq-card { background: #fff; border: 1px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border-left: 4px solid #4E60A9; }
+  .eq-card { background: #fff; border: 1px solid #CBD5E1; border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border-left: 4px solid #4E60A9; }
   .eq-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
   .eq-item { display: flex; flex-direction: column; gap: 4px; }
   .eq-lbl { font-size: 9px; color: #64748B; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
   .eq-val { font-size: 12px; color: #0F172A; font-weight: 600; }
   .eq-full { grid-column: span 4; background: #FEF2F2; padding: 10px 14px; border-radius: 8px; border-left: 3px solid #EF4444; margin-top: 5px; }
-  .tech-card { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
-  .diag-p { font-size: 11px; color: #475569; line-height: 1.5; margin-bottom: 15px; }
+  .tech-card { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; }
+  .diag-p { font-size: 11px; color: #475569; line-height: 1.5; margin-bottom: 10px; }
   .diag-grid { display: flex; gap: 20px; align-items: center; }
   .img-container { flex: 0.8; position: relative; border: 1px solid #CBD5E1; border-radius: 8px; background:#fff; padding: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
   /* CENTRADO VERTICAL DE NUMERACIÓN EN IMAGEN (DIAGRAMA): width/height de 18px requiere line-height exacto de 14px con display:block y bordes de 2px para alineación perfecta de glifo. */
@@ -371,29 +371,29 @@ export default function QuoteModal({ lead, onClose }: Props) {
   td { padding: 12px 15px; font-size: 12px; color: #1E293B; border-bottom: 1px solid #E2E8F0; vertical-align: middle; }
   .s-name { font-weight: 600; color: #0F172A; margin-top: 4px; }
   .ctag { display: inline-block; padding: 3px 8px; background: #DBEAFE; color: #1D4ED8; font-size: 9px; font-weight: 800; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .bottom-flex { display: flex; gap: 20px; margin-bottom: 25px; align-items: flex-start; }
-  .totals-card { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; }
+  .bottom-flex { display: flex; gap: 20px; margin-bottom: 15px; align-items: flex-start; }
+  .totals-card { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px; }
   .t-row { display: flex; justify-content: space-between; font-size: 12px; color: #64748B; margin-bottom: 8px; }
   .t-row .t-val { font-weight: 600; color: #1E293B; }
   .t-row.final { border-top: 2px solid #E2E8F0; padding-top: 12px; margin-top: 4px; font-size: 16px; font-weight: 900; color: #4E60A9; }
   .t-row.final .t-val { color: #4E60A9; }
-  .billing-instructions { flex: 1; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 16px; }
+  .billing-instructions { flex: 1; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 12px; }
   .billing-instructions .card-title { color: #1D4ED8; border-bottom-color: #BFDBFE; }
   .b-step { display: flex; gap: 8px; font-size: 10.5px; color: #4E60A9; margin-bottom: 8px; line-height: 1.4; }
   .b-step strong { font-weight: 800; }
   .b-icon { font-weight: bold; color: #3B82F6; }
-  .cond-section { margin-bottom: 20px; page-break-inside: avoid; }
+  .cond-section { margin-bottom: 12px; page-break-inside: avoid; }
   .cond-title { font-size: 11px; font-weight: 800; color: #4E60A9; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
   .cond-list { list-style: none; padding: 0; }
   .cond-list li { position: relative; padding-left: 14px; font-size: 10px; color: #475569; margin-bottom: 6px; line-height: 1.5; }
   .cond-list li::before { content: "•"; position: absolute; left: 0; color: #3B82F6; font-weight: bold; font-size: 14px; line-height: 1; top: -1px; }
-  .signatures { margin-top: 15px; display: flex; justify-content: flex-end; page-break-inside: avoid; }
+  .signatures { margin-top: 8px; display: flex; justify-content: flex-end; page-break-inside: avoid; }
   .sig-box { text-align: center; width: 240px; }
   .sig-line { border-top: 2px solid #CBD5E1; margin-bottom: 10px; padding-top: 10px; }
   .sig-name { font-size: 13px; font-weight: 800; color: #4E60A9; }
   .sig-role { font-size: 10px; font-weight: 600; color: #64748B; text-transform: uppercase; margin-top: 2px; }
-  .footer { text-align: center; border-top: 1px solid #E2E8F0; padding-top: 15px; margin-top: 15px; font-size: 10px; color: #94A3B8; line-height: 1.6; }
-  @media print { body { padding: 0; } .page { padding: 20px; box-shadow: none; } .cond-section { page-break-after: avoid; break-after: avoid; } .signatures-wrapper { page-break-before: avoid; break-before: avoid; page-break-inside: avoid; break-inside: avoid; } }
+  .footer { text-align: center; border-top: 1px solid #E2E8F0; padding-top: 10px; margin-top: 10px; font-size: 10px; color: #94A3B8; line-height: 1.6; }
+  @media print { body { padding: 0; } .page { padding: 30px 65px; box-shadow: none; } .cond-section { page-break-after: avoid; break-after: avoid; } .signatures-wrapper { page-break-before: avoid; break-before: avoid; page-break-inside: avoid; break-inside: avoid; } }
 </style>
 </head>
 <body>
