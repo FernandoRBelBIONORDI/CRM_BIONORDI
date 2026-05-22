@@ -851,6 +851,8 @@ export default function CotizacionManualModal({
       </div>
     </div>` : "";
 
+    // consumibles: propuesta en página 1, instrucciones arrancan página 2
+    // resto (incl. mantenimiento): propuesta arranca página 2
     const techCardBreak = tipo === "consumibles" ? "avoid" : "always";
     const techCardMargin = tipo === "consumibles" ? "10px" : "20px";
 
@@ -879,54 +881,31 @@ export default function CotizacionManualModal({
         </div>
       </div>
     </div>`
-      : tipo === "mantenimiento" ? (imgEquipoB64 ? `
-    <div class="tech-card avoid-break">
-      <div class="card-title">Alcance del Mantenimiento — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Equipo"}</div>
-      <p class="diag-p">
-        ${eqDescripcion ? `<strong>${eqDescripcion}.</strong> ` : ""}Se realiza inspección completa de la unidad incluyendo panel de control, conectores, sistema de enfriamiento y componentes eléctricos. Cada punto es documentado antes y después del servicio.
-      </p>
+      : tipo === "mantenimiento" ? `
+    <div class="tech-card avoid-break" style="margin-top:10px;margin-bottom:10px;">
+      <div class="card-title">Alcance del Mantenimiento — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || eqTipo || "Equipo"}</div>
       <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
-        <div style="flex:0 0 240px;">
-          <div class="img-container" style="height:200px;">
-            <img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ")}" style="max-width:100%;max-height:192px;width:auto;height:auto;background:white;" />
-          </div>
-        </div>
+        ${imgEquipoB64 ? `<div style="flex:0 0 220px;"><div class="img-container" style="height:180px;padding:4px;"><img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ")}" style="max-width:100%;max-height:172px;width:auto;height:auto;background:white;" /></div></div>` : ""}
         <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding-top:4px;">
-          ${currentMantenimiento.map((feat, i) => `<div class="d-item"><div class="d-num">${i + 1}</div><div>${feat}</div></div>`).join("")}
+          <div class="d-item"><div class="d-num">1</div><div><strong>Diagnóstico General:</strong> Revisión sistemática de todos los componentes del equipo y pruebas de funcionamiento inicial.</div></div>
+          <div class="d-item"><div class="d-num">2</div><div><strong>Limpieza y Calibración:</strong> Limpieza profunda interior y exterior, ajuste de parámetros de imagen según especificaciones del fabricante.</div></div>
+          <div class="d-item"><div class="d-num">3</div><div><strong>Revisión Eléctrica:</strong> Verificación de voltajes, corrientes y sistema de tierra física. Prueba de puertos de transductores.</div></div>
+          <div class="d-item"><div class="d-num">4</div><div><strong>Reporte de Estado:</strong> Entrega de informe técnico con hallazgos y recomendaciones para mantenimiento preventivo futuro.</div></div>
         </div>
       </div>
-    </div>` : "")
-        : tipo === "venta" ? (eqFotosB64.length > 0 ? `
+    </div>`
+        : tipo === "venta" ? `
     <div class="tech-card avoid-break">
-      <div class="card-title">Galería del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
+      <div class="card-title">Galería del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || eqTipo || "Producto"}</div>
       <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
-        <div style="flex:0 0 280px;">
-          <div class="img-container" style="height:190px;padding:10px;">
-            <img src="${eqFotosB64[0]}" alt="Foto Principal" style="max-width:100%;max-height:170px;width:auto;height:auto;background:white;" />
-          </div>
-        </div>
+        ${(eqFotosB64.length > 0 || imgEquipoB64) ? `<div style="flex:0 0 280px;"><div class="img-container" style="height:190px;padding:10px;"><img src="${eqFotosB64.length > 0 ? eqFotosB64[0] : imgEquipoB64}" alt="Foto Principal" style="max-width:100%;max-height:170px;width:auto;height:auto;background:white;" /></div></div>` : ""}
         <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding-top:4px;">
           ${currentFeatures.map((feat, i) => `
             <div class="d-item"><div class="d-num">${i + 1}</div><div>${feat}</div></div>
           `).join("")}
         </div>
       </div>
-    </div>` : imgEquipoB64 ? `
-    <div class="tech-card avoid-break">
-      <div class="card-title">Galería del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
-      <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
-        <div style="flex:0 0 280px;">
-          <div class="img-container" style="height:190px;padding:10px;">
-            <img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ")}" style="max-width:100%;max-height:170px;width:auto;height:auto;background:white;" />
-          </div>
-        </div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding-top:4px;">
-          ${currentFeatures.map((feat, i) => `
-            <div class="d-item"><div class="d-num">${i + 1}</div><div>${feat}</div></div>
-          `).join("")}
-        </div>
-      </div>
-    </div>` : "") : "";
+    </div>` : "";
 
     const evidenciaLabel = tipo === "reparacion" ? "Evidencia Fotográfica del Defecto"
       : tipo === "mantenimiento" ? "Fotos del Mantenimiento"
@@ -936,7 +915,7 @@ export default function CotizacionManualModal({
     const evidenciaBorder = tipo === "reparacion" ? "#FECACA" : "#E2E8F0";
     const evidenciaImgBorder = tipo === "reparacion" ? "#FECACA" : "#E2E8F0";
     const evidenciaTextColor = tipo === "reparacion" ? "#7F1D1D" : "#475569";
-    const evidenciaHTML = evidencias.length > 0 ? `
+    const evidenciaHTML = evidencias.length > 0 && tipo !== "mantenimiento" ? `
     <div class="tech-card" style="margin-top:10px;margin-bottom:10px;page-break-inside:avoid;break-inside:avoid;">
       <div class="card-title" style="color:${evidenciaColor};border-bottom-color:${evidenciaBorder};">${evidenciaLabel}</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
@@ -950,8 +929,8 @@ export default function CotizacionManualModal({
       </div>
     </div>` : "";
 
-    // Ficha técnica embebida (brochure como imagen del catálogo)
-    const brochureHTML = eqBrochureB64 ? `
+    // Ficha técnica embebida (brochure como imagen del catálogo) — solo reparación
+    const brochureHTML = eqBrochureB64 && tipo !== "mantenimiento" && tipo !== "venta" ? `
     <div class="tech-card avoid-break" style="margin-bottom:20px;">
       <div class="card-title">Ficha Técnica del Equipo${eqMarca || eqModelo ? ` — ${[eqMarca, eqModelo].filter(Boolean).join(" ")}` : ""}</div>
       <img src="${eqBrochureB64}" alt="Ficha técnica" style="width:100%;max-height:220px;object-fit:contain;margin-top:10px;border-radius:6px;border:1px solid #E2E8F0;" />
@@ -965,7 +944,7 @@ export default function CotizacionManualModal({
         <div class="eq-item"><div class="eq-lbl">Marca</div><div class="eq-val">${eqMarca || "—"}</div></div>
         <div class="eq-item"><div class="eq-lbl">Modelo</div><div class="eq-val">${eqModelo || "—"}</div></div>
         <div class="eq-item"><div class="eq-lbl">No. de Serie</div><div class="eq-val">${eqSerie || "—"}</div></div>
-        ${eqDescripcion && tipo !== "reparacion" ? `<div class="eq-full"><div class="eq-lbl">Descripción</div><div class="eq-val" style="margin-top:2px;line-height:1.4;">${eqDescripcion.replace(/\n/g, '<br/>')}</div></div>` : ""}
+        ${eqDescripcion && tipo !== "reparacion" && tipo !== "mantenimiento" ? `<div class="eq-full"><div class="eq-lbl">Descripción</div><div class="eq-val" style="margin-top:2px;line-height:1.4;">${eqDescripcion.replace(/\n/g, '<br/>')}</div></div>` : ""}
         ${eqFalla ? `<div class="eq-full"><div class="eq-lbl" style="color:#B91C1C;">Falla Reportada / Síntoma</div><div class="eq-val" style="color:#7F1D1D;margin-top:2px;">${eqFalla}</div></div>` : ""}
       </div>
     </div>`
