@@ -776,6 +776,11 @@ export default function CotizacionManualModal({
   };
 
   const buildPDFHtml = async (folioOverride?: string): Promise<{ html: string; folio: string }> => {
+    const isTwoPages = 
+      tipo === "reparacion" || 
+      (tipo === "mantenimiento" && !imgEquipoB64 && (eqTipo ? (eqTipo.toLowerCase().includes("ultrasonido") || eqTipo.toLowerCase().includes("transductor") || eqTipo.toLowerCase() === "equipo") : true)) ||
+      (tipo === "venta" && !!eqBrochureB64);
+
     let imgTransductor = "/transductor.png";
     let imgFront = "/equipo_movil_front.png";
     let imgBack = "/equipo_movil_back.png.png";
@@ -832,6 +837,23 @@ export default function CotizacionManualModal({
         <td class="r">${$f(s.precioUnit)}</td>
         <td class="r b">${$f(s.cantidad * s.precioUnit)}</td>
       </tr>`).join("");
+
+    const tableHTML = tipo !== "reparacion" ? `
+    <table style="page-break-before: ${isTwoPages ? "always" : "avoid"}; margin-top: 15px; margin-bottom: 15px;">
+      <thead>
+        <tr>
+          <th class="c" style="width:50px;">Item</th>
+          <th>Descripción del Servicio</th>
+          <th class="c" style="width:60px;">Cant.</th>
+          <th class="r" style="width:120px;">Precio Unit.</th>
+          <th class="r" style="width:120px;">Importe</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>` : "";
+
+    const techCardBreak = tipo === "reparacion" ? "always" : "avoid";
+    const techCardMargin = tipo === "reparacion" ? "20px" : "10px";
 
     const diagramaHTML = tipo === "reparacion" ? `
     <div class="tech-card avoid-break" style="margin-top:10px;margin-bottom:10px;">
@@ -994,7 +1016,7 @@ export default function CotizacionManualModal({
     const brochureHTML = eqBrochureB64 ? `
     <div class="tech-card avoid-break" style="margin-bottom:20px;">
       <div class="card-title">Ficha Técnica del Equipo${eqMarca || eqModelo ? ` — ${[eqMarca, eqModelo].filter(Boolean).join(" ")}` : ""}</div>
-      <img src="${eqBrochureB64}" alt="Ficha técnica" style="width:100%;max-height:520px;object-fit:contain;margin-top:10px;border-radius:6px;border:1px solid #E2E8F0;" />
+      <img src="${eqBrochureB64}" alt="Ficha técnica" style="width:100%;max-height:220px;object-fit:contain;margin-top:10px;border-radius:6px;border:1px solid #E2E8F0;" />
     </div>` : "";
 
     const equipoHTML = (tipo === "reparacion" || tipo === "mantenimiento") && (eqTipo || eqMarca || eqModelo || eqSerie || eqFalla) ? `
@@ -1030,7 +1052,7 @@ export default function CotizacionManualModal({
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#334155;background:#fff;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   /* PROTECCIÓN DE ALTURA FÍSICA: min-height de 524mm garantiza exactamente 2 páginas A4 en Chromium sin desbordes. NO REDUCIR NI ELIMINAR */
-  .page{padding:30px 65px;max-width:850px;margin:0 auto;display:flex;flex-direction:column;min-height:524mm}
+  .page{padding:30px 65px;max-width:850px;margin:0 auto;display:flex;flex-direction:column;min-height:${isTwoPages ? "524mm" : "262mm"}}
   /* EMPUJE ELÁSTICO DE FIRMAS: flex:1 y min-height de 5px empujan dinámicamente el pie de página al borde inferior sin romper el layout. NO ELIMINAR */
   .page-spacer{flex:1;min-height:5px}
   .avoid-break{page-break-inside:avoid}
@@ -1137,8 +1159,9 @@ ${equipoHTML}
 ${diagramaHTML}
 ${evidenciaHTML}
 ${brochureHTML}
+${tableHTML}
 
-<div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;page-break-before:always;">
+<div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;page-break-before:${techCardBreak};margin-top:${techCardMargin};">
   <div class="card-title">${propInfo.titulo}</div>
   <p style="font-size:11px;color:#334155;line-height:1.5;margin-bottom:10px;">${propuestaPDF.trim() || propInfo.parrafoPDF}</p>
   <div style="background:#EEF0F7;border:1px solid #C5CAE0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">

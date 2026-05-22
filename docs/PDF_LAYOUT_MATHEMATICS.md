@@ -51,6 +51,36 @@ graph TD
   ```
   Al declarar `min-height: 524mm`, forzamos al contenedor del navegador a simular exactamente dos páginas físicas completas.
 
+### Reducciones y Adaptación Dinámica en CotizacionManualModal.tsx
+- **Reducción de Contenedores de Imágenes de Mantenimiento**:
+  - En la sección `diagramaHTML` para equipos móviles (mantenimiento), reduciremos el `height` de los contenedores `.img-container` de Vista Frontal y Posterior de `220px` a `165px` (líneas 891 y 909) y sus imágenes internas a `max-height: 157px`.
+- **Reducción de Contenedores de Referencia Portátil (Venta)**:
+  - En la sección `diagramaHTML` para portátiles (venta), reduciremos el `height` de los contenedores `.img-container` de `200px` a `150px` (líneas 962 y 966) y sus imágenes internas a `max-height: 142px`.
+- **Compresión de la Propuesta Técnica**:
+  - En la línea 1143, reduciremos el tamaño de fuente y espaciado del bloque del párrafo de la propuesta para hacerlo más compacto:
+    ```diff
+    - <p style="font-size:12px;color:#334155;line-height:1.75;margin-bottom:16px;">${propuestaPDF.trim() || propInfo.parrafoPDF}</p>
+    + <p style="font-size:11px;color:#334155;line-height:1.5;margin-bottom:10px;">${propuestaPDF.trim() || propInfo.parrafoPDF}</p>
+    ```
+
+- **[NUEVO] Adaptación Dinámica de Páginas (1 Hoja vs 2 Hojas)**:
+  Para evitar que las cotizaciones cortas (como Venta de Consumibles o propuestas de Venta/Mantenimiento sin diagramas pesados) tengan enormes espacios en blanco y se estiren de forma artificial a una segunda página, introduciremos una bandera condicional `isTwoPages` en `buildPDFHtml`:
+  - `isTwoPages` será `true` si:
+    - El tipo es `reparacion` (Reparación de Transductores, la cual mantenemos intacta y perfecta en 2 páginas).
+    - El tipo es `mantenimiento` sin foto personalizada y con tipo de equipo relacionado con ultrasonidos/transductores (es decir, el caso que renderiza los diagramas dobles de Vista Frontal y Posterior de gran tamaño).
+    - El tipo es `venta` y tiene una ficha técnica/brochure cargada (`eqBrochureB64` presente).
+  - En todos los demás casos (Consumibles, Venta sin brochure, Mantenimiento sin diagramas dobles), `isTwoPages` será `false`.
+  
+  Dependiendo de esta bandera, ajustaremos dinámicamente el estilo CSS en el HTML del PDF:
+  - **Altura mínima de página (`min-height`)**:
+    - Si `isTwoPages` es `true`: `min-height: 524mm` (exactamente 2 páginas A4).
+    - Si `isTwoPages` es `false`: `min-height: 262mm` (exactamente 1 página A4).
+  - **Salto de página de la propuesta técnica (`page-break-before`)**:
+    - Si `isTwoPages` es `true`: `page-break-before: always;` (la propuesta técnica inicia la Página 2).
+    - Si `isTwoPages` es `false`: `page-break-before: avoid; margin-top: 15px;` (la propuesta se integra continuamente en la única página).
+  - **Brochure / Ficha Técnica en Venta**:
+    - Si tiene brochure, para evitar que desborde a una tercera hoja indeseada al combinarse con firmas y propuesta, reduciremos el `max-height` de la imagen del brochure de `520px` a `220px` (muy nítida y perfectamente contenida en la Página 2).
+
 ### El Mecanismo del Resorte Elástico (`.page-spacer`)
 Para que las firmas estén siempre en el borde inferior de la página 2 independientemente de si la tabla de conceptos tiene 2 o 6 filas, introducimos un elemento de empuje reactivo:
 ```css
