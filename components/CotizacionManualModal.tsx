@@ -776,7 +776,6 @@ export default function CotizacionManualModal({
   };
 
   const buildPDFHtml = async (folioOverride?: string): Promise<{ html: string; folio: string }> => {
-    const isTwoPages = true;
 
     let imgTransductor = "/transductor.png";
     let imgFront = "/equipo_movil_front.png";
@@ -809,7 +808,7 @@ export default function CotizacionManualModal({
     }
 
     // Fotos del catálogo para venta (se necesita b64 para funcionar en el blob HTML)
-    const eqFotosB64: string[] = tipo === "venta" && eqFotos.length > 0
+    const eqFotosB64: string[] = (tipo === "venta" || tipo === "mantenimiento") && eqFotos.length > 0
       ? await Promise.all(eqFotos.slice(0, 4).map(f => fetchBase64(f)))
       : [];
 
@@ -851,10 +850,7 @@ export default function CotizacionManualModal({
       </div>
     </div>` : "";
 
-    // consumibles: propuesta en página 1, instrucciones arrancan página 2
-    // resto (incl. mantenimiento): propuesta arranca página 2
-    const techCardBreak = tipo === "consumibles" ? "avoid" : "always";
-    const techCardMargin = tipo === "consumibles" ? "10px" : "20px";
+    // P1/P2 split: consumibles → propuesta en P1, instrucciones en P2; resto → propuesta en P2
 
     const diagramaHTML = tipo === "reparacion" ? `
     <div class="tech-card avoid-break" style="margin-top:10px;margin-bottom:10px;">
@@ -885,7 +881,7 @@ export default function CotizacionManualModal({
     <div class="tech-card avoid-break" style="margin-top:10px;margin-bottom:10px;">
       <div class="card-title">Alcance del Mantenimiento — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || eqTipo || "Equipo"}</div>
       <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
-        ${imgEquipoB64 ? `<div style="flex:0 0 220px;"><div class="img-container" style="height:180px;padding:4px;"><img src="${imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ")}" style="max-width:100%;max-height:172px;width:auto;height:auto;background:white;" /></div></div>` : ""}
+        ${(eqFotosB64[0] || imgEquipoB64) ? `<div style="flex:0 0 220px;"><div class="img-container" style="height:180px;padding:4px;"><img src="${eqFotosB64[0] || imgEquipoB64}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ")}" style="max-width:100%;max-height:172px;width:auto;height:auto;background:white;" /></div></div>` : ""}
         <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding-top:4px;">
           <div class="d-item"><div class="d-num">1</div><div><strong>Diagnóstico General:</strong> Revisión sistemática de todos los componentes del equipo y pruebas de funcionamiento inicial.</div></div>
           <div class="d-item"><div class="d-num">2</div><div><strong>Limpieza y Calibración:</strong> Limpieza profunda interior y exterior, ajuste de parámetros de imagen según especificaciones del fabricante.</div></div>
@@ -968,9 +964,9 @@ export default function CotizacionManualModal({
   @page:first{margin-top:0}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#334155;background:#fff;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  /* PROTECCIÓN DE ALTURA FÍSICA: min-height de 488mm garantiza exactamente 2 páginas Letter en Chromium sin desbordes. NO REDUCIR NI ELIMINAR */
-  .page{padding:30px 65px;max-width:816px;margin:0 auto;display:flex;flex-direction:column;min-height:${isTwoPages ? "488mm" : "244mm"}}
-  /* EMPUJE ELÁSTICO DE FIRMAS: flex:1 y min-height de 5px empujan dinámicamente el pie de página al borde inferior sin romper el layout. NO ELIMINAR */
+  /* P1: contenido sin altura fija. P2 (.page-two): flex-column con min-height:244mm (Letter) + page-break forzado al inicio. page-spacer empuja firma al fondo de P2. */
+  .page{padding:30px 65px;max-width:816px;margin:0 auto;}
+  .page-two{padding:30px 65px;max-width:816px;margin:0 auto;display:flex;flex-direction:column;min-height:244mm;page-break-before:always;}
   .page-spacer{flex:1;min-height:5px}
   .avoid-break{page-break-inside:avoid}
   .text-muted{color:#94A3B8}.b{font-weight:700}.c{text-align:center}.r{text-align:right}
@@ -1034,10 +1030,11 @@ export default function CotizacionManualModal({
   .sig-name{font-size:13px;font-weight:800;color:#4E60A9}
   .sig-role{font-size:10px;font-weight:600;color:#64748B;text-transform:uppercase;margin-top:2px}
   .footer{text-align:center;border-top:1px solid #E2E8F0;padding-top:10px;margin-top:10px;font-size:10px;color:#94A3B8;line-height:1.6}
-  @media print{body{padding:0}.page{padding:30px 65px}.cond-section{page-break-after:avoid;break-after:avoid}.signatures-wrapper{page-break-before:avoid;break-before:avoid;page-break-inside:avoid;break-inside:avoid}}
+  @media print{body{padding:0}.page{padding:30px 65px}.page-two{padding:30px 65px}.cond-section{page-break-after:avoid;break-after:avoid}.signatures-wrapper{page-break-before:avoid;break-before:avoid;page-break-inside:avoid;break-inside:avoid}}
 </style>
 </head>
-<body><div class="page">
+<body>
+<div class="page">
 
 <div class="hdr">
   <div>
@@ -1078,7 +1075,7 @@ ${evidenciaHTML}
 ${brochureHTML}
 ${tableHTML}
 
-<div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;page-break-before:${techCardBreak};margin-top:${techCardMargin};">
+${tipo === "consumibles" ? `<div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;margin-top:10px;">
   <div class="card-title">${propInfo.titulo}</div>
   <p style="font-size:11px;color:#334155;line-height:1.5;margin-bottom:10px;">${propuestaPDF.trim() || propInfo.parrafoPDF}</p>
   <div style="background:#EEF0F7;border:1px solid #C5CAE0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
@@ -1093,10 +1090,28 @@ ${tableHTML}
     </div>
   </div>
 </div>
+${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:9px 13px;margin-bottom:20px;font-size:11px;color:#92400E;border-radius:0 4px 4px 0;"><strong>Notas:</strong> ${notas}</div>` : ""}` : ""}
+</div>
 
-${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:9px 13px;margin-bottom:20px;font-size:11px;color:#92400E;border-radius:0 4px 4px 0;"><strong>Notas:</strong> ${notas}</div>` : ""}
+<div class="page-two">
+${tipo !== "consumibles" ? `<div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;margin-top:20px;">
+  <div class="card-title">${propInfo.titulo}</div>
+  <p style="font-size:11px;color:#334155;line-height:1.5;margin-bottom:10px;">${propuestaPDF.trim() || propInfo.parrafoPDF}</p>
+  <div style="background:#EEF0F7;border:1px solid #C5CAE0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <div style="font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Inversión Total</div>
+      <div style="font-size:11px;color:#4E60A9;">${propInfo.subtituloTotal}</div>
+    </div>
+    <div style="text-align:right;">
+      ${descuento > 0 ? `<div style="font-size:11px;color:#94A3B8;text-decoration:line-through;margin-bottom:2px;">${$f(subtotal)}</div>` : ""}
+      <div style="font-size:28px;font-weight:900;color:#4E60A9;letter-spacing:-1px;">${$f(total)}</div>
+      ${conIVA ? `<div style="font-size:9px;color:#38AD64;font-weight:700;">IVA incluido</div>` : `<div style="font-size:9px;color:#64748B;">Más IVA</div>`}
+    </div>
+  </div>
+</div>
+${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:9px 13px;margin-bottom:20px;font-size:11px;color:#92400E;border-radius:0 4px 4px 0;"><strong>Notas:</strong> ${notas}</div>` : ""}` : ""}
 
-<div class="bottom-flex avoid-break" style="page-break-before: ${tipo === "consumibles" ? "always" : "avoid"}; margin-top: ${tipo === "consumibles" ? "20px" : "15px"};">
+<div class="bottom-flex avoid-break" style="margin-top:15px;">
   <div class="billing-instructions">
     <div class="card-title">Instrucciones para Solicitar Factura</div>
     <div class="b-step"><span class="b-icon">1.</span><div>Realice el pago total o anticipo a la cuenta CLABE indicada arriba.</div></div>
@@ -1141,7 +1156,8 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     Documento generado digitalmente por el sistema de Gestión Bionordi.
   </div>
 </div>
-</div></body></html>`;
+</div>
+</body></html>`;
 
     return { html, folio };
   };
