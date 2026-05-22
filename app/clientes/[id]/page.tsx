@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -222,6 +222,12 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
   const [loading,       setLoading]       = useState(true);
   const [previewCot,      setPreviewCot]      = useState<Cotizacion | null>(null);
   const [editingCotizacion, setEditingCotizacion] = useState<Cotizacion | null>(null);
+  // Stable URL: recompute only when opening a different cotización (prevents iframe reload loop)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const previewCotUrl = useMemo(
+    () => previewCot?.pdf_path ? `${previewCot.pdf_path}?t=${Date.now()}` : undefined,
+    [previewCot?.id] // intentionally omit pdf_path — id change is the signal a new cot was opened
+  );
   const [usuarios,      setUsuarios]      = useState<{id:number;nombre:string}[]>([]);
 
   // Editable estados del lead
@@ -1060,7 +1066,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
             return (
               <DocumentViewerModal
                 title={`Cotización — ${previewCot.folio || `Cotización #${previewCot.id}`}`}
-                url={`${previewCot.pdf_path}?t=${Date.now()}`}
+                url={previewCotUrl}
                 downloadName={`${previewCot.folio || `cotizacion_${previewCot.id}`}.pdf`}
                 onClose={() => setPreviewCot(null)}
                 editAction={{
