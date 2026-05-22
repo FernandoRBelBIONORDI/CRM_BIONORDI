@@ -769,7 +769,7 @@ export default function CotizacionManualModal({
     else {
       titulo = "Propuesta Comercial";
       subtituloTotal = "Precios sujetos a disponibilidad de inventario";
-      parrafoPDF = `La presente cotización comprende el suministro de: ${listaTexto}. Todos nuestros consumibles e insumos médicos cumplen con los más altos estándares de calidad y caducidad vigente, garantizando un desempeño óptimo en su uso clínico.`;
+      parrafoPDF = `La presente cotización comprende el suministro de los artículos descritos en la primera página. Todos nuestros consumibles e insumos médicos cumplen con los más altos estándares de calidad y caducidad vigente, garantizando un desempeño óptimo en su uso clínico.`;
       parrafoEmail = `Nos complace presentarle la cotización correspondiente al suministro de consumibles médicos: ${listaTexto}. El detalle completo de la inversión se encuentra en el documento adjunto.`;
     }
     return { titulo, subtituloTotal, parrafoPDF, parrafoEmail };
@@ -966,9 +966,9 @@ export default function CotizacionManualModal({
   body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#334155;background:#fff;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   /* P1: contenido sin altura fija. P2 (.page-two): flex-column con min-height:244mm (Letter) + page-break forzado al inicio. page-spacer empuja firma al fondo de P2. */
   .page{padding:30px 65px;max-width:816px;margin:0 auto;}
-  .page-two{padding:30px 65px;max-width:816px;margin:0 auto;display:flex;flex-direction:column;min-height:244mm;page-break-before:always;}
-  .page-spacer{flex:1;min-height:5px}
-  .avoid-break{page-break-inside:avoid}
+  .page-two{padding:30px 65px;max-width:816px;margin:0 auto;display:flex;flex-direction:column;min-height:244mm;page-break-before:always;break-before:always;}
+  .page-spacer{flex:1;}
+  .avoid-break{page-break-inside:avoid;break-inside:avoid;}
   .text-muted{color:#94A3B8}.b{font-weight:700}.c{text-align:center}.r{text-align:right}
   .hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px}
   .logo{font-size:34px;font-weight:900;color:#4E60A9;letter-spacing:-1px;line-height:1}
@@ -1030,7 +1030,7 @@ export default function CotizacionManualModal({
   .sig-name{font-size:13px;font-weight:800;color:#4E60A9}
   .sig-role{font-size:10px;font-weight:600;color:#64748B;text-transform:uppercase;margin-top:2px}
   .footer{text-align:center;border-top:1px solid #E2E8F0;padding-top:10px;margin-top:10px;font-size:10px;color:#94A3B8;line-height:1.6}
-  @media print{body{padding:0}.page{padding:30px 65px}.page-two{padding:30px 65px}.cond-section{page-break-after:avoid;break-after:avoid}.signatures-wrapper{page-break-before:avoid;break-before:avoid;page-break-inside:avoid;break-inside:avoid}}
+  @media print{body{padding:0}.page{padding:30px 65px}.page-two{padding:30px 65px;page-break-before:always;break-before:always;}.bottom-flex{page-break-inside:avoid;break-inside:avoid;}.cond-section{page-break-after:avoid;break-after:avoid}.signatures-wrapper{page-break-before:avoid;break-before:avoid;page-break-inside:avoid;break-inside:avoid}}
 </style>
 </head>
 <body>
