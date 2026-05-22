@@ -926,7 +926,7 @@ export default function CotizacionManualModal({
     </div>` : "";
 
     // Ficha técnica embebida (brochure como imagen del catálogo) — solo reparación
-    const brochureHTML = eqBrochureB64 && tipo !== "mantenimiento" && tipo !== "venta" ? `
+    const brochureHTML = eqBrochureB64 && tipo !== "mantenimiento" && tipo !== "venta" && tipo !== "consumibles" ? `
     <div class="tech-card avoid-break" style="margin-bottom:20px;">
       <div class="card-title">Ficha Técnica del Equipo${eqMarca || eqModelo ? ` — ${[eqMarca, eqModelo].filter(Boolean).join(" ")}` : ""}</div>
       <img src="${eqBrochureB64}" alt="Ficha técnica" style="width:100%;max-height:220px;object-fit:contain;margin-top:10px;border-radius:6px;border:1px solid #E2E8F0;" />
