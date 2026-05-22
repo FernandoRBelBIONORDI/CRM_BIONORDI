@@ -352,7 +352,11 @@ export default function CotizacionManualModal({
   useEffect(() => {
     if (initialCotizacion) {
       setLeadId(initialCotizacion.lead_id || null);
-      if (initialCotizacion.lead_nombre) setCliNombre(initialCotizacion.lead_nombre);
+      if (initialCotizacion.lead_nombre) {
+        setCliNombre(initialCotizacion.lead_nombre);
+      } else if (initialLead) {
+        setCliNombre(initialLead.nombre || "");
+      }
       setEqTipo(initialCotizacion.eq_tipo || "");
       setEqMarca(initialCotizacion.eq_marca || "");
       setEqModelo(initialCotizacion.eq_modelo || "");
@@ -380,7 +384,10 @@ export default function CotizacionManualModal({
               const m = parsed.meta;
               if (m.cliContacto !== undefined) setCliContacto(m.cliContacto);
               if (m.cliTel !== undefined) setCliTel(m.cliTel);
-              if (m.cliCorreo !== undefined) setCliCorreo(m.cliCorreo);
+              if (m.cliCorreo !== undefined) {
+                setCliCorreo(m.cliCorreo);
+                setEmailTo(prev => prev || m.cliCorreo || "");
+              }
               if (m.cliDireccion !== undefined) setCliDireccion(m.cliDireccion);
               if (m.cliCiudad !== undefined) setCliCiudad(m.cliCiudad);
               if (m.cliEstado !== undefined) setCliEstado(m.cliEstado);
@@ -418,6 +425,24 @@ export default function CotizacionManualModal({
       if (initialLead.correo) setEmailTo(initialLead.correo);
     }
   }, [initialCotizacion, initialLead]);
+
+  // Hook automático para resolver datos del lead cuando leadsList termine de cargarse
+  useEffect(() => {
+    if (leadId && !cliNombre && leadsList.length > 0) {
+      const found = leadsList.find(l => l.id === leadId);
+      if (found) {
+        setCliNombre(found.nombre);
+        if (found.telefono) setCliTel(found.telefono);
+        if (found.correo) {
+          setCliCorreo(found.correo);
+          setEmailTo(prev => prev || found.correo || "");
+        }
+        if (found.ciudad) setCliCiudad(found.ciudad);
+        if (found.estado_republica) setCliEstado(found.estado_republica);
+        if (found.direccion) setCliDireccion(found.direccion);
+      }
+    }
+  }, [leadId, cliNombre, leadsList]);
 
   useEffect(() => {
     if (initialCotizacion && catalogo.length > 0 && eqMarca) {
@@ -1279,9 +1304,10 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       }
 
       setSaveStatus("ok");
-      if (onSuccess) {
-        onSuccess(folio);
-      }
+      // Evitar cerrar el modal de inmediato para permitir enviar/reenviar el PDF
+      // if (onSuccess) {
+      //   onSuccess(folio);
+      // }
       setTimeout(() => setSaveStatus("idle"), 4000);
     } catch (err: any) {
       console.error("[cotizacion] error fatal al guardar:", err?.message);
@@ -2090,6 +2116,32 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               <><Save size={13} />{initialCotizacion ? "Guardar cambios en cotización" : "Guardar PDF en expediente"}</>
             )}
           </button>
+
+          {/* Botón de reenvío premium si la cotización ya existe o fue guardada */}
+          {(initialCotizacion || savedCot) && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                enviarPorCorreo();
+              }}
+              disabled={anyLoading || !canGenerar || !emailTo.trim()}
+              className={`w-full flex items-center justify-center gap-2 text-[12px] font-bold py-2.5 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                emailStatus === "ok" ? "bg-[#059669] text-white" :
+                emailStatus === "error" ? "bg-[#DC2626] text-white" :
+                "bg-white border border-[#0EA5E9] text-[#0EA5E9] hover:bg-[#F0F9FF]"
+              }`}>
+              {emailStatus === "sending" ? (
+                <><Mail size={13} className="animate-pulse" />Reenviando cotización…</>
+              ) : emailStatus === "ok" ? (
+                <><Check size={13} />Cotización reenviada con éxito</>
+              ) : emailStatus === "error" ? (
+                <><AlertCircle size={13} />Error al reenviar cotización</>
+              ) : (
+                <><Mail size={13} />Reenviar cotización por correo</>
+              )}
+            </button>
+          )}
 
           <button
             onClick={(e) => {

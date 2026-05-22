@@ -465,7 +465,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
             direccion: lead.direccion,
           }}
           onClose={() => { setShowQuote(false); reload(); }}
-          onSuccess={() => { setShowQuote(false); reload(); }}
+          onSuccess={() => { reload(); }}
         />
       )}
 
@@ -1158,8 +1158,8 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
         {editingCotizacion && (
           <CotizacionManualModal
             initialCotizacion={editingCotizacion}
-            onClose={() => setEditingCotizacion(null)}
-            onSuccess={() => { setEditingCotizacion(null); reload(); }}
+            onClose={() => { setEditingCotizacion(null); reload(); }}
+            onSuccess={() => { reload(); }}
           />
         )}
 

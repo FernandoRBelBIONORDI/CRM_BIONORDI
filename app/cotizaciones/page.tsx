@@ -383,9 +383,11 @@ export default function CotizacionesPage() {
       {editingCotizacion && (
         <CotizacionManualModal
           initialCotizacion={editingCotizacion}
-          onClose={() => setEditingCotizacion(null)}
-          onSuccess={() => {
+          onClose={() => {
             setEditingCotizacion(null);
+            fetchCotizaciones();
+          }}
+          onSuccess={() => {
             fetchCotizaciones();
           }}
         />

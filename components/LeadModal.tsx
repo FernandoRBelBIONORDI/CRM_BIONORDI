@@ -339,8 +339,8 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   return (
     <>
       <ConfirmDialog />
-      {showQuote && <CotizacionManualModal initialLead={lead} onClose={() => setShowQuote(false)} onSuccess={() => loadCotizaciones(lead.id)} />}
-      {editingCotizacion && <CotizacionManualModal initialCotizacion={editingCotizacion as any} onClose={() => setEditingCotizacion(null)} onSuccess={() => loadCotizaciones(lead.id)} />}
+      {showQuote && <CotizacionManualModal initialLead={lead} onClose={() => { setShowQuote(false); loadCotizaciones(lead.id); }} onSuccess={() => loadCotizaciones(lead.id)} />}
+      {editingCotizacion && <CotizacionManualModal initialCotizacion={editingCotizacion as any} onClose={() => { setEditingCotizacion(null); loadCotizaciones(lead.id); }} onSuccess={() => loadCotizaciones(lead.id)} />}
 
       <div className="fixed inset-0 z-50 flex justify-end">
         {/* Overlay */}
