@@ -136,7 +136,7 @@ async function generarPDFBase64(htmlString: string): Promise<string> {
     const iframe = document.createElement("iframe");
     Object.assign(iframe.style, {
       position: "fixed", top: "0", left: "-9999px",
-      width: "794px", height: "1123px", border: "none", opacity: "0", pointerEvents: "none",
+      width: "816px", height: "1056px", border: "none", opacity: "0", pointerEvents: "none",
     });
     document.body.appendChild(iframe);
     const cleanup = () => { try { document.body.removeChild(iframe); } catch { } };
@@ -196,9 +196,9 @@ async function generarPDFBase64(htmlString: string): Promise<string> {
 
         const canvas = await html2canvas(doc.documentElement, {
           scale: 4, useCORS: true, allowTaint: true,
-          width: 794, windowWidth: 794, logging: false,
+          width: 816, windowWidth: 816, logging: false,
         });
-        const pdf = new jsPDF({ format: "a4", unit: "mm", orientation: "portrait" });
+        const pdf = new jsPDF({ format: "letter", unit: "mm", orientation: "portrait" });
         const pdfW = pdf.internal.pageSize.getWidth();
         const pdfH = pdf.internal.pageSize.getHeight();
         const imgH = (canvas.height * pdfW) / canvas.width;
@@ -836,18 +836,20 @@ export default function CotizacionManualModal({
       </tr>`).join("");
 
     const tableHTML = tipo === "consumibles" ? `
-    <table style="page-break-before: avoid; margin-top: 15px; margin-bottom: 15px;">
-      <thead>
-        <tr>
-          <th class="c" style="width:50px;">Item</th>
-          <th>Descripción del Servicio</th>
-          <th class="c" style="width:60px;">Cant.</th>
-          <th class="r" style="width:120px;">Precio Unit.</th>
-          <th class="r" style="width:120px;">Importe</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>` : "";
+    <div class="tech-card" style="margin-top:10px;margin-bottom:10px;border-left:4px solid #D97706;page-break-inside:avoid;">
+      <div class="card-title" style="color:#D97706;border-bottom-color:#FDE68A;">Descripción del Servicio</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">
+        ${validItems.map((item, i) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#FFFBEB;border-radius:8px;border:1px solid #FDE68A;">
+            <div style="display:flex;gap:10px;align-items:center;flex:1;">
+              <div style="width:20px;height:20px;background:#D97706;color:#fff;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i + 1}</div>
+              <div style="font-size:11px;font-weight:600;color:#1E293B;flex:1;">${item.descripcion}</div>
+              ${item.cantidad > 1 ? `<div style="font-size:10px;color:#64748B;margin-left:4px;">×${item.cantidad}</div>` : ""}
+            </div>
+            <div style="font-size:11px;font-weight:700;color:#D97706;min-width:70px;text-align:right;">${$f(item.cantidad * item.precioUnit)}</div>
+          </div>`).join("")}
+      </div>
+    </div>` : "";
 
     const techCardBreak = tipo === "consumibles" ? "avoid" : "always";
     const techCardMargin = tipo === "consumibles" ? "10px" : "20px";
@@ -987,8 +989,8 @@ export default function CotizacionManualModal({
   @page:first{margin-top:0}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#334155;background:#fff;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  /* PROTECCIÓN DE ALTURA FÍSICA: min-height de 524mm garantiza exactamente 2 páginas A4 en Chromium sin desbordes. NO REDUCIR NI ELIMINAR */
-  .page{padding:30px 65px;max-width:850px;margin:0 auto;display:flex;flex-direction:column;min-height:${isTwoPages ? "524mm" : "262mm"}}
+  /* PROTECCIÓN DE ALTURA FÍSICA: min-height de 488mm garantiza exactamente 2 páginas Letter en Chromium sin desbordes. NO REDUCIR NI ELIMINAR */
+  .page{padding:30px 65px;max-width:816px;margin:0 auto;display:flex;flex-direction:column;min-height:${isTwoPages ? "488mm" : "244mm"}}
   /* EMPUJE ELÁSTICO DE FIRMAS: flex:1 y min-height de 5px empujan dinámicamente el pie de página al borde inferior sin romper el layout. NO ELIMINAR */
   .page-spacer{flex:1;min-height:5px}
   .avoid-break{page-break-inside:avoid}
@@ -1263,10 +1265,8 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       }
 
       setSaveStatus("ok");
-      // Evitar cerrar el modal de inmediato para permitir enviar/reenviar el PDF
-      // if (onSuccess) {
-      //   onSuccess(folio);
-      // }
+      setEmailStatus(p => p === "sending" ? "idle" : p);
+      onSuccess?.(folio);
       setTimeout(() => setSaveStatus("idle"), 4000);
     } catch (err: any) {
       console.error("[cotizacion] error fatal al guardar:", err?.message);
