@@ -395,6 +395,14 @@ export default function CotizacionManualModal({
               if (m.facCFDI !== undefined) setFacCFDI(m.facCFDI);
               if (m.facDirFiscal !== undefined) setFacDirFiscal(m.facDirFiscal);
               if (m.facCorreo !== undefined) setFacCorreo(m.facCorreo);
+              // Campos cargados para edición de fotos y propuestas personalizadas
+              if (m.evidencias !== undefined) setEvidencias(m.evidencias || []);
+              if (m.propuestaPDF !== undefined) {
+                setPropuestaPDF(m.propuestaPDF || "");
+                if (m.propuestaPDF) setShowPropuesta(true); // Mostrar el panel si tiene propuesta personalizada
+              }
+              if (m.imgEquipoB64 !== undefined) setImgEquipoB64(m.imgEquipoB64 || null);
+              if (m.eqBrochureB64 !== undefined) setEqBrochureB64(m.eqBrochureB64 || null);
             }
           }
         } catch { }
@@ -1182,7 +1190,12 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           cliContacto, cliTel, cliCorreo, cliDireccion, cliCiudad, cliEstado,
           eqFalla, eqSerie,
           descuento, conIVA, firmaUserId,
-          facRazonSoc, facRFC, facRegimen, facCFDI, facDirFiscal, facCorreo
+          facRazonSoc, facRFC, facRegimen, facCFDI, facDirFiscal, facCorreo,
+          // Preservar fotos y propuestas técnicas personalizadas
+          evidencias,
+          propuestaPDF,
+          imgEquipoB64,
+          eqBrochureB64
         }
       },
       eq_tipo: eqTipo || null, eq_marca: eqMarca || null, eq_modelo: eqModelo || null,
@@ -1266,6 +1279,9 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       }
 
       setSaveStatus("ok");
+      if (onSuccess) {
+        onSuccess(folio);
+      }
       setTimeout(() => setSaveStatus("idle"), 4000);
     } catch (err: any) {
       console.error("[cotizacion] error fatal al guardar:", err?.message);
@@ -1472,7 +1488,9 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
           <div>
             <h3 className="font-bold text-[#1E293B] text-[15px] leading-tight">{TIPO_LABELS[tipo]}</h3>
-            <p className="text-[11px] text-gray-400 font-medium">Nueva cotización</p>
+            <p className="text-[11px] text-gray-400 font-medium">
+              {initialCotizacion ? `Editando cotización · Folio: ${initialCotizacion.folio}` : "Nueva cotización"}
+            </p>
           </div>
           <button onClick={handleClose} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
             <X size={15} />
@@ -2055,14 +2073,22 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               guardarEnExpediente();
             }}
             disabled={anyLoading || !canGenerar}
-            className={`w-full flex items-center justify-center gap-2 text-[12px] font-bold py-2.5 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${saveStatus === "ok" ? "bg-[#059669] text-white" :
-                saveStatus === "error" ? "bg-[#DC2626] text-white" :
-                  "bg-white border border-[#4E60A9] text-[#4E60A9] hover:bg-[#EEF0F7]"
-              }`}>
-            {saveStatus === "saving" ? <><Save size={13} className="animate-pulse" />Guardando…</> :
-              saveStatus === "ok" ? <><Check size={13} />PDF guardado en expediente</> :
-                saveStatus === "error" ? <><AlertCircle size={13} />{saveError ? `Error: ${saveError}` : "Error al guardar"}</> :
-                  <><Save size={13} />Guardar PDF en expediente</>}
+            className={`w-full flex items-center justify-center gap-2 text-[12px] font-bold py-2.5 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+              saveStatus === "ok" ? "bg-[#059669] text-white" :
+              saveStatus === "error" ? "bg-[#DC2626] text-white" :
+              initialCotizacion 
+                ? "bg-[#38AD64] hover:bg-[#2e9354] text-white shadow-sm hover:shadow" 
+                : "bg-white border border-[#4E60A9] text-[#4E60A9] hover:bg-[#EEF0F7]"
+            }`}>
+            {saveStatus === "saving" ? (
+              <><Save size={13} className="animate-pulse" />{initialCotizacion ? "Guardando cambios…" : "Guardando…"}</>
+            ) : saveStatus === "ok" ? (
+              <><Check size={13} />{initialCotizacion ? "Cambios guardados en cotización" : "PDF guardado en expediente"}</>
+            ) : saveStatus === "error" ? (
+              <><AlertCircle size={13} />{saveError ? `Error: ${saveError}` : "Error al guardar"}</>
+            ) : (
+              <><Save size={13} />{initialCotizacion ? "Guardar cambios en cotización" : "Guardar PDF en expediente"}</>
+            )}
           </button>
 
           <button
