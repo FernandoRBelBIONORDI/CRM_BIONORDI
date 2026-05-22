@@ -321,6 +321,8 @@ export default function QuoteModal({ lead, onClose }: Props) {
 <meta charset="UTF-8"/>
 <title>Propuesta Técnica ${folio} · Bionordi</title>
 <style>
+  @page { margin: 20mm 0 15mm 0; }
+  @page:first { margin-top: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #334155; background: #fff; font-size: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   /* PROTECCIÓN DE ALTURA FÍSICA: min-height de 524mm garantiza exactamente 2 páginas A4 en Chromium sin desbordes. NO REDUCIR NI ELIMINAR */
@@ -364,11 +366,11 @@ export default function QuoteModal({ lead, onClose }: Props) {
   .d-item { display: flex; gap: 10px; font-size: 10.5px; color: #334155; line-height: 1.4; align-items: flex-start; }
   /* CENTRADO VERTICAL DE NUMERACIÓN EN LISTA: width/height de 18px requiere line-height exacto de 18px con display:block y sin padding para centrado absoluto. */
   .d-num { width: 18px; height: 18px; background: #DBEAFE; color: #1D4ED8; border-radius: 50%; font-size: 9px; font-weight: 800; display: block; text-align: center; line-height: 18px; flex-shrink: 0; margin-top: 1px; box-sizing: border-box; margin-left: 0; margin-right: 0; padding: 0; }
-  table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 20px; }
-  th { background: #F1F5F9; color: #475569; font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 10px 15px; text-align: left; letter-spacing: 1px; border-bottom: 2px solid #CBD5E1; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 15px; }
+  th { background: #F1F5F9; color: #475569; font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 8px 12px; text-align: left; letter-spacing: 1px; border-bottom: 2px solid #CBD5E1; }
   th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
   th:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-  td { padding: 12px 15px; font-size: 12px; color: #1E293B; border-bottom: 1px solid #E2E8F0; vertical-align: middle; }
+  td { padding: 8px 12px; font-size: 11px; color: #1E293B; border-bottom: 1px solid #E2E8F0; vertical-align: middle; }
   .s-name { font-weight: 600; color: #0F172A; margin-top: 4px; }
   .ctag { display: inline-block; padding: 3px 8px; background: #DBEAFE; color: #1D4ED8; font-size: 9px; font-weight: 800; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.5px; }
   .bottom-flex { display: flex; gap: 20px; margin-bottom: 15px; align-items: flex-start; }
