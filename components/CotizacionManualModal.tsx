@@ -776,10 +776,7 @@ export default function CotizacionManualModal({
   };
 
   const buildPDFHtml = async (folioOverride?: string): Promise<{ html: string; folio: string }> => {
-    const isTwoPages = 
-      tipo === "reparacion" || 
-      (tipo === "mantenimiento" && !imgEquipoB64 && (eqTipo ? (eqTipo.toLowerCase().includes("ultrasonido") || eqTipo.toLowerCase().includes("transductor") || eqTipo.toLowerCase() === "equipo") : true)) ||
-      (tipo === "venta" && !!eqBrochureB64);
+    const isTwoPages = true;
 
     let imgTransductor = "/transductor.png";
     let imgFront = "/equipo_movil_front.png";
@@ -838,8 +835,8 @@ export default function CotizacionManualModal({
         <td class="r b">${$f(s.cantidad * s.precioUnit)}</td>
       </tr>`).join("");
 
-    const tableHTML = tipo !== "reparacion" ? `
-    <table style="page-break-before: ${isTwoPages ? "always" : "avoid"}; margin-top: 15px; margin-bottom: 15px;">
+    const tableHTML = tipo === "consumibles" ? `
+    <table style="page-break-before: avoid; margin-top: 15px; margin-bottom: 15px;">
       <thead>
         <tr>
           <th class="c" style="width:50px;">Item</th>
@@ -852,8 +849,8 @@ export default function CotizacionManualModal({
       <tbody>${rows}</tbody>
     </table>` : "";
 
-    const techCardBreak = tipo === "reparacion" ? "always" : "avoid";
-    const techCardMargin = tipo === "reparacion" ? "20px" : "10px";
+    const techCardBreak = tipo === "consumibles" ? "avoid" : "always";
+    const techCardMargin = tipo === "consumibles" ? "10px" : "20px";
 
     const diagramaHTML = tipo === "reparacion" ? `
     <div class="tech-card avoid-break" style="margin-top:10px;margin-bottom:10px;">
@@ -896,54 +893,7 @@ export default function CotizacionManualModal({
           ${currentMantenimiento.map((feat, i) => `<div class="d-item"><div class="d-num">${i + 1}</div><div>${feat}</div></div>`).join("")}
         </div>
       </div>
-    </div>` : (eqTipo && !eqTipo.toLowerCase().includes("ultrasonido") && !eqTipo.toLowerCase().includes("transductor") && eqTipo.toLowerCase() !== "equipo" ? `
-    <div class="tech-card avoid-break">
-      <div class="card-title">Alcance del Mantenimiento — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || eqTipo}</div>
-      <p class="diag-p">Se realiza una inspección profunda y mantenimiento preventivo especializado para asegurar el óptimo funcionamiento y la prolongación de la vida útil de la unidad.</p>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px;background:#F8FAFC;padding:16px;border-radius:8px;border:1px solid #E2E8F0;">
-        ${currentMantenimiento.map((feat, i) => `<div class="d-item"><div class="d-num">${i + 1}</div><div>${feat}</div></div>`).join("")}
-      </div>
-    </div>` : `
-    <div class="tech-card avoid-break">
-      <div class="card-title">Alcance del Mantenimiento — Equipo Móvil</div>
-      <p class="diag-p">Se realiza inspección completa de la unidad cubriendo panel frontal, conectores, sistema de enfriamiento y puertos traseros. Cada punto es documentado antes y después del servicio.</p>
-      <div style="display:flex;gap:16px;margin-top:4px;">
-        <div style="flex:1;">
-          <div style="font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;text-align:center;">Vista Frontal</div>
-          <div class="img-container" style="height:165px;padding:4px;">
-            <div style="position:relative;display:inline-block;height:100%;">
-              <img src="${imgFront}" alt="Equipo Móvil Frente" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block;" />
-              <div class="dot" style="top:15%;left:50%;margin-top:-10px;margin-left:-10px;">1</div>
-              <div class="dot" style="top:45%;left:20%;margin-top:-10px;margin-left:-10px;">2</div>
-              <div class="dot" style="top:45%;left:80%;margin-top:-10px;margin-left:-10px;">3</div>
-              <div class="dot" style="top:85%;left:50%;margin-top:-10px;margin-left:-10px;">4</div>
-            </div>
-          </div>
-          <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
-            <div class="d-item"><div class="d-num">1</div><div><strong>Pantalla / Display:</strong> Revisión de píxeles, brillo, contraste y calibración de imagen.</div></div>
-            <div class="d-item"><div class="d-num">2</div><div><strong>Panel de Control:</strong> Limpieza profunda de teclado, trackball y encoders rotatorios.</div></div>
-            <div class="d-item"><div class="d-num">3</div><div><strong>Puertos de Transductores:</strong> Inspección de pines, limpieza de conectores y prueba de continuidad.</div></div>
-            <div class="d-item"><div class="d-num">4</div><div><strong>Base / Ruedas:</strong> Revisión de frenos, ruedas y estructura del chasis.</div></div>
-          </div>
-        </div>
-        <div style="flex:1;">
-          <div style="font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;text-align:center;">Vista Posterior</div>
-          <div class="img-container" style="height:165px;padding:4px;">
-            <div style="position:relative;display:inline-block;height:100%;">
-              <img src="${imgBack}" alt="Equipo Móvil Trasera" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block;" />
-              <div class="dot" style="top:15%;left:50%;margin-top:-10px;margin-left:-10px;">A</div>
-              <div class="dot" style="top:45%;left:85%;margin-top:-10px;margin-left:-10px;">B</div>
-              <div class="dot" style="top:80%;left:30%;margin-top:-10px;margin-left:-10px;">C</div>
-            </div>
-          </div>
-          <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
-            <div class="d-item"><div class="d-num" style="background:#FEF3C7;color:#92400E;">A</div><div><strong>Rejillas de Ventilación:</strong> Limpieza de filtros de polvo y verificación del flujo de aire del sistema de enfriamiento.</div></div>
-            <div class="d-item"><div class="d-num" style="background:#FEF3C7;color:#92400E;">B</div><div><strong>Conector de Alimentación:</strong> Revisión del cable de poder, protección contra sobretensión y tierra física.</div></div>
-            <div class="d-item"><div class="d-num" style="background:#FEF3C7;color:#92400E;">C</div><div><strong>Puertos USB / Red / Video:</strong> Prueba funcional de puertos y limpieza de contactos.</div></div>
-          </div>
-        </div>
-      </div>
-    </div>`))
+    </div>` : "")
         : tipo === "venta" ? (eqFotosB64.length > 0 ? `
     <div class="tech-card avoid-break">
       <div class="card-title">Galería del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
@@ -961,7 +911,7 @@ export default function CotizacionManualModal({
       </div>
     </div>` : imgEquipoB64 ? `
     <div class="tech-card avoid-break">
-      <div class="card-title">Características del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
+      <div class="card-title">Galería del Equipo — ${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Producto"}</div>
       <div style="display:flex;gap:20px;align-items:flex-start;margin-top:8px;">
         <div style="flex:0 0 280px;">
           <div class="img-container" style="height:190px;padding:10px;">
@@ -974,21 +924,7 @@ export default function CotizacionManualModal({
           `).join("")}
         </div>
       </div>
-    </div>` : `
-    <div class="tech-card avoid-break">
-      <div class="card-title">Características del Equipo — Vista de Referencia</div>
-      <p class="diag-p">Equipo portátil de ultrasonido. Se incluyen vistas frontal y posterior para referencia de especificaciones y puntos de inspección en recepción.</p>
-      <div style="display:flex;gap:16px;margin-top:4px;">
-        <div style="flex:1;">
-          <div style="font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;text-align:center;">Vista Frontal</div>
-          <div class="img-container" style="height:150px;"><img src="${imgFront}" alt="Equipo Frente" style="max-width:100%;max-height:142px;width:auto;height:auto;background:white;" /></div>
-        </div>
-        <div style="flex:1;">
-          <div style="font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;text-align:center;">Vista Posterior</div>
-          <div class="img-container" style="height:150px;"><img src="${imgBack}" alt="Equipo Trasera" style="max-width:100%;max-height:142px;width:auto;height:auto;background:white;" /></div>
-        </div>
-      </div>
-    </div>`) : "";
+    </div>` : "") : "";
 
     const evidenciaLabel = tipo === "reparacion" ? "Evidencia Fotográfica del Defecto"
       : tipo === "mantenimiento" ? "Fotos del Mantenimiento"
@@ -1179,7 +1115,7 @@ ${tableHTML}
 
 ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:9px 13px;margin-bottom:20px;font-size:11px;color:#92400E;border-radius:0 4px 4px 0;"><strong>Notas:</strong> ${notas}</div>` : ""}
 
-<div class="bottom-flex avoid-break">
+<div class="bottom-flex avoid-break" style="page-break-before: ${tipo === "consumibles" ? "always" : "avoid"}; margin-top: ${tipo === "consumibles" ? "20px" : "15px"};">
   <div class="billing-instructions">
     <div class="card-title">Instrucciones para Solicitar Factura</div>
     <div class="b-step"><span class="b-icon">1.</span><div>Realice el pago total o anticipo a la cuenta CLABE indicada arriba.</div></div>
