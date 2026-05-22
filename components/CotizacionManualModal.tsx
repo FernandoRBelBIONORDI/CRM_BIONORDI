@@ -836,7 +836,7 @@ export default function CotizacionManualModal({
 
     const tableHTML = tipo === "consumibles" ? `
     <div class="tech-card" style="margin-top:10px;margin-bottom:10px;border-left:4px solid #D97706;page-break-inside:avoid;">
-      <div class="card-title" style="color:#D97706;border-bottom-color:#FDE68A;">Descripción del Servicio</div>
+      <div class="card-title" style="color:#D97706;border-bottom-color:#FDE68A;">Lista de Artículos</div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">
         ${validItems.map((item, i) => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#FFFBEB;border-radius:8px;border:1px solid #FDE68A;">
@@ -1075,26 +1075,11 @@ ${evidenciaHTML}
 ${brochureHTML}
 ${tableHTML}
 
-${tipo === "consumibles" ? `<div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;margin-top:10px;">
-  <div class="card-title">${propInfo.titulo}</div>
-  <p style="font-size:11px;color:#334155;line-height:1.5;margin-bottom:10px;">${propuestaPDF.trim() || propInfo.parrafoPDF}</p>
-  <div style="background:#EEF0F7;border:1px solid #C5CAE0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
-    <div>
-      <div style="font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Inversión Total</div>
-      <div style="font-size:11px;color:#4E60A9;">${propInfo.subtituloTotal}</div>
-    </div>
-    <div style="text-align:right;">
-      ${descuento > 0 ? `<div style="font-size:11px;color:#94A3B8;text-decoration:line-through;margin-bottom:2px;">${$f(subtotal)}</div>` : ""}
-      <div style="font-size:28px;font-weight:900;color:#4E60A9;letter-spacing:-1px;">${$f(total)}</div>
-      ${conIVA ? `<div style="font-size:9px;color:#38AD64;font-weight:700;">IVA incluido</div>` : `<div style="font-size:9px;color:#64748B;">Más IVA</div>`}
-    </div>
-  </div>
-</div>
-${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:9px 13px;margin-bottom:20px;font-size:11px;color:#92400E;border-radius:0 4px 4px 0;"><strong>Notas:</strong> ${notas}</div>` : ""}` : ""}
+
 </div>
 
 <div class="page-two">
-${tipo !== "consumibles" ? `<div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;margin-top:20px;">
+<div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;margin-top:20px;">
   <div class="card-title">${propInfo.titulo}</div>
   <p style="font-size:11px;color:#334155;line-height:1.5;margin-bottom:10px;">${propuestaPDF.trim() || propInfo.parrafoPDF}</p>
   <div style="background:#EEF0F7;border:1px solid #C5CAE0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
@@ -1109,7 +1094,7 @@ ${tipo !== "consumibles" ? `<div class="tech-card avoid-break" style="margin-bot
     </div>
   </div>
 </div>
-${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:9px 13px;margin-bottom:20px;font-size:11px;color:#92400E;border-radius:0 4px 4px 0;"><strong>Notas:</strong> ${notas}</div>` : ""}` : ""}
+${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:9px 13px;margin-bottom:20px;font-size:11px;color:#92400E;border-radius:0 4px 4px 0;"><strong>Notas:</strong> ${notas}</div>` : ""}
 
 <div class="bottom-flex avoid-break" style="margin-top:15px;">
   <div class="billing-instructions">
