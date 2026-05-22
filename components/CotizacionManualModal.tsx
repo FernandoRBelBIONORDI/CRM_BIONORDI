@@ -850,7 +850,7 @@ export default function CotizacionManualModal({
       </div>
     </div>` : "";
 
-    // P1/P2 split: consumibles → propuesta en P1, instrucciones en P2; resto → propuesta en P2
+    // P1/P2 split: todos los tipos → propuesta en P2 (page-two). P1 solo tiene datos + secciones de contenido.
 
     const diagramaHTML = tipo === "reparacion" ? `
     <div class="tech-card avoid-break" style="margin-top:10px;margin-bottom:10px;">
