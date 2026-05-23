@@ -21,6 +21,8 @@ baileys_auth_info/
 
 # Temporary scripts
 scratch_fix.js
+scratch_alter.js
+scratch_schema.js
 
 # User-uploaded files
 public/uploads/
