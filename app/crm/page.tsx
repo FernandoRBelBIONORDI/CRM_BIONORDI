@@ -3,9 +3,10 @@
 import { useEffect, useState, Fragment, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Activity, Search, Download, MessageCircle, Sparkles, ChevronDown, ChevronUp, Copy, Check, ExternalLink, LayoutList, Kanban, Calendar, AlertTriangle, X, Trash2, SlidersHorizontal, UserPlus, FileText, UserCheck, Users } from "lucide-react";
+import { Activity, Search, Download, MessageCircle, Sparkles, ChevronDown, ChevronUp, Copy, Check, ExternalLink, LayoutList, Kanban, Calendar, AlertTriangle, X, Trash2, SlidersHorizontal, UserPlus, FileText, UserCheck, Users, Wrench, Package, ShoppingCart } from "lucide-react";
 import NuevoLeadModal from "@/components/NuevoLeadModal";
 import QuoteModal from "@/components/QuoteModal";
+import CotizacionManualModal from "@/components/CotizacionManualModal";
 import { waLink } from "@/lib/ui";
 import { useConfirm } from "@/hooks/useConfirm";
 
@@ -65,7 +66,10 @@ export default function CRMPage() {
   const [showNuevoLead, setShowNuevoLead] = useState(false);
   const [selectedIds, setSelectedIds]   = useState<Set<number>>(new Set());
   const [bulkStatus, setBulkStatus]     = useState("");
-  const [quoteLead, setQuoteLead]       = useState<Lead|null>(null);
+  const [quoteLead, setQuoteLead]             = useState<Lead|null>(null);
+  const [quotePickLead, setQuotePickLead]     = useState<Lead|null>(null);
+  const [manualCotLead, setManualCotLead]     = useState<Lead|null>(null);
+  const [manualCotTipo, setManualCotTipo]     = useState<string>("reparacion");
 
   useEffect(()=>{
     fetch("/api/usuarios").then(r=>r.json()).then(d=>setUsuarios(d.usuarios||[])).catch(()=>{});
@@ -458,7 +462,7 @@ export default function CRMPage() {
                               className="w-8 h-8 flex items-center justify-center rounded-full text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
                               {loadScr===lead.id ? <Activity size={14} className="animate-spin"/> : <Sparkles size={14} fill="currentColor"/>}
                             </button>
-                            <button onClick={e=>{ e.stopPropagation(); setQuoteLead(lead); }}
+                            <button onClick={e=>{ e.stopPropagation(); setQuotePickLead(lead); }}
                               data-tour={lead.nombre.includes("Tutorial") || lead.nombre.includes("(Prueba)") ? "tour-quote-btn" : undefined}
                               title="Generar cotización"
                               className="w-8 h-8 flex items-center justify-center rounded-full text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white transition-all shadow-sm">
@@ -705,7 +709,7 @@ export default function CRMPage() {
                                   <MessageCircle size={11}/>
                                 </a>
                               )}
-                              <button onClick={e=>{e.stopPropagation();setQuoteLead(lead);}} title="Cotizar"
+                              <button onClick={e=>{e.stopPropagation();setQuotePickLead(lead);}} title="Cotizar"
                                 className="w-6 h-6 flex items-center justify-center rounded-full bg-[#EEF3FC] text-[#4E60A9] hover:bg-[#4E60A9] hover:text-white transition-colors">
                                 <FileText size={11}/>
                               </button>
@@ -835,8 +839,72 @@ export default function CRMPage() {
         </div>
       )}
 
-      {/* Quote Modal */}
+      {/* Quote Modal (reparación de transductores — flujo legacy) */}
       {quoteLead && <QuoteModal lead={quoteLead} onClose={() => setQuoteLead(null)} />}
+
+      {/* Selector de tipo de cotización */}
+      {quotePickLead && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm" onClick={() => setQuotePickLead(null)}>
+          <div
+            data-tour="quote-type-picker"
+            className="bg-white rounded-[28px] shadow-[0_24px_60px_rgba(0,0,0,0.14)] w-full max-w-lg border border-gray-100"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="px-7 pt-6 pb-5 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <h3 className="font-extrabold text-[18px] text-[#1E293B] tracking-tight">Nueva Cotización</h3>
+                <p className="text-[12px] text-[#94A3B8] font-medium mt-0.5">
+                  Cliente: <span className="text-[#4E60A9] font-bold">{quotePickLead.nombre}</span>
+                </p>
+              </div>
+              <button onClick={() => setQuotePickLead(null)} className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 transition-colors">
+                <X size={16}/>
+              </button>
+            </div>
+            <div className="p-5 grid grid-cols-2 gap-3">
+              {[
+                { tipo: "reparacion",     icon: Wrench,       color: "#4E60A9", bg: "#EEF3FC",  label: "Reparación de Transductores", desc: "Diagnóstico y reparación de sondas biomédicas" },
+                { tipo: "mantenimiento",  icon: Activity,     color: "#7C3AED", bg: "#F5F3FF",  label: "Mantenimiento de Equipos",     desc: "Mantenimiento preventivo y correctivo" },
+                { tipo: "venta",          icon: ShoppingCart, color: "#059669", bg: "#ECFDF5",  label: "Venta de Equipos",            desc: "Equipos nuevos, usados y certificados" },
+                { tipo: "consumibles",    icon: Package,      color: "#D97706", bg: "#FFFBEB",  label: "Consumibles y Accesorios",    desc: "Fundas, geles, cables y suministros" },
+              ].map(({ tipo, icon: Icon, color, bg, label, desc }) => (
+                <button
+                  key={tipo}
+                  data-tour={tipo === "reparacion" ? "quote-type-reparacion" : undefined}
+                  onClick={() => {
+                    if (tipo === "reparacion") {
+                      setQuoteLead(quotePickLead);
+                    } else {
+                      setManualCotLead(quotePickLead);
+                      setManualCotTipo(tipo);
+                    }
+                    setQuotePickLead(null);
+                  }}
+                  className="flex flex-col gap-2.5 p-4 rounded-[18px] border-2 text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ borderColor: `${color}25`, backgroundColor: `${bg}80` }}
+                >
+                  <div className="w-10 h-10 rounded-[12px] flex items-center justify-center" style={{ backgroundColor: bg }}>
+                    <Icon size={18} style={{ color }} strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <div className="text-[13px] font-extrabold text-[#1E293B] leading-tight">{label}</div>
+                    <div className="text-[11px] text-[#94A3B8] font-medium mt-0.5 leading-snug">{desc}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cotización Manual (mantenimiento, venta, consumibles) */}
+      {manualCotLead && (
+        <CotizacionManualModal
+          onClose={() => setManualCotLead(null)}
+          initialTipo={manualCotTipo as any}
+          initialLead={{ id: manualCotLead.id, nombre: manualCotLead.nombre, telefono: manualCotLead.telefono, correo: manualCotLead.correo, ciudad: manualCotLead.ciudad, estado_republica: manualCotLead.estado_republica, direccion: manualCotLead.direccion }}
+        />
+      )}
 
       {/* Nuevo Lead Modal */}
       {showNuevoLead && (
