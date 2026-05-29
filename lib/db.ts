@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 
 const CATALOGO_SEED = [
@@ -338,9 +339,11 @@ function initDb(): Database.Database {
 
   const hayUsuarios = _db.prepare("SELECT COUNT(*) as c FROM usuarios").get() as { c: number };
   if (hayUsuarios.c === 0) {
-    const defaultHash = bcrypt.hashSync("Bionordi2025!", 10);
+    const pwd = process.env.ADMIN_DEFAULT_PASSWORD || crypto.randomBytes(12).toString('base64url');
+    const defaultHash = bcrypt.hashSync(pwd, 10);
     _db.prepare(`INSERT OR IGNORE INTO usuarios (nombre, email, password_hash, rol) VALUES (?, ?, ?, ?)`)
       .run("Administrador", "admin@bionordi.mx", defaultHash, "admin");
+    console.log(`[db] Usuario admin creado. Email: admin@bionordi.mx | Password: ${pwd}`);
   }
 
   _db.exec(`

@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { requireAuth } from '@/lib/require-auth';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
-  const { unauth } = await requireAuth();
+  const { session, unauth } = await requireAuth();
   if (unauth) return unauth;
+
+  if (!rateLimit(`email:${session.user?.email}`, 15, 60_000)) {
+    return NextResponse.json({ error: 'Demasiados emails. Esperá un momento.' }, { status: 429 });
+  }
 
   try {
     const { to, subject, html, replyTo, text: textBody, attachments } = await req.json();

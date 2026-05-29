@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { enrichLead } from '@/lib/claude';
+import { requireAuth } from '@/lib/require-auth';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
+  const { session, unauth } = await requireAuth();
+  if (unauth) return unauth;
+
+  if (!rateLimit(`enrich:${session.user?.email}`, 20, 60_000)) {
+    return NextResponse.json({ error: 'Demasiadas solicitudes de IA. Esperá un momento.' }, { status: 429 });
+  }
+
   try {
     const { id } = await req.json();
 

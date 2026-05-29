@@ -3,6 +3,8 @@ import db from '@/lib/db';
 import { scrapeDoctoralia } from '@/lib/doctoralia';
 import { verifyContact } from '@/lib/verificacion';
 import { nombreSimilarity } from '@/lib/denue';
+import { requireAuth } from '@/lib/require-auth';
+import { rateLimit } from '@/lib/rate-limit';
 
 function findDuplicate(nombre: string, telefono: string | undefined, ciudad: string): any | null {
   if (telefono && telefono.length >= 8) {
@@ -19,6 +21,13 @@ function findDuplicate(nombre: string, telefono: string | undefined, ciudad: str
 }
 
 export async function POST(req: Request) {
+  const { session, unauth } = await requireAuth();
+  if (unauth) return unauth;
+
+  if (!rateLimit(`scrape:${session.user?.email}`, 10, 5 * 60_000)) {
+    return NextResponse.json({ error: 'Demasiadas búsquedas. Esperá unos minutos.' }, { status: 429 });
+  }
+
   try {
     const { especialidad, ciudad, estado_republica, municipio, paginas = 2, nicho, barrido_id } = await req.json();
 

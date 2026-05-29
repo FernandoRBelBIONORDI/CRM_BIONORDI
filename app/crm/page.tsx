@@ -386,6 +386,7 @@ export default function CRMPage() {
                   return (
                     <Fragment key={`f${lead.id}`}>
                       <tr onClick={()=>{ setExpanded(isExp?null:lead.id); if(!isExp) loadInts(lead.id); }}
+                          data-tour={lead.nombre.includes("Tutorial") ? "tour-lead-row" : undefined}
                           className={`transition-colors group ${isExp?'bg-blue-50/20 shadow-[inset_4px_0_0_#4E60A9]':isSel?'bg-[#F0F5FF]':'hover:bg-gray-50/50'}`}>
                         <td className="pl-4" onClick={e=>e.stopPropagation()}>
                           <input type="checkbox" checked={isSel} onChange={()=>toggleSelect(lead.id)}
@@ -396,7 +397,7 @@ export default function CRMPage() {
                           <button onClick={e=>{ e.stopPropagation(); router.push(`/clientes/${lead.id}`); }}
                             className="text-left hover:text-[#4E60A9] transition-colors group/name">
                             <div className="font-bold text-[#1E293B] group-hover/name:text-[#4E60A9] tracking-tight text-[13px] transition-colors">{lead.nombre}</div>
-                            <div className="text-[11px] text-gray-400 mt-0.5 max-w-sm truncate">{lead.ciudad||""}</div>
+                            <div className="text-[11px] text-gray-400 mt-0.5 max-w-sm truncate">{lead.ciudad||"—"}</div>
                           </button>
                         </td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
@@ -410,7 +411,7 @@ export default function CRMPage() {
                             <ChevronDown size={10} className="absolute right-2 pointer-events-none opacity-60" style={{color:st.color}}/>
                           </div>
                         </td>
-                        <td className="text-[12px] font-medium text-[#64748B] max-w-[140px] truncate">{lead.nicho||""}</td>
+                        <td className="text-[12px] font-medium text-[#64748B] max-w-[140px] truncate">{lead.nicho||"—"}</td>
                         <td className="text-center" onClick={e=>e.stopPropagation()}>
                           {!lead.asignado_a && myName ? (
                             <button onClick={()=>{
@@ -442,7 +443,7 @@ export default function CRMPage() {
                               <Calendar size={10}/>
                               {proxFecha.toLocaleDateString("es-MX",{day:"2-digit",month:"short"})}
                             </span>
-                          ) : <span className="text-gray-300 text-[11px]"></span>}
+                          ) : <span className="text-gray-300 text-[11px]">—</span>}
                         </td>
                         <td onClick={e=>e.stopPropagation()} className="pb-4 pt-4 pr-1">
                           <div className="flex items-center justify-end gap-1 px-2">
@@ -458,6 +459,7 @@ export default function CRMPage() {
                               {loadScr===lead.id ? <Activity size={14} className="animate-spin"/> : <Sparkles size={14} fill="currentColor"/>}
                             </button>
                             <button onClick={e=>{ e.stopPropagation(); setQuoteLead(lead); }}
+                              data-tour={lead.nombre.includes("Tutorial") ? "tour-quote-btn" : undefined}
                               title="Generar cotización"
                               className="w-8 h-8 flex items-center justify-center rounded-full text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white transition-all shadow-sm">
                               <FileText size={14}/>

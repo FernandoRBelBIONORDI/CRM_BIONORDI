@@ -60,7 +60,7 @@ function NuevaOrdenModal({ onClose, onCreate, initialLeadId }: { onClose: () => 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-[560px] max-h-[88vh] flex flex-col overflow-hidden">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-[560px] max-h-[88vh] flex flex-col overflow-hidden" data-tour="tour-new-order-modal">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-[#EEF3FC] flex items-center justify-center">
@@ -266,6 +266,7 @@ export default function TallerPage() {
               className="inp pl-10 w-full rounded-full py-[10px]" />
           </div>
           <button onClick={() => setShowNueva(true)}
+            data-tour="tour-new-order-btn"
             className="btn-primary flex items-center gap-2 shrink-0">
             <Plus size={14} /> Nueva Orden
           </button>

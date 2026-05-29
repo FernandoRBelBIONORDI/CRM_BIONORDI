@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Search, Sparkles, ChevronRight, Play, Activity,
   AlertTriangle, Calendar, Clock, MessageCircle, Wrench,
-  TrendingUp, DollarSign, Flame, CheckCircle2, Database, FileText,
+  TrendingUp, DollarSign, Flame, CheckCircle2, Database, FileText, HelpCircle,
 } from "lucide-react";
 import CotizacionManualModal from "@/components/CotizacionManualModal";
+import OnboardingTour from "@/components/OnboardingTour";
 import { waLink } from "@/lib/ui";
 
 interface DashData {
@@ -45,11 +47,11 @@ function fmt(n: number) {
 }
 
 function SubCard({
-  icon: Icon, title, sub, color, bg, stats, cta, href, onClick,
+  icon: Icon, title, sub, color, bg, stats, cta, href, onClick, tourId,
 }: {
   icon: any; title: string; sub: string; color: string; bg: string;
   stats: { v: string|number; l: string; good?: boolean; urgent?: boolean }[];
-  cta: string; href?: string; onClick?: () => void;
+  cta: string; href?: string; onClick?: () => void; tourId?: string;
 }) {
   const [hov, setHov] = useState(false);
   const inner = (
@@ -91,18 +93,19 @@ function SubCard({
     boxShadow: hov ? `0 8px 28px -6px ${color}22` : undefined,
   };
   if (onClick) return (
-    <div className={cls} style={style} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} onClick={onClick}>
+    <div className={cls} style={style} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} onClick={onClick} data-tour={tourId}>
       {inner}
     </div>
   );
   return (
-    <Link href={href!} className={cls} style={style} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
+    <Link href={href!} className={cls} style={style} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} data-tour={tourId}>
       {inner}
     </Link>
   );
 }
 
 export default function Dashboard() {
+  const router = useRouter();
   const { data: session } = useSession();
   const [data, setData] = useState<DashData|null>(null);
   const [loading, setLoading] = useState(true);
@@ -118,6 +121,10 @@ export default function Dashboard() {
       console.error("Error cargando dashboard:", e);
     }
     setLoading(false);
+  };
+
+  const startTour = () => {
+    router.push("/?runTour=true");
   };
 
   useEffect(() => { load(); }, []);
@@ -141,11 +148,19 @@ export default function Dashboard() {
             <h1 className="text-[26px] md:text-[38px] font-medium text-[#202538] leading-tight tracking-[-1px]">Bienvenido, {session?.user?.name?.split(" ")[0] ?? ""}.</h1>
             <p className="text-[#8B95A5] text-[12px] md:text-[13px] mt-0.5 md:mt-1 font-medium tracking-tight">Panel de prospección y gestión de equipo biomédico.</p>
           </div>
-          {/* Refresh solo visible en móvil aquí */}
-          <button onClick={load} title="Actualizar"
-            className={`md:hidden w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 hover:text-[#4E60A9] transition-all shrink-0 ${loading ? "animate-spin text-blue-400" : ""}`}>
-            <Activity size={17} strokeWidth={2}/>
-          </button>
+          
+          <div className="flex items-center gap-2 md:hidden">
+            {/* Botón tutorial en móvil */}
+            <button onClick={startTour} title="Ver Tutorial"
+              className="w-10 h-10 bg-[#EEF3FC] text-[#4E60A9] rounded-full flex items-center justify-center shadow-sm transition-all shrink-0">
+              <Play size={15} strokeWidth={2.5}/>
+            </button>
+            {/* Refresh solo visible en móvil aquí */}
+            <button onClick={load} title="Actualizar"
+              className={`w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 hover:text-[#4E60A9] transition-all shrink-0 ${loading ? "animate-spin text-blue-400" : ""}`}>
+              <Activity size={17} strokeWidth={2}/>
+            </button>
+          </div>
         </div>
 
         {/* Stats rápidos en móvil */}
@@ -174,6 +189,11 @@ export default function Dashboard() {
 
         {/* Pills escritorio */}
         <div className="hidden md:flex items-center gap-3">
+          {/* Botón tutorial en escritorio */}
+          <button onClick={startTour} title="Ver Tutorial Didáctico"
+            className="w-10 h-10 bg-[#EEF3FC] text-[#4E60A9] hover:bg-[#4E60A9] hover:text-white rounded-full flex items-center justify-center shadow-sm hover:scale-105 transition-all">
+            <Play size={15} strokeWidth={2.5}/>
+          </button>
           <button onClick={load} title="Actualizar"
             className={`w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 hover:text-[#4E60A9] hover:scale-105 transition-all ${loading ? "animate-spin text-blue-400" : ""}`}>
             <Activity size={17} strokeWidth={2}/>
@@ -220,6 +240,7 @@ export default function Dashboard() {
             { v: m.cliente,     l: "Clientes", good: true },
           ]}
           cta="Abrir CRM"
+          tourId="crm-card"
         />
         <SubCard
           icon={Wrench} title="Taller & Reparaciones" sub="Órdenes de trabajo activas"
@@ -230,6 +251,7 @@ export default function Dashboard() {
             { v: taller.metrics.vencidas,l: "Vencidas",  urgent: taller.metrics.vencidas > 0 },
           ]}
           cta="Ver órdenes"
+          tourId="taller-card"
         />
         <SubCard
           icon={FileText} title="Cotizaciones" sub="Genera propuestas técnicas en PDF"
@@ -241,13 +263,14 @@ export default function Dashboard() {
           ]}
           cta="Nueva cotización"
           onClick={() => setShowCotizacion(true)}
+          tourId="cotizaciones-card"
         />
       </div>
 
       {showCotizacion && <CotizacionManualModal onClose={() => setShowCotizacion(false)} />}
 
       {/* -- Pipeline Funnel -- */}
-      <div className="px-4 md:px-5">
+      <div className="px-4 md:px-5" data-tour="pipeline-funnel">
         <div className="bg-white rounded-[18px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] px-3 md:px-6 py-3 md:py-4 overflow-x-auto">
         <div className="flex items-center gap-1 min-w-max md:min-w-0">
           {[
@@ -307,7 +330,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 px-4 md:px-5">
 
         {/* Agenda de Hoy */}
-        <div className="bg-white rounded-[24px] shadow-[0_8px_30px_-6px_rgba(0,0,0,0.04)] p-6 flex flex-col" style={{minHeight:"300px"}}>
+        <div className="bg-white rounded-[24px] shadow-[0_8px_30px_-6px_rgba(0,0,0,0.04)] p-6 flex flex-col" style={{minHeight:"300px"}} data-tour="agenda-hoy">
           <div className="flex justify-between items-center mb-4 shrink-0">
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-[16px] text-[#202538] tracking-tight">Agenda de Hoy</h3>

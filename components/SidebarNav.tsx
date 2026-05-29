@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import {
-  Home, Search, Database, Wrench, FileText,
+  Home, Search, Database, Wrench, FileText, Play,
   Settings, ChevronLeft, ChevronRight, Layers, Users, MessageCircle, Map, FolderOpen, Mail, LogOut, UserCog, CalendarDays, ClipboardList,
 } from "lucide-react";
 
@@ -129,6 +129,7 @@ export default function SidebarNav() {
   return (
     <>
       <aside
+        data-tour="sidebar-nav"
         className="hidden md:flex shrink-0 flex-col h-screen bg-white border-r border-[#E8EFF8] px-2 overflow-hidden"
         style={{ width: w, transition: mounted && !reducedMotion ? "width .22s cubic-bezier(.4,0,.2,1)" : "none" }}>
 
@@ -175,6 +176,7 @@ export default function SidebarNav() {
           <NavItem href="/catalogo"      icon={Layers}   label="Catálogo"      active={is("/catalogo")}      collapsed={collapsed} color="#059669" />
           <NavItem href="/maps"       icon={Map}      label="Mapa leads"  active={is("/maps")}         collapsed={collapsed} color="#0E7490" />
           <NavItem href="/configuracion" icon={Settings} label="Config"   active={is("/configuracion")} collapsed={collapsed} />
+          <NavItem href="/?runTour=true" icon={Play} label="Tutorial" active={false} collapsed={collapsed} color="#4E60A9" />
           {isAdmin && (
             <NavItem href="/usuarios" icon={UserCog} label="Usuarios" active={is("/usuarios")} collapsed={collapsed} />
           )}
@@ -311,6 +313,9 @@ export default function SidebarNav() {
                 </Link>
                 <Link onClick={() => setMobileMenuOpen(false)} href="/configuracion" className="bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
                   <Settings size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Configuración</span>
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href="/?runTour=true" className="bg-[#EEF3FC] text-[#4E60A9] hover:bg-[#4E60A9] hover:text-white rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
+                  <Play size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Tutorial</span>
                 </Link>
                 {isAdmin && <Link onClick={() => setMobileMenuOpen(false)} href="/usuarios" className="bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]"><UserCog size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Usuarios</span></Link>}
               </div>

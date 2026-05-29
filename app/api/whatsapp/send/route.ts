@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import db from "@/lib/db";
+import { rateLimit } from "@/lib/rate-limit";
 
 const WASENDER_TOKEN = process.env.WASENDER_TOKEN!;
 
@@ -17,6 +18,10 @@ function normalizePhone(raw: string): string {
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (!rateLimit(`whatsapp-send:${session.user?.email}`, 30, 60_000)) {
+    return NextResponse.json({ error: "Demasiados mensajes. Esperá un momento." }, { status: 429 });
+  }
 
   try {
     const { chatId, message } = await req.json();
