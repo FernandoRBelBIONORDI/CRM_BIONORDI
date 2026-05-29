@@ -50,6 +50,7 @@ export default function NuevoLeadModal({ onClose, onCreated }: Props) {
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div className="bg-white rounded-[28px] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.15)] w-full max-w-lg border border-gray-100"
+        data-tour="nuevo-lead-modal"
         onClick={e => e.stopPropagation()}>
 
         {/* Header */}

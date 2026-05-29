@@ -1,575 +1,427 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import {
-  X, ChevronRight, ChevronLeft, Sparkles, BookOpen,
-  Database, Wrench, FileText, CheckCircle2, Navigation, Activity
-} from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { X, ChevronRight, Copy, Check, BookOpen, Database, FileText, Wrench, Sparkles, CheckCircle2 } from "lucide-react";
 
-interface Step {
+// ─── Datos sugeridos para el Lead de prueba ───────────────────────────────────
+const LEAD_SUGERIDO = [
+  { label: "Nombre",   value: "Dr. Juan García (Prueba)" },
+  { label: "Teléfono", value: "6641234567" },
+  { label: "WhatsApp", value: "526641234567" },
+  { label: "Correo",   value: "ventas@bionordi.mx" },
+  { label: "Ciudad",   value: "Tijuana" },
+  { label: "Estado",   value: "Baja California" },
+  { label: "Nicho",    value: "Cardiología" },
+];
+
+// ─── Definición de pasos ──────────────────────────────────────────────────────
+type StepDef = {
   title: string;
-  selector?: string;
-  position?: "top" | "bottom" | "left" | "right";
   icon: any;
   iconColor: string;
   iconBg: string;
-  concept: string; // Didáctica: ¿Por qué?
-  actionDesc: string; // Didáctica: ¿Cómo?
-  description: string;
-  showActionButton?: boolean;
-  actionButtonText?: string;
-}
+  why?: string;
+  instruction: string;
+  selector?: string;
+  position?: "bottom" | "top" | "left" | "right" | "center";
+  dataFields?: { label: string; value: string }[];
+  detect?: (pathname: string) => boolean;
+  autoAdvance?: boolean;
+};
 
+const STEPS: StepDef[] = [
+  {
+    title: "Tutorial: flujo completo de Bionordi",
+    icon: BookOpen, iconColor: "#4E60A9", iconBg: "#EEF3FC",
+    instruction: "Vas a crear un Lead real, generarle una Cotización y registrar una Orden de Trabajo en el Taller — todo vos mismo, paso a paso en la app.",
+    position: "center",
+  },
+  {
+    title: "Paso 1 — Abrir el CRM",
+    icon: Database, iconColor: "#4E60A9", iconBg: "#EEF3FC",
+    why: "El CRM es donde registrás todos tus clientes y prospectos.",
+    instruction: 'Hacé click en la tarjeta "Ventas & CRM" del dashboard para abrir el módulo de clientes.',
+    selector: '[data-tour="crm-card"]',
+    position: "bottom",
+    detect: (p) => p === "/crm",
+    autoAdvance: true,
+  },
+  {
+    title: "Paso 2 — Crear un Lead",
+    icon: Database, iconColor: "#4E60A9", iconBg: "#EEF3FC",
+    why: "Cada cliente comienza como un Lead — su expediente en el sistema.",
+    instruction: 'Hacé click en el botón "+ Nuevo Lead" para registrar tu primer cliente.',
+    selector: '[data-tour="new-lead-btn"]',
+    position: "bottom",
+    detect: () => !!document.querySelector('[data-tour="nuevo-lead-modal"]'),
+    autoAdvance: true,
+  },
+  {
+    title: "Paso 3 — Completar los datos",
+    icon: Database, iconColor: "#4E60A9", iconBg: "#EEF3FC",
+    why: "Un expediente completo te permite personalizar la propuesta comercial.",
+    instruction: 'Copiá estos datos en el formulario, llenando cada campo. Cuando termines hacé click en "Crear Lead".',
+    selector: '[data-tour="nuevo-lead-modal"]',
+    position: "left",
+    dataFields: LEAD_SUGERIDO,
+    detect: () => !document.querySelector('[data-tour="nuevo-lead-modal"]'),
+    autoAdvance: false,
+  },
+  {
+    title: "Paso 4 — Generar Cotización",
+    icon: FileText, iconColor: "#059669", iconBg: "#ECFDF5",
+    why: "La cotización es la propuesta formal que le enviás al cliente antes de iniciar el servicio.",
+    instruction: 'En la tabla del CRM buscá a "Dr. Juan García (Prueba)" y hacé click en el ícono de documento 📄 al final de su fila.',
+    selector: '[data-tour="tour-quote-btn"]',
+    position: "left",
+    detect: () => !!document.querySelector('[data-tour="quote-modal"]'),
+    autoAdvance: true,
+  },
+  {
+    title: "Paso 5 — Completar la Cotización",
+    icon: FileText, iconColor: "#059669", iconBg: "#ECFDF5",
+    why: "Al generar el PDF queda registrada la propuesta en el historial del cliente.",
+    instruction: 'Seleccioná el tipo de servicio, completá los datos del equipo y hacé click en "Generar PDF".',
+    selector: '[data-tour="quote-modal"]',
+    position: "left",
+    detect: () => !document.querySelector('[data-tour="quote-modal"]'),
+    autoAdvance: false,
+  },
+  {
+    title: "Paso 6 — Ir al Taller",
+    icon: Wrench, iconColor: "#7C3AED", iconBg: "#F5F3FF",
+    why: "El cliente aprobó la cotización y trajo el equipo. Ahora lo registrás en el Taller.",
+    instruction: 'Hacé click en "Servicios" en el menú lateral para abrir el módulo de Taller.',
+    selector: '[data-tour="nav-taller"]',
+    position: "right",
+    detect: (p) => p === "/taller",
+    autoAdvance: true,
+  },
+  {
+    title: "Paso 7 — Nueva Orden de Trabajo",
+    icon: Wrench, iconColor: "#7C3AED", iconBg: "#F5F3FF",
+    why: "La OT documenta la entrada del equipo al laboratorio y asigna responsabilidades.",
+    instruction: 'Hacé click en "Nueva Orden" para registrar el equipo que ingresó al taller.',
+    selector: '[data-tour="tour-new-order-btn"]',
+    position: "bottom",
+    detect: () => !!document.querySelector('[data-tour="tour-new-order-modal"]'),
+    autoAdvance: true,
+  },
+  {
+    title: "Paso 8 — Completar la Orden",
+    icon: Wrench, iconColor: "#7C3AED", iconBg: "#F5F3FF",
+    why: "Los datos completos de la OT permiten dar seguimiento técnico y fijar fechas de entrega.",
+    instruction: 'Vinculá el Lead, completá los datos del equipo, asigná un técnico y hacé click en "Guardar OT".',
+    selector: '[data-tour="tour-new-order-modal"]',
+    position: "left",
+    detect: () => !document.querySelector('[data-tour="tour-new-order-modal"]'),
+    autoAdvance: false,
+  },
+  {
+    title: "¡Flujo completo dominado!",
+    icon: Sparkles, iconColor: "#059669", iconBg: "#ECFDF5",
+    instruction: "Repetí este ciclo con cada cliente real: Lead → Cotización → Orden de Servicio. El sistema registra todo el historial automáticamente.",
+    position: "center",
+  },
+];
+
+// ─── Componente ───────────────────────────────────────────────────────────────
 export default function OnboardingTour() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [active, setActive] = useState(false);
-  const [stepIndex, setStepIndex] = useState(0);
-  const [coords, setCoords] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const pathname      = usePathname();
+  const searchParams  = useSearchParams();
 
-  // Estados de la simulación interactiva
-  const [tutorialLeadId, setTutorialLeadId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const [active, setActive]   = useState(false);
+  const [step, setStep]       = useState(0);
+  const [coords, setCoords]   = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const [ready, setReady]     = useState(false);   // detección completada
+  const [copied, setCopied]   = useState<string | null>(null);
 
-  const STEPS: Step[] = [
-    {
-      title: "¡Bienvenido al Tutorial Guiado de Bionordi!",
-      icon: BookOpen,
-      iconColor: "#4E60A9",
-      iconBg: "#EEF3FC",
-      concept: "Aprende operando en tiempo real",
-      actionDesc: "Paso 1: Registraremos un cliente de prueba",
-      description: "Hola. Te guiaremos de la mano para que aprendas el flujo real de Bionordi: Registrar un Lead, hacerle su Cotización y generar su Orden en el Taller. Crearemos un cliente de prueba en tu base de datos y al final borraremos todo automáticamente para dejar tu sistema limpio. ¡Haz clic abajo para iniciar!",
-      showActionButton: true,
-      actionButtonText: "Crear Cliente de Prueba 🧪",
-    },
-    {
-      title: "Paso 1: Cliente registrado en tu CRM",
-      selector: 'tr[data-tour="tour-lead-row"]',
-      position: "bottom",
-      icon: Database,
-      iconColor: "#4E60A9",
-      iconBg: "#EEF3FC",
-      concept: "¿Por qué registrar un Lead primero?",
-      actionDesc: "Todo negocio empieza creando su expediente",
-      description: "¡Listo! He registrado en tu base de datos al cliente '🧪 Dr. Armando Ríos (Tutorial Bionordi)' en la fase de 'Nuevo'. En el día a día de Bionordi, el primer paso indispensable es registrar los datos de contacto y el nicho médico de tu cliente.",
-    },
-    {
-      title: "Paso 2: Generar su Cotización",
-      selector: 'button[data-tour="tour-quote-btn"]',
-      position: "bottom",
-      icon: FileText,
-      iconColor: "#059669",
-      iconBg: "#ECFDF5",
-      concept: "¿Cómo cobramos por el servicio?",
-      actionDesc: "Abre el cotizador del cliente de prueba",
-      description: "El segundo paso es enviarle una propuesta formal. Haz clic en el ícono de Documento (Generar cotización) en la fila del cliente destacado para abrir el cotizador de transductores biomédicos.",
-      showActionButton: true,
-      actionButtonText: "Simular Clic en Cotizar 📄",
-    },
-    {
-      title: "Paso 2.1: El Creador de Cotizaciones",
-      selector: '[data-tour="quote-modal"]',
-      position: "left",
-      icon: FileText,
-      iconColor: "#059669",
-      iconBg: "#ECFDF5",
-      concept: "Estructura de la propuesta comercial",
-      actionDesc: "Selecciona el servicio y calcula el total",
-      description: "Este es el cotizador oficial de Bionordi. Aquí puedes elegir el tipo de transductor (Convex, Lineal), registrar la serie e ingresar la falla reportada. Al dar clic al botón de abajo, simularé la creación de la cotización y el PDF en el sistema por ti de forma ultra-rápida.",
-      showActionButton: true,
-      actionButtonText: "Generar Cotización de Prueba 📄",
-    },
-    {
-      title: "Paso 3: Crear Orden de Servicio (Taller)",
-      selector: '[data-tour="tour-new-order-btn"]',
-      position: "bottom",
-      icon: Wrench,
-      iconColor: "#7C3AED",
-      iconBg: "#F5F3FF",
-      concept: "El ingreso del equipo al laboratorio técnico",
-      actionDesc: "Abre el registro de Órdenes de Trabajo (OT)",
-      description: "¡Genial! Cotización generada y aprobada por el cliente. Ahora nos ha entregado físicamente el equipo en el laboratorio. El tercer paso fundamental es registrar la entrada del equipo al Taller. Haz clic en el botón 'Nueva Orden' para ver cómo se hace.",
-      showActionButton: true,
-      actionButtonText: "Simular Clic en Nueva Orden 🛠️",
-    },
-    {
-      title: "Paso 3.1: Registro Técnico de Orden (OT)",
-      selector: '[data-tour="tour-new-order-modal"]',
-      position: "left",
-      icon: Wrench,
-      iconColor: "#7C3AED",
-      iconBg: "#F5F3FF",
-      concept: "Garantías, técnicos y entregas",
-      actionDesc: "Vincula al cliente y detalla el equipo",
-      description: "En este formulario seleccionas al cliente de prueba, describes la marca y serie del equipo, asignas un ingeniero de servicio y fijas la fecha de entrega. Da clic en el botón de abajo y crearé la Orden de Servicio en el laboratorio por ti.",
-      showActionButton: true,
-      actionButtonText: "Crear Orden de Servicio de Prueba 🛠️",
-    },
-    {
-      title: "Flujo Operativo Completado",
-      selector: '[data-tour="pipeline-funnel"]',
-      position: "bottom",
-      icon: Navigation,
-      iconColor: "#EA580C",
-      iconBg: "#FFF7ED",
-      concept: "La regla de oro de Bionordi CRM",
-      actionDesc: "Lead ➔ Cotización ➔ Orden de Servicio",
-      description: "¡Excelente trabajo! Has aprendido cómo opera el sistema de la mano de un flujo real. Recuerda que esta secuencia te garantiza que tu administración sea impecable: 1. Guardar cliente, 2. Cotizar propuesta, 3. Registrar orden en taller.",
-    },
-    {
-      title: "Limpieza automática de base de datos",
-      icon: Sparkles,
-      iconColor: "#34A853",
-      iconBg: "#EEF9F1",
-      concept: " CRM Impecable y Listo",
-      actionDesc: "Borrado de todos los datos ficticios",
-      description: "Para no contaminar tus métricas de ventas reales, al hacer clic en el botón de abajo eliminaré automáticamente de la base de datos el lead de prueba, la cotización simulada y la orden de servicio en una sola transacción. ¡Todo quedará perfectamente limpio!",
-      showActionButton: true,
-      actionButtonText: "Limpiar Datos y Terminar ✨",
-    },
-  ];
+  const stepStartRef = useRef<number>(Date.now());
+  const cancelRef    = useRef(false);
 
-  // Iniciar automáticamente o vía URL param ?runTour=true
+  const cur = STEPS[step];
+
+  // Activar vía ?runTour=true o automáticamente en usuarios nuevos
   useEffect(() => {
-    const runParam = searchParams.get("runTour");
+    const runParam  = searchParams.get("runTour");
     const completed = localStorage.getItem("bionordi-tour-completed");
 
     if (runParam === "true") {
-      // Limpiar query params sin causar refresco
       const url = new URL(window.location.href);
       url.searchParams.delete("runTour");
       window.history.replaceState({}, "", url.toString());
-
       setActive(true);
-      setStepIndex(0);
+      setStep(0);
     } else if (!completed) {
-      const timer = setTimeout(() => {
-        setActive(true);
-        setStepIndex(0);
-      }, 2000);
-      return () => clearTimeout(timer);
+      const t = setTimeout(() => { setActive(true); setStep(0); }, 2000);
+      return () => clearTimeout(t);
     }
   }, [searchParams]);
 
-  const activeStep = STEPS[stepIndex];
-
-  // Recuperar ID del lead de prueba si se recargó la página
+  // Reiniciar estado cuando cambia el paso
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedId = localStorage.getItem("bionordi-tutorial-lead-id");
-      if (savedId) {
-        setTutorialLeadId(Number(savedId));
-      }
-    }
-  }, []);
+    setReady(false);
+    stepStartRef.current = Date.now();
+    cancelRef.current = false;
+    return () => { cancelRef.current = true; };
+  }, [step]);
 
-  // Avanzar pasos automáticamente al detectar apertura de modales en pantalla
+  // Polling: buscar elemento + detectar completitud del paso
   useEffect(() => {
     if (!active) return;
 
-    const interval = setInterval(() => {
-      // Si estamos en paso 3 (esperando cotizar) y se abre el QuoteModal, avanzar
-      if (stepIndex === 2 && document.querySelector('[data-tour="quote-modal"]')) {
-        setStepIndex(3);
-      }
-      // Si estamos en paso 5 (esperando nueva orden) y se abre NuevaOrdenModal, avanzar
-      if (stepIndex === 4 && document.querySelector('[data-tour="tour-new-order-modal"]')) {
-        setStepIndex(5);
-      }
-    }, 400);
-
-    return () => clearInterval(interval);
-  }, [active, stepIndex]);
-
-  // Actualizar coordenadas del spotlight de forma "fixed" (viewport-relative)
-  useEffect(() => {
-    if (!active || !activeStep.selector) {
-      setCoords(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    const applyCoords = (el: Element) => {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      const rect = el.getBoundingClientRect();
-      setCoords({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
-    };
-
-    // Reintenta hasta 5 segundos para cubrir navegaciones con fetch async
     let attempts = 0;
-    const tryFind = () => {
-      if (cancelled) return;
-      const el = document.querySelector(activeStep.selector!);
-      if (el) {
-        applyCoords(el);
-      } else if (attempts < 20) {
-        attempts++;
-        setTimeout(tryFind, 250);
+    let autoAdvanceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const tick = () => {
+      if (cancelRef.current) return;
+      const elapsed = Date.now() - stepStartRef.current;
+
+      // Actualizar coordenadas del spotlight
+      if (cur.selector) {
+        const el = document.querySelector(cur.selector);
+        if (el) {
+          const r = el.getBoundingClientRect();
+          setCoords({ top: r.top, left: r.left, width: r.width, height: r.height });
+          el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } else if (attempts < 30) {
+          attempts++;
+        } else {
+          setCoords(null);
+        }
       } else {
         setCoords(null);
       }
-    };
-    const timer = setTimeout(tryFind, 150);
 
-    const onResize = () => {
-      const el = document.querySelector(activeStep.selector!);
-      if (el) applyCoords(el);
+      // Detección de completitud (mínimo 500ms en el paso para evitar falsos positivos)
+      if (elapsed > 500 && cur.detect) {
+        const done = cur.detect(pathname);
+        if (done) {
+          setReady(true);
+          if (cur.autoAdvance && !autoAdvanceTimer) {
+            autoAdvanceTimer = setTimeout(() => {
+              if (!cancelRef.current) setStep(s => s + 1);
+            }, 600);
+          }
+        }
+      }
     };
-    window.addEventListener("resize", onResize);
-    window.addEventListener("scroll", onResize, true);
+
+    tick();
+    const interval = setInterval(tick, 300);
+    window.addEventListener("resize", tick);
 
     return () => {
-      cancelled = true;
-      clearTimeout(timer);
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("scroll", onResize, true);
+      clearInterval(interval);
+      window.removeEventListener("resize", tick);
+      if (autoAdvanceTimer) clearTimeout(autoAdvanceTimer);
     };
-  }, [active, stepIndex, activeStep.selector]);
+  }, [active, step, pathname, cur]);
 
   if (!active) return null;
 
-  const handleNext = () => {
-    if (stepIndex < STEPS.length - 1) {
-      setStepIndex(p => p + 1);
-    } else {
-      handleClose();
-    }
+  // ─── Handlers ──────────────────────────────────────────────────────────────
+  const next = () => {
+    if (step < STEPS.length - 1) setStep(s => s + 1);
+    else close();
   };
 
-  const handleBack = () => {
-    if (stepIndex > 0) {
-      setStepIndex(p => p - 1);
-    }
-  };
-
-  const handleClose = () => {
+  const close = () => {
     localStorage.setItem("bionordi-tour-completed", "true");
     setActive(false);
   };
 
-  const markDone = (idx: number) =>
-    setCompletedSteps(prev => new Set(prev).add(idx));
-
-  // Acciones didácticas interactivas
-  const executeActionButton = async () => {
-    setLoading(true);
-    try {
-      if (stepIndex === 0) {
-        const res = await fetch("/api/leads", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nombre: "🧪 Dr. Armando Ríos (Tutorial Bionordi)",
-            telefono: "5551234567",
-            whatsapp: "5551234567",
-            ciudad: "Metepec",
-            estado_republica: "EdoMex",
-            nicho: "Cardiología",
-            notas: "Prospecto de prueba del tutorial interactivo.",
-            status_crm: "nuevo"
-          })
-        }).then(r => r.json());
-
-        if (res.lead && res.lead.id) {
-          setTutorialLeadId(res.lead.id);
-          localStorage.setItem("bionordi-tutorial-lead-id", String(res.lead.id));
-          markDone(0);
-          setStepIndex(1);
-          router.push("/crm?q=Tutorial");
-        }
-      }
-      else if (stepIndex === 2) {
-        const btn = document.querySelector('button[data-tour="tour-quote-btn"]') as HTMLButtonElement;
-        if (btn) {
-          btn.click();
-          markDone(2);
-          setStepIndex(3);
-        }
-      }
-      else if (stepIndex === 3) {
-        if (tutorialLeadId) {
-          await fetch("/api/cotizaciones", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              lead_id: tutorialLeadId,
-              tipo: "reparacion",
-              monto_total: 6500,
-              items_json: [{ nombre: "Reparación transductor convex", precio: 6500 }],
-              eq_tipo: "Convex",
-              eq_marca: "GE",
-              eq_modelo: "C1-5",
-              eq_descripcion: "Fuga de gel en membrana",
-              status: "generada"
-            })
-          });
-
-          await fetch("/api/leads", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: tutorialLeadId, status_crm: "seguimiento" })
-          });
-
-          const closeBtn = document.querySelector('[data-tour="quote-modal"] button') as HTMLButtonElement;
-          if (closeBtn) closeBtn.click();
-
-          markDone(3);
-          setStepIndex(4);
-          router.push("/taller");
-        }
-      }
-      else if (stepIndex === 4) {
-        const btn = document.querySelector('[data-tour="tour-new-order-btn"]') as HTMLButtonElement;
-        if (btn) {
-          btn.click();
-          markDone(4);
-          setStepIndex(5);
-        }
-      }
-      else if (stepIndex === 5) {
-        if (tutorialLeadId) {
-          await fetch("/api/ordenes", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              lead_id: tutorialLeadId,
-              tipo_orden: "reparacion",
-              equipo_tipo: "Transductor Convex",
-              equipo_marca: "GE",
-              equipo_modelo: "C1-5",
-              equipo_num_serie: "SN-987654",
-              falla_reportada: "Fuga de gel en membrana",
-              presupuesto: 6500,
-              status: "recibido",
-              tecnico: "Ing. Residente (Tutorial)"
-            })
-          });
-
-          const closeBtn = document.querySelector('[data-tour="tour-new-order-modal"] button') as HTMLButtonElement;
-          if (closeBtn) closeBtn.click();
-
-          markDone(5);
-          setStepIndex(6);
-          router.push("/");
-        }
-      }
-      else if (stepIndex === 7) {
-        if (tutorialLeadId) {
-          await fetch("/api/leads", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: tutorialLeadId })
-          });
-        }
-        localStorage.removeItem("bionordi-tutorial-lead-id");
-        localStorage.setItem("bionordi-tour-completed", "true");
-        markDone(7);
-        setActive(false);
-      }
-    } catch (e) {
-      console.error("Error en simulación del tutorial:", e);
-    }
-    setLoading(false);
+  const copyField = (value: string) => {
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(value);
+      setTimeout(() => setCopied(null), 1500);
+    });
   };
 
-  const StepIcon = activeStep.icon;
+  // ─── Posición del card ─────────────────────────────────────────────────────
+  const cardStyle = (): React.CSSProperties => {
+    const isMobile = window.innerWidth < 768;
 
-  const getTooltipStyle = () => {
-    if (!coords) {
+    if (isMobile || !coords || cur.position === "center") {
       return {
-        position: "fixed" as const,
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: "min(460px, 92vw)",
-        zIndex: 110,
-      };
-    }
-
-    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-
-    if (isMobile) {
-      return {
-        position: "fixed" as const,
-        bottom: "16px",
-        left: "12px",
-        right: "12px",
-        width: "calc(100% - 24px)",
-        zIndex: 110,
+        position: "fixed",
+        bottom: isMobile ? "12px" : "50%",
+        left:   isMobile ? "12px" : "50%",
+        right:  isMobile ? "12px" : "auto",
+        transform: isMobile ? "none" : "translate(-50%, 50%)",
+        width:  isMobile ? "calc(100% - 24px)" : "360px",
+        zIndex: 9999,
       };
     }
 
     const { top, left, width, height } = coords;
-    const pos = activeStep.position || "bottom";
-    const margin = 16;
+    const gap = 16;
+    const w   = 360;
+    const vw  = window.innerWidth;
+    const vh  = window.innerHeight;
 
-    switch (pos) {
-      case "top":
-        return {
-          position: "fixed" as const,
-          top: `${top - margin}px`,
-          left: `${left + width / 2}px`,
-          transform: "translate(-50%, -100%)",
-          width: "360px",
-          zIndex: 110,
-        };
-      case "left":
-        return {
-          position: "fixed" as const,
-          top: `${top + height / 2}px`,
-          left: `${left - margin}px`,
-          transform: "translate(-100%, -50%)",
-          width: "360px",
-          zIndex: 110,
-        };
+    switch (cur.position) {
       case "right":
-        return {
-          position: "fixed" as const,
-          top: `${top + height / 2}px`,
-          left: `${left + width + margin}px`,
-          transform: "translate(0, -50%)",
-          width: "360px",
-          zIndex: 110,
-        };
+        return { position: "fixed", top: `${Math.min(top, vh - 480)}px`, left: `${left + width + gap}px`, width: `${w}px`, zIndex: 9999 };
+      case "left":
+        return { position: "fixed", top: `${Math.min(top, vh - 480)}px`, left: `${Math.max(8, left - w - gap)}px`, width: `${w}px`, zIndex: 9999 };
+      case "top":
+        return { position: "fixed", bottom: `${vh - top + gap}px`, left: `${Math.min(Math.max(8, left + width / 2 - w / 2), vw - w - 8)}px`, width: `${w}px`, zIndex: 9999 };
       case "bottom":
       default:
-        return {
-          position: "fixed" as const,
-          top: `${top + height + margin}px`,
-          left: `${left + width / 2}px`,
-          transform: "translate(-50%, 0)",
-          width: "360px",
-          zIndex: 110,
-        };
+        return { position: "fixed", top: `${top + height + gap}px`, left: `${Math.min(Math.max(8, left + width / 2 - w / 2), vw - w - 8)}px`, width: `${w}px`, zIndex: 9999 };
     }
   };
 
-  return (
-    <div className="absolute inset-0 w-full h-full font-sans select-none" style={{ pointerEvents: "auto" }}>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-[1px] transition-all duration-300"
-        style={{ zIndex: 100 }}
-        onClick={handleClose}
-      />
+  const StepIcon = cur.icon;
+  const isLast   = step === STEPS.length - 1;
+  const canNext  = !cur.detect || ready;
 
-      {/* Spotlight */}
+  // ─── Render ────────────────────────────────────────────────────────────────
+  return (
+    <>
+      {/* Spotlight: visual only — NO bloquea clicks */}
       {coords && (
         <div
-          className="rounded-[22px] border-2 border-[#4E60A9] ring-4 ring-[#4E60A9]/30 transition-all duration-300 pointer-events-none animate-pulse"
           style={{
-            top: `${coords.top - 4}px`,
-            left: `${coords.left - 4}px`,
-            width: `${coords.width + 8}px`,
-            height: `${coords.height + 8}px`,
-            zIndex: 105,
             position: "fixed",
-            boxShadow: "0 0 0 9999px rgba(15, 23, 42, 0.65)",
+            top:    `${coords.top - 6}px`,
+            left:   `${coords.left - 6}px`,
+            width:  `${coords.width + 12}px`,
+            height: `${coords.height + 12}px`,
+            borderRadius: 18,
+            boxShadow: "0 0 0 9999px rgba(15, 23, 42, 0.50)",
+            border: `2px solid ${cur.iconColor}`,
+            pointerEvents: "none",
+            zIndex: 9990,
+            transition: "all 0.25s ease",
           }}
         />
       )}
 
-      {/* Dialog */}
+      {/* Fondo tenue cuando no hay spotlight (paso sin selector) */}
+      {!coords && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.40)", pointerEvents: "none", zIndex: 9989 }} />
+      )}
+
+      {/* Card del tutorial */}
       <div
-        className="bg-white rounded-[26px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 flex flex-col overflow-hidden transition-all duration-300"
-        style={getTooltipStyle()}
+        className="bg-white rounded-[24px] shadow-[0_24px_60px_rgba(0,0,0,0.18)] border border-slate-100 flex flex-col overflow-hidden"
+        style={cardStyle()}
       >
-        {/* Encabezado */}
-        <div className="px-6 pt-5 pb-4 flex items-center justify-between border-b border-gray-50">
+        {/* Header */}
+        <div className="px-5 pt-4 pb-3.5 flex items-center justify-between border-b border-gray-50">
           <div className="flex items-center gap-2.5">
-            <div
-              className="w-10 h-10 rounded-[14px] flex items-center justify-center shadow-inner shrink-0"
-              style={{ backgroundColor: activeStep.iconBg }}
-            >
-              <StepIcon size={18} strokeWidth={2.5} style={{ color: activeStep.iconColor }} />
+            <div className="w-9 h-9 rounded-[12px] flex items-center justify-center shrink-0" style={{ backgroundColor: cur.iconBg }}>
+              <StepIcon size={17} strokeWidth={2.5} style={{ color: cur.iconColor }} />
             </div>
             <div>
               <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#94A3B8]">
-                Paso {stepIndex + 1} de {STEPS.length}
+                {step === 0 ? "Inicio" : step === STEPS.length - 1 ? "Completado" : `Paso ${step} de ${STEPS.length - 2}`}
               </div>
-              <h2 className="text-[15px] font-extrabold text-[#1E293B] leading-none mt-0.5 tracking-tight">
-                {activeStep.title}
+              <h2 className="text-[14px] font-extrabold text-[#1E293B] leading-tight tracking-tight">
+                {cur.title}
               </h2>
             </div>
           </div>
           <button
-            onClick={handleClose}
-            title="Omitir tutorial"
+            onClick={close}
             className="w-7 h-7 rounded-full bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors flex items-center justify-center shrink-0"
+            title="Cerrar tutorial"
           >
-            <X size={14} strokeWidth={2.5} />
+            <X size={13} strokeWidth={2.5} />
           </button>
         </div>
 
-        {/* Contenido didáctico */}
-        <div className="px-6 py-5 space-y-4">
-          <div className="bg-[#FAFBFD] border border-[#E8EFF8] rounded-2xl p-4">
-            <div className="text-[10px] font-black uppercase tracking-wider text-[#4E60A9] mb-1">
-              💡 {activeStep.concept}
+        {/* Cuerpo */}
+        <div className="px-5 py-4 space-y-3 flex-1">
+          {/* ¿Por qué? */}
+          {cur.why && (
+            <div className="flex gap-2 items-start bg-[#F8FAFF] rounded-xl p-3 border border-[#E8EFF8]">
+              <span className="text-[14px] shrink-0 mt-px">💡</span>
+              <p className="text-[11.5px] text-[#475569] font-medium leading-relaxed">{cur.why}</p>
             </div>
-            <div className="text-[11px] font-bold text-[#8B95A5] uppercase tracking-wider mb-2">
-              🛠️ {activeStep.actionDesc}
-            </div>
-            <p className="text-[12.5px] leading-relaxed text-[#475569] font-medium mb-4">
-              {activeStep.description}
-            </p>
+          )}
 
-            {activeStep.showActionButton && (
-              <button
-                onClick={executeActionButton}
-                disabled={loading}
-                className="w-full h-11 rounded-xl text-white bg-gradient-to-r from-[#4E60A9] to-[#3B82F6] hover:brightness-105 font-bold text-[12.5px] shadow-sm flex items-center justify-center gap-2 transition-all disabled:opacity-40"
-              >
-                {loading ? <Activity size={15} className="animate-spin" /> : null}
-                {activeStep.actionButtonText}
-              </button>
-            )}
+          {/* Instrucción */}
+          <div className="flex gap-2 items-start">
+            <span className="text-[14px] shrink-0 mt-px">🛠️</span>
+            <p className="text-[12.5px] text-[#1E293B] font-semibold leading-relaxed">{cur.instruction}</p>
           </div>
-        </div>
 
-        {/* Controles de navegación */}
-        <div className="px-6 pb-5 pt-2 flex items-center justify-between bg-white border-t border-gray-50 shrink-0">
-          <button
-            onClick={handleClose}
-            className="text-[12px] font-bold text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            Omitir
-          </button>
-          
-          <div className="flex gap-2">
-            {stepIndex > 0 && (
-              <button
-                onClick={handleBack}
-                className="h-[38px] px-4 rounded-xl border border-gray-200 text-[#475569] hover:bg-gray-50 text-[12px] font-bold flex items-center gap-1.5 transition-colors"
-              >
-                <ChevronLeft size={14} strokeWidth={2.5} />
-                Atrás
-              </button>
-            )}
-            {(() => {
-              const needsAction = !!activeStep.showActionButton && !completedSteps.has(stepIndex);
-              return (
+          {/* Datos sugeridos */}
+          {cur.dataFields && (
+            <div className="space-y-1.5 mt-1">
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#94A3B8]">Datos a ingresar — hacé click para copiar</p>
+              {cur.dataFields.map(f => (
                 <button
-                  onClick={handleNext}
-                  disabled={needsAction}
-                  title={needsAction ? "Completá la acción para continuar" : undefined}
-                  className="h-[38px] px-5 rounded-xl text-white bg-[#4E60A9] hover:bg-[#3B4CA0] text-[12px] font-bold flex items-center gap-1.5 shadow-md shadow-[#4E60A9]/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none"
+                  key={f.label}
+                  onClick={() => copyField(f.value)}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-[#F8FAFF] border border-[#E8EFF8] hover:border-[#4E60A9]/30 hover:bg-[#EEF3FC] transition-all group"
                 >
-                  {stepIndex === STEPS.length - 1 ? (
-                    <>Entendido <CheckCircle2 size={14} strokeWidth={2.5} /></>
-                  ) : (
-                    <>Siguiente <ChevronRight size={14} strokeWidth={2.5} /></>
-                  )}
+                  <div className="text-left">
+                    <div className="text-[9px] font-extrabold uppercase tracking-wider text-[#94A3B8] group-hover:text-[#4E60A9]">{f.label}</div>
+                    <div className="text-[12px] font-bold text-[#1E293B] font-mono">{f.value}</div>
+                  </div>
+                  {copied === f.value
+                    ? <Check size={13} className="text-[#059669] shrink-0" />
+                    : <Copy size={12} className="text-[#CBD5E1] group-hover:text-[#4E60A9] shrink-0" />
+                  }
                 </button>
-              );
-            })()}
+              ))}
+            </div>
+          )}
+
+          {/* Indicador de espera */}
+          {cur.detect && !ready && !cur.autoAdvance && (
+            <div className="flex items-center gap-2 text-[11px] text-[#94A3B8] font-medium">
+              <div className="w-2 h-2 rounded-full bg-[#94A3B8] animate-pulse" />
+              Esperando que completes la acción...
+            </div>
+          )}
+
+          {/* Confirmación cuando detección disparó */}
+          {ready && !cur.autoAdvance && (
+            <div className="flex items-center gap-2 text-[11px] text-[#059669] font-bold bg-[#ECFDF5] rounded-xl px-3 py-2 border border-green-100">
+              <CheckCircle2 size={13} className="shrink-0" />
+              ¡Acción completada! Hacé click en Siguiente para continuar.
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 pb-4 pt-2 flex items-center justify-between border-t border-gray-50">
+          {/* Dots de progreso */}
+          <div className="flex gap-1">
+            {STEPS.map((_, i) => (
+              <div
+                key={i}
+                className="rounded-full transition-all duration-200"
+                style={{
+                  width: i === step ? 16 : 6,
+                  height: 6,
+                  backgroundColor: i === step ? cur.iconColor : i < step ? "#CBD5E1" : "#E2E8F0",
+                }}
+              />
+            ))}
           </div>
+
+          <button
+            onClick={isLast ? close : next}
+            disabled={!canNext}
+            className="h-[36px] px-5 rounded-xl text-white text-[12px] font-bold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{ backgroundColor: canNext ? cur.iconColor : "#94A3B8" }}
+          >
+            {isLast ? (
+              <><CheckCircle2 size={13} strokeWidth={2.5} /> Finalizar</>
+            ) : (
+              <>Siguiente <ChevronRight size={13} strokeWidth={2.5} /></>
+            )}
+          </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

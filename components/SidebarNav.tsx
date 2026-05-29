@@ -19,10 +19,10 @@ function Section({ label, collapsed }: { label: string; collapsed: boolean }) {
 }
 
 function NavItem({
-  href, icon: Icon, label, active, collapsed, badge, color = "#4E60A9", onClick,
+  href, icon: Icon, label, active, collapsed, badge, color = "#4E60A9", onClick, tourId,
 }: {
   href?: string; icon: any; label: string; active: boolean; collapsed: boolean;
-  badge?: number; color?: string; onClick?: () => void;
+  badge?: number; color?: string; onClick?: () => void; tourId?: string;
 }) {
   const [hov, setHov] = useState(false);
   const bg = active ? `${color}18` : hov ? "#F1F5F9" : "transparent";
@@ -58,7 +58,8 @@ function NavItem({
     return (
       <button onClick={onClick} title={collapsed ? label : undefined}
         onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-        className={cls} style={{ background: bg, fontFamily: "inherit" }} suppressHydrationWarning>
+        className={cls} style={{ background: bg, fontFamily: "inherit" }}
+        data-tour={tourId} suppressHydrationWarning>
         {inner}
       </button>
     );
@@ -66,7 +67,7 @@ function NavItem({
   return (
     <Link href={href!} title={collapsed ? label : undefined}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      className={cls} style={{ background: bg }}>
+      className={cls} style={{ background: bg }} data-tour={tourId}>
       {inner}
     </Link>
   );
@@ -169,7 +170,7 @@ export default function SidebarNav() {
           <NavItem href="/chat"       icon={MessageCircle} label="WhatsApp"   active={is("/chat")}         collapsed={collapsed} color="#25D366" />
           <NavItem href="/correo"     icon={Mail}          label="Correo"   active={is("/correo")}      collapsed={collapsed} color="#0EA5E9" />
           <Section label="Taller"    collapsed={collapsed} />
-          <NavItem href="/taller"     icon={Wrench}   label="Servicios"     active={is("/taller")}       collapsed={collapsed} color="#7C3AED" badge={tallerBadge} />
+          <NavItem href="/taller"     icon={Wrench}   label="Servicios"     active={is("/taller")}       collapsed={collapsed} color="#7C3AED" badge={tallerBadge} tourId="nav-taller" />
           <Section label="Herramientas" collapsed={collapsed} />
           <NavItem href="/cotizar"       icon={FileText} label="Cotizar"       active={is("/cotizar")}       collapsed={collapsed} color="#059669" />
           <NavItem href="/cotizaciones"  icon={ClipboardList} label="Cotizaciones" active={is("/cotizaciones")} collapsed={collapsed} color="#059669" />

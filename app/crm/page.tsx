@@ -217,7 +217,7 @@ export default function CRMPage() {
               {total} leads{leads.length < total ? ` · ${leads.length} mostrados` : ""}{activeFilters > 0 ? ` · ${activeFilters} filtro${activeFilters>1?"s":""}` : ""}
             </p>
           </div>
-          <button onClick={()=>setShowNuevoLead(true)} className="btn-primary shrink-0" suppressHydrationWarning>
+          <button onClick={()=>setShowNuevoLead(true)} className="btn-primary shrink-0" suppressHydrationWarning data-tour="new-lead-btn">
             <UserPlus size={14}/> Nuevo Lead
           </button>
         </div>
@@ -312,7 +312,7 @@ export default function CRMPage() {
                 <Users size={13}/> Por agente
               </button>
             </div>
-            <button onClick={()=>setShowNuevoLead(true)} className="btn-primary" suppressHydrationWarning>
+            <button onClick={()=>setShowNuevoLead(true)} className="btn-primary" suppressHydrationWarning data-tour="new-lead-btn">
               <UserPlus size={14}/> Nuevo Lead
             </button>
             <button onClick={()=>{
@@ -386,7 +386,7 @@ export default function CRMPage() {
                   return (
                     <Fragment key={`f${lead.id}`}>
                       <tr onClick={()=>{ setExpanded(isExp?null:lead.id); if(!isExp) loadInts(lead.id); }}
-                          data-tour={lead.nombre.includes("Tutorial") ? "tour-lead-row" : undefined}
+                          data-tour={lead.nombre.includes("Tutorial") || lead.nombre.includes("(Prueba)") ? "tour-lead-row" : undefined}
                           className={`transition-colors group ${isExp?'bg-blue-50/20 shadow-[inset_4px_0_0_#4E60A9]':isSel?'bg-[#F0F5FF]':'hover:bg-gray-50/50'}`}>
                         <td className="pl-4" onClick={e=>e.stopPropagation()}>
                           <input type="checkbox" checked={isSel} onChange={()=>toggleSelect(lead.id)}
@@ -459,7 +459,7 @@ export default function CRMPage() {
                               {loadScr===lead.id ? <Activity size={14} className="animate-spin"/> : <Sparkles size={14} fill="currentColor"/>}
                             </button>
                             <button onClick={e=>{ e.stopPropagation(); setQuoteLead(lead); }}
-                              data-tour={lead.nombre.includes("Tutorial") ? "tour-quote-btn" : undefined}
+                              data-tour={lead.nombre.includes("Tutorial") || lead.nombre.includes("(Prueba)") ? "tour-quote-btn" : undefined}
                               title="Generar cotización"
                               className="w-8 h-8 flex items-center justify-center rounded-full text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white transition-all shadow-sm">
                               <FileText size={14}/>
