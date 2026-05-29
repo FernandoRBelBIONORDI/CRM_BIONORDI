@@ -3,86 +3,122 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { X, ChevronRight, Copy, Check, BookOpen, Database, FileText, Wrench, Sparkles, CheckCircle2, Loader2 } from "lucide-react";
+import {
+  X, Copy, Check, BookOpen,
+  Database, FileText, Wrench, Sparkles, CheckCircle2,
+  Loader2, ArrowRight,
+} from "lucide-react";
 
-// ─── Definición de pasos ──────────────────────────────────────────────────────
+// ─── Tipos ────────────────────────────────────────────────────────────────────
 type StepDef = {
   title: string;
+  subtitle: string;
   icon: any;
-  iconColor: string;
-  iconBg: string;
-  why?: string;
-  instruction: string;
+  color: string;
+  bg: string;
+  why: string;
+  steps: string[];               // instrucciones numeradas
   selector?: string;
   position?: "bottom" | "top" | "left" | "right" | "center";
-  dataFields?: { label: string; value: string }[];
+  fields?: { label: string; value: string; note?: string }[];
   detect?: (pathname: string) => boolean;
   autoAdvance?: boolean;
 };
 
+// ─── Pasos ────────────────────────────────────────────────────────────────────
 const STEPS: StepDef[] = [
   {
-    title: "¡Bienvenido al Tutorial de Bionordi!",
-    icon: BookOpen, iconColor: "#4E60A9", iconBg: "#EEF3FC",
-    instruction: "Aprenderás el flujo operativo real: crear un Lead, generar una Cotización y registrar una Orden de Trabajo en el Taller. Interactuás directamente con la app mientras te guío.",
+    title: "Tutorial Bionordi CRM",
+    subtitle: "Flujo operativo completo",
+    icon: BookOpen, color: "#4E60A9", bg: "#EEF3FC",
+    why: "Aprenderás a manejar el ciclo de vida completo de un cliente: Lead → Cotización → Orden de Trabajo.",
+    steps: [
+      "Interactuás directamente con la app real.",
+      "Cada paso te indica exactamente qué hacer y dónde hacer click.",
+      "Los datos de prueba se pueden borrar al final.",
+    ],
     position: "center",
   },
   {
-    title: "Paso 1 — Abrir el CRM",
-    icon: Database, iconColor: "#4E60A9", iconBg: "#EEF3FC",
-    why: "El CRM es el módulo donde registrás tus clientes y generás sus cotizaciones.",
-    instruction: "Hacé click en la tarjeta 'Ventas & CRM' del dashboard, o en 'CRM' en el menú lateral.",
+    title: "Abrir el CRM",
+    subtitle: "Paso 1 de 8",
+    icon: Database, color: "#4E60A9", bg: "#EEF3FC",
+    why: "El CRM es el módulo central donde gestionás todos los prospectos y clientes de Bionordi.",
+    steps: [
+      "Hacé click en la tarjeta azul 'Ventas & CRM' del dashboard.",
+      "El tutorial avanza automáticamente al llegar al CRM.",
+    ],
     selector: '[data-tour="crm-card"]',
     position: "bottom",
     detect: (p) => p === "/crm",
     autoAdvance: true,
   },
   {
-    title: "Paso 2 — Crear un nuevo Lead",
-    icon: Database, iconColor: "#4E60A9", iconBg: "#EEF3FC",
-    why: "Todo cliente comienza como un Lead — su ficha de contacto en el sistema.",
-    instruction: "Hacé click en el botón '+ Nuevo Lead' que está en la barra superior del CRM.",
+    title: "Crear nuevo Lead",
+    subtitle: "Paso 2 de 8",
+    icon: Database, color: "#4E60A9", bg: "#EEF3FC",
+    why: "Todo cliente comienza como un Lead — su expediente de contacto en el sistema.",
+    steps: [
+      "Buscá el botón azul '+ Nuevo Lead' en la barra superior del CRM.",
+      "Hacé click. El formulario se abrirá automáticamente.",
+    ],
     selector: '[data-tour="new-lead-btn"]',
     position: "bottom",
     detect: () => !!document.querySelector('[data-tour="nuevo-lead-modal"]'),
     autoAdvance: true,
   },
   {
-    title: "Paso 3 — Completar el formulario",
-    icon: Database, iconColor: "#4E60A9", iconBg: "#EEF3FC",
-    why: "Un expediente completo te permite contactar al cliente por WhatsApp, correo o teléfono.",
-    instruction: "Copiá y pegá cada dato en el campo correspondiente del formulario. Cuando estén todos llenos, hacé click en 'Crear Lead'.",
+    title: "Registrar datos del Lead",
+    subtitle: "Paso 3 de 8",
+    icon: Database, color: "#4E60A9", bg: "#EEF3FC",
+    why: "Un expediente completo te permite contactar al cliente por WhatsApp, correo o teléfono desde el sistema.",
+    steps: [
+      "Hacé click en cada campo de abajo para copiar el dato.",
+      "Pegalo en el campo correspondiente del formulario.",
+      "Completá Ciudad → 'Tijuana', Estado → 'Baja California', Nicho → 'Cardiología'.",
+      "Cuando estén todos los campos, hacé click en 'Crear Lead'.",
+    ],
     selector: '[data-tour="nuevo-lead-modal"]',
     position: "left",
-    dataFields: [
+    fields: [
       { label: "Nombre / Razón Social", value: "Dr. Juan García (Tutorial)" },
       { label: "Teléfono",              value: "6641234567" },
       { label: "WhatsApp",              value: "526641234567" },
       { label: "Correo electrónico",    value: "juan.garcia@bionordi.mx" },
-      { label: "Ciudad",                value: "Tijuana" },
-      // Estado y Nicho son selects — elegí "Baja California" y "Cardiología"
     ],
     detect: () => !document.querySelector('[data-tour="nuevo-lead-modal"]'),
     autoAdvance: false,
   },
   {
-    title: "Paso 4 — Abrir cotizador del Lead",
-    icon: FileText, iconColor: "#059669", iconBg: "#ECFDF5",
-    why: "La cotización es la propuesta formal que se envía al cliente antes de que lleve el equipo.",
-    instruction: "Buscá a 'Dr. Juan García (Tutorial)' en la tabla y hacé click en el ícono de documento 📄 al final de su fila.",
+    title: "Generar Cotización",
+    subtitle: "Paso 4 de 8",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "La cotización es la propuesta formal de servicio que recibe el cliente antes de entregar el equipo.",
+    steps: [
+      "En la tabla del CRM, buscá la fila de 'Dr. Juan García (Tutorial)'.",
+      "Al final de esa fila hay varios íconos — hacé click en el de documento 📄.",
+      "Se abrirá el cotizador de reparación de transductores.",
+      "Nota: este cotizador es específico para reparación. Para venta/consumibles usá el botón 'Cotizaciones' del dashboard.",
+    ],
     selector: '[data-tour="tour-quote-btn"]',
     position: "left",
     detect: () => !!document.querySelector('[data-tour="quote-modal"]'),
     autoAdvance: true,
   },
   {
-    title: "Paso 5 — Completar la Cotización",
-    icon: FileText, iconColor: "#059669", iconBg: "#ECFDF5",
-    why: "Al generar el PDF queda registrada la propuesta en el historial del cliente.",
-    instruction: "1) Seleccioná 'Lineal' en el dropdown 'Tipo de transductor'. 2) Completá Marca, Modelo, No. de Serie y Falla. 3) Marcá el checkbox de 'Reparación transductor lineal' en la lista. 4) Hacé click en 'Generar PDF'.",
+    title: "Completar la Cotización",
+    subtitle: "Paso 5 de 8",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "Los datos técnicos del equipo quedan registrados en la cotización y en el historial del cliente.",
+    steps: [
+      "En 'Tipo de transductor': desplegá y elegí 'Lineal'.",
+      "Completá Marca, Modelo, No. de Serie y Falla reportada con los datos de abajo.",
+      "En el panel de servicios: marcá el checkbox de 'Reparación transductor lineal'.",
+      "Hacé click en 'Generar PDF' para crear y guardar la cotización.",
+    ],
     selector: '[data-tour="quote-modal"]',
     position: "left",
-    dataFields: [
+    fields: [
       { label: "Marca",          value: "Mindray" },
       { label: "Modelo",         value: "L14-6Ns" },
       { label: "No. de Serie",   value: "MY-829281" },
@@ -92,33 +128,49 @@ const STEPS: StepDef[] = [
     autoAdvance: false,
   },
   {
-    title: "Paso 6 — Ir al Taller",
-    icon: Wrench, iconColor: "#7C3AED", iconBg: "#F5F3FF",
-    why: "El cliente aprobó la cotización y trajo el equipo al laboratorio.",
-    instruction: "Cerrá el visor de PDF si está abierto y hacé click en 'Servicios' en el menú lateral para abrir el Taller.",
+    title: "Ir al Taller",
+    subtitle: "Paso 6 de 8",
+    icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
+    why: "El cliente aprobó la cotización y trae físicamente el equipo al laboratorio.",
+    steps: [
+      "Cerrá el visor de PDF si está abierto.",
+      "Hacé click en 'Servicios' en el menú lateral (ícono de llave inglesa).",
+      "El tutorial avanza solo cuando llegués al Taller.",
+    ],
     selector: '[data-tour="nav-taller"]',
     position: "right",
     detect: (p) => p === "/taller",
     autoAdvance: true,
   },
   {
-    title: "Paso 7 — Nueva Orden de Trabajo",
-    icon: Wrench, iconColor: "#7C3AED", iconBg: "#F5F3FF",
-    why: "La OT documenta el ingreso físico del equipo y asigna al técnico responsable.",
-    instruction: "Hacé click en el botón 'Nueva Orden' para registrar la entrada del equipo al taller.",
+    title: "Nueva Orden de Trabajo",
+    subtitle: "Paso 7 de 8",
+    icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
+    why: "La OT (Orden de Trabajo) documenta la entrada del equipo al laboratorio y registra el técnico responsable.",
+    steps: [
+      "Hacé click en el botón 'Nueva Orden' en la barra superior del Taller.",
+      "El formulario se abrirá automáticamente.",
+    ],
     selector: '[data-tour="tour-new-order-btn"]',
     position: "bottom",
     detect: () => !!document.querySelector('[data-tour="tour-new-order-modal"]'),
     autoAdvance: true,
   },
   {
-    title: "Paso 8 — Completar la Orden de Trabajo",
-    icon: Wrench, iconColor: "#7C3AED", iconBg: "#F5F3FF",
-    why: "Los datos del equipo y el técnico asignado quedan en el historial para trazabilidad.",
-    instruction: "Buscá y vinculá a 'Dr. Juan García (Tutorial)'. Completá los campos del equipo y asigná un técnico. Hacé click en 'Guardar OT'.",
+    title: "Completar la Orden de Trabajo",
+    subtitle: "Paso 8 de 8",
+    icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
+    why: "Los datos del equipo y el técnico asignado quedan en el historial para trazabilidad técnica y de cobro.",
+    steps: [
+      "En 'Vincular a lead': buscá 'Dr. Juan García' y seleccionalo.",
+      "Completá Tipo de transductor, Marca, Modelo y No. de serie.",
+      "Asigná un técnico en el campo 'Técnico'.",
+      "Describí la falla en 'Falla reportada'.",
+      "Hacé click en 'Guardar OT'.",
+    ],
     selector: '[data-tour="tour-new-order-modal"]',
     position: "left",
-    dataFields: [
+    fields: [
       { label: "Tipo de transductor", value: "Transductor Lineal" },
       { label: "Marca",               value: "Mindray" },
       { label: "Modelo",              value: "L14-6Ns" },
@@ -130,91 +182,92 @@ const STEPS: StepDef[] = [
     autoAdvance: false,
   },
   {
-    title: "¡Flujo completo dominado!",
-    icon: Sparkles, iconColor: "#059669", iconBg: "#ECFDF5",
-    instruction: "Aprendiste el ciclo completo: Lead → Cotización → Orden de Servicio. El sistema registra todo el historial automáticamente. Podés limpiar los datos de prueba con el botón de abajo.",
+    title: "¡Flujo completado!",
+    subtitle: "Tutorial finalizado",
+    icon: Sparkles, color: "#059669", bg: "#ECFDF5",
+    why: "Dominaste el ciclo completo de Bionordi CRM. Repetí este flujo con cada cliente real.",
+    steps: [
+      "Lead registrado en el CRM.",
+      "Cotización de reparación generada en PDF.",
+      "Orden de Trabajo creada en el Taller.",
+      "Podés limpiar los datos de prueba con el botón de abajo.",
+    ],
     position: "center",
   },
 ];
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 export default function OnboardingTour() {
-  const pathname      = usePathname();
-  const searchParams  = useSearchParams();
+  const pathname     = usePathname();
+  const searchParams = useSearchParams();
 
-  const [active, setActive]       = useState(false);
-  const [step, setStep]           = useState(0);
-  const [coords, setCoords]       = useState<{ top: number; left: number; width: number; height: number } | null>(null);
-  const [ready, setReady]         = useState(false);
-  const [copied, setCopied]       = useState<string | null>(null);
+  const [active,     setActive]     = useState(false);
+  const [step,       setStep]       = useState(0);
+  const [coords,     setCoords]     = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const [ready,      setReady]      = useState(false);
+  const [copied,     setCopied]     = useState<string | null>(null);
   const [isCleaning, setIsCleaning] = useState(false);
-  const [cleaned, setCleaned]     = useState(false);
+  const [cleaned,    setCleaned]    = useState(false);
 
-  const cur = STEPS[step]; // derivado del estado, disponible en el render
+  const cur    = STEPS[step];
+  const isLast = step === STEPS.length - 1;
+  const pct    = step === 0 ? 0 : Math.round((step / (STEPS.length - 1)) * 100);
 
-  // Activar vía ?runTour=true o automáticamente en usuarios nuevos
+  // ─── Activación ──────────────────────────────────────────────────────────────
   useEffect(() => {
-    const runParam  = searchParams.get("runTour");
+    const run       = searchParams.get("runTour");
     const completed = localStorage.getItem("bionordi-tour-completed");
-
-    if (runParam === "true") {
+    if (run === "true") {
       const url = new URL(window.location.href);
       url.searchParams.delete("runTour");
       window.history.replaceState({}, "", url.toString());
-      setActive(true);
-      setStep(0);
-      setCleaned(false);
+      setActive(true); setStep(0); setCleaned(false);
     } else if (!completed) {
       const t = setTimeout(() => { setActive(true); setStep(0); setCleaned(false); }, 2000);
       return () => clearTimeout(t);
     }
   }, [searchParams]);
 
-  // Polling: spotlight + detección de completitud del paso
+  // ─── Polling: spotlight + detección ──────────────────────────────────────────
   useEffect(() => {
     if (!active) return;
 
-    const cur       = STEPS[step];
+    const def       = STEPS[step];
     const stepStart = Date.now();
     let findAttempts = 0;
-    let autoAdvanceTimer: ReturnType<typeof setTimeout> | null = null;
+    let advTimer: ReturnType<typeof setTimeout> | null = null;
 
     setReady(false);
-    setCoords(null);
+    // Solo limpia coords si el nuevo paso no tiene selector (evita flicker)
+    if (!def.selector) setCoords(null);
 
-    // Devuelve el primer elemento VISIBLE que coincide con el selector
-    const findVisible = (selector: string): Element | null => {
-      const els = Array.from(document.querySelectorAll(selector));
-      return els.find(el => {
+    const findVisible = (sel: string): Element | null =>
+      Array.from(document.querySelectorAll(sel)).find(el => {
         const r = el.getBoundingClientRect();
         return r.width > 0 && r.height > 0;
       }) ?? null;
-    };
 
     const tick = () => {
-      // ── Coordenadas del spotlight ─────────────────────────────────────────
-      if (cur.selector) {
-        const el = findVisible(cur.selector)
-          // fallback: si crm-card no está en pantalla (usuario ya en /crm), usar nav-crm
-          ?? (cur.selector === '[data-tour="crm-card"]' ? findVisible('[data-tour="nav-crm"]') : null);
-
+      // Coords
+      if (def.selector) {
+        const el = findVisible(def.selector);
         if (el) {
           findAttempts = 0;
           const r = el.getBoundingClientRect();
           setCoords({ top: r.top, left: r.left, width: r.width, height: r.height });
-        } else if (findAttempts < 20) {
+        } else if (findAttempts < 25) {
           findAttempts++;
         } else {
           setCoords(null);
         }
       }
 
-      // ── Detección (mínimo 800ms para evitar falsos positivos en auto-avance) ──
-      if (!autoAdvanceTimer && cur.detect && Date.now() - stepStart > 800) {
-        if (cur.detect(pathname)) {
+      // Detección (mín 800ms para evitar falso positivo inmediato)
+      if (!advTimer && def.detect && Date.now() - stepStart > 800) {
+        if (def.detect(pathname)) {
           setReady(true);
-          if (cur.autoAdvance) {
-            autoAdvanceTimer = setTimeout(() => setStep(s => s + 1), 700);
+          if (def.autoAdvance) {
+            advTimer = setTimeout(() => setStep(s => s + 1), 700);
           }
         }
       }
@@ -223,30 +276,22 @@ export default function OnboardingTour() {
     tick();
     const interval = setInterval(tick, 300);
     window.addEventListener("resize", tick);
-
     return () => {
       clearInterval(interval);
       window.removeEventListener("resize", tick);
-      if (autoAdvanceTimer) clearTimeout(autoAdvanceTimer);
+      if (advTimer) clearTimeout(advTimer);
     };
-  }, [active, step, pathname]); // cur se deriva de step — no necesita ser dep
+  }, [active, step, pathname]);
 
   if (!active) return null;
 
-  // ─── Handlers ──────────────────────────────────────────────────────────────
-  const next = () => {
-    if (step < STEPS.length - 1) setStep(s => s + 1);
-    else close();
-  };
+  // ─── Handlers ────────────────────────────────────────────────────────────────
+  const next  = () => step < STEPS.length - 1 ? setStep(s => s + 1) : close();
+  const close = () => { localStorage.setItem("bionordi-tour-completed", "true"); setActive(false); };
 
-  const close = () => {
-    localStorage.setItem("bionordi-tour-completed", "true");
-    setActive(false);
-  };
-
-  const copyField = (value: string) => {
-    navigator.clipboard.writeText(value).then(() => {
-      setCopied(value);
+  const copy = (val: string) => {
+    navigator.clipboard.writeText(val).then(() => {
+      setCopied(val);
       setTimeout(() => setCopied(null), 1500);
     });
   };
@@ -254,215 +299,265 @@ export default function OnboardingTour() {
   const cleanupData = async () => {
     setIsCleaning(true);
     try {
-      // Busca por nombre para no depender del límite de paginación
-      const res = await fetch("/api/leads?q=Tutorial&limit=100");
+      const res  = await fetch("/api/leads?q=Tutorial&limit=100");
       const data = await res.json();
-      if (data.leads && Array.isArray(data.leads)) {
-        const tutorialLeads = data.leads.filter((l: any) =>
+      if (Array.isArray(data.leads)) {
+        for (const l of data.leads.filter((l: any) =>
           l.nombre.includes("Tutorial") || l.nombre.includes("(Prueba)")
-        );
-        for (const lead of tutorialLeads) {
+        )) {
           await fetch("/api/leads", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: lead.id }),
+            body: JSON.stringify({ id: l.id }),
           });
         }
       }
       setCleaned(true);
-      setTimeout(() => { close(); }, 2000);
-    } catch (err) {
-      console.error("Error cleaning up tutorial data:", err);
-    } finally {
-      setIsCleaning(false);
-    }
+      setTimeout(close, 2000);
+    } catch {}
+    finally { setIsCleaning(false); }
   };
 
-  // ─── Posición del card ─────────────────────────────────────────────────────
+  // ─── Posición del card ────────────────────────────────────────────────────────
   const cardStyle = (): React.CSSProperties => {
-    if (typeof window === "undefined") return {};
-    const isMobile = window.innerWidth < 768;
+    if (typeof window === "undefined") return { display: "none" };
+    const mobile = window.innerWidth < 768;
+    const W = 400, gap = 18;
+    const vw = window.innerWidth, vh = window.innerHeight;
 
-    if (isMobile || !coords || cur.position === "center") {
-      return {
-        position: "fixed",
-        bottom: isMobile ? "12px" : "50%",
-        left:   isMobile ? "12px" : "50%",
-        right:  isMobile ? "12px" : "auto",
-        transform: isMobile ? "none" : "translate(-50%, 50%)",
-        width:  isMobile ? "calc(100% - 24px)" : "380px",
-        zIndex: 9999,
-        pointerEvents: "auto",
-      };
-    }
+    if (mobile) return {
+      position: "fixed", bottom: 12, left: 12, right: 12,
+      width: "calc(100% - 24px)", zIndex: 9999, pointerEvents: "auto",
+    };
+
+    if (!coords || cur.position === "center") return {
+      position: "fixed", top: "50%", left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: `${W}px`, zIndex: 9999, pointerEvents: "auto",
+    };
 
     const { top, left, width, height } = coords;
-    const gap = 16;
-    const w   = 380;
-    const vw  = window.innerWidth;
-    const vh  = window.innerHeight;
+    const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
     switch (cur.position) {
-      case "right":
-        return { position: "fixed", top: `${Math.min(top, vh - 480)}px`, left: `${left + width + gap}px`, width: `${w}px`, zIndex: 9999, pointerEvents: "auto" };
-      case "left":
-        return { position: "fixed", top: `${Math.min(top, vh - 480)}px`, left: `${Math.max(8, left - w - gap)}px`, width: `${w}px`, zIndex: 9999, pointerEvents: "auto" };
-      case "top":
-        return { position: "fixed", bottom: `${vh - top + gap}px`, left: `${Math.min(Math.max(8, left + width / 2 - w / 2), vw - w - 8)}px`, width: `${w}px`, zIndex: 9999, pointerEvents: "auto" };
-      case "bottom":
-      default:
-        return { position: "fixed", top: `${top + height + gap}px`, left: `${Math.min(Math.max(8, left + width / 2 - w / 2), vw - w - 8)}px`, width: `${w}px`, zIndex: 9999, pointerEvents: "auto" };
+      case "right": return {
+        position: "fixed",
+        top:  `${clamp(top, 12, vh - 600)}px`,
+        left: `${left + width + gap}px`,
+        width: `${W}px`, zIndex: 9999, pointerEvents: "auto",
+      };
+      case "left": return {
+        position: "fixed",
+        top:  `${clamp(top, 12, vh - 600)}px`,
+        left: `${clamp(left - W - gap, 12, vw - W - 12)}px`,
+        width: `${W}px`, zIndex: 9999, pointerEvents: "auto",
+      };
+      case "top": return {
+        position: "fixed",
+        bottom: `${vh - top + gap}px`,
+        left:   `${clamp(left + width / 2 - W / 2, 12, vw - W - 12)}px`,
+        width: `${W}px`, zIndex: 9999, pointerEvents: "auto",
+      };
+      case "bottom": default: return {
+        position: "fixed",
+        top:  `${top + height + gap}px`,
+        left: `${clamp(left + width / 2 - W / 2, 12, vw - W - 12)}px`,
+        width: `${W}px`, zIndex: 9999, pointerEvents: "auto",
+      };
     }
   };
 
+  const canNext = !cur.detect || ready;
   const StepIcon = cur.icon;
-  const isLast   = step === STEPS.length - 1;
-  const canNext  = !cur.detect || ready;
 
+  // ─── Render ───────────────────────────────────────────────────────────────────
   return (
     <>
-      {/* Spotlight: visual only — NO bloquea clicks en el fondo */}
+      {/* Spotlight — solo visual, no bloquea clicks */}
       {coords && (
-        <div
-          style={{
-            position: "fixed",
-            top:    `${coords.top - 6}px`,
-            left:   `${coords.left - 6}px`,
-            width:  `${coords.width + 12}px`,
-            height: `${coords.height + 12}px`,
-            borderRadius: 18,
-            boxShadow: "0 0 0 9999px rgba(15, 23, 42, 0.45)",
-            border: `2px solid ${cur.iconColor}`,
-            pointerEvents: "none",
-            zIndex: 9990,
-            transition: "all 0.22s cubic-bezier(0.4, 0, 0.2, 1)",
-          }}
-        />
+        <div style={{
+          position: "fixed",
+          top:    coords.top    - 6,
+          left:   coords.left   - 6,
+          width:  coords.width  + 12,
+          height: coords.height + 12,
+          borderRadius: 20,
+          boxShadow: `0 0 0 9999px rgba(10, 14, 28, 0.52), 0 0 0 2px ${cur.color}`,
+          pointerEvents: "none",
+          zIndex: 9990,
+          transition: "top .2s, left .2s, width .2s, height .2s",
+        }} />
       )}
 
-      {/* Fondo tenue cuando no hay spotlight (paso central) */}
       {!coords && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.40)", pointerEvents: "none", zIndex: 9989 }} />
+        <div style={{
+          position: "fixed", inset: 0,
+          background: "rgba(10, 14, 28, 0.45)",
+          pointerEvents: "none", zIndex: 9989,
+        }} />
       )}
 
-      {/* Card del tutorial */}
+      {/* Card */}
       <div
-        className="bg-white rounded-[24px] shadow-[0_24px_60px_rgba(0,0,0,0.18)] border border-slate-100 flex flex-col overflow-hidden animate-fade-in"
         style={cardStyle()}
+        className="bg-white rounded-[22px] overflow-hidden flex flex-col shadow-[0_20px_50px_-8px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05)]"
       >
+        {/* Barra de progreso superior */}
+        <div className="h-[3px] w-full bg-[#F0F4F8] shrink-0">
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${pct}%`, backgroundColor: cur.color }}
+          />
+        </div>
+
         {/* Header */}
-        <div className="px-5 pt-4 pb-3.5 flex items-center justify-between border-b border-gray-50 shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-[12px] flex items-center justify-center shrink-0" style={{ backgroundColor: cur.iconBg }}>
-              <StepIcon size={17} strokeWidth={2.5} style={{ color: cur.iconColor }} />
+        <div
+          className="px-5 pt-4 pb-4 flex items-start justify-between shrink-0"
+          style={{ borderBottom: `1px solid ${cur.color}18` }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-[14px] flex items-center justify-center shrink-0"
+              style={{ backgroundColor: cur.bg }}
+            >
+              <StepIcon size={19} strokeWidth={2.5} style={{ color: cur.color }} />
             </div>
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#94A3B8]">
-                {step === 0 ? "Inicio" : step === STEPS.length - 1 ? "Completado" : `Paso ${step} de ${STEPS.length - 2}`}
+              <div
+                className="text-[10px] font-extrabold uppercase tracking-[0.12em]"
+                style={{ color: cur.color }}
+              >
+                {cur.subtitle}
               </div>
-              <h2 className="text-[14px] font-extrabold text-[#1E293B] leading-tight tracking-tight">
+              <div className="text-[15px] font-extrabold text-[#1E293B] leading-tight tracking-[-0.02em] mt-0.5">
                 {cur.title}
-              </h2>
+              </div>
             </div>
           </div>
           <button
             onClick={close}
-            className="w-7 h-7 rounded-full bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors flex items-center justify-center shrink-0"
-            title="Cerrar tutorial"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-[#94A3B8] hover:text-[#DC2626] hover:bg-[#FEF2F2] transition-all shrink-0 mt-0.5"
           >
-            <X size={13} strokeWidth={2.5} />
+            <X size={14} strokeWidth={2.5} />
           </button>
         </div>
 
-        {/* Cuerpo */}
-        <div className="px-5 py-4 space-y-3.5 flex-1 overflow-y-auto max-h-[360px] md:max-h-[440px]">
-          {/* ¿Por qué? */}
-          {cur.why && (
-            <div className="flex gap-2 items-start bg-[#F8FAFF] rounded-xl p-3 border border-[#E8EFF8]">
-              <span className="text-[14px] shrink-0 mt-0.5">💡</span>
-              <p className="text-[11.5px] text-[#475569] font-medium leading-relaxed">{cur.why}</p>
-            </div>
-          )}
+        {/* Cuerpo scrolleable */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3.5 max-h-[420px]" style={{ scrollbarWidth: "thin" }}>
 
-          {/* Instrucción */}
-          <div className="flex gap-2 items-start">
-            <span className="text-[14px] shrink-0 mt-0.5">🛠️</span>
-            <p className="text-[12.5px] text-[#1E293B] font-semibold leading-relaxed">{cur.instruction}</p>
+          {/* ¿Por qué? */}
+          <div
+            className="rounded-[14px] px-4 py-3 flex gap-2.5 items-start"
+            style={{ backgroundColor: `${cur.color}0C`, border: `1px solid ${cur.color}20` }}
+          >
+            <span className="text-[15px] shrink-0 mt-0.5">💡</span>
+            <p className="text-[12px] leading-relaxed font-medium" style={{ color: `${cur.color}CC` }}>
+              {cur.why}
+            </p>
           </div>
 
-          {/* Datos sugeridos */}
-          {cur.dataFields && (
-            <div className="space-y-1.5 mt-1.5">
-              <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#94A3B8] mb-1">
-                Datos de prueba — Haz click para copiar:
+          {/* Instrucciones numeradas */}
+          <div className="space-y-2">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-[#94A3B8]">
+              Qué hacer:
+            </p>
+            <div className="space-y-1.5">
+              {cur.steps.map((s, i) => (
+                <div key={i} className="flex gap-2.5 items-start">
+                  <div
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold shrink-0 mt-0.5"
+                    style={{ backgroundColor: cur.bg, color: cur.color }}
+                  >
+                    {i + 1}
+                  </div>
+                  <p className="text-[12.5px] text-[#334155] font-medium leading-snug">{s}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Datos de prueba */}
+          {cur.fields && (
+            <div className="space-y-2">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-[#94A3B8]">
+                Datos de prueba — click para copiar:
               </p>
-              <div className="grid grid-cols-1 gap-1.5">
-                {cur.dataFields.map(f => (
+              <div className="space-y-1.5">
+                {cur.fields.map(f => (
                   <button
                     key={f.label}
-                    onClick={() => copyField(f.value)}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-[#F8FAFF] border border-[#E8EFF8] hover:border-[#4E60A9]/30 hover:bg-[#EEF3FC] transition-all group"
+                    onClick={() => copy(f.value)}
+                    className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-[12px] border text-left transition-all group"
+                    style={{
+                      borderColor: copied === f.value ? `${cur.color}50` : "#E2E8F0",
+                      backgroundColor: copied === f.value ? cur.bg : "#FAFBFC",
+                    }}
                   >
-                    <div className="text-left min-w-0 flex-1 mr-2">
-                      <div className="text-[9px] font-extrabold uppercase tracking-wider text-[#94A3B8] group-hover:text-[#4E60A9]">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[9.5px] font-extrabold uppercase tracking-wider text-[#94A3B8] group-hover:text-[#64748B] leading-none mb-1">
                         {f.label}
                       </div>
-                      <div className="text-[12px] font-bold text-[#1E293B] font-mono truncate">
+                      <div className="text-[12.5px] font-bold text-[#1E293B] font-mono truncate leading-none">
                         {f.value}
                       </div>
                     </div>
-                    {copied === f.value ? (
-                      <div className="flex items-center gap-1 shrink-0 text-[#059669]">
-                        <span className="text-[9px] font-extrabold uppercase tracking-wider">¡Copiado!</span>
-                        <Check size={13} strokeWidth={3} />
-                      </div>
-                    ) : (
-                      <Copy size={12} className="text-[#CBD5E1] group-hover:text-[#4E60A9] shrink-0" />
-                    )}
+                    {copied === f.value
+                      ? <div className="flex items-center gap-1 shrink-0" style={{ color: cur.color }}>
+                          <span className="text-[9px] font-extrabold">Copiado</span>
+                          <Check size={12} strokeWidth={3} />
+                        </div>
+                      : <Copy size={13} className="text-[#CBD5E1] group-hover:text-[#64748B] shrink-0 transition-colors" />
+                    }
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Indicador de espera */}
+          {/* Estado de espera */}
           {cur.detect && !ready && !cur.autoAdvance && (
-            <div className="flex items-center gap-2 text-[11px] text-[#94A3B8] font-medium bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
-              <div className="w-2 h-2 rounded-full bg-[#94A3B8] animate-pulse shrink-0" />
-              Esperando a que completes la acción en la app...
+            <div className="flex items-center gap-2.5 rounded-[12px] px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0]">
+              <div className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0" style={{ backgroundColor: cur.color }} />
+              <span className="text-[11.5px] text-[#64748B] font-medium">
+                Detectando tu acción en la app...
+              </span>
             </div>
           )}
 
-          {/* Confirmación cuando detección disparó */}
+          {/* Confirmación */}
           {ready && !cur.autoAdvance && (
-            <div className="flex items-center gap-2 text-[11.5px] text-[#059669] font-bold bg-[#ECFDF5] rounded-xl px-3 py-2 border border-green-100">
-              <CheckCircle2 size={13} className="shrink-0" />
-              ¡Acción completada con éxito!
+            <div
+              className="flex items-center gap-2.5 rounded-[12px] px-3.5 py-2.5 border"
+              style={{ backgroundColor: `${cur.color}0C`, borderColor: `${cur.color}30` }}
+            >
+              <CheckCircle2 size={14} strokeWidth={2.5} style={{ color: cur.color }} className="shrink-0" />
+              <span className="text-[12px] font-bold" style={{ color: cur.color }}>
+                ¡Acción detectada! Hacé click en Siguiente.
+              </span>
             </div>
           )}
 
           {/* Limpieza final */}
           {isLast && (
-            <div className="pt-2">
+            <div className="pt-1">
               {cleaned ? (
-                <div className="flex items-center justify-center gap-2 text-[12px] font-bold text-[#059669] bg-[#ECFDF5] border border-green-200 rounded-xl p-3.5 animate-fade-in">
-                  <CheckCircle2 size={15} />
-                  ¡Datos de prueba limpiados exitosamente!
+                <div className="flex items-center gap-2.5 rounded-[14px] px-4 py-3 bg-[#ECFDF5] border border-[#A7F3D0]">
+                  <CheckCircle2 size={15} className="text-[#059669] shrink-0" />
+                  <span className="text-[12.5px] font-bold text-[#059669]">
+                    Datos de prueba eliminados correctamente.
+                  </span>
                 </div>
               ) : (
                 <button
                   onClick={cleanupData}
                   disabled={isCleaning}
-                  className="w-full h-11 bg-gradient-to-r from-[#4E60A9] to-[#7C3AED] hover:from-[#3D4F99] hover:to-[#6D28D9] text-white rounded-xl font-bold text-[12.5px] flex items-center justify-center gap-2 shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                  className="w-full h-11 rounded-[14px] font-bold text-[13px] text-white flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                  style={{ background: `linear-gradient(135deg, ${cur.color}, #7C3AED)` }}
                 >
-                  {isCleaning ? (
-                    <>
-                      <Loader2 size={15} className="animate-spin" />
-                      Limpiando base de datos...
-                    </>
-                  ) : (
-                    <>Limpiar Datos de Prueba ✨</>
-                  )}
+                  {isCleaning
+                    ? <><Loader2 size={14} className="animate-spin" /> Eliminando datos...</>
+                    : <>✨ Limpiar datos de prueba</>
+                  }
                 </button>
               )}
             </div>
@@ -470,33 +565,37 @@ export default function OnboardingTour() {
         </div>
 
         {/* Footer */}
-        <div className="px-5 pb-4 pt-2 flex items-center justify-between border-t border-gray-50 shrink-0">
-          {/* Dots de progreso */}
-          <div className="flex gap-1">
-            {STEPS.map((_, i) => (
-              <div
-                key={i}
-                className="rounded-full transition-all duration-200"
-                style={{
-                  width: i === step ? 16 : 6,
-                  height: 6,
-                  backgroundColor: i === step ? cur.iconColor : i < step ? "#CBD5E1" : "#E2E8F0",
-                }}
-              />
-            ))}
+        <div className="px-5 py-3.5 flex items-center justify-between border-t border-[#F0F4F8] shrink-0 bg-[#FAFBFC]">
+          {/* Progreso */}
+          <div className="flex items-center gap-1.5">
+            {STEPS.map((_, i) => {
+              const done   = i < step;
+              const active = i === step;
+              return (
+                <div
+                  key={i}
+                  className="rounded-full transition-all duration-300"
+                  style={{
+                    width:  active ? 20 : 6,
+                    height: 6,
+                    backgroundColor: active ? cur.color : done ? `${cur.color}60` : "#E2E8F0",
+                  }}
+                />
+              );
+            })}
           </div>
 
+          {/* Botón */}
           <button
             onClick={isLast ? close : next}
             disabled={!canNext || isCleaning}
-            className="h-[36px] px-5 rounded-xl text-white text-[12px] font-bold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            style={{ backgroundColor: canNext ? cur.iconColor : "#94A3B8" }}
+            className="h-9 px-5 rounded-[12px] text-[12.5px] font-bold text-white flex items-center gap-1.5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{ backgroundColor: canNext && !isCleaning ? cur.color : "#94A3B8" }}
           >
-            {isLast ? (
-              <><CheckCircle2 size={13} strokeWidth={2.5} /> Salir</>
-            ) : (
-              <>Siguiente <ChevronRight size={13} strokeWidth={2.5} /></>
-            )}
+            {isLast
+              ? <><CheckCircle2 size={13} strokeWidth={2.5} /> Salir</>
+              : <>Siguiente <ArrowRight size={13} strokeWidth={2.5} /></>
+            }
           </button>
         </div>
       </div>
