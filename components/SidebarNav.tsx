@@ -251,7 +251,7 @@ export default function SidebarNav() {
           <FileText size={22} strokeWidth={is("/cotizar") ? 2.5 : 2} />
           <span className="text-[10px] font-bold">Cotizar</span>
         </Link>
-        <Link href="/taller" className={`relative flex flex-col items-center justify-center w-full h-full gap-1 ${is("/taller") ? "text-[#7C3AED]" : "text-[#94A3B8]"}`}>
+        <Link href="/taller" data-tour="nav-taller" className={`relative flex flex-col items-center justify-center w-full h-full gap-1 ${is("/taller") ? "text-[#7C3AED]" : "text-[#94A3B8]"}`}>
           <Wrench size={22} strokeWidth={is("/taller") ? 2.5 : 2} />
           <span className="text-[10px] font-bold">Servicios</span>
           {tallerBadge > 0 && <span className="absolute top-1 right-1.5 w-4 h-4 rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center border-2 border-white">{tallerBadge > 9 ? "9+" : tallerBadge}</span>}

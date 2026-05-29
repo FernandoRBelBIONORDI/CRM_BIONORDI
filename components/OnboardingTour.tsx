@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { X, ChevronRight, Copy, Check, BookOpen, Database, FileText, Wrench, Sparkles, CheckCircle2, Loader2 } from "lucide-react";
@@ -22,55 +22,54 @@ type StepDef = {
 
 const STEPS: StepDef[] = [
   {
-    title: "¡Te damos la bienvenida a Bionordi!",
+    title: "¡Bienvenido al Tutorial de Bionordi!",
     icon: BookOpen, iconColor: "#4E60A9", iconBg: "#EEF3FC",
-    instruction: "En este tutorial aprenderás el flujo operativo real de la clínica biomédica: Registrar un Lead, hacerle una Cotización formal y generar su Orden de Trabajo en el Taller. ¡Interactúa con la app real mientras te guiaemos!",
+    instruction: "Aprenderás el flujo operativo real: crear un Lead, generar una Cotización y registrar una Orden de Trabajo en el Taller. Interactuás directamente con la app mientras te guío.",
     position: "center",
   },
   {
     title: "Paso 1 — Abrir el CRM",
     icon: Database, iconColor: "#4E60A9", iconBg: "#EEF3FC",
-    why: "El CRM es el módulo comercial donde administras los prospectos (leads) y realizas sus cotizaciones.",
-    instruction: "Haz click en la tarjeta 'Ventas & CRM' en el panel o en 'CRM' en la barra lateral para continuar.",
+    why: "El CRM es el módulo donde registrás tus clientes y generás sus cotizaciones.",
+    instruction: "Hacé click en la tarjeta 'Ventas & CRM' del dashboard, o en 'CRM' en el menú lateral.",
     selector: '[data-tour="crm-card"]',
     position: "bottom",
     detect: (p) => p === "/crm",
     autoAdvance: true,
   },
   {
-    title: "Paso 2 — Abrir Formulario de Lead",
+    title: "Paso 2 — Crear un nuevo Lead",
     icon: Database, iconColor: "#4E60A9", iconBg: "#EEF3FC",
-    why: "Todo cliente nuevo comienza como un Lead. Es su ficha inicial de registro en Bionordi.",
-    instruction: "Haz click en el botón '+ Nuevo Lead' para abrir el formulario de registro.",
+    why: "Todo cliente comienza como un Lead — su ficha de contacto en el sistema.",
+    instruction: "Hacé click en el botón '+ Nuevo Lead' que está en la barra superior del CRM.",
     selector: '[data-tour="new-lead-btn"]',
     position: "bottom",
     detect: () => !!document.querySelector('[data-tour="nuevo-lead-modal"]'),
     autoAdvance: true,
   },
   {
-    title: "Paso 3 — Registrar el Lead de prueba",
+    title: "Paso 3 — Completar el formulario",
     icon: Database, iconColor: "#4E60A9", iconBg: "#EEF3FC",
-    why: "Contar con los datos completos del prospecto te permitirá contactarlo fácilmente por WhatsApp o correo.",
-    instruction: "Rellena los campos a mano. Copia y pega los datos sugeridos. Al terminar, haz click en 'Crear Lead' para guardarlo en la base de datos.",
+    why: "Un expediente completo te permite contactar al cliente por WhatsApp, correo o teléfono.",
+    instruction: "Copiá y pegá cada dato en el campo correspondiente del formulario. Cuando estén todos llenos, hacé click en 'Crear Lead'.",
     selector: '[data-tour="nuevo-lead-modal"]',
     position: "left",
     dataFields: [
-      { label: "Nombre completo", value: "Dr. Juan García (Tutorial)" },
-      { label: "Teléfono de contacto", value: "6641234567" },
-      { label: "WhatsApp corporativo", value: "526641234567" },
-      { label: "Correo electrónico", value: "juan.garcia@bionordi.mx" },
-      { label: "Ciudad de residencia", value: "Tijuana" },
-      { label: "Estado o provincia", value: "Baja California" },
-      { label: "Especialidad / Nicho", value: "Cardiología" }
+      { label: "Nombre / Razón Social", value: "Dr. Juan García (Tutorial)" },
+      { label: "Teléfono",              value: "6641234567" },
+      { label: "WhatsApp",              value: "526641234567" },
+      { label: "Correo electrónico",    value: "juan.garcia@bionordi.mx" },
+      { label: "Ciudad",                value: "Tijuana" },
+      // Estado y Nicho son selects — elegí "Baja California" y "Cardiología"
     ],
-    detect: () => !document.querySelector('[data-tour="nuevo-lead-modal"]') && Array.from(document.querySelectorAll("div, td, span")).some(el => el.textContent && el.textContent.includes("Tutorial")),
+    detect: () => !document.querySelector('[data-tour="nuevo-lead-modal"]'),
     autoAdvance: false,
   },
   {
-    title: "Paso 4 — Generar Cotización",
+    title: "Paso 4 — Abrir cotizador del Lead",
     icon: FileText, iconColor: "#059669", iconBg: "#ECFDF5",
-    why: "La cotización es el presupuesto formal que se le envía al cliente antes de que envíe su equipo.",
-    instruction: "Busca en la tabla al 'Dr. Juan García (Tutorial)' y haz click en el ícono de documento 📄 en su fila para cotizar.",
+    why: "La cotización es la propuesta formal que se envía al cliente antes de que lleve el equipo.",
+    instruction: "Buscá a 'Dr. Juan García (Tutorial)' en la tabla y hacé click en el ícono de documento 📄 al final de su fila.",
     selector: '[data-tour="tour-quote-btn"]',
     position: "left",
     detect: () => !!document.querySelector('[data-tour="quote-modal"]'),
@@ -79,27 +78,24 @@ const STEPS: StepDef[] = [
   {
     title: "Paso 5 — Completar la Cotización",
     icon: FileText, iconColor: "#059669", iconBg: "#ECFDF5",
-    why: "Aquí especificas los detalles técnicos del transductor a reparar, la falla reportada y el costo del servicio.",
-    instruction: "Ingresa los datos del equipo a mano. Copia los datos de prueba sugeridos abajo. Agrega el servicio a la tabla y haz click en 'Generar PDF'.",
+    why: "Al generar el PDF queda registrada la propuesta en el historial del cliente.",
+    instruction: "1) Seleccioná 'Lineal' en el dropdown 'Tipo de transductor'. 2) Completá Marca, Modelo, No. de Serie y Falla. 3) Marcá el checkbox de 'Reparación transductor lineal' en la lista. 4) Hacé click en 'Generar PDF'.",
     selector: '[data-tour="quote-modal"]',
     position: "left",
     dataFields: [
-      { label: "Equipo", value: "Transductor Lineal" },
-      { label: "Marca", value: "Mindray" },
-      { label: "Modelo", value: "L14-6Ns" },
-      { label: "No. serie", value: "MY-829281" },
-      { label: "Falla reportada", value: "Líneas negras en imagen" },
-      { label: "Servicio / Concepto", value: "Reparación de arreglo de cristales y reencapsulado" },
-      { label: "Precio unitario", value: "6500" }
+      { label: "Marca",          value: "Mindray" },
+      { label: "Modelo",         value: "L14-6Ns" },
+      { label: "No. de Serie",   value: "MY-829281" },
+      { label: "Falla reportada",value: "Líneas negras en imagen" },
     ],
-    detect: () => !!document.querySelector('[data-tour="doc-viewer-modal"]') || (!document.querySelector('[data-tour="quote-modal"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("6,500"))),
+    detect: () => !document.querySelector('[data-tour="quote-modal"]'),
     autoAdvance: false,
   },
   {
-    title: "Paso 6 — Abrir el Taller",
+    title: "Paso 6 — Ir al Taller",
     icon: Wrench, iconColor: "#7C3AED", iconBg: "#F5F3FF",
-    why: "Una vez aprobada la propuesta comercial, el equipo físico ingresa al taller para ser reparado.",
-    instruction: "Cierra el visor de PDF y haz click en 'Servicios' (Taller) en el menú lateral para abrir el módulo técnico.",
+    why: "El cliente aprobó la cotización y trajo el equipo al laboratorio.",
+    instruction: "Cerrá el visor de PDF si está abierto y hacé click en 'Servicios' en el menú lateral para abrir el Taller.",
     selector: '[data-tour="nav-taller"]',
     position: "right",
     detect: (p) => p === "/taller",
@@ -108,37 +104,37 @@ const STEPS: StepDef[] = [
   {
     title: "Paso 7 — Nueva Orden de Trabajo",
     icon: Wrench, iconColor: "#7C3AED", iconBg: "#F5F3FF",
-    why: "La Orden de Trabajo (OT) documenta el estado de entrada del equipo médico al laboratorio.",
-    instruction: "Haz click en '+ Nueva Orden' para registrar la recepción del equipo en el taller.",
+    why: "La OT documenta el ingreso físico del equipo y asigna al técnico responsable.",
+    instruction: "Hacé click en el botón 'Nueva Orden' para registrar la entrada del equipo al taller.",
     selector: '[data-tour="tour-new-order-btn"]',
     position: "bottom",
     detect: () => !!document.querySelector('[data-tour="tour-new-order-modal"]'),
     autoAdvance: true,
   },
   {
-    title: "Paso 8 — Vincular Cliente y Datos",
+    title: "Paso 8 — Completar la Orden de Trabajo",
     icon: Wrench, iconColor: "#7C3AED", iconBg: "#F5F3FF",
-    why: "Es crucial asociar la OT al Lead correcto para mantener todo su historial clínico y financiero unificado.",
-    instruction: "Busca y vincula a 'Dr. Juan García (Tutorial)'. Escribe a mano los datos del transductor sugeridos y haz click en 'Guardar OT'.",
+    why: "Los datos del equipo y el técnico asignado quedan en el historial para trazabilidad.",
+    instruction: "Buscá y vinculá a 'Dr. Juan García (Tutorial)'. Completá los campos del equipo y asigná un técnico. Hacé click en 'Guardar OT'.",
     selector: '[data-tour="tour-new-order-modal"]',
     position: "left",
     dataFields: [
-      { label: "Vincular a lead", value: "Dr. Juan García (Tutorial)" },
-      { label: "Marca del transductor", value: "Mindray" },
-      { label: "Modelo del transductor", value: "L14-6Ns" },
-      { label: "Número de serie", value: "MY-829281" },
-      { label: "Falla a diagnosticar", value: "Líneas negras en imagen y reencapsulado" },
-      { label: "Presupuesto aprobado", value: "6500" }
+      { label: "Tipo de transductor", value: "Transductor Lineal" },
+      { label: "Marca",               value: "Mindray" },
+      { label: "Modelo",              value: "L14-6Ns" },
+      { label: "No. serie",           value: "MY-829281" },
+      { label: "Técnico",             value: "Ing. Residente" },
+      { label: "Falla reportada",     value: "Líneas negras en imagen" },
     ],
-    detect: () => !document.querySelector('[data-tour="tour-new-order-modal"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("Tutorial")),
+    detect: () => !document.querySelector('[data-tour="tour-new-order-modal"]'),
     autoAdvance: false,
   },
   {
-    title: "¡Flujo operativo dominado!",
+    title: "¡Flujo completo dominado!",
     icon: Sparkles, iconColor: "#059669", iconBg: "#ECFDF5",
-    instruction: "¡Excelente trabajo! Has aprendido a llevar de la mano a un cliente en su ciclo completo de servicio. Presiona el botón de abajo para limpiar todos los datos de prueba creados.",
+    instruction: "Aprendiste el ciclo completo: Lead → Cotización → Orden de Servicio. El sistema registra todo el historial automáticamente. Podés limpiar los datos de prueba con el botón de abajo.",
     position: "center",
-  }
+  },
 ];
 
 // ─── Componente ───────────────────────────────────────────────────────────────
@@ -154,10 +150,7 @@ export default function OnboardingTour() {
   const [isCleaning, setIsCleaning] = useState(false);
   const [cleaned, setCleaned]     = useState(false);
 
-  const stepStartRef = useRef<number>(Date.now());
-  const cancelRef    = useRef(false);
-
-  const cur = STEPS[step];
+  const cur = STEPS[step]; // derivado del estado, disponible en el render
 
   // Activar vía ?runTour=true o automáticamente en usuarios nuevos
   useEffect(() => {
@@ -177,53 +170,51 @@ export default function OnboardingTour() {
     }
   }, [searchParams]);
 
-  // Reiniciar estado cuando cambia el paso
-  useEffect(() => {
-    setReady(false);
-    stepStartRef.current = Date.now();
-    cancelRef.current = false;
-    return () => { cancelRef.current = true; };
-  }, [step]);
-
-  // Polling & Coords Updates (including resize/scroll handlers in capture mode)
+  // Polling: spotlight + detección de completitud del paso
   useEffect(() => {
     if (!active) return;
 
-    let attempts = 0;
+    const cur       = STEPS[step];
+    const stepStart = Date.now();
+    let findAttempts = 0;
     let autoAdvanceTimer: ReturnType<typeof setTimeout> | null = null;
 
-    const tick = () => {
-      if (cancelRef.current) return;
-      const elapsed = Date.now() - stepStartRef.current;
+    setReady(false);
+    setCoords(null);
 
-      // Actualizar coordenadas del spotlight
+    // Devuelve el primer elemento VISIBLE que coincide con el selector
+    const findVisible = (selector: string): Element | null => {
+      const els = Array.from(document.querySelectorAll(selector));
+      return els.find(el => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      }) ?? null;
+    };
+
+    const tick = () => {
+      // ── Coordenadas del spotlight ─────────────────────────────────────────
       if (cur.selector) {
-        let el = document.querySelector(cur.selector);
-        // Fallback para crm-card si no está en DOM pero nav-crm sí
-        if (!el && cur.selector === '[data-tour="crm-card"]') {
-          el = document.querySelector('[data-tour="nav-crm"]');
-        }
+        const el = findVisible(cur.selector)
+          // fallback: si crm-card no está en pantalla (usuario ya en /crm), usar nav-crm
+          ?? (cur.selector === '[data-tour="crm-card"]' ? findVisible('[data-tour="nav-crm"]') : null);
+
         if (el) {
+          findAttempts = 0;
           const r = el.getBoundingClientRect();
           setCoords({ top: r.top, left: r.left, width: r.width, height: r.height });
-        } else if (attempts < 10) {
-          attempts++;
+        } else if (findAttempts < 20) {
+          findAttempts++;
         } else {
           setCoords(null);
         }
-      } else {
-        setCoords(null);
       }
 
-      // Detección de completitud (mínimo 500ms en el paso para evitar falsos positivos)
-      if (elapsed > 500 && cur.detect) {
-        const done = cur.detect(pathname);
-        if (done) {
+      // ── Detección (mínimo 800ms para evitar falsos positivos en auto-avance) ──
+      if (!autoAdvanceTimer && cur.detect && Date.now() - stepStart > 800) {
+        if (cur.detect(pathname)) {
           setReady(true);
-          if (cur.autoAdvance && !autoAdvanceTimer) {
-            autoAdvanceTimer = setTimeout(() => {
-              if (!cancelRef.current) setStep(s => s + 1);
-            }, 600);
+          if (cur.autoAdvance) {
+            autoAdvanceTimer = setTimeout(() => setStep(s => s + 1), 700);
           }
         }
       }
@@ -232,15 +223,13 @@ export default function OnboardingTour() {
     tick();
     const interval = setInterval(tick, 300);
     window.addEventListener("resize", tick);
-    window.addEventListener("scroll", tick, true); // capture inner scroll containers
 
     return () => {
       clearInterval(interval);
       window.removeEventListener("resize", tick);
-      window.removeEventListener("scroll", tick, true);
       if (autoAdvanceTimer) clearTimeout(autoAdvanceTimer);
     };
-  }, [active, step, pathname, cur]);
+  }, [active, step, pathname]); // cur se deriva de step — no necesita ser dep
 
   if (!active) return null;
 
