@@ -246,13 +246,106 @@ export default function OnboardingTour() {
 
   const [active,     setActive]     = useState(false);
   const [step,       setStep]       = useState(0);
+  const [quoteSubMode, setQuoteSubMode] = useState<"choose" | "catalogo" | "manual">("choose");
   const [coords,     setCoords]     = useState<{ top: number; left: number; width: number; height: number } | null>(null);
   const [ready,      setReady]      = useState(false);
   const [copied,     setCopied]     = useState<string | null>(null);
   const [isCleaning, setIsCleaning] = useState(false);
   const [cleaned,    setCleaned]    = useState(false);
 
-  const cur    = STEPS[step];
+  // Selecciona el submodo y simula el click en el botón del modal de la app
+  const selectSubMode = (mode: "catalogo" | "manual") => {
+    setQuoteSubMode(mode);
+    setTimeout(() => {
+      const btn = document.querySelector(
+        mode === "catalogo" ? '[data-tour="quote-mode-catalogo-btn"]' : '[data-tour="quote-mode-manual-btn"]'
+      ) as HTMLButtonElement | null;
+      if (btn) btn.click();
+    }, 50);
+  };
+
+  // Sincronización automática de quoteSubMode con el DOM de la aplicación
+  useEffect(() => {
+    if (!active || step !== 9) return;
+    const checkDomMode = () => {
+      const catBtn = document.querySelector('[data-tour="quote-mode-catalogo-btn"]');
+      const manBtn = document.querySelector('[data-tour="quote-mode-manual-btn"]');
+      if (catBtn && catBtn.className.includes("bg-white")) {
+        setQuoteSubMode("catalogo");
+      } else if (manBtn && manBtn.className.includes("bg-white")) {
+        setQuoteSubMode("manual");
+      }
+    };
+    checkDomMode();
+    const interval = setInterval(checkDomMode, 150);
+    return () => clearInterval(interval);
+  }, [active, step]);
+
+  const curRaw = STEPS[step];
+  const isQuoteStep = step === 9;
+
+  const cur = {
+    ...curRaw,
+    why: isQuoteStep
+      ? (quoteSubMode === "choose"
+          ? "Bionordi ofrece dos formas potentes de generar cotizaciones: usando el Catálogo (con diagramas y fichas de transductores Mindray preestablecidos) o en Modo Manual (para escribir especificaciones libres)."
+          : quoteSubMode === "catalogo"
+            ? "El Modo Catálogo vincula las especificaciones exactas del transductor desde tu inventario. Al escribir Mindray L14-6Ns, el sistema autocompleta el diagrama clínico y la ficha técnica."
+            : "El Modo Manual te da libertad absoluta. Sirve para escribir textos libres personalizados, configurar descuentos y subir imágenes o evidencias fotográficas directas de la reparación."
+        )
+      : curRaw.why,
+    steps: isQuoteStep
+      ? (quoteSubMode === "choose"
+          ? ["Hacé click abajo en el modo que desees aprender para guiarte paso a paso."]
+          : quoteSubMode === "catalogo"
+            ? [
+                "Confirmá que el control superior esté en Catálogo.",
+                "Elegí la Marca 'Mindray' de la lista desplegable.",
+                "Elegí el Modelo 'L14-6Ns' para autocargar el diagrama clínico y ficha técnica.",
+                "Copiá y pegá el No. de Serie y la Falla reportada sugeridos abajo.",
+                "En la sección de servicios, haz click en el botón de servicio rápido 'Reparación transductor lineal — $6,500' para agregarlo con un solo click.",
+                "Haz click en el botón verde 'Guardar PDF en expediente' al pie de la pantalla para registrar la cotización."
+              ]
+            : [
+                "Cambiá el control superior a modo Manual.",
+                "En 'Tipo de transductor', seleccioná la opción 'Lineal' de la lista.",
+                "Escribí a mano la Marca (Mindray) y el Modelo (L14-6Ns).",
+                "Copiá y pegá la Serie y Falla sugeridos abajo.",
+                "En 'Evidencia Fotográfica', podés subir fotos directas del transductor y agregar descripciones libres.",
+                "En la tabla de costos, haz click en '+ Agregar línea', escribe el concepto y precio unitario sugeridos.",
+                "Haz click en el botón verde 'Guardar PDF en expediente' al pie del formulario para registrar la cotización."
+              ]
+        )
+      : curRaw.steps,
+    fields: isQuoteStep
+      ? (quoteSubMode === "choose"
+          ? undefined
+          : quoteSubMode === "catalogo"
+            ? [
+                { label: "Número de serie", value: "MY-829281" },
+                { label: "Falla reportada", value: "Líneas negras en imagen" },
+                { label: "Concepto / Costo", value: "Reparación de arreglo de cristales y reencapsulado" },
+                { label: "Precio unitario", value: "6500" }
+              ]
+            : [
+                { label: "Marca del equipo", value: "Mindray" },
+                { label: "Modelo del equipo", value: "L14-6Ns" },
+                { label: "No. de Serie", value: "MY-829281" },
+                { label: "Falla / Síntoma", value: "Líneas negras en imagen" },
+                { label: "Concepto / Costo", value: "Reparación de transductor lineal" },
+                { label: "Precio unitario", value: "6500" }
+              ]
+        )
+      : curRaw.fields,
+    saveHint: isQuoteStep
+      ? (quoteSubMode === "choose"
+          ? undefined
+          : "💡 Consejo útil: Una vez completa, haz click en el botón verde 'Guardar PDF en expediente' para vincular permanentemente esta cotización al lead de prueba y poder avanzar."
+        )
+      : curRaw.saveHint,
+    selector: isQuoteStep ? '[data-tour="quote-modal"]' : curRaw.selector,
+  };
+
   const isLast = step === STEPS.length - 1;
   const pct    = step === 0 ? 0 : Math.round((step / (STEPS.length - 1)) * 100);
 
@@ -415,7 +508,7 @@ export default function OnboardingTour() {
     }
   };
 
-  const canNext  = !cur.detect || ready;
+  const canNext  = (!cur.detect || ready) && !(isQuoteStep && quoteSubMode === "choose");
   const StepIcon = cur.icon;
 
   // ─── Render ───────────────────────────────────────────────────────────────────
@@ -527,6 +620,118 @@ export default function OnboardingTour() {
               <p className="text-[12px] font-semibold leading-snug" style={{ color: cur.color }}>
                 {cur.saveHint}
               </p>
+            </div>
+          )}
+
+          {isQuoteStep && quoteSubMode === "choose" && (
+            <div className="pt-2 space-y-2.5">
+              <button
+                onClick={() => selectSubMode("catalogo")}
+                className="w-full p-4 rounded-xl border-2 border-indigo-500/20 hover:border-indigo-500 bg-indigo-50/50 hover:bg-indigo-50 text-left transition-all hover:scale-[1.02] flex items-start gap-3 group"
+              >
+                <span className="text-[20px] shrink-0 mt-0.5">💡</span>
+                <div>
+                  <div className="text-[13px] font-extrabold text-[#4E60A9] group-hover:text-indigo-600">Modo Catálogo (Recomendado)</div>
+                  <p className="text-[11.5px] text-gray-500 font-medium mt-1 leading-snug">Carga automática de diagramas, fotografías y cláusulas oficiales del transductor Mindray.</p>
+                </div>
+              </button>
+              <button
+                onClick={() => selectSubMode("manual")}
+                className="w-full p-4 rounded-xl border-2 border-emerald-500/20 hover:border-emerald-500 bg-emerald-50/50 hover:bg-emerald-50 text-left transition-all hover:scale-[1.02] flex items-start gap-3 group"
+              >
+                <span className="text-[20px] shrink-0 mt-0.5">🛠️</span>
+                <div>
+                  <div className="text-[13px] font-extrabold text-emerald-600 group-hover:text-emerald-700">Modo Manual</div>
+                  <p className="text-[11.5px] text-gray-500 font-medium mt-1 leading-snug">Escribe especificaciones libres, conceptos personalizados y configura descuentos o impuestos.</p>
+                </div>
+              </button>
+            </div>
+          )}
+
+          {isQuoteStep && quoteSubMode !== "choose" && (
+            <div className="border-t border-gray-100 pt-3 mt-3 space-y-2.5">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-[#94A3B8]">💡 Guía rápida de botones y campos:</p>
+              <div className="max-h-[220px] overflow-y-auto pr-1 space-y-2 text-[12px] leading-relaxed scrollbar-thin" style={{ scrollbarWidth: "thin" }}>
+                {quoteSubMode === "catalogo" ? (
+                  <>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <strong className="text-[#4E60A9] font-bold block mb-0.5">🏷️ Marca y Modelo</strong>
+                      <span>Selectores inteligentes. Al elegir <em>Mindray</em> y <em>L14-6Ns</em>, el CRM autocompleta el diagrama y la descripción técnica del transductor.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <strong className="text-[#4E60A9] font-bold block mb-0.5">⚡ Agregar servicio rápido</strong>
+                      <span>Botones con precios precargados. Haz click y sumará la reparación del transductor al instante sin tener que escribir.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <strong className="text-[#4E60A9] font-bold block mb-0.5">➕ Agregar línea</strong>
+                      <span>Añade una fila vacía en la tabla de costos si necesitas cobrar conceptos o refacciones adicionales.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <strong className="text-[#4E60A9] font-bold block mb-0.5">🧾 IVA 16% / Descuento %</strong>
+                      <span>Controles rápidos para desglosar impuestos y aplicar descuentos directos con recálculo en tiempo real.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <strong className="text-[#4E60A9] font-bold block mb-0.5">👤 Generado por</strong>
+                      <span>Firma la cotización como Director General o a nombre de un técnico para personalizar las firmas en el PDF.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <strong className="text-[#4E60A9] font-bold block mb-0.5">✉️ Enviar por correo</strong>
+                      <span>Envía automáticamente la propuesta comercial con el PDF adjunto formal al correo electrónico del cliente.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#047857]">
+                      <strong className="font-extrabold block mb-0.5">💾 Guardar PDF en expediente (Recomendado)</strong>
+                      <span>Guarda y vincula permanentemente este presupuesto en el expediente digital de este lead para avanzar.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-900">
+                      <strong className="text-indigo-700 font-extrabold block mb-0.5">📄 Generar PDF</strong>
+                      <span>Guarda y compila los datos, y abre el visor de PDF interactivo de alta definición para revisión e impresión.</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <strong className="text-emerald-700 font-bold block mb-0.5">🛠️ Tipo / Marca / Modelo libres</strong>
+                      <span>Campos libres para escribir a mano cualquier tipo de equipo médico (ej. desfibrilador, monitor) sin plantillas fijas.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <strong className="text-emerald-700 font-bold block mb-0.5">📝 Características / Descripción</strong>
+                      <span>Agrega hasta 4 puntos técnicos usando el botón '+ Agregar punto' para desglosar las bondades del equipo.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <strong className="text-emerald-700 font-bold block mb-0.5">📸 Subir imagen de equipo</strong>
+                      <span>Permite subir y adjuntar una fotografía real del equipo que se incluirá en la parte superior del PDF.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <strong className="text-emerald-700 font-bold block mb-0.5">🖼️ Evidencia Fotográfica</strong>
+                      <span>Carga hasta 4 fotos del daño real con sus respectivas descripciones para sustentar técnicamente tu diagnóstico.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <strong className="text-emerald-700 font-bold block mb-0.5">📄 Texto de la propuesta</strong>
+                      <span>Acordeón para editar libremente el cuerpo del documento. Si queda en blanco, ¡el CRM autogenera un texto formal premium!</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <strong className="text-emerald-700 font-bold block mb-0.5">🏢 Datos de facturación</strong>
+                      <span>Acordeón para llenar datos fiscales (RFC, Régimen, Uso de CFDI) y agilizar la emisión de facturas.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#047857]">
+                      <strong className="font-extrabold block mb-0.5">💾 Guardar PDF en expediente (Recomendado)</strong>
+                      <span>Guarda y vincula permanentemente este presupuesto personalizado en la base de datos y expediente del lead para avanzar.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-900">
+                      <strong className="text-indigo-700 font-extrabold block mb-0.5">📄 Generar PDF</strong>
+                      <span>Compila los datos libres, fotos de evidencia, datos fiscales y abre el visor de PDF interactivo de alta calidad.</span>
+                    </div>
+                  </>
+                )}
+              </div>
+              <div className="pt-1.5 flex justify-end">
+                <button
+                  onClick={() => setQuoteSubMode("choose")}
+                  className="text-[11px] font-extrabold text-gray-400 hover:text-[#4E60A9] underline transition-colors"
+                >
+                  ← Volver a elegir modo
+                </button>
+              </div>
             </div>
           )}
 

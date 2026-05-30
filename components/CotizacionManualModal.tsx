@@ -1573,11 +1573,13 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                 {catalogo.length > 0 && (
                   <div className="flex gap-1 bg-gray-100 p-0.5 rounded-lg">
                     <button
+                      data-tour="quote-mode-catalogo-btn"
                       onClick={() => { setEquipoMode("catalogo"); setEqMarca(""); setEqModelo(""); setEqTipo(""); setImgEquipoB64(null); limpiarEquipoCatalogo(); }}
                       className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${equipoMode === "catalogo" ? "bg-white text-[#4E60A9] shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>
                       Catálogo
                     </button>
                     <button
+                      data-tour="quote-mode-manual-btn"
                       onClick={() => setEquipoMode("manual")}
                       className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${equipoMode === "manual" ? "bg-white text-[#4E60A9] shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>
                       Manual
@@ -1640,13 +1642,13 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
                     <Field label="Marca">
                       {tipo === "reparacion" && equipoMode === "catalogo" && marcasUnicas.length > 0 ? (
-                        <select value={eqMarca} onChange={e => { setEqMarca(e.target.value); setEqModelo(""); setImgEquipoB64(null); }} className={sel}>
+                        <select data-tour="quote-eq-marca" value={eqMarca} onChange={e => { setEqMarca(e.target.value); setEqModelo(""); setImgEquipoB64(null); }} className={sel}>
                           <option value="">— Seleccionar marca —</option>
                           {marcasUnicas.map(m => <option key={m} value={m}>{m}</option>)}
                           {transductores.some(e => !e.marca) && <option value="__sin_marca__">Sin marca especificada</option>}
                         </select>
                       ) : (
-                        <input value={eqMarca} onChange={e => setEqMarca(e.target.value)}
+                        <input data-tour="quote-eq-marca" value={eqMarca} onChange={e => setEqMarca(e.target.value)}
                           placeholder="GE, Philips, Mindray…" className={inp} />
                       )}
                     </Field>
@@ -1655,7 +1657,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                   <div className="grid grid-cols-3 gap-3 mb-3">
                     <Field label="Modelo">
                       {tipo === "reparacion" && equipoMode === "catalogo" && modelosPorMarca.length > 0 ? (
-                        <select value={eqModelo} onChange={async e => {
+                        <select data-tour="quote-eq-modelo" value={eqModelo} onChange={async e => {
                           const found = transductores.find(t => t.modelo === e.target.value && (!eqMarca || t.marca === eqMarca));
                           setEqModelo(e.target.value);
                           if (found) await seleccionarDelCatalogo(found);
@@ -1669,7 +1671,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                           ))}
                         </select>
                       ) : (
-                        <input value={eqModelo} onChange={e => setEqModelo(e.target.value)}
+                        <input data-tour="quote-eq-modelo" value={eqModelo} onChange={e => setEqModelo(e.target.value)}
                           placeholder="Modelo" className={inp} />
                       )}
                     </Field>
@@ -1679,7 +1681,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                     </Field>
                     {tipo !== "venta" && (
                       <Field label="Falla / Síntoma">
-                        <input value={eqFalla} onChange={e => setEqFalla(e.target.value)} placeholder="Sin imagen, cable dañado…" className={inp} />
+                        <input data-tour="quote-eq-falla" value={eqFalla} onChange={e => setEqFalla(e.target.value)} placeholder="Sin imagen, cable dañado…" className={inp} />
                       </Field>
                     )}
                   </div>
@@ -1772,7 +1774,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           )}
 
           {/* Evidencia fotográfica / Fotos — todos los tipos */}
-          <div className="px-6 py-4 border-b border-gray-100">
+          <div data-tour="quote-evidencias" className="px-6 py-4 border-b border-gray-100">
             <div className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${tipo === "reparacion" ? "text-red-700" : "text-[#4E60A9]"}`}>
               {tipo === "reparacion" ? "Evidencia fotográfica del defecto" :
                 tipo === "mantenimiento" ? "Fotos del mantenimiento (antes / después)" :
@@ -1820,7 +1822,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
           {/* Servicios rápidos */}
           {rapidosList.length > 0 && (
-            <div className="px-6 py-4 border-b border-gray-100">
+            <div data-tour="quote-rapidos" className="px-6 py-4 border-b border-gray-100">
               <div className="text-[10px] font-bold text-[#4E60A9] uppercase tracking-widest mb-2">Agregar servicio rápido</div>
               <div className="flex flex-wrap gap-1.5">
                 {rapidosList.map(s => (
@@ -1834,12 +1836,12 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           )}
 
           {/* Items */}
-          <div className="px-6 py-4 border-b border-gray-100">
+          <div data-tour="quote-items" className="px-6 py-4 border-b border-gray-100">
             <div className="flex items-center justify-between mb-3">
               <div className="text-[10px] font-bold text-[#4E60A9] uppercase tracking-widest">
                 {tipo === "venta" ? "Productos / Equipos" : "Servicios"}
               </div>
-              <button onClick={addItem}
+              <button data-tour="quote-add-item" onClick={addItem}
                 className="flex items-center gap-1 text-[11px] font-bold text-[#4E60A9] hover:bg-blue-50 px-2 py-1 rounded-lg transition-all">
                 <Plus size={13} /> Agregar línea
               </button>
@@ -1889,7 +1891,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
           {/* Texto de la propuesta técnica */}
           <div className="px-6 py-4 border-b border-gray-100">
-            <button onClick={() => setShowPropuesta(p => !p)}
+            <button data-tour="quote-propuesta-btn" onClick={() => setShowPropuesta(p => !p)}
               className="w-full flex items-center justify-between text-[10px] font-bold text-[#4E60A9] uppercase tracking-widest">
               <span>Texto de la propuesta en el PDF</span>
               {showPropuesta ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -1916,7 +1918,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
           {/* Facturación */}
           <div className="px-6 py-4 border-b border-gray-100">
-            <button onClick={() => setShowFact(p => !p)}
+            <button data-tour="quote-facturacion-btn" onClick={() => setShowFact(p => !p)}
               className="w-full flex items-center justify-between text-[10px] font-bold text-[#4E60A9] uppercase tracking-widest">
               <span>Datos de facturación del cliente</span>
               {showFact ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -1960,13 +1962,13 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         <div className="px-6 py-4 border-t border-gray-100 space-y-3 shrink-0 bg-gray-50/60">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-4">
-              <button onClick={() => setConIVA(p => !p)}
+              <button data-tour="quote-iva-toggle" onClick={() => setConIVA(p => !p)}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${conIVA ? "bg-[#4E60A9] border-[#4E60A9] text-white" : "bg-white border-gray-200 text-gray-500"}`}>
                 IVA 16%
               </button>
               <div className="flex items-center gap-2">
                 <label className="text-[12px] font-bold text-gray-500">Descuento</label>
-                <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5">
+                <div data-tour="quote-descuento" className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5">
                   <input type="number" min={0} max={80} value={descuento}
                     onChange={e => setDescuento(Math.min(80, Math.max(0, Number(e.target.value))))}
                     className="w-10 text-[12px] font-bold text-center outline-none" />
@@ -1993,7 +1995,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               <div className="text-[22px] font-extrabold text-[#4E60A9] tabular-nums">${total.toLocaleString("es-MX")}</div>
             </div>
           </div>
-          <textarea value={notas} onChange={e => setNotas(e.target.value)} rows={2}
+          <textarea data-tour="quote-notes" value={notas} onChange={e => setNotas(e.target.value)} rows={2}
             placeholder="Notas adicionales (opcional)…"
             className="w-full text-[12px] font-medium bg-white border border-gray-200 rounded-xl px-3 py-2.5 outline-none resize-none placeholder:text-gray-400 focus:border-[#4E60A9]/30 transition-all" />
           {/* Envío por correo */}
@@ -2032,6 +2034,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           )}
 
           <button
+            data-tour="quote-save-expediente"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -2083,6 +2086,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           )}
 
           <button
+            data-tour="quote-generar-pdf"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
