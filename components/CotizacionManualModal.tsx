@@ -787,6 +787,19 @@ export default function CotizacionManualModal({
     return { titulo, subtituloTotal, parrafoPDF, parrafoEmail };
   };
 
+  // ⚠️ ARCHIVO/MÓDULO PROTEGIDO — MAQUETACIÓN MILIMÉTRICA DE PÁGINAS PDF
+  // NO ALTERAR NI CAMBIAR EL ORDEN DE LOS COMPONENTES DE LAS HOJAS 1 Y 2.
+  // 
+  // REGLAS ESPECÍFICAS DE DISEÑO DE PÁGINAS (Evitan desbordamientos y desalineaciones):
+  // -------------------------------------------------------------------------------------------------
+  // 1. REPARACIÓN DE TRANSDUCTORES (tipo === "reparacion"):
+  //    - Hoja 1: DATOS CLIENTE -> DATOS TRANSFERENCIA -> ESPECIFICACIONES (equipoHTML) -> ALCANCE TÉCNICO (diagramaHTML) -> EVIDENCIA FOTOGRÁFICA (evidenciaHTML) al final de la hoja 1.
+  //    - Hoja 2: Ficha Técnica (brochureHTML) [se trasladó a hoja 2 para evitar desborde de altura en hoja 1] -> PROPUESTA TÉCNICA -> COSTO CON IVA -> POLÍTICAS -> FIRMAS -> FOOTER.
+  //
+  // 2. VENTA DE CONSUMIBLES (tipo === "consumibles"):
+  //    - Hoja 1: DATOS CLIENTE -> DATOS TRANSFERENCIA -> FOTOS DE PRODUCTOS (evidenciaHTML) -> LISTA DE ARTÍCULOS (tableHTML).
+  //    - Hoja 2: PROPUESTA COMERCIAL -> COSTO CON IVA -> POLÍTICAS -> FIRMAS -> FOOTER.
+  // -------------------------------------------------------------------------------------------------
   const buildPDFHtml = async (folioOverride?: string): Promise<{ html: string; folio: string }> => {
 
     let imgTransductor = "/transductor.png";
@@ -1081,6 +1094,7 @@ export default function CotizacionManualModal({
   </div>
 </div>
 
+<!-- ⚠️ ORDEN ESPECÍFICO DE LA HOJA 1: NO MODIFICAR -->
 ${equipoHTML}
 ${diagramaHTML}
 ${evidenciaHTML}
@@ -1090,6 +1104,7 @@ ${tableHTML}
 </div>
 
 <div class="page-two">
+<!-- ⚠️ FICHA TÉCNICA (BROCHURE): DEBE IR EN LA HOJA 2 PARA EVITAR DESBORDAR LA HOJA 1 -->
 ${brochureHTML}
 <div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;margin-top:20px;">
   <div class="card-title">${propInfo.titulo}</div>
