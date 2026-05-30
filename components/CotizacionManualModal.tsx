@@ -1457,7 +1457,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               {initialCotizacion ? `Editando cotización · Folio: ${initialCotizacion.folio}` : "Nueva cotización"}
             </p>
           </div>
-          <button onClick={handleClose} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
+          <button onClick={handleClose} data-tour="close-quote-modal" className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
             <X size={15} />
           </button>
         </div>
@@ -1978,6 +1978,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               <div className="flex items-center gap-2">
                 <label className="text-[12px] font-bold text-gray-500">Generado por</label>
                 <select
+                  data-tour="quote-firma-user"
                   value={firmaUserId}
                   onChange={e => setFirmaUserId(e.target.value === "bionordi" ? "bionordi" : Number(e.target.value))}
                   className="text-[12px] bg-white border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#4E60A9]/30"

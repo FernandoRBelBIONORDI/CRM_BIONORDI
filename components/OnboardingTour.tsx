@@ -42,7 +42,7 @@ const STEPS: StepDef[] = [
   },
   /* 1 */ {
     title: "Abrir el CRM",
-    subtitle: "Paso 1 de 12",
+    subtitle: "Paso 1 de 16",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "El CRM (Customer Relationship Manager) es el panel principal de ventas donde controlás tus leads comerciales.",
     steps: [
@@ -56,7 +56,7 @@ const STEPS: StepDef[] = [
   },
   /* 2 */ {
     title: "Crear un nuevo Lead",
-    subtitle: "Paso 2 de 12",
+    subtitle: "Paso 2 de 16",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "Un Lead es el expediente inicial de un prospecto. Para que quede guardado en tu directorio permanente de Clientes, debés registrar sus datos.",
     steps: [
@@ -70,7 +70,7 @@ const STEPS: StepDef[] = [
   },
   /* 3 */ {
     title: "Registrar datos del Cliente",
-    subtitle: "Paso 3 de 12",
+    subtitle: "Paso 3 de 16",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "Para que este Lead de prueba aparezca en tu directorio permanente de Clientes, es fundamental seleccionar 'Cliente' en el campo 'Estado CRM'.",
     steps: [
@@ -93,7 +93,7 @@ const STEPS: StepDef[] = [
   },
   /* 4 */ {
     title: "Ir al Directorio de Clientes",
-    subtitle: "Paso 4 de 12",
+    subtitle: "Paso 4 de 16",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "El directorio de Clientes almacena a todas las personas e instituciones médicas con un estatus activo en el sistema.",
     steps: [
@@ -107,7 +107,7 @@ const STEPS: StepDef[] = [
   },
   /* 5 */ {
     title: "Buscar cliente de prueba",
-    subtitle: "Paso 5 de 12",
+    subtitle: "Paso 5 de 16",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "Cuando tenés cientos de clientes registrados, usar el buscador dinámico te permite ubicar el expediente de manera inmediata.",
     steps: [
@@ -124,7 +124,7 @@ const STEPS: StepDef[] = [
   },
   /* 6 */ {
     title: "Abrir expediente",
-    subtitle: "Paso 6 de 12",
+    subtitle: "Paso 6 de 16",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "El expediente concentra todo el historial clínico del cliente: sus equipos, cotizaciones, órdenes de servicio y notas de contacto.",
     steps: [
@@ -138,7 +138,7 @@ const STEPS: StepDef[] = [
   },
   /* 7 */ {
     title: "Cotizar desde el Expediente",
-    subtitle: "Paso 7 de 12",
+    subtitle: "Paso 7 de 16",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Iniciar cotizaciones desde el expediente vincula de manera automática todos los datos fiscales y de contacto del cliente en el PDF formal.",
     steps: [
@@ -152,7 +152,7 @@ const STEPS: StepDef[] = [
   },
   /* 8 */ {
     title: "Elegir línea de servicio",
-    subtitle: "Paso 8 de 12",
+    subtitle: "Paso 8 de 16",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Bionordi ofrece Reparaciones, Mantenimientos, Venta de Equipos y Consumibles. Cada línea genera un formato y cláusulas legales de PDF distintas.",
     steps: [
@@ -164,26 +164,61 @@ const STEPS: StepDef[] = [
     autoAdvance: true,
   },
   /* 9 */ {
-    title: "Completar la Cotización",
-    subtitle: "Paso 9 de 12",
+    title: "Elegir Modo de Cotización",
+    subtitle: "Paso 9 de 16",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
-    why: "El cotizador opera en dos modalidades clave: Modo Catálogo (carga automáticamente las fotos y diagramas técnicos del transductor Mindray desde tu inventario) y Modo Manual (para escribir textos personalizados).",
+    why: "El cotizador opera en dos modalidades clave: Modo Catálogo (carga automáticamente fotos y diagramas oficiales) y Modo Manual (para textos libres y fotos). Observa ambos botones destacados.",
     steps: [
-      "Copiá y pegá los campos de abajo. Verás que al seleccionar 'Mindray 7L-4s' bajo Modo Catálogo, se cargan las especificaciones técnicas del transductor.",
-      "En la tabla de costos, seleccioná o escribí un concepto y asignale el precio unitario sugerido.",
+      "Identifica los botones superiores de 'Catálogo' y 'Manual' resaltados en el spotlight.",
+      "Para este tutorial, haz click en el botón 'Catálogo' o 'Manual' según el modo que quieras usar.",
     ],
-    saveHint: "Cuando la cotización esté llena → hacé click en el botón 'Generar PDF' al pie del formulario para registrar la cotización y visualizar el PDF formal.",
-    selector: '[data-tour="quote-modal"]',
-    position: "left",
-    fields: [
-      { label: "Equipo",            value: "Transductor Lineal" },
-      { label: "Marca del equipo",   value: "Mindray" },
-      { label: "Modelo del equipo",  value: "7L-4s" },
-      { label: "Número de serie",   value: "MY-829281" },
-      { label: "Falla reportada",   value: "Líneas negras en imagen" },
-      { label: "Concepto / Costo",  value: "Reparación de arreglo de cristales y reencapsulado" },
-      { label: "Precio unitario",   value: "6500" },
-    ],
+    selector: '[data-tour="quote-mode-toggle"]',
+    position: "bottom",
+    detect: () => {
+      const catActive = document.querySelector('[data-tour="quote-mode-catalogo-btn"]')?.className.includes("bg-white");
+      const manActive = document.querySelector('[data-tour="quote-mode-manual-btn"]')?.className.includes("bg-white");
+      return catActive || manActive;
+    },
+    autoAdvance: true,
+  },
+  /* 10 */ {
+    title: "Seleccionar Marca",
+    subtitle: "Paso 10 de 16",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "Al seleccionar la marca en Modo Catálogo, habilitarás los selectores con las fichas y diagramas clínicos oficiales correspondientes.",
+    steps: [], // se inyecta dinámicamente según submodo
+    selector: '[data-tour="quote-eq-marca"]',
+    position: "bottom",
+    detect: () => {
+      const sel = document.querySelector('[data-tour="quote-eq-marca"]') as HTMLSelectElement | HTMLInputElement;
+      return sel && sel.value.toLowerCase().includes("mindray");
+    },
+    autoAdvance: true,
+  },
+  /* 11 */ {
+    title: "Seleccionar Modelo",
+    subtitle: "Paso 11 de 16",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "Al elegir el modelo '7L-4s', el cotizador cargará automáticamente la ficha técnica oficial y el diagrama interactivo de cristales Mindray.",
+    steps: [], // se inyecta dinámicamente según submodo
+    selector: '[data-tour="quote-eq-modelo"]',
+    position: "bottom",
+    detect: () => {
+      const sel = document.querySelector('[data-tour="quote-eq-modelo"]') as HTMLSelectElement | HTMLInputElement;
+      return sel && sel.value.toLowerCase().includes("7l-4s");
+    },
+    autoAdvance: true,
+  },
+  /* 12 */ {
+    title: "Firma y Registro",
+    subtitle: "Paso 12 de 16",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "El campo 'Generado por' permite definir el firmante oficial de esta cotización. Copia los datos de prueba, agrega el costo del servicio y haz click en 'Guardar PDF en expediente'.",
+    steps: [], // se inyecta dinámicamente según submodo
+    saveHint: "💡 Consejo útil: Una vez copiado y agregado el servicio, haz click en el botón verde 'Guardar PDF en expediente' al pie de la pantalla para registrar el presupuesto y continuar.",
+    selector: '[data-tour="quote-firma-user"]',
+    position: "top",
+    fields: [], // se inyecta dinámicamente según submodo
     detect: () => {
       if (typeof window === "undefined") return false;
       if (document.querySelector('[data-tour="doc-viewer-modal"]')) return true;
@@ -198,29 +233,42 @@ const STEPS: StepDef[] = [
     },
     autoAdvance: true,
   },
-  /* 10 */ {
+  /* 13 */ {
+    title: "Cerrar Cotizador",
+    subtitle: "Paso 13 de 16",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "La cotización fue registrada correctamente. Ahora debemos cerrar el modal del cotizador para continuar operando en el expediente del cliente.",
+    steps: [
+      "Si abriste el previsualizador de PDF, haz click en su botón 'X' superior para cerrarlo.",
+      "Haz click en el botón 'X' en la parte superior derecha del cotizador destacado en el spotlight.",
+    ],
+    selector: '[data-tour="close-quote-modal"]',
+    position: "left",
+    detect: () => !document.querySelector('[data-tour="quote-modal"]') && !document.querySelector('[data-tour="doc-viewer-modal"]'),
+    autoAdvance: true,
+  },
+  /* 14 */ {
     title: "Aprobar la Cotización",
-    subtitle: "Paso 10 de 12",
+    subtitle: "Paso 14 de 16",
     icon: CheckCircle2, color: "#059669", bg: "#ECFDF5",
     why: "Una vez que el cliente acepta el presupuesto, debemos aprobar la cotización directamente en su expediente digital para habilitar la creación automática de su Orden de Trabajo sin recapturar datos.",
     steps: [
-      "Cerrá el previsualizador de PDF si se encuentra abierto (click en la X superior).",
-      "Desplázate hacia abajo hasta la tabla de 'Cotizaciones' en el expediente del cliente.",
+      "La pantalla se desplazará automáticamente hacia la tabla de 'Cotizaciones' de este expediente.",
       "En la fila de tu cotización de $6,500, hacé click en el botón verde 'Aprobar'.",
     ],
     selector: '[data-tour="quote-approve-btn"]',
-    position: "left",
+    position: "top",
     detect: () => !document.querySelector('[data-tour="doc-viewer-modal"]') && !document.querySelector('[data-tour="quote-approve-btn"]') && !!document.querySelector('[data-tour="quote-create-ot-btn"]'),
     autoAdvance: true,
   },
-  /* 11 */ {
+  /* 15 */ {
     title: "Crear Orden de Trabajo",
-    subtitle: "Paso 11 de 12",
+    subtitle: "Paso 15 de 16",
     icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
     why: "Al hacer click en 'Crear OT', el CRM vincula automáticamente toda la información de la cotización aprobada (marca, modelo, falla y costo) en una nueva Orden de Trabajo para el taller, sin tener que escribir nada a mano.",
     steps: [
       "Hacá click en el nuevo botón morado 'Crear OT' que apareció en la fila de tu cotización aprobada.",
-      "Aceptá la confirmación en la ventana emergente de tu navegador para registrar la Orden de Servicio automáticamente.",
+      "Haz click en 'Aceptar' en la confirmación de la aplicación para registrar la Orden de Servicio automáticamente.",
     ],
     selector: '[data-tour="quote-create-ot-btn"]',
     position: "left",
@@ -230,7 +278,7 @@ const STEPS: StepDef[] = [
     },
     autoAdvance: true,
   },
-  /* 12 */ {
+  /* 16 */ {
     title: "¡Flujo completado!",
     subtitle: "Tutorial finalizado",
     icon: Sparkles, color: "#059669", bg: "#ECFDF5",

@@ -228,7 +228,12 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
     const data = await res.json();
     setCreatingOT(null);
     if (data.orden?.folio) {
-      alert(`Orden creada: ${data.orden.folio}`);
+      confirm({
+        title: "Orden de Servicio Creada",
+        message: `La Orden de Servicio ha sido generada automáticamente con el folio: ${data.orden.folio}`,
+        confirmText: "Aceptar",
+        onConfirm: () => {}
+      });
     }
     loadCotizaciones(lead.id);
   };

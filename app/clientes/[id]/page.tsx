@@ -380,7 +380,14 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
         status: "recibido",
       }),
     }).then(r => r.json()).then(d => {
-      if (d.orden?.folio) alert(`Orden creada: ${d.orden.folio}`);
+      if (d.orden?.folio) {
+        confirm({
+          title: "Orden de Servicio Creada",
+          message: `La Orden de Servicio ha sido generada automáticamente con el folio: ${d.orden.folio}`,
+          confirmText: "Aceptar",
+          onConfirm: () => {}
+        });
+      }
     });
     setCreatingOT(null);
     reload();
