@@ -147,7 +147,7 @@ const STEPS: StepDef[] = [
     ],
     selector: '[data-tour="profile-quote-btn"]',
     position: "bottom",
-    detect: () => !!document.querySelector('[data-tour="quote-type-reparacion"]') || !!document.querySelector('[data-tour="cot-modal-open"]'),
+    detect: () => !!document.querySelector('[data-tour="quote-type-reparacion"]') || !!document.querySelector('[data-tour="quote-modal"]'),
     autoAdvance: true,
   },
   /* 8 */ {
@@ -160,7 +160,7 @@ const STEPS: StepDef[] = [
     ],
     selector: '[data-tour="quote-type-reparacion"]',
     position: "bottom",
-    detect: () => !!document.querySelector('[data-tour="cot-modal-open"]'),
+    detect: () => !!document.querySelector('[data-tour="quote-modal"]'),
     autoAdvance: true,
   },
   /* 9 */ {
@@ -184,7 +184,7 @@ const STEPS: StepDef[] = [
       { label: "Concepto / Costo",  value: "Reparación de arreglo de cristales y reencapsulado" },
       { label: "Precio unitario",   value: "6500" },
     ],
-    detect: () => (!document.querySelector('[data-tour="cot-modal-open"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("6,500"))) || !!document.querySelector('[data-tour="doc-viewer-modal"]'),
+    detect: () => (!document.querySelector('[data-tour="quote-modal"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("6,500"))) || !!document.querySelector('[data-tour="doc-viewer-modal"]'),
     autoAdvance: true,
   },
   /* 10 */ {
