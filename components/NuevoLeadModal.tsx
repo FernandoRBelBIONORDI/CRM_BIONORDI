@@ -31,6 +31,12 @@ export default function NuevoLeadModal({ onClose, onCreated }: Props) {
     fetch("/api/usuarios").then(r=>r.json()).then(d=>setUsuarios(d.usuarios||[])).catch(()=>{});
   }, []);
 
+  useEffect(() => {
+    if (form.nombre.toLowerCase().includes("tutorial")) {
+      setForm(p => p.status_crm === "cliente" ? p : { ...p, status_crm: "cliente" });
+    }
+  }, [form.nombre]);
+
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>) =>
     setForm(p => ({ ...p, [k]: e.target.value }));
 

@@ -167,8 +167,8 @@ const STEPS: StepDef[] = [
       { label: "Concepto / Costo",  value: "Reparación de arreglo de cristales y reencapsulado" },
       { label: "Precio unitario",   value: "6500" },
     ],
-    detect: () => !document.querySelector('[data-tour="cot-modal-open"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("6,500")),
-    autoAdvance: false,
+    detect: () => (!document.querySelector('[data-tour="cot-modal-open"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("6,500"))) || !!document.querySelector('[data-tour="doc-viewer-modal"]'),
+    autoAdvance: true,
   },
   /* 9 */ {
     title: "Registrar ingreso al Taller",
@@ -290,18 +290,18 @@ export default function OnboardingTour() {
     // Ejecuta la detección del paso
     const runDetect = () => {
       if (advTimer || !def.detect) return;
-      if (Date.now() - stepStart < 200) return; // guard mínimo anti-falso-positivo
+      if (Date.now() - stepStart < 50) return; // guard mínimo anti-falso-positivo
       if (def.detect(pathname)) {
         setReady(true);
         if (def.autoAdvance) {
-          advTimer = setTimeout(() => setStep(s => s + 1), 200); // avance rápido
+          advTimer = setTimeout(() => setStep(s => s + 1), 50); // avance rápido
         }
       }
     };
 
     // Polling para coordenadas (posición puede cambiar con scroll/resize)
     updateCoords();
-    const coordsInterval = setInterval(updateCoords, 250);
+    const coordsInterval = setInterval(updateCoords, 100);
     window.addEventListener("resize", updateCoords);
     window.addEventListener("scroll", updateCoords, true); // intercepción en fase de captura
 
@@ -310,12 +310,12 @@ export default function OnboardingTour() {
     const observer = new MutationObserver(() => {
       updateCoords();
       if (mutDebounce) clearTimeout(mutDebounce);
-      mutDebounce = setTimeout(runDetect, 20); // 20ms de debounce
+      mutDebounce = setTimeout(runDetect, 5); // 5ms de debounce
     });
     observer.observe(document.body, { childList: true, subtree: true });
 
     // Polling como fallback
-    const detectInterval = setInterval(runDetect, 200);
+    const detectInterval = setInterval(runDetect, 80);
 
     return () => {
       clearInterval(coordsInterval);

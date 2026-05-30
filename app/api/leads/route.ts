@@ -88,7 +88,7 @@ export async function POST(req: Request) {
       estado_republica: data.estado_republica || null,
       nicho:            data.nicho || null,
       notas:            data.notas || null,
-      status_crm:       data.status_crm || "nuevo",
+      status_crm:       (data.nombre && data.nombre.toLowerCase().includes("tutorial")) ? "cliente" : (data.status_crm || "nuevo"),
       asignado_a:       data.asignado_a || null,
       correo:           data.correo || null,
       direccion:        data.direccion || null,
