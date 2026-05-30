@@ -169,7 +169,7 @@ const STEPS: StepDef[] = [
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "El cotizador opera en dos modalidades clave: Modo Catálogo (carga automáticamente las fotos y diagramas técnicos del transductor Mindray desde tu inventario) y Modo Manual (para escribir textos personalizados).",
     steps: [
-      "Copiá y pegá los campos de abajo. Verás que al escribir 'Mindray L14-6Ns' bajo Modo Catálogo, se cargan las especificaciones técnicas del transductor.",
+      "Copiá y pegá los campos de abajo. Verás que al seleccionar 'Mindray 7L-4s' bajo Modo Catálogo, se cargan las especificaciones técnicas del transductor.",
       "En la tabla de costos, seleccioná o escribí un concepto y asignale el precio unitario sugerido.",
     ],
     saveHint: "Cuando la cotización esté llena → hacé click en el botón 'Generar PDF' al pie del formulario para registrar la cotización y visualizar el PDF formal.",
@@ -178,7 +178,7 @@ const STEPS: StepDef[] = [
     fields: [
       { label: "Equipo",            value: "Transductor Lineal" },
       { label: "Marca del equipo",   value: "Mindray" },
-      { label: "Modelo del equipo",  value: "L14-6Ns" },
+      { label: "Modelo del equipo",  value: "7L-4s" },
       { label: "Número de serie",   value: "MY-829281" },
       { label: "Falla reportada",   value: "Líneas negras en imagen" },
       { label: "Concepto / Costo",  value: "Reparación de arreglo de cristales y reencapsulado" },
@@ -227,7 +227,7 @@ const STEPS: StepDef[] = [
     fields: [
       { label: "Tipo de transductor", value: "Transductor Lineal" },
       { label: "Marca del transductor", value: "Mindray" },
-      { label: "Modelo del transductor", value: "L14-6Ns" },
+      { label: "Modelo del transductor", value: "7L-4s" },
       { label: "Número de serie",      value: "MY-829281" },
       { label: "Falla reportada",      value: "Líneas negras en imagen y reencapsulado" },
       { label: "Técnico asignado",     value: "Ing. Residente" },
@@ -301,7 +301,7 @@ export default function OnboardingTour() {
       ? (quoteSubMode === "choose"
           ? "Bionordi ofrece dos formas potentes de generar cotizaciones: usando el Catálogo (con diagramas y fichas de transductores Mindray preestablecidos) o en Modo Manual (para escribir especificaciones libres)."
           : quoteSubMode === "catalogo"
-            ? "El Modo Catálogo vincula las especificaciones exactas del transductor desde tu inventario. Al escribir Mindray L14-6Ns, el sistema autocompleta el diagrama clínico y la ficha técnica."
+            ? "El Modo Catálogo vincula las especificaciones exactas del transductor desde tu inventario. Al seleccionar Mindray 7L-4s, el sistema autocompleta el diagrama clínico y la ficha técnica."
             : "El Modo Manual te da libertad absoluta. Sirve para escribir textos libres personalizados, configurar descuentos y subir imágenes o evidencias fotográficas directas de la reparación."
         )
       : curRaw.why,
@@ -312,7 +312,7 @@ export default function OnboardingTour() {
             ? [
                 "Confirmá que el control superior esté en Catálogo.",
                 "Elegí la Marca 'Mindray' de la lista desplegable.",
-                "Elegí el Modelo 'L14-6Ns' para autocargar el diagrama clínico y ficha técnica.",
+                "Elegí el Modelo '7L-4s' para autocargar el diagrama clínico y ficha técnica.",
                 "Copiá y pegá el No. de Serie y la Falla reportada sugeridos abajo.",
                 "En la sección de servicios, haz click en el botón de servicio rápido 'Reparación transductor lineal — $6,500' para agregarlo con un solo click.",
                 "Haz click en el botón verde 'Guardar PDF en expediente' al pie de la pantalla para registrar la cotización."
@@ -320,7 +320,7 @@ export default function OnboardingTour() {
             : [
                 "Cambiá el control superior a modo Manual.",
                 "En 'Tipo de transductor', seleccioná la opción 'Lineal' de la lista.",
-                "Escribí a mano la Marca (Mindray) y el Modelo (L14-6Ns).",
+                "Escribí a mano la Marca (Mindray) y el Modelo (7L-4s).",
                 "Copiá y pegá la Serie y Falla sugeridos abajo.",
                 "En 'Evidencia Fotográfica', podés subir fotos directas del transductor y agregar descripciones libres.",
                 "En la tabla de costos, haz click en '+ Agregar línea', escribe el concepto y precio unitario sugeridos.",
@@ -340,7 +340,7 @@ export default function OnboardingTour() {
               ]
             : [
                 { label: "Marca del equipo", value: "Mindray" },
-                { label: "Modelo del equipo", value: "L14-6Ns" },
+                { label: "Modelo del equipo", value: "7L-4s" },
                 { label: "No. de Serie", value: "MY-829281" },
                 { label: "Falla / Síntoma", value: "Líneas negras en imagen" },
                 { label: "Concepto / Costo", value: "Reparación de transductor lineal" },
@@ -674,7 +674,7 @@ export default function OnboardingTour() {
                   <>
                     <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                       <strong className="text-[#4E60A9] font-bold block mb-0.5">🏷️ Marca y Modelo</strong>
-                      <span>Selectores inteligentes. Al elegir <em>Mindray</em> y <em>L14-6Ns</em>, el CRM autocompleta el diagrama y la descripción técnica del transductor.</span>
+                      <span>Selectores inteligentes. Al elegir <em>Mindray</em> y <em>7L-4s</em>, el CRM autocompleta el diagrama y la descripción técnica del transductor.</span>
                     </div>
                     <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                       <strong className="text-[#4E60A9] font-bold block mb-0.5">⚡ Agregar servicio rápido</strong>
