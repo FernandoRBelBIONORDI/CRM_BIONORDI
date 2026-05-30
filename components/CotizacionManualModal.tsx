@@ -1654,7 +1654,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                     </Field>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 mb-3">
+                  <div className="grid grid-cols-3 gap-3 mb-3" data-tour="quote-eq-fields">
                     <Field label="Modelo">
                       {tipo === "reparacion" && equipoMode === "catalogo" && modelosPorMarca.length > 0 ? (
                         <select data-tour="quote-eq-modelo" value={eqModelo} onChange={async e => {
