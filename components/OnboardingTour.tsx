@@ -343,7 +343,14 @@ export default function OnboardingTour() {
           : "💡 Consejo útil: Una vez completa, haz click en el botón verde 'Guardar PDF en expediente' para vincular permanentemente esta cotización al lead de prueba y poder avanzar."
         )
       : curRaw.saveHint,
-    selector: isQuoteStep ? '[data-tour="quote-modal"]' : curRaw.selector,
+    selector: isQuoteStep
+      ? (quoteSubMode === "choose"
+          ? '[data-tour="quote-modal"]'
+          : quoteSubMode === "catalogo"
+            ? '[data-tour="quote-mode-catalogo-btn"]'
+            : '[data-tour="quote-mode-manual-btn"]'
+        )
+      : curRaw.selector,
   };
 
   const isLast = step === STEPS.length - 1;
