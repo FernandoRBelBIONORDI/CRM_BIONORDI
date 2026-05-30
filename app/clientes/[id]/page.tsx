@@ -352,6 +352,18 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
 
   const createOTFromCot = async (cot: Cotizacion) => {
     setCreatingOT(cot.id);
+    let eqNumSerie = "";
+    let eqFalla = "";
+    if (cot.items_json) {
+      try {
+        const parsed = typeof cot.items_json === "string" ? JSON.parse(cot.items_json) : cot.items_json;
+        if (parsed?.meta?.eqSerie) eqNumSerie = parsed.meta.eqSerie;
+        if (parsed?.meta?.eqFalla) eqFalla = parsed.meta.eqFalla;
+      } catch (err) {
+        console.error("Error parsing items_json meta in createOTFromCot:", err);
+      }
+    }
+
     await fetch("/api/ordenes", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -360,7 +372,8 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
         equipo_tipo: cot.eq_tipo || "",
         equipo_marca: cot.eq_marca || "",
         equipo_modelo: cot.eq_modelo || "",
-        falla_reportada: `Cotización ${cot.folio || `#${cot.id}`} aprobada`,
+        equipo_num_serie: eqNumSerie || "",
+        falla_reportada: eqFalla || `Cotización ${cot.folio || `#${cot.id}`} aprobada`,
         presupuesto: cot.monto_total,
         presupuesto_aprobado: 1,
         fecha_ingreso: new Date().toISOString().slice(0, 10),
@@ -371,6 +384,31 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
     });
     setCreatingOT(null);
     reload();
+  };
+
+  const handleNewOTClick = () => {
+    const approvedWithoutOT = cotizaciones.find(c => {
+      const isApproved = c.status === "aprobada";
+      const hasOT = ordenes.some(o => o.cotizacion_id === c.id);
+      return isApproved && !hasOT;
+    });
+
+    if (approvedWithoutOT) {
+      createOTFromCot(approvedWithoutOT);
+      return;
+    }
+
+    const pendingCot = cotizaciones.find(c => c.status !== "aprobada" && c.status !== "rechazada");
+    if (pendingCot) {
+      alert("Tienes una cotización pendiente. Por favor, aprueba la cotización primero en la tabla de 'Cotizaciones' para generar su Orden de Trabajo automáticamente.");
+      const el = document.getElementById("cotizaciones-section");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    alert("Para generar una Orden de Trabajo con el formato oficial, primero debes crear y aprobar una cotización para este cliente.");
+    const el = document.getElementById("cotizaciones-section");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
   const deleteCotizacion = async (cid: number) => {
@@ -595,11 +633,11 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                     className="flex items-center gap-1.5 text-[12px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-2 rounded-full transition-colors shadow-sm">
                     <FileText size={13} /> Cotizar
                   </button>
-                  <a href={`/taller?nuevo=1&lead_id=${lead.id}`}
+                  <button onClick={handleNewOTClick}
                     data-tour="profile-new-ot-btn"
                     className="flex items-center gap-1.5 text-[12px] font-bold text-[#7C3AED] bg-[#F5F3FF] hover:bg-[#7C3AED] hover:text-white px-3 py-2 rounded-full transition-colors shadow-sm">
                     <ClipboardList size={13} /> Nueva OT
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1010,10 +1048,10 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <h3 className="text-[13px] font-extrabold text-[#1E293B]">Órdenes de trabajo</h3>
-              <a href={`/taller?nuevo=1&lead_id=${lead.id}`}
+              <button onClick={handleNewOTClick}
                 className="flex items-center gap-1.5 text-[11px] font-bold text-[#7C3AED] bg-[#F5F3FF] hover:bg-[#EDE9FE] px-3 py-1.5 rounded-lg transition-colors">
                 <Plus size={12} />Nueva orden
-              </a>
+              </button>
             </div>
             {ordenes.length === 0 ? (
               <div className="px-6 py-8 text-center text-[12px] text-gray-400">Sin órdenes de trabajo registradas</div>

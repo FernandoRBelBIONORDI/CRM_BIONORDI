@@ -24,7 +24,7 @@ interface Lead {
 }
 interface Interaccion { id: number; tipo: string; contenido: string; fecha: string; resultado?: string; usuario_nombre?: string; }
 interface Equipo { id: number; tipo: string; marca?: string; modelo?: string; num_serie?: string; estado: string; notas?: string; fecha_alta: string; }
-interface Cotizacion { id: number; tipo: string; folio?: string; monto_total: number; status: string; fecha: string; eq_tipo?: string; eq_marca?: string; eq_modelo?: string; }
+interface Cotizacion { id: number; tipo: string; folio?: string; monto_total: number; status: string; fecha: string; eq_tipo?: string; eq_marca?: string; eq_modelo?: string; items_json?: string; }
 interface UsuarioOpt { id: number; nombre: string; }
 
 const S: Record<string, { label: string; color: string; bg: string }> = {
@@ -197,6 +197,18 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   const createOTFromCot = async (cot: Cotizacion) => {
     if (!lead) return;
     setCreatingOT(cot.id);
+    let eqNumSerie = "";
+    let eqFalla = "";
+    if (cot.items_json) {
+      try {
+        const parsed = typeof cot.items_json === "string" ? JSON.parse(cot.items_json) : cot.items_json;
+        if (parsed?.meta?.eqSerie) eqNumSerie = parsed.meta.eqSerie;
+        if (parsed?.meta?.eqFalla) eqFalla = parsed.meta.eqFalla;
+      } catch (err) {
+        console.error("Error parsing items_json meta in createOTFromCot:", err);
+      }
+    }
+
     const res = await fetch("/api/ordenes", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -205,7 +217,8 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
         equipo_tipo: cot.eq_tipo || "",
         equipo_marca: cot.eq_marca || "",
         equipo_modelo: cot.eq_modelo || "",
-        falla_reportada: `Cotización ${cot.folio || `#${cot.id}`} aprobada`,
+        equipo_num_serie: eqNumSerie || "",
+        falla_reportada: eqFalla || `Cotización ${cot.folio || `#${cot.id}`} aprobada`,
         presupuesto: cot.monto_total,
         presupuesto_aprobado: 1,
         fecha_ingreso: new Date().toISOString().slice(0, 10),
@@ -216,6 +229,36 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
     setCreatingOT(null);
     if (data.orden?.folio) {
       alert(`Orden creada: ${data.orden.folio}`);
+    }
+    loadCotizaciones(lead.id);
+  };
+
+  const handleNewOTClick = async () => {
+    if (!lead) return;
+    try {
+      const ordRes = await fetch(`/api/ordenes?lead_id=${lead.id}`).then(r => r.json());
+      const leadOrdenes = ordRes.ordenes || [];
+
+      const approvedWithoutOT = cotizaciones.find(c => {
+        const isApproved = c.status === "aprobada";
+        const hasOT = leadOrdenes.some((o: any) => o.cotizacion_id === c.id);
+        return isApproved && !hasOT;
+      });
+
+      if (approvedWithoutOT) {
+        createOTFromCot(approvedWithoutOT);
+        return;
+      }
+
+      const pendingCot = cotizaciones.find(c => c.status !== "aprobada" && c.status !== "rechazada");
+      if (pendingCot) {
+        alert("Tienes una cotización pendiente. Por favor, aprueba la cotización primero en la sección de 'Cotizaciones' para generar su Orden de Trabajo automáticamente.");
+        return;
+      }
+
+      alert("Para generar una Orden de Trabajo con el formato oficial, primero debes crear y aprobar una cotización para este cliente.");
+    } catch (e) {
+      alert("Error de conexión al verificar el estado de las órdenes.");
     }
   };
 
@@ -403,10 +446,10 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                 className="flex items-center gap-1.5 text-[12px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-2 rounded-full transition-colors shadow-sm">
                 <FileText size={13} /> Cotizar
               </button>
-              <Link href={`/taller?nuevo=1&lead_id=${lead.id}`}
+               <button onClick={handleNewOTClick}
                 className="flex items-center gap-1.5 text-[12px] font-bold text-[#7C3AED] bg-[#F5F3FF] hover:bg-[#7C3AED] hover:text-white px-3 py-2 rounded-full transition-colors shadow-sm">
                 <ClipboardList size={13} /> Nueva OT
-              </Link>
+              </button>
             </div>
           </div>
 
