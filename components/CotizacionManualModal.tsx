@@ -1571,7 +1571,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                   {tipo === "reparacion" ? "Equipo a reparar" : tipo === "venta" ? "Equipo a cotizar" : "Equipo a dar mantenimiento"}
                 </div>
                 {catalogo.length > 0 && (
-                  <div className="flex gap-1 bg-gray-100 p-0.5 rounded-lg">
+                  <div data-tour="quote-mode-toggle" className="flex gap-1 bg-gray-100 p-0.5 rounded-lg">
                     <button
                       data-tour="quote-mode-catalogo-btn"
                       onClick={() => { setEquipoMode("catalogo"); setEqMarca(""); setEqModelo(""); setEqTipo(""); setImgEquipoB64(null); limpiarEquipoCatalogo(); }}

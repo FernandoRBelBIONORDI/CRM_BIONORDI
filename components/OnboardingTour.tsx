@@ -184,7 +184,18 @@ const STEPS: StepDef[] = [
       { label: "Concepto / Costo",  value: "Reparación de arreglo de cristales y reencapsulado" },
       { label: "Precio unitario",   value: "6500" },
     ],
-    detect: () => (!document.querySelector('[data-tour="quote-modal"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("6,500"))) || !!document.querySelector('[data-tour="doc-viewer-modal"]'),
+    detect: () => {
+      if (typeof window === "undefined") return false;
+      if (document.querySelector('[data-tour="doc-viewer-modal"]')) return true;
+      const saveBtn = document.querySelector('[data-tour="quote-save-expediente"]');
+      if (saveBtn && (saveBtn.textContent?.toLowerCase().includes("guardado") || saveBtn.className.includes("bg-[#059669]"))) {
+        return true;
+      }
+      if (!document.querySelector('[data-tour="quote-modal"]')) {
+        return Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("6,500"));
+      }
+      return false;
+    },
     autoAdvance: true,
   },
   /* 10 */ {
@@ -345,7 +356,7 @@ export default function OnboardingTour() {
       : curRaw.saveHint,
     selector: isQuoteStep
       ? (quoteSubMode === "choose"
-          ? '[data-tour="quote-modal"]'
+          ? '[data-tour="quote-mode-toggle"]'
           : quoteSubMode === "catalogo"
             ? '[data-tour="quote-mode-catalogo-btn"]'
             : '[data-tour="quote-mode-manual-btn"]'
