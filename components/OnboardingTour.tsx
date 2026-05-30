@@ -223,7 +223,7 @@ const STEPS: StepDef[] = [
       "Copiá y pegá el No. de Serie y la Falla reportada sugeridos abajo en sus respectivos campos del formulario.",
     ],
     selector: '[data-tour="quote-eq-fields"]',
-    position: "top",
+    position: "left",
     fields: [
       { label: "Número de serie", value: "MY-829281" },
       { label: "Falla reportada", value: "Líneas negras en imagen" },
@@ -245,7 +245,7 @@ const STEPS: StepDef[] = [
       "Cuando estés listo, haz click en Siguiente.",
     ],
     selector: '[data-tour="quote-firma-user"]',
-    position: "top",
+    position: "left",
     autoAdvance: false,
   },
   /* 14 */ {
@@ -258,7 +258,7 @@ const STEPS: StepDef[] = [
       "Hacé click para agregarlo al presupuesto automáticamente.",
     ],
     selector: '[data-tour="quote-rapidos"]',
-    position: "top",
+    position: "left",
     detect: () => {
       const totalDiv = Array.from(document.querySelectorAll("div, span")).find(el => !!(el.textContent && el.textContent.includes("6,500")));
       return !!totalDiv;
@@ -279,7 +279,7 @@ const STEPS: StepDef[] = [
       { label: "Precio Unit.", value: "1500" },
     ],
     selector: '[data-tour="quote-items"]',
-    position: "top",
+    position: "left",
     detect: () => {
       const inputs = Array.from(document.querySelectorAll("input")) as HTMLInputElement[];
       const hasDesc = inputs.some(i => i.value.toLowerCase().includes("calibración"));
@@ -295,11 +295,11 @@ const STEPS: StepDef[] = [
     why: "Bionordi genera automáticamente las cláusulas y descripción técnica en el PDF. Si deseás personalizar este texto, podés desplegar esta sección.",
     steps: [
       "Hacé click en la barra 'Texto de la propuesta en el PDF' para expandir la sección.",
-      "Para regenerar el texto original a partir de los datos, usá el botón 'Generar automáticamente' a la derecha.",
-      "Cuando termines de revisar, hacé click en Siguiente.",
+      "Una vez desplegado el espacio donde va el texto, hacé click en el botón 'Generar automáticamente' en la esquina superior derecha para precargar el texto oficial.",
+      "Cuando termines de revisarlo, hacé click en Siguiente.",
     ],
     selector: '[data-tour="quote-propuesta-btn"]',
-    position: "top",
+    position: "left",
     detect: () => !!document.querySelector('textarea[placeholder*="deja vacío"]') || !!document.querySelector('textarea[placeholder*="según el equipo"]'),
     autoAdvance: false,
   },
@@ -307,14 +307,17 @@ const STEPS: StepDef[] = [
     title: "Datos de Facturación",
     subtitle: "Paso 17 de 22",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
-    why: "Esta sección te permite asociar de forma permanente el RFC, Razón Social, Régimen Fiscal y Uso de CFDI de tu cliente para automatizar futuros PDF.",
+    why: "Esta sección te permite asociar los datos fiscales del cliente de manera permanente para automatizar la facturación SAT.",
     steps: [
       "Hacé click en la sección 'Datos de facturación del cliente' para expandirla.",
-      "Al guardarla, estos datos quedarán vinculados de manera permanente en el expediente para futuras cotizaciones.",
+      "Los campos clave para facturar electrónicamente son:",
+      "• Razón Social y RFC: Nombre y Registro fiscal para la emisión.",
+      "• Régimen Fiscal y Uso de CFDI: Parámetros del SAT para deducir.",
+      "• Correo para factura y Dirección fiscal: Envío de PDF y XML.",
       "Hacé click en Siguiente para continuar.",
     ],
     selector: '[data-tour="quote-facturacion-btn"]',
-    position: "top",
+    position: "left",
     detect: () => !!document.querySelector('input[placeholder="XXXX000000XX0"]'),
     autoAdvance: false,
   },
@@ -331,7 +334,7 @@ const STEPS: StepDef[] = [
       { label: "Correo de prueba", value: "juan.garcia@bionordi.mx" },
     ],
     selector: '[data-tour="quote-email-to"]',
-    position: "top",
+    position: "left",
     autoAdvance: false,
   },
   /* 19 */ {
@@ -344,7 +347,7 @@ const STEPS: StepDef[] = [
       "El tutorial avanzará cuando la cotización se registre con éxito.",
     ],
     selector: '[data-tour="quote-save-expediente"]',
-    position: "top",
+    position: "left",
     detect: () => {
       const btn = document.querySelector('[data-tour="quote-save-expediente"]');
       return !!(btn && (btn.textContent?.toLowerCase().includes("guardado") || btn.className.includes("bg-[#059669]")));
