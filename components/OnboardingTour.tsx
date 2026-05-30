@@ -42,7 +42,7 @@ const STEPS: StepDef[] = [
   },
   /* 1 */ {
     title: "Abrir el CRM",
-    subtitle: "Paso 1 de 19",
+    subtitle: "Paso 1 de 22",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "El CRM (Customer Relationship Manager) es el panel principal de ventas donde controlás tus leads comerciales.",
     steps: [
@@ -56,7 +56,7 @@ const STEPS: StepDef[] = [
   },
   /* 2 */ {
     title: "Crear un nuevo Lead",
-    subtitle: "Paso 2 de 19",
+    subtitle: "Paso 2 de 22",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "Un Lead es el expediente inicial de un prospecto. Para que quede guardado en tu directorio permanente de Clientes, debés registrar sus datos.",
     steps: [
@@ -70,7 +70,7 @@ const STEPS: StepDef[] = [
   },
   /* 3 */ {
     title: "Registrar datos del Cliente",
-    subtitle: "Paso 3 de 19",
+    subtitle: "Paso 3 de 22",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "Para que este Lead de prueba aparezca en tu directorio permanente de Clientes, es fundamental seleccionar 'Cliente' en el campo 'Estado CRM'.",
     steps: [
@@ -93,7 +93,7 @@ const STEPS: StepDef[] = [
   },
   /* 4 */ {
     title: "Ir al Directorio de Clientes",
-    subtitle: "Paso 4 de 19",
+    subtitle: "Paso 4 de 22",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "El directorio de Clientes almacena a todas las personas e instituciones médicas con un estatus activo en el sistema.",
     steps: [
@@ -107,7 +107,7 @@ const STEPS: StepDef[] = [
   },
   /* 5 */ {
     title: "Buscar cliente de prueba",
-    subtitle: "Paso 5 de 19",
+    subtitle: "Paso 5 de 22",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "Cuando tenés cientos de clientes registrados, usar el buscador dinámico te permite ubicar el expediente de manera inmediata.",
     steps: [
@@ -124,7 +124,7 @@ const STEPS: StepDef[] = [
   },
   /* 6 */ {
     title: "Abrir expediente",
-    subtitle: "Paso 6 de 19",
+    subtitle: "Paso 6 de 22",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "El expediente concentra todo el historial clínico del cliente: sus equipos, cotizaciones, órdenes de servicio y notas de contacto.",
     steps: [
@@ -138,7 +138,7 @@ const STEPS: StepDef[] = [
   },
   /* 7 */ {
     title: "Cotizar desde el Expediente",
-    subtitle: "Paso 7 de 19",
+    subtitle: "Paso 7 de 22",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Iniciar cotizaciones desde el expediente vincula de manera automática todos los datos fiscales y de contacto del cliente en el PDF formal.",
     steps: [
@@ -152,7 +152,7 @@ const STEPS: StepDef[] = [
   },
   /* 8 */ {
     title: "Elegir línea de servicio",
-    subtitle: "Paso 8 de 19",
+    subtitle: "Paso 8 de 22",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Bionordi ofrece Reparaciones, Mantenimientos, Venta de Equipos y Consumibles. Cada línea genera un formato y cláusulas legales de PDF distintas.",
     steps: [
@@ -165,7 +165,7 @@ const STEPS: StepDef[] = [
   },
   /* 9 */ {
     title: "Elegir Modo de Cotización",
-    subtitle: "Paso 9 de 19",
+    subtitle: "Paso 9 de 22",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "El cotizador opera en dos modalidades clave: Modo Catálogo (carga automáticamente fotos y diagramas oficiales de transductores) y Modo Manual (para textos libres y fotos). Observa ambos botones destacados.",
     steps: [
@@ -182,7 +182,7 @@ const STEPS: StepDef[] = [
   },
   /* 10 */ {
     title: "Seleccionar Marca",
-    subtitle: "Paso 10 de 19",
+    subtitle: "Paso 10 de 22",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Al seleccionar la marca en Modo Catálogo, se filtrarán y habilitarán los modelos y fichas técnicas correspondientes.",
     steps: [
@@ -199,7 +199,7 @@ const STEPS: StepDef[] = [
   },
   /* 11 */ {
     title: "Seleccionar Modelo",
-    subtitle: "Paso 11 de 19",
+    subtitle: "Paso 11 de 22",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Al elegir el modelo '7L-4s', el cotizador cargará automáticamente la ficha técnica oficial y el diagrama interactivo de cristales Mindray.",
     steps: [
@@ -216,7 +216,7 @@ const STEPS: StepDef[] = [
   },
   /* 12 */ {
     title: "No. de Serie y Falla",
-    subtitle: "Paso 12 de 19",
+    subtitle: "Paso 12 de 22",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Ingresar el número de serie y la falla reportada es indispensable para que la propuesta y la futura Orden de Servicio identifiquen plenamente al equipo.",
     steps: [
@@ -237,7 +237,7 @@ const STEPS: StepDef[] = [
   },
   /* 13 */ {
     title: "Firma ('Generado por')",
-    subtitle: "Paso 13 de 19",
+    subtitle: "Paso 13 de 22",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "El campo 'Generado por' permite definir el firmante oficial de esta cotización (por ejemplo, el Administrador o un técnico especialista).",
     steps: [
@@ -250,7 +250,7 @@ const STEPS: StepDef[] = [
   },
   /* 14 */ {
     title: "Agregar Servicio Rápido",
-    subtitle: "Paso 14 de 19",
+    subtitle: "Paso 14 de 22",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Bionordi incluye botones de atajos rápidos con precios precargados para los servicios más comunes, evitando errores manuales de escritura.",
     steps: [
@@ -267,21 +267,72 @@ const STEPS: StepDef[] = [
   },
   /* 15 */ {
     title: "Agregar servicio manualmente",
-    subtitle: "Paso 15 de 19",
+    subtitle: "Paso 15 de 22",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
-    why: "Además de los atajos rápidos, Bionordi te permite cotizar cualquier otro concepto escribiendo libremente su descripción y fijando el precio que desees.",
+    why: "Además de los atajos rápidos, podés registrar conceptos adicionales de manera manual detallando su concepto y costo.",
     steps: [
-      "Observá el botón '+ Agregar línea' destacado abajo.",
-      "Haciendo click ahí podés registrar de forma manual cualquier servicio o refacción y definir su importe.",
-      "Para continuar con el tutorial, hacé click en Siguiente.",
+      "Hacé click en '+ Agregar línea' en la tabla de servicios.",
+      "En la nueva línea vacía, copiá y pegá los datos sugeridos abajo en sus respectivos campos ('Descripción' y 'Precio Unit').",
     ],
-    selector: '[data-tour="quote-add-item"]',
+    fields: [
+      { label: "Descripción", value: "Calibración y Pruebas" },
+      { label: "Precio Unit.", value: "1500" },
+    ],
+    selector: '[data-tour="quote-items"]',
+    position: "top",
+    detect: () => {
+      const inputs = Array.from(document.querySelectorAll("input")) as HTMLInputElement[];
+      const hasDesc = inputs.some(i => i.value.toLowerCase().includes("calibración"));
+      const hasPrice = inputs.some(i => i.value === "1500");
+      return hasDesc && hasPrice;
+    },
+    autoAdvance: true,
+  },
+  /* 16 */ {
+    title: "Propuesta técnica personalizada",
+    subtitle: "Paso 16 de 22",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "Bionordi genera automáticamente las cláusulas y descripción técnica en el PDF. Si deseás personalizar este texto, podés desplegar esta sección.",
+    steps: [
+      "Hacé click en la barra 'Texto de la propuesta en el PDF' para expandir la sección.",
+    ],
+    selector: '[data-tour="quote-propuesta-btn"]',
+    position: "top",
+    detect: () => !!document.querySelector('textarea[placeholder*="deja vacío"]') || !!document.querySelector('textarea[placeholder*="según el equipo"]'),
+    autoAdvance: true,
+  },
+  /* 17 */ {
+    title: "Datos de Facturación",
+    subtitle: "Paso 17 de 22",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "Esta sección te permite asociar de forma permanente el RFC, Razón Social, Régimen Fiscal y Uso de CFDI de tu cliente para automatizar futuros PDF.",
+    steps: [
+      "Hacé click en la sección 'Datos de facturación del cliente' para expandirla.",
+    ],
+    selector: '[data-tour="quote-facturacion-btn"]',
+    position: "top",
+    detect: () => !!document.querySelector('input[placeholder="XXXX000000XX0"]'),
+    autoAdvance: true,
+  },
+  /* 18 */ {
+    title: "Enviar por correo (Opcional)",
+    subtitle: "Paso 18 de 22",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "Podés enviar la propuesta formal en PDF directamente al correo del cliente. De lo contrario, omití este paso haciendo click en Siguiente.",
+    steps: [
+      "Si querés enviar la cotización, escribí el correo del cliente y hacé click en 'Enviar'.",
+      "Si preferís no enviarla por correo ahora, hacé click en Siguiente para continuar.",
+    ],
+    fields: [
+      { label: "Correo de prueba", value: "juan.garcia@bionordi.mx" },
+    ],
+    selector: '[data-tour="quote-email-to"]',
     position: "top",
     autoAdvance: false,
   },
-  /* 16 */ {
+  /* 19 */ {
     title: "Guardar Cotización en Expediente",
-    subtitle: "Paso 16 de 19",
+    subtitle: "Paso 19 de 22",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Al guardar el PDF en el expediente, la propuesta comercial se asocia permanentemente al cliente en la base de datos.",
     steps: [
@@ -296,9 +347,9 @@ const STEPS: StepDef[] = [
     },
     autoAdvance: true,
   },
-  /* 17 */ {
+  /* 20 */ {
     title: "Cerrar Cotizador",
-    subtitle: "Paso 17 de 19",
+    subtitle: "Paso 20 de 22",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "La cotización fue registrada correctamente. Ahora debemos cerrar el modal del cotizador para continuar operando en el expediente del cliente.",
     steps: [
@@ -309,9 +360,9 @@ const STEPS: StepDef[] = [
     detect: () => !document.querySelector('[data-tour="quote-modal"]'),
     autoAdvance: true,
   },
-  /* 18 */ {
+  /* 21 */ {
     title: "Aprobar la Cotización",
-    subtitle: "Paso 18 de 19",
+    subtitle: "Paso 21 de 22",
     icon: CheckCircle2, color: "#059669", bg: "#ECFDF5",
     why: "Una vez que el cliente acepta el presupuesto, debemos aprobar la cotización directamente en su expediente digital para habilitar la creación automática de su Orden de Trabajo sin recapturar datos.",
     steps: [
@@ -323,9 +374,9 @@ const STEPS: StepDef[] = [
     detect: () => !document.querySelector('[data-tour="quote-approve-btn"]') && !!document.querySelector('[data-tour="quote-create-ot-btn"]'),
     autoAdvance: true,
   },
-  /* 19 */ {
+  /* 22 */ {
     title: "Crear Orden de Trabajo",
-    subtitle: "Paso 19 de 19",
+    subtitle: "Paso 22 de 22",
     icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
     why: "Al hacer click en 'Crear OT', el CRM vincula automáticamente toda la información de la cotización aprobada en una nueva Orden de Trabajo para el taller, sin escribir nada a mano.",
     steps: [
@@ -339,7 +390,7 @@ const STEPS: StepDef[] = [
     },
     autoAdvance: true,
   },
-  /* 20 */ {
+  /* 23 */ {
     title: "¡Flujo completado!",
     subtitle: "Tutorial finalizado",
     icon: Sparkles, color: "#059669", bg: "#ECFDF5",
@@ -420,7 +471,7 @@ export default function OnboardingTour() {
 
   const cur = {
     ...curRaw,
-    selector: step === 18
+    selector: step === 21
       ? (typeof document !== "undefined" && document.querySelector('[data-tour="doc-viewer-modal"]')
           ? '[data-tour="close-doc-viewer"]'
           : '[data-tour="quote-approve-btn"]'

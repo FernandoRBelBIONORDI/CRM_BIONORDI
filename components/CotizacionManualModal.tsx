@@ -2008,6 +2008,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                 onChange={e => { setEmailTo(e.target.value); setEmailStatus("idle"); }}
                 placeholder="correo@cliente.com"
                 type="email"
+                data-tour="quote-email-to"
                 className="w-full text-[12px] border border-gray-200 rounded-xl pl-8 pr-3 py-2 outline-none focus:border-[#0EA5E9]/50 bg-white"
               />
             </div>
@@ -2018,6 +2019,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                 enviarPorCorreo();
               }}
               disabled={anyLoading || !canGenerar || !emailTo.trim()}
+              data-tour="quote-email-send-btn"
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12px] font-bold transition-all shrink-0 ${emailStatus === "ok" ? "bg-[#059669] text-white" :
                   emailStatus === "error" ? "bg-[#DC2626] text-white" :
                     "bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-40 disabled:cursor-not-allowed"
