@@ -275,21 +275,40 @@ export default function OnboardingTour() {
     }, 50);
   };
 
-  // Sincronización automática de quoteSubMode con el DOM de la aplicación
+  // Resetea el submodo de cotización al entrar al paso 9
+  useEffect(() => {
+    if (step === 9) {
+      setQuoteSubMode("choose");
+    }
+  }, [step]);
+
+  // Sincronización automática de clics en la app con quoteSubMode
   useEffect(() => {
     if (!active || step !== 9) return;
-    const checkDomMode = () => {
-      const catBtn = document.querySelector('[data-tour="quote-mode-catalogo-btn"]');
-      const manBtn = document.querySelector('[data-tour="quote-mode-manual-btn"]');
-      if (catBtn && catBtn.className.includes("bg-white")) {
-        setQuoteSubMode("catalogo");
-      } else if (manBtn && manBtn.className.includes("bg-white")) {
-        setQuoteSubMode("manual");
+    
+    const handleCatClick = () => setQuoteSubMode("catalogo");
+    const handleManClick = () => setQuoteSubMode("manual");
+
+    let catBtn: Element | null = null;
+    let manBtn: Element | null = null;
+
+    const interval = setInterval(() => {
+      catBtn = document.querySelector('[data-tour="quote-mode-catalogo-btn"]');
+      manBtn = document.querySelector('[data-tour="quote-mode-manual-btn"]');
+      if (catBtn && manBtn) {
+        catBtn.addEventListener("click", handleCatClick);
+        manBtn.addEventListener("click", handleManClick);
+        clearInterval(interval);
+      }
+    }, 100);
+
+    return () => {
+      clearInterval(interval);
+      if (catBtn && manBtn) {
+        catBtn.removeEventListener("click", handleCatClick);
+        manBtn.removeEventListener("click", handleManClick);
       }
     };
-    checkDomMode();
-    const interval = setInterval(checkDomMode, 150);
-    return () => clearInterval(interval);
   }, [active, step]);
 
   const curRaw = STEPS[step];
