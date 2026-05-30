@@ -42,7 +42,7 @@ const STEPS: StepDef[] = [
   },
   /* 1 */ {
     title: "Abrir el CRM",
-    subtitle: "Paso 1 de 9",
+    subtitle: "Paso 1 de 10",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "El CRM (Customer Relationship Manager) es donde registrás y seguís todos tus prospectos y clientes.",
     steps: [
@@ -56,7 +56,7 @@ const STEPS: StepDef[] = [
   },
   /* 2 */ {
     title: "Crear un nuevo Lead",
-    subtitle: "Paso 2 de 9",
+    subtitle: "Paso 2 de 10",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "Un Lead es el expediente inicial de un prospecto. Sin este registro, no podés cotizar ni generar órdenes.",
     steps: [
@@ -70,7 +70,7 @@ const STEPS: StepDef[] = [
   },
   /* 3 */ {
     title: "Completar datos del Lead",
-    subtitle: "Paso 3 de 9",
+    subtitle: "Paso 3 de 10",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "Un expediente completo te permite contactar al cliente por WhatsApp, correo o llamada directamente desde el sistema.",
     steps: [
@@ -89,27 +89,40 @@ const STEPS: StepDef[] = [
       { label: "Correo electrónico",    value: "juan.garcia@bionordi.mx" },
       { label: "Ciudad",                value: "Tijuana" },
     ],
-    detect: () => !document.querySelector('[data-tour="nuevo-lead-modal"]'),
+    detect: () => !document.querySelector('[data-tour="nuevo-lead-modal"]') && Array.from(document.querySelectorAll("div, td, span")).some(el => el.textContent && el.textContent.includes("Tutorial")),
     autoAdvance: false,
   },
   /* 4 */ {
     title: "Abrir el cotizador",
-    subtitle: "Paso 4 de 9",
+    subtitle: "Paso 4 de 10",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "La cotización es el presupuesto formal que recibe el cliente antes de entregar el equipo.",
     steps: [
       "En la tabla del CRM buscá la fila de 'Dr. Juan García (Tutorial)'.",
       "Al final de esa fila hacé click en el ícono de documento 📄.",
-      "Se abre el cotizador con los datos del cliente ya cargados.",
+      "Se abrirá un selector para elegir qué tipo de cotización crear.",
     ],
     selector: '[data-tour="tour-quote-btn"]',
     position: "left",
-    detect: () => !!document.querySelector('[data-tour="cot-modal-open"]'),
+    detect: () => !!document.querySelector('[data-tour="quote-type-reparacion"]') || !!document.querySelector('[data-tour="cot-modal-open"]'),
     autoAdvance: true,
   },
   /* 5 */ {
+    title: "Elegir línea de servicio",
+    subtitle: "Paso 5 de 10",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "Bionordi ofrece múltiples servicios. Para este recorrido interactivo generaremos una propuesta técnica de reparación.",
+    steps: [
+      "Hacé click en la tarjeta de 'Reparación de Transductores' para ingresar al cotizador especializado.",
+    ],
+    selector: '[data-tour="quote-type-reparacion"]',
+    position: "bottom",
+    detect: () => !!document.querySelector('[data-tour="cot-modal-open"]'),
+    autoAdvance: true,
+  },
+  /* 6 */ {
     title: "Completar la Cotización",
-    subtitle: "Paso 5 de 9",
+    subtitle: "Paso 6 de 10",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Los datos técnicos del equipo quedan registrados en la cotización y en el historial del cliente.",
     steps: [
@@ -118,13 +131,14 @@ const STEPS: StepDef[] = [
       "Si querés podés agregar notas adicionales sobre el equipo.",
     ],
     saveHint: "Cuando hayas elegido el servicio → hacé click en 'Generar PDF · Reparación'. El modal se cierra solo y el tutorial avanza.",
-    position: "center",
-    detect: () => !document.querySelector('[data-tour="cot-modal-open"]'),
+    selector: '[data-tour="quote-modal"]',
+    position: "left",
+    detect: () => !document.querySelector('[data-tour="cot-modal-open"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("Tutorial")),
     autoAdvance: false,
   },
-  /* 6 */ {
+  /* 7 */ {
     title: "Ir al Taller",
-    subtitle: "Paso 6 de 9",
+    subtitle: "Paso 7 de 10",
     icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
     why: "El cliente aprobó la cotización y trae físicamente el equipo al laboratorio. Ahora hay que registrar su entrada.",
     steps: [
@@ -137,9 +151,9 @@ const STEPS: StepDef[] = [
     detect: (p) => p === "/taller",
     autoAdvance: true,
   },
-  /* 7 */ {
+  /* 8 */ {
     title: "Nueva Orden de Trabajo",
-    subtitle: "Paso 7 de 9",
+    subtitle: "Paso 8 de 10",
     icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
     why: "La OT (Orden de Trabajo) es el documento interno que registra el equipo recibido, el técnico asignado y la fecha de entrega.",
     steps: [
@@ -151,9 +165,9 @@ const STEPS: StepDef[] = [
     detect: () => !!document.querySelector('[data-tour="tour-new-order-modal"]'),
     autoAdvance: true,
   },
-  /* 8 */ {
+  /* 9 */ {
     title: "Completar la Orden de Trabajo",
-    subtitle: "Paso 8 de 9",
+    subtitle: "Paso 9 de 10",
     icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
     why: "Los datos completos de la OT permiten trazabilidad técnica: saber quién repara qué, cuándo entra y cuándo se entrega.",
     steps: [
@@ -174,10 +188,10 @@ const STEPS: StepDef[] = [
       { label: "Técnico",             value: "Ing. Residente" },
       { label: "Falla reportada",     value: "Líneas negras en imagen" },
     ],
-    detect: () => !document.querySelector('[data-tour="tour-new-order-modal"]'),
+    detect: () => !document.querySelector('[data-tour="tour-new-order-modal"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("Tutorial")),
     autoAdvance: false,
   },
-  /* 9 */ {
+  /* 10 */ {
     title: "¡Flujo completado!",
     subtitle: "Tutorial finalizado",
     icon: Sparkles, color: "#059669", bg: "#ECFDF5",
@@ -273,6 +287,7 @@ export default function OnboardingTour() {
     updateCoords();
     const coordsInterval = setInterval(updateCoords, 250);
     window.addEventListener("resize", updateCoords);
+    window.addEventListener("scroll", updateCoords, true); // intercepción en fase de captura
 
     // MutationObserver: detección instantánea cuando el DOM cambia
     let mutDebounce: ReturnType<typeof setTimeout> | null = null;
@@ -290,6 +305,7 @@ export default function OnboardingTour() {
       clearInterval(coordsInterval);
       clearInterval(detectInterval);
       window.removeEventListener("resize", updateCoords);
+      window.removeEventListener("scroll", updateCoords, true);
       observer.disconnect();
       if (advTimer)    clearTimeout(advTimer);
       if (mutDebounce) clearTimeout(mutDebounce);
@@ -312,10 +328,10 @@ export default function OnboardingTour() {
   const cleanupData = async () => {
     setIsCleaning(true);
     try {
-      const data = await fetch("/api/leads?q=Tutorial&limit=100").then(r => r.json());
+      const data = await fetch("/api/leads?limit=300").then(r => r.json());
       if (Array.isArray(data.leads)) {
         for (const l of data.leads.filter((l: any) =>
-          l.nombre.includes("Tutorial") || l.nombre.includes("(Prueba)")
+          l.nombre.toLowerCase().includes("tutorial") || l.nombre.toLowerCase().includes("prueba")
         )) {
           await fetch("/api/leads", {
             method: "DELETE",
@@ -427,7 +443,7 @@ export default function OnboardingTour() {
                   <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold shrink-0 mt-0.5" style={{ backgroundColor: cur.bg, color: cur.color }}>
                     {s.startsWith("✅") ? "✓" : i + 1}
                   </div>
-                  <p className="text-[12.5px] text-[#334155] font-medium leading-snug">{s.startsWith("✅") ? s.slice(2) : s}</p>
+                   <p className="text-[12.5px] text-[#334155] font-medium leading-snug">{s.startsWith("✅") ? s.slice(2) : s}</p>
                 </div>
               ))}
             </div>

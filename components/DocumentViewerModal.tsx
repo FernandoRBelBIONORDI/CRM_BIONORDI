@@ -55,7 +55,7 @@ export default function DocumentViewerModal({
       />
 
       {/* Main Container */}
-      <div className="relative w-full max-w-5xl h-[92vh] bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-5xl h-[92vh] bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200" data-tour="doc-viewer-modal">
         
         {/* Top Header Bar */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800 bg-slate-900 shrink-0 select-none">
