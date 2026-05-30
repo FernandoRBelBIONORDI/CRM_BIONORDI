@@ -42,7 +42,7 @@ const STEPS: StepDef[] = [
   },
   /* 1 */ {
     title: "Abrir el CRM",
-    subtitle: "Paso 1 de 18",
+    subtitle: "Paso 1 de 19",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "El CRM (Customer Relationship Manager) es el panel principal de ventas donde controlás tus leads comerciales.",
     steps: [
@@ -56,7 +56,7 @@ const STEPS: StepDef[] = [
   },
   /* 2 */ {
     title: "Crear un nuevo Lead",
-    subtitle: "Paso 2 de 18",
+    subtitle: "Paso 2 de 19",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "Un Lead es el expediente inicial de un prospecto. Para que quede guardado en tu directorio permanente de Clientes, debés registrar sus datos.",
     steps: [
@@ -70,11 +70,11 @@ const STEPS: StepDef[] = [
   },
   /* 3 */ {
     title: "Registrar datos del Cliente",
-    subtitle: "Paso 3 de 18",
+    subtitle: "Paso 3 de 19",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "Para que este Lead de prueba aparezca en tu directorio permanente de Clientes, es fundamental seleccionar 'Cliente' en el campo 'Estado CRM'.",
     steps: [
-      "Hacé click en cada campo de la tabla de abajo para copiar el dato y pegalo en el formulario.",
+      "Hacé click in cada campo de la tabla de abajo para copiar el dato y pegalo en el formulario.",
       "⚠️ Importante: En 'Estado CRM' seleccioná 'Cliente'.",
       "Hacé click en el botón azul 'Crear Lead' al pie del formulario para guardarlo.",
     ],
@@ -93,7 +93,7 @@ const STEPS: StepDef[] = [
   },
   /* 4 */ {
     title: "Ir al Directorio de Clientes",
-    subtitle: "Paso 4 de 18",
+    subtitle: "Paso 4 de 19",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "El directorio de Clientes almacena a todas las personas e instituciones médicas con un estatus activo en el sistema.",
     steps: [
@@ -107,7 +107,7 @@ const STEPS: StepDef[] = [
   },
   /* 5 */ {
     title: "Buscar cliente de prueba",
-    subtitle: "Paso 5 de 18",
+    subtitle: "Paso 5 de 19",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "Cuando tenés cientos de clientes registrados, usar el buscador dinámico te permite ubicar el expediente de manera inmediata.",
     steps: [
@@ -124,7 +124,7 @@ const STEPS: StepDef[] = [
   },
   /* 6 */ {
     title: "Abrir expediente",
-    subtitle: "Paso 6 de 18",
+    subtitle: "Paso 6 de 19",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "El expediente concentra todo el historial clínico del cliente: sus equipos, cotizaciones, órdenes de servicio y notas de contacto.",
     steps: [
@@ -138,7 +138,7 @@ const STEPS: StepDef[] = [
   },
   /* 7 */ {
     title: "Cotizar desde el Expediente",
-    subtitle: "Paso 7 de 18",
+    subtitle: "Paso 7 de 19",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Iniciar cotizaciones desde el expediente vincula de manera automática todos los datos fiscales y de contacto del cliente en el PDF formal.",
     steps: [
@@ -152,7 +152,7 @@ const STEPS: StepDef[] = [
   },
   /* 8 */ {
     title: "Elegir línea de servicio",
-    subtitle: "Paso 8 de 18",
+    subtitle: "Paso 8 de 19",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Bionordi ofrece Reparaciones, Mantenimientos, Venta de Equipos y Consumibles. Cada línea genera un formato y cláusulas legales de PDF distintas.",
     steps: [
@@ -165,7 +165,7 @@ const STEPS: StepDef[] = [
   },
   /* 9 */ {
     title: "Elegir Modo de Cotización",
-    subtitle: "Paso 9 de 18",
+    subtitle: "Paso 9 de 19",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "El cotizador opera en dos modalidades clave: Modo Catálogo (carga automáticamente fotos y diagramas oficiales de transductores) y Modo Manual (para textos libres y fotos). Observa ambos botones destacados.",
     steps: [
@@ -182,7 +182,7 @@ const STEPS: StepDef[] = [
   },
   /* 10 */ {
     title: "Seleccionar Marca",
-    subtitle: "Paso 10 de 18",
+    subtitle: "Paso 10 de 19",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Al seleccionar la marca en Modo Catálogo, se filtrarán y habilitarán los modelos y fichas técnicas correspondientes.",
     steps: [
@@ -199,7 +199,7 @@ const STEPS: StepDef[] = [
   },
   /* 11 */ {
     title: "Seleccionar Modelo",
-    subtitle: "Paso 11 de 18",
+    subtitle: "Paso 11 de 19",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Al elegir el modelo '7L-4s', el cotizador cargará automáticamente la ficha técnica oficial y el diagrama interactivo de cristales Mindray.",
     steps: [
@@ -216,7 +216,7 @@ const STEPS: StepDef[] = [
   },
   /* 12 */ {
     title: "No. de Serie y Falla",
-    subtitle: "Paso 12 de 18",
+    subtitle: "Paso 12 de 19",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Ingresar el número de serie y la falla reportada es indispensable para que la propuesta y la futura Orden de Servicio identifiquen plenamente al equipo.",
     steps: [
@@ -237,7 +237,7 @@ const STEPS: StepDef[] = [
   },
   /* 13 */ {
     title: "Firma ('Generado por')",
-    subtitle: "Paso 13 de 18",
+    subtitle: "Paso 13 de 19",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "El campo 'Generado por' permite definir el firmante oficial de esta cotización (por ejemplo, el Administrador o un técnico especialista).",
     steps: [
@@ -250,7 +250,7 @@ const STEPS: StepDef[] = [
   },
   /* 14 */ {
     title: "Agregar Servicio Rápido",
-    subtitle: "Paso 14 de 18",
+    subtitle: "Paso 14 de 19",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Bionordi incluye botones de atajos rápidos con precios precargados para los servicios más comunes, evitando errores manuales de escritura.",
     steps: [
@@ -266,8 +266,22 @@ const STEPS: StepDef[] = [
     autoAdvance: true,
   },
   /* 15 */ {
+    title: "Agregar servicio manualmente",
+    subtitle: "Paso 15 de 19",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "Además de los atajos rápidos, Bionordi te permite cotizar cualquier otro concepto escribiendo libremente su descripción y fijando el precio que desees.",
+    steps: [
+      "Observá el botón '+ Agregar línea' destacado abajo.",
+      "Haciendo click ahí podés registrar de forma manual cualquier servicio o refacción y definir su importe.",
+      "Para continuar con el tutorial, hacé click en Siguiente.",
+    ],
+    selector: '[data-tour="quote-add-item"]',
+    position: "top",
+    autoAdvance: false,
+  },
+  /* 16 */ {
     title: "Guardar Cotización en Expediente",
-    subtitle: "Paso 15 de 18",
+    subtitle: "Paso 16 de 19",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Al guardar el PDF en el expediente, la propuesta comercial se asocia permanentemente al cliente en la base de datos.",
     steps: [
@@ -282,9 +296,9 @@ const STEPS: StepDef[] = [
     },
     autoAdvance: true,
   },
-  /* 16 */ {
+  /* 17 */ {
     title: "Cerrar Cotizador",
-    subtitle: "Paso 16 de 18",
+    subtitle: "Paso 17 de 19",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "La cotización fue registrada correctamente. Ahora debemos cerrar el modal del cotizador para continuar operando en el expediente del cliente.",
     steps: [
@@ -295,9 +309,9 @@ const STEPS: StepDef[] = [
     detect: () => !document.querySelector('[data-tour="quote-modal"]'),
     autoAdvance: true,
   },
-  /* 17 */ {
+  /* 18 */ {
     title: "Aprobar la Cotización",
-    subtitle: "Paso 17 de 18",
+    subtitle: "Paso 18 de 19",
     icon: CheckCircle2, color: "#059669", bg: "#ECFDF5",
     why: "Una vez que el cliente acepta el presupuesto, debemos aprobar la cotización directamente en su expediente digital para habilitar la creación automática de su Orden de Trabajo sin recapturar datos.",
     steps: [
@@ -309,9 +323,9 @@ const STEPS: StepDef[] = [
     detect: () => !document.querySelector('[data-tour="quote-approve-btn"]') && !!document.querySelector('[data-tour="quote-create-ot-btn"]'),
     autoAdvance: true,
   },
-  /* 18 */ {
+  /* 19 */ {
     title: "Crear Orden de Trabajo",
-    subtitle: "Paso 18 de 18",
+    subtitle: "Paso 19 de 19",
     icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
     why: "Al hacer click en 'Crear OT', el CRM vincula automáticamente toda la información de la cotización aprobada en una nueva Orden de Trabajo para el taller, sin escribir nada a mano.",
     steps: [
@@ -325,7 +339,7 @@ const STEPS: StepDef[] = [
     },
     autoAdvance: true,
   },
-  /* 19 */ {
+  /* 20 */ {
     title: "¡Flujo completado!",
     subtitle: "Tutorial finalizado",
     icon: Sparkles, color: "#059669", bg: "#ECFDF5",
@@ -406,7 +420,7 @@ export default function OnboardingTour() {
 
   const cur = {
     ...curRaw,
-    selector: step === 17
+    selector: step === 18
       ? (typeof document !== "undefined" && document.querySelector('[data-tour="doc-viewer-modal"]')
           ? '[data-tour="close-doc-viewer"]'
           : '[data-tour="quote-approve-btn"]'
@@ -759,14 +773,16 @@ export default function OnboardingTour() {
               <div key={i} className="rounded-full transition-all duration-300" style={{ width: i === step ? 20 : 6, height: 6, backgroundColor: i === step ? cur.color : i < step ? `${cur.color}60` : "#E2E8F0" }} />
             ))}
           </div>
-          <button
-            onClick={isLast ? close : next}
-            disabled={!canNext || isCleaning}
-            className="h-9 px-5 rounded-[12px] text-[12.5px] font-bold text-white flex items-center gap-1.5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            style={{ backgroundColor: canNext && !isCleaning ? cur.color : "#94A3B8" }}
-          >
-            {isLast ? <><CheckCircle2 size={13} strokeWidth={2.5} /> Salir</> : <>Siguiente <ArrowRight size={13} strokeWidth={2.5} /></>}
-          </button>
+          {(!cur.autoAdvance || isLast) && (
+            <button
+              onClick={isLast ? close : next}
+              disabled={!canNext || isCleaning}
+              className="h-9 px-5 rounded-[12px] text-[12.5px] font-bold text-white flex items-center gap-1.5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{ backgroundColor: canNext && !isCleaning ? cur.color : "#94A3B8" }}
+            >
+              {isLast ? <><CheckCircle2 size={13} strokeWidth={2.5} /> Salir</> : <>Siguiente <ArrowRight size={13} strokeWidth={2.5} /></>}
+            </button>
+          )}
         </div>
       </div>
     </>
