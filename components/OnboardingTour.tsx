@@ -199,40 +199,35 @@ const STEPS: StepDef[] = [
     autoAdvance: true,
   },
   /* 10 */ {
-    title: "Registrar ingreso al Taller",
+    title: "Aprobar la Cotización",
     subtitle: "Paso 10 de 12",
-    icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
-    why: "La cotización fue generada con éxito y queda archivada en su expediente. Una vez que el cliente aprueba la cotización, debemos generar su Orden de Trabajo (OT) técnica para el laboratorio.",
+    icon: CheckCircle2, color: "#059669", bg: "#ECFDF5",
+    why: "Una vez que el cliente acepta el presupuesto, debemos aprobar la cotización directamente en su expediente digital para habilitar la creación automática de su Orden de Trabajo sin recapturar datos.",
     steps: [
       "Cerrá el previsualizador de PDF si se encuentra abierto (click en la X superior).",
-      "En la cabecera del expediente de Juan García, hacé click en el botón 'Nueva OT' (📋).",
+      "Desplázate hacia abajo hasta la tabla de 'Cotizaciones' en el expediente del cliente.",
+      "En la fila de tu cotización de $6,500, hacé click en el botón verde 'Aprobar'.",
     ],
-    selector: '[data-tour="profile-new-ot-btn"]',
-    position: "bottom",
-    detect: (p) => p === "/taller" && !!document.querySelector('[data-tour="tour-new-order-modal"]'),
+    selector: '[data-tour="quote-approve-btn"]',
+    position: "left",
+    detect: () => !document.querySelector('[data-tour="doc-viewer-modal"]') && !document.querySelector('[data-tour="quote-approve-btn"]') && !!document.querySelector('[data-tour="quote-create-ot-btn"]'),
     autoAdvance: true,
   },
   /* 11 */ {
-    title: "Completar la Orden de Trabajo",
+    title: "Crear Orden de Trabajo",
     subtitle: "Paso 11 de 12",
     icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
-    why: "La OT formaliza el ingreso del equipo. Al crearla desde su expediente, el sistema vincula automáticamente a 'Dr. Juan García (Tutorial)' y precarga los campos requeridos.",
+    why: "Al hacer click en 'Crear OT', el CRM vincula automáticamente toda la información de la cotización aprobada (marca, modelo, falla y costo) en una nueva Orden de Trabajo para el taller, sin tener que escribir nada a mano.",
     steps: [
-      "Copia y pega los datos técnicos y de falla sugeridos abajo.",
-      "Asigna un técnico en el selector para definir quién realizará el diagnóstico físico.",
+      "Hacá click en el nuevo botón morado 'Crear OT' que apareció en la fila de tu cotización aprobada.",
+      "Aceptá la confirmación en la ventana emergente de tu navegador para registrar la Orden de Servicio automáticamente.",
     ],
-    saveHint: "Para finalizar el registro → hacé click en el botón azul 'Crear Orden de Servicio' al pie del formulario. Esto ubicará el transductor en el tablero Kanban del taller.",
-    selector: '[data-tour="tour-new-order-modal"]',
+    selector: '[data-tour="quote-create-ot-btn"]',
     position: "left",
-    fields: [
-      { label: "Tipo de transductor *", value: "Transductor Lineal" },
-      { label: "Marca",                 value: "Mindray" },
-      { label: "Modelo",                value: "7L-4s" },
-      { label: "No. serie",             value: "MY-829281" },
-      { label: "Falla reportada",       value: "Líneas negras en imagen y reencapsulado" },
-      { label: "Técnico",               value: "Ing. Residente" },
-    ],
-    detect: () => !document.querySelector('[data-tour="tour-new-order-modal"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("Tutorial")),
+    detect: () => {
+      if (typeof window === "undefined") return false;
+      return !document.querySelector('[data-tour="quote-create-ot-btn"]') && Array.from(document.querySelectorAll("span, td, div")).some(el => el.textContent && el.textContent.includes("BRT-"));
+    },
     autoAdvance: true,
   },
   /* 12 */ {
@@ -383,7 +378,7 @@ export default function OnboardingTour() {
       : step === 10
         ? (typeof document !== "undefined" && document.querySelector('[data-tour="doc-viewer-modal"]')
             ? '[data-tour="close-doc-viewer"]'
-            : '[data-tour="profile-new-ot-btn"]'
+            : '[data-tour="quote-approve-btn"]'
           )
         : curRaw.selector,
   };

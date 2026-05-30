@@ -958,6 +958,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                             {!isAprobada && !isRechazada && (
                               <>
                                 <button onClick={() => updateCotStatus(c.id, "aprobada")}
+                                  data-tour="quote-approve-btn"
                                   className="text-[10px] font-bold text-green-700 bg-green-50 hover:bg-green-100 px-2 py-1 rounded-lg">Aprobar</button>
                                 <button onClick={() => updateCotStatus(c.id, "rechazada")}
                                   className="text-[10px] font-bold text-red-500 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-lg">Rechazar</button>
@@ -971,6 +972,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                                 </span>
                               ) : (
                                 <button onClick={() => createOTFromCot(c)} disabled={creatingOT === c.id}
+                                  data-tour="quote-create-ot-btn"
                                   className="flex items-center gap-1 text-[10px] font-bold text-[#7C3AED] bg-[#F5F3FF] hover:bg-[#7C3AED] hover:text-white px-2 py-1 rounded-lg disabled:opacity-50">
                                   {creatingOT === c.id ? <Activity size={10} className="animate-spin" /> : <><ClipboardList size={10} /> Crear OT</>}
                                 </button>
