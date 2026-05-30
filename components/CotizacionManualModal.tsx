@@ -1083,14 +1083,14 @@ export default function CotizacionManualModal({
 
 ${equipoHTML}
 ${diagramaHTML}
-${brochureHTML}
-${tableHTML}
 ${evidenciaHTML}
+${tableHTML}
 
 
 </div>
 
 <div class="page-two">
+${brochureHTML}
 <div class="tech-card avoid-break" style="margin-bottom:20px;border-left:4px solid #4E60A9;margin-top:20px;">
   <div class="card-title">${propInfo.titulo}</div>
   <p style="font-size:11px;color:#334155;line-height:1.5;margin-bottom:10px;">${propuestaPDF.trim() || propInfo.parrafoPDF}</p>
