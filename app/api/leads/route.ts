@@ -62,12 +62,12 @@ export async function GET(req: Request) {
 
   // CSV: todos los resultados sin límite
   if (format === 'csv') {
-    const leads = db.prepare(`SELECT * FROM leads ${where} ORDER BY id ASC`).all(...params) as any[];
+    const leads = db.prepare(`SELECT * FROM leads ${where} ORDER BY id DESC`).all(...params) as any[];
     return buildCsv(leads);
   }
 
   const leads = db.prepare(
-    `SELECT * FROM leads ${where} ORDER BY id ASC LIMIT ${limit} OFFSET ${offset}`
+    `SELECT * FROM leads ${where} ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
   ).all(...params) as any[];
 
   return NextResponse.json({ leads, total });

@@ -103,6 +103,7 @@ export default function ClientesPage() {
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
+            data-tour="client-search-input"
             placeholder="Buscar por nombre, especialidad, ciudad..."
             className="w-full pl-8 pr-3 py-2 text-[12px] border border-gray-200 rounded-lg outline-none focus:border-[#4E60A9]/50 bg-white"
           />

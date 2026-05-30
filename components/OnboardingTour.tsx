@@ -42,7 +42,7 @@ const STEPS: StepDef[] = [
   },
   /* 1 */ {
     title: "Abrir el CRM",
-    subtitle: "Paso 1 de 11",
+    subtitle: "Paso 1 de 12",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "El CRM (Customer Relationship Manager) es el panel principal de ventas donde controlás tus leads comerciales.",
     steps: [
@@ -56,7 +56,7 @@ const STEPS: StepDef[] = [
   },
   /* 2 */ {
     title: "Crear un nuevo Lead",
-    subtitle: "Paso 2 de 11",
+    subtitle: "Paso 2 de 12",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "Un Lead es el expediente inicial de un prospecto. Para que quede guardado en tu directorio permanente de Clientes, debés registrar sus datos.",
     steps: [
@@ -70,13 +70,13 @@ const STEPS: StepDef[] = [
   },
   /* 3 */ {
     title: "Registrar datos del Cliente",
-    subtitle: "Paso 3 de 11",
+    subtitle: "Paso 3 de 12",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "Para que este Lead de prueba aparezca en tu directorio permanente de Clientes, es fundamental seleccionar 'Cliente' en el campo 'Estado CRM'.",
     steps: [
       "Hacé click en cada campo de la tabla de abajo para copiar el dato y pegalo en el formulario.",
       "⚠️ Importante: En 'Estado CRM' seleccioná 'Cliente'.",
-      "Dejá los demás campos del formulario con sus valores predeterminados.",
+      "Hacé click en el botón azul 'Crear Lead' al pie del formulario para guardarlo.",
     ],
     saveHint: "Cuando estén todos los campos completos → hacé click en el botón azul 'Crear Lead' al pie del formulario.",
     selector: '[data-tour="nuevo-lead-modal"]',
@@ -89,11 +89,11 @@ const STEPS: StepDef[] = [
       { label: "Ciudad",                value: "Tijuana" },
     ],
     detect: () => !document.querySelector('[data-tour="nuevo-lead-modal"]') && Array.from(document.querySelectorAll("div, td, span")).some(el => el.textContent && el.textContent.includes("Tutorial")),
-    autoAdvance: false,
+    autoAdvance: true,
   },
   /* 4 */ {
     title: "Ir al Directorio de Clientes",
-    subtitle: "Paso 4 de 11",
+    subtitle: "Paso 4 de 12",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "El directorio de Clientes almacena a todas las personas e instituciones médicas con un estatus activo en el sistema.",
     steps: [
@@ -106,8 +106,25 @@ const STEPS: StepDef[] = [
     autoAdvance: true,
   },
   /* 5 */ {
-    title: "Buscar y abrir expediente",
-    subtitle: "Paso 5 de 11",
+    title: "Buscar cliente de prueba",
+    subtitle: "Paso 5 de 12",
+    icon: Users, color: "#4E60A9", bg: "#EEF3FC",
+    why: "Cuando tenés cientos de clientes registrados, usar el buscador dinámico te permite ubicar el expediente de manera inmediata.",
+    steps: [
+      "Hacé click en la barra de búsqueda de clientes resaltada.",
+      "Escribí 'Tutorial' para filtrar y localizar la tarjeta de tu cliente de prueba.",
+    ],
+    selector: '[data-tour="client-search-input"]',
+    position: "bottom",
+    detect: () => {
+      const inp = document.querySelector('[data-tour="client-search-input"]') as HTMLInputElement;
+      return inp && inp.value.toLowerCase().includes("tutorial");
+    },
+    autoAdvance: true,
+  },
+  /* 6 */ {
+    title: "Abrir expediente",
+    subtitle: "Paso 6 de 12",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "El expediente concentra todo el historial clínico del cliente: sus equipos, cotizaciones, órdenes de servicio y notas de contacto.",
     steps: [
@@ -119,9 +136,9 @@ const STEPS: StepDef[] = [
     detect: (p) => /^\/clientes\/\d+$/.test(p),
     autoAdvance: true,
   },
-  /* 6 */ {
+  /* 7 */ {
     title: "Cotizar desde el Expediente",
-    subtitle: "Paso 6 de 11",
+    subtitle: "Paso 7 de 12",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Iniciar cotizaciones desde el expediente vincula de manera automática todos los datos fiscales y de contacto del cliente en el PDF formal.",
     steps: [
@@ -133,9 +150,9 @@ const STEPS: StepDef[] = [
     detect: () => !!document.querySelector('[data-tour="quote-type-reparacion"]') || !!document.querySelector('[data-tour="cot-modal-open"]'),
     autoAdvance: true,
   },
-  /* 7 */ {
+  /* 8 */ {
     title: "Elegir línea de servicio",
-    subtitle: "Paso 7 de 11",
+    subtitle: "Paso 8 de 12",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Bionordi ofrece Reparaciones, Mantenimientos, Venta de Equipos y Consumibles. Cada línea genera un formato y cláusulas legales de PDF distintas.",
     steps: [
@@ -146,9 +163,9 @@ const STEPS: StepDef[] = [
     detect: () => !!document.querySelector('[data-tour="cot-modal-open"]'),
     autoAdvance: true,
   },
-  /* 8 */ {
+  /* 9 */ {
     title: "Completar la Cotización",
-    subtitle: "Paso 8 de 11",
+    subtitle: "Paso 9 de 12",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "El cotizador opera en dos modalidades clave: Modo Catálogo (carga automáticamente las fotos y diagramas técnicos del transductor Mindray desde tu inventario) y Modo Manual (para escribir textos personalizados).",
     steps: [
@@ -170,9 +187,9 @@ const STEPS: StepDef[] = [
     detect: () => (!document.querySelector('[data-tour="cot-modal-open"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("6,500"))) || !!document.querySelector('[data-tour="doc-viewer-modal"]'),
     autoAdvance: true,
   },
-  /* 9 */ {
+  /* 10 */ {
     title: "Registrar ingreso al Taller",
-    subtitle: "Paso 9 de 11",
+    subtitle: "Paso 10 de 12",
     icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
     why: "La cotización fue generada con éxito y queda archivada en su expediente. Una vez que el cliente aprueba la cotización, debemos generar su Orden de Trabajo (OT) técnica para el laboratorio.",
     steps: [
@@ -184,9 +201,9 @@ const STEPS: StepDef[] = [
     detect: (p) => p === "/taller" && !!document.querySelector('[data-tour="tour-new-order-modal"]'),
     autoAdvance: true,
   },
-  /* 10 */ {
+  /* 11 */ {
     title: "Completar la Orden de Trabajo",
-    subtitle: "Paso 10 de 11",
+    subtitle: "Paso 11 de 12",
     icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
     why: "La OT formaliza el ingreso del equipo. Al crearla desde su expediente, el sistema vincula automáticamente a 'Dr. Juan García (Tutorial)' y precarga los campos requeridos.",
     steps: [
@@ -207,7 +224,7 @@ const STEPS: StepDef[] = [
     detect: () => !document.querySelector('[data-tour="tour-new-order-modal"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("Tutorial")),
     autoAdvance: false,
   },
-  /* 11 */ {
+  /* 12 */ {
     title: "¡Flujo completado!",
     subtitle: "Tutorial finalizado",
     icon: Sparkles, color: "#059669", bg: "#ECFDF5",
@@ -279,11 +296,20 @@ export default function OnboardingTour() {
       if (el) {
         findAttempts = 0;
         const r = el.getBoundingClientRect();
-        setCoords({ top: r.top, left: r.left, width: r.width, height: r.height });
+        setCoords(prev => {
+          if (prev &&
+              prev.top === r.top &&
+              prev.left === r.left &&
+              prev.width === r.width &&
+              prev.height === r.height) {
+            return prev; // no cambia la referencia, evita rerenders
+          }
+          return { top: r.top, left: r.left, width: r.width, height: r.height };
+        });
       } else if (findAttempts < 25) {
         findAttempts++;
       } else {
-        setCoords(null);
+        setCoords(prev => prev === null ? null : null);
       }
     };
 
