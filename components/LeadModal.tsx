@@ -257,13 +257,28 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
 
       const pendingCot = cotizaciones.find(c => c.status !== "aprobada" && c.status !== "rechazada");
       if (pendingCot) {
-        alert("Tienes una cotización pendiente. Por favor, aprueba la cotización primero en la sección de 'Cotizaciones' para generar su Orden de Trabajo automáticamente.");
+        confirm({
+          title: "Cotización Pendiente",
+          message: "Tienes una cotización pendiente. Por favor, aprueba la cotización primero en la sección de 'Cotizaciones' para generar su Orden de Trabajo automáticamente.",
+          confirmText: "Entendido",
+          onConfirm: () => {},
+        });
         return;
       }
 
-      alert("Para generar una Orden de Trabajo con el formato oficial, primero debes crear y aprobar una cotización para este cliente.");
+      confirm({
+        title: "Crear Cotización Primero",
+        message: "Para generar una Orden de Trabajo con el formato oficial, primero debes crear y aprobar una cotización para este cliente.",
+        confirmText: "Entendido",
+        onConfirm: () => {},
+      });
     } catch (e) {
-      alert("Error de conexión al verificar el estado de las órdenes.");
+      confirm({
+        title: "Error de Conexión",
+        message: "Error de conexión al verificar el estado de las órdenes.",
+        confirmText: "Entendido",
+        onConfirm: () => {},
+      });
     }
   };
 

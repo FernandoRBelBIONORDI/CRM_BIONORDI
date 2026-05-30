@@ -407,13 +407,23 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
 
     const pendingCot = cotizaciones.find(c => c.status !== "aprobada" && c.status !== "rechazada");
     if (pendingCot) {
-      alert("Tienes una cotización pendiente. Por favor, aprueba la cotización primero en la tabla de 'Cotizaciones' para generar su Orden de Trabajo automáticamente.");
+      confirm({
+        title: "Cotización Pendiente",
+        message: "Tienes una cotización pendiente. Por favor, aprueba la cotización primero en la tabla de 'Cotizaciones' para generar su Orden de Trabajo automáticamente.",
+        confirmText: "Entendido",
+        onConfirm: () => {},
+      });
       const el = document.getElementById("cotizaciones-section");
       if (el) el.scrollIntoView({ behavior: "smooth" });
       return;
     }
 
-    alert("Para generar una Orden de Trabajo con el formato oficial, primero debes crear y aprobar una cotización para este cliente.");
+    confirm({
+      title: "Crear Cotización Primero",
+      message: "Para generar una Orden de Trabajo con el formato oficial, primero debes crear y aprobar una cotización para este cliente.",
+      confirmText: "Entendido",
+      onConfirm: () => {},
+    });
     const el = document.getElementById("cotizaciones-section");
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };

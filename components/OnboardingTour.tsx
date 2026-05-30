@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import {
@@ -42,7 +42,7 @@ const STEPS: StepDef[] = [
   },
   /* 1 */ {
     title: "Abrir el CRM",
-    subtitle: "Paso 1 de 16",
+    subtitle: "Paso 1 de 17",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "El CRM (Customer Relationship Manager) es el panel principal de ventas donde controlás tus leads comerciales.",
     steps: [
@@ -56,7 +56,7 @@ const STEPS: StepDef[] = [
   },
   /* 2 */ {
     title: "Crear un nuevo Lead",
-    subtitle: "Paso 2 de 16",
+    subtitle: "Paso 2 de 17",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "Un Lead es el expediente inicial de un prospecto. Para que quede guardado en tu directorio permanente de Clientes, debés registrar sus datos.",
     steps: [
@@ -70,7 +70,7 @@ const STEPS: StepDef[] = [
   },
   /* 3 */ {
     title: "Registrar datos del Cliente",
-    subtitle: "Paso 3 de 16",
+    subtitle: "Paso 3 de 17",
     icon: Database, color: "#4E60A9", bg: "#EEF3FC",
     why: "Para que este Lead de prueba aparezca en tu directorio permanente de Clientes, es fundamental seleccionar 'Cliente' en el campo 'Estado CRM'.",
     steps: [
@@ -88,12 +88,12 @@ const STEPS: StepDef[] = [
       { label: "Correo electrónico",    value: "juan.garcia@bionordi.mx" },
       { label: "Ciudad",                value: "Tijuana" },
     ],
-    detect: () => !document.querySelector('[data-tour="nuevo-lead-modal"]') && Array.from(document.querySelectorAll("div, td, span")).some(el => el.textContent && el.textContent.includes("Tutorial")),
+    detect: () => !document.querySelector('[data-tour="nuevo-lead-modal"]') && Array.from(document.querySelectorAll("div, td, span")).some(el => !!(el.textContent && el.textContent.includes("Tutorial"))),
     autoAdvance: true,
   },
   /* 4 */ {
     title: "Ir al Directorio de Clientes",
-    subtitle: "Paso 4 de 16",
+    subtitle: "Paso 4 de 17",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "El directorio de Clientes almacena a todas las personas e instituciones médicas con un estatus activo en el sistema.",
     steps: [
@@ -107,7 +107,7 @@ const STEPS: StepDef[] = [
   },
   /* 5 */ {
     title: "Buscar cliente de prueba",
-    subtitle: "Paso 5 de 16",
+    subtitle: "Paso 5 de 17",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "Cuando tenés cientos de clientes registrados, usar el buscador dinámico te permite ubicar el expediente de manera inmediata.",
     steps: [
@@ -118,13 +118,13 @@ const STEPS: StepDef[] = [
     position: "bottom",
     detect: () => {
       const inp = document.querySelector('[data-tour="client-search-input"]') as HTMLInputElement;
-      return inp && inp.value.toLowerCase().includes("tutorial");
+      return !!(inp && inp.value.toLowerCase().includes("tutorial"));
     },
     autoAdvance: true,
   },
   /* 6 */ {
     title: "Abrir expediente",
-    subtitle: "Paso 6 de 16",
+    subtitle: "Paso 6 de 17",
     icon: Users, color: "#4E60A9", bg: "#EEF3FC",
     why: "El expediente concentra todo el historial clínico del cliente: sus equipos, cotizaciones, órdenes de servicio y notas de contacto.",
     steps: [
@@ -138,7 +138,7 @@ const STEPS: StepDef[] = [
   },
   /* 7 */ {
     title: "Cotizar desde el Expediente",
-    subtitle: "Paso 7 de 16",
+    subtitle: "Paso 7 de 17",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Iniciar cotizaciones desde el expediente vincula de manera automática todos los datos fiscales y de contacto del cliente en el PDF formal.",
     steps: [
@@ -152,7 +152,7 @@ const STEPS: StepDef[] = [
   },
   /* 8 */ {
     title: "Elegir línea de servicio",
-    subtitle: "Paso 8 de 16",
+    subtitle: "Paso 8 de 17",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Bionordi ofrece Reparaciones, Mantenimientos, Venta de Equipos y Consumibles. Cada línea genera un formato y cláusulas legales de PDF distintas.",
     steps: [
@@ -165,91 +165,127 @@ const STEPS: StepDef[] = [
   },
   /* 9 */ {
     title: "Elegir Modo de Cotización",
-    subtitle: "Paso 9 de 16",
+    subtitle: "Paso 9 de 17",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
-    why: "El cotizador opera en dos modalidades clave: Modo Catálogo (carga automáticamente fotos y diagramas oficiales) y Modo Manual (para textos libres y fotos). Observa ambos botones destacados.",
+    why: "El cotizador opera en dos modalidades clave: Modo Catálogo (carga automáticamente fotos y diagramas oficiales de transductores) y Modo Manual (para textos libres y fotos). Observa ambos botones destacados.",
     steps: [
       "Identifica los botones superiores de 'Catálogo' y 'Manual' resaltados en el spotlight.",
-      "Para este tutorial, haz click en el botón 'Catálogo' o 'Manual' según el modo que quieras usar.",
+      "Para este tutorial, haz click en el botón 'Catálogo' para usar la base de datos oficial.",
     ],
     selector: '[data-tour="quote-mode-toggle"]',
     position: "bottom",
     detect: () => {
-      const catActive = document.querySelector('[data-tour="quote-mode-catalogo-btn"]')?.className.includes("bg-white");
-      const manActive = document.querySelector('[data-tour="quote-mode-manual-btn"]')?.className.includes("bg-white");
-      return catActive || manActive;
+      const catBtn = document.querySelector('[data-tour="quote-mode-catalogo-btn"]');
+      return !!(catBtn && catBtn.className.includes("bg-white"));
     },
     autoAdvance: true,
   },
   /* 10 */ {
     title: "Seleccionar Marca",
-    subtitle: "Paso 10 de 16",
+    subtitle: "Paso 10 de 17",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
-    why: "Al seleccionar la marca en Modo Catálogo, habilitarás los selectores con las fichas y diagramas clínicos oficiales correspondientes.",
-    steps: [], // se inyecta dinámicamente según submodo
+    why: "Al seleccionar la marca en Modo Catálogo, se filtrarán y habilitarán los modelos y fichas técnicas correspondientes.",
+    steps: [
+      "Hacé click en la lista desplegable de 'Marca' indicada.",
+      "Seleccioná la opción 'Mindray'.",
+    ],
     selector: '[data-tour="quote-eq-marca"]',
     position: "bottom",
     detect: () => {
-      const sel = document.querySelector('[data-tour="quote-eq-marca"]') as HTMLSelectElement | HTMLInputElement;
-      return sel && sel.value.toLowerCase().includes("mindray");
+      const sel = document.querySelector('[data-tour="quote-eq-marca"]') as HTMLSelectElement;
+      return !!(sel && sel.value.toLowerCase().includes("mindray"));
     },
     autoAdvance: true,
   },
   /* 11 */ {
     title: "Seleccionar Modelo",
-    subtitle: "Paso 11 de 16",
+    subtitle: "Paso 11 de 17",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "Al elegir el modelo '7L-4s', el cotizador cargará automáticamente la ficha técnica oficial y el diagrama interactivo de cristales Mindray.",
-    steps: [], // se inyecta dinámicamente según submodo
+    steps: [
+      "Hacé click en la lista desplegable de 'Modelo' indicada.",
+      "Seleccioná la opción '7L-4s'.",
+    ],
     selector: '[data-tour="quote-eq-modelo"]',
     position: "bottom",
     detect: () => {
-      const sel = document.querySelector('[data-tour="quote-eq-modelo"]') as HTMLSelectElement | HTMLInputElement;
-      return sel && sel.value.toLowerCase().includes("7l-4s");
+      const sel = document.querySelector('[data-tour="quote-eq-modelo"]') as HTMLSelectElement;
+      return !!(sel && sel.value.toLowerCase().includes("7l-4s"));
     },
     autoAdvance: true,
   },
   /* 12 */ {
     title: "Firma y Registro",
-    subtitle: "Paso 12 de 16",
+    subtitle: "Paso 12 de 17",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
-    why: "El campo 'Generado por' permite definir el firmante oficial de esta cotización. Copia los datos de prueba, agrega el costo del servicio y haz click en 'Guardar PDF en expediente'.",
-    steps: [], // se inyecta dinámicamente según submodo
-    saveHint: "💡 Consejo útil: Una vez copiado y agregado el servicio, haz click en el botón verde 'Guardar PDF en expediente' al pie de la pantalla para registrar el presupuesto y continuar.",
+    why: "El campo 'Generado por' permite definir el firmante oficial de esta cotización. Copia los datos de prueba de abajo y agrégalos a los campos correspondientes.",
+    steps: [
+      "Seleccioná al firmante en la lista desplegable de 'Generado por'.",
+      "Copiá y pegá el No. de Serie y la Falla reportada sugeridos abajo en sus respectivos campos.",
+    ],
     selector: '[data-tour="quote-firma-user"]',
     position: "top",
-    fields: [], // se inyecta dinámicamente según submodo
+    fields: [
+      { label: "Número de serie", value: "MY-829281" },
+      { label: "Falla reportada", value: "Líneas negras en imagen" },
+    ],
     detect: () => {
-      if (typeof window === "undefined") return false;
-      if (document.querySelector('[data-tour="doc-viewer-modal"]')) return true;
-      const saveBtn = document.querySelector('[data-tour="quote-save-expediente"]');
-      if (saveBtn && (saveBtn.textContent?.toLowerCase().includes("guardado") || saveBtn.className.includes("bg-[#059669]"))) {
-        return true;
-      }
-      if (!document.querySelector('[data-tour="quote-modal"]')) {
-        return Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("6,500"));
-      }
-      return false;
+      const serie = document.querySelector('input[placeholder="SN-XXXXXX"]') as HTMLInputElement;
+      const falla = document.querySelector('input[placeholder="Sin imagen, cable dañado…"]') as HTMLInputElement;
+      return !!(serie && serie.value.length > 3 && falla && falla.value.length > 3);
     },
     autoAdvance: true,
   },
   /* 13 */ {
+    title: "Agregar Servicio Rápido",
+    subtitle: "Paso 13 de 17",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "Bionordi incluye botones de atajos rápidos con precios precargados para los servicios más comunes, evitando errores manuales de escritura.",
+    steps: [
+      "Buscá el botón 'Reparación transductor lineal — $6,500' en la sección de servicios rápidos.",
+      "Hacé click para agregarlo al presupuesto automáticamente.",
+    ],
+    selector: '[data-tour="quote-rapidos"]',
+    position: "top",
+    detect: () => {
+      const totalDiv = Array.from(document.querySelectorAll("div, span")).find(el => !!(el.textContent && el.textContent.includes("6,500")));
+      return !!totalDiv;
+    },
+    autoAdvance: true,
+  },
+  /* 14 */ {
+    title: "Guardar Cotización en Expediente",
+    subtitle: "Paso 14 de 17",
+    icon: FileText, color: "#059669", bg: "#ECFDF5",
+    why: "Al guardar el PDF en el expediente, la propuesta comercial se asocia permanentemente al cliente en la base de datos.",
+    steps: [
+      "Hacé click en el botón verde 'Guardar PDF en expediente' al pie del modal.",
+      "El tutorial avanzará cuando la cotización se registre con éxito.",
+    ],
+    selector: '[data-tour="quote-save-expediente"]',
+    position: "top",
+    detect: () => {
+      const btn = document.querySelector('[data-tour="quote-save-expediente"]');
+      return !!(btn && (btn.textContent?.toLowerCase().includes("guardado") || btn.className.includes("bg-[#059669]")));
+    },
+    autoAdvance: true,
+  },
+  /* 15 */ {
     title: "Cerrar Cotizador",
-    subtitle: "Paso 13 de 16",
+    subtitle: "Paso 15 de 17",
     icon: FileText, color: "#059669", bg: "#ECFDF5",
     why: "La cotización fue registrada correctamente. Ahora debemos cerrar el modal del cotizador para continuar operando en el expediente del cliente.",
     steps: [
-      "Si abriste el previsualizador de PDF, haz click en su botón 'X' superior para cerrarlo.",
       "Haz click en el botón 'X' en la parte superior derecha del cotizador destacado en el spotlight.",
     ],
     selector: '[data-tour="close-quote-modal"]',
     position: "left",
-    detect: () => !document.querySelector('[data-tour="quote-modal"]') && !document.querySelector('[data-tour="doc-viewer-modal"]'),
+    detect: () => !document.querySelector('[data-tour="quote-modal"]'),
     autoAdvance: true,
   },
-  /* 14 */ {
+  /* 16 */ {
     title: "Aprobar la Cotización",
-    subtitle: "Paso 14 de 16",
+    subtitle: "Paso 16 de 17",
     icon: CheckCircle2, color: "#059669", bg: "#ECFDF5",
     why: "Una vez que el cliente acepta el presupuesto, debemos aprobar la cotización directamente en su expediente digital para habilitar la creación automática de su Orden de Trabajo sin recapturar datos.",
     steps: [
@@ -258,27 +294,26 @@ const STEPS: StepDef[] = [
     ],
     selector: '[data-tour="quote-approve-btn"]',
     position: "top",
-    detect: () => !document.querySelector('[data-tour="doc-viewer-modal"]') && !document.querySelector('[data-tour="quote-approve-btn"]') && !!document.querySelector('[data-tour="quote-create-ot-btn"]'),
+    detect: () => !document.querySelector('[data-tour="quote-approve-btn"]') && !!document.querySelector('[data-tour="quote-create-ot-btn"]'),
     autoAdvance: true,
   },
-  /* 15 */ {
+  /* 17 */ {
     title: "Crear Orden de Trabajo",
-    subtitle: "Paso 15 de 16",
+    subtitle: "Paso 17 de 17",
     icon: Wrench, color: "#7C3AED", bg: "#F5F3FF",
-    why: "Al hacer click en 'Crear OT', el CRM vincula automáticamente toda la información de la cotización aprobada (marca, modelo, falla y costo) en una nueva Orden de Trabajo para el taller, sin tener que escribir nada a mano.",
+    why: "Al hacer click en 'Crear OT', el CRM vincula automáticamente toda la información de la cotización aprobada en una nueva Orden de Trabajo para el taller, sin escribir nada a mano.",
     steps: [
       "Hacá click en el nuevo botón morado 'Crear OT' que apareció en la fila de tu cotización aprobada.",
-      "Haz click en 'Aceptar' en la confirmación de la aplicación para registrar la Orden de Servicio automáticamente.",
+      "Confirmá en la ventana emergente de la aplicación para registrar la Orden de Servicio automáticamente.",
     ],
     selector: '[data-tour="quote-create-ot-btn"]',
     position: "left",
     detect: () => {
-      if (typeof window === "undefined") return false;
-      return !document.querySelector('[data-tour="quote-create-ot-btn"]') && Array.from(document.querySelectorAll("span, td, div")).some(el => el.textContent && el.textContent.includes("BRT-"));
+      return !document.querySelector('[data-tour="quote-create-ot-btn"]') && Array.from(document.querySelectorAll("span, td, div")).some(el => !!(el.textContent && el.textContent.includes("BRT-")));
     },
     autoAdvance: true,
   },
-  /* 16 */ {
+  /* 18 */ {
     title: "¡Flujo completado!",
     subtitle: "Tutorial finalizado",
     icon: Sparkles, color: "#059669", bg: "#ECFDF5",
@@ -359,80 +394,34 @@ export default function OnboardingTour() {
 
   const cur = {
     ...curRaw,
-    why: isQuoteStep
-      ? (quoteSubMode === "choose"
-          ? "Bionordi ofrece dos formas potentes de generar cotizaciones: usando el Catálogo (con diagramas y fichas de transductores Mindray preestablecidos) o en Modo Manual (para escribir especificaciones libres)."
-          : quoteSubMode === "catalogo"
-            ? "El Modo Catálogo vincula las especificaciones exactas del transductor desde tu inventario. Al seleccionar Mindray 7L-4s, el sistema autocompleta el diagrama clínico y la ficha técnica."
-            : "El Modo Manual te da libertad absoluta. Sirve para escribir textos libres personalizados, configurar descuentos y subir imágenes o evidencias fotográficas directas de la reparación."
+    selector: step === 16
+      ? (typeof document !== "undefined" && document.querySelector('[data-tour="doc-viewer-modal"]')
+          ? '[data-tour="close-doc-viewer"]'
+          : '[data-tour="quote-approve-btn"]'
         )
-      : curRaw.why,
-    steps: isQuoteStep
-      ? (quoteSubMode === "choose"
-          ? ["Hacé click abajo en el modo que desees aprender para guiarte paso a paso."]
-          : quoteSubMode === "catalogo"
-            ? [
-                "Confirmá que el control superior esté en Catálogo.",
-                "Elegí la Marca 'Mindray' de la lista desplegable.",
-                "Elegí el Modelo '7L-4s' para autocargar el diagrama clínico y ficha técnica.",
-                "Copiá y pegá el No. de Serie y la Falla reportada sugeridos abajo.",
-                "En la sección de servicios, haz click en el botón de servicio rápido 'Reparación transductor lineal — $6,500' para agregarlo con un solo click.",
-                "Haz click en el botón verde 'Guardar PDF en expediente' al pie de la pantalla para registrar la cotización."
-              ]
-            : [
-                "Cambiá el control superior a modo Manual.",
-                "En 'Tipo de transductor', seleccioná la opción 'Lineal' de la lista.",
-                "Escribí a mano la Marca (Mindray) y el Modelo (7L-4s).",
-                "Copiá y pegá la Serie y Falla sugeridos abajo.",
-                "En 'Evidencia Fotográfica', podés subir fotos directas del transductor y agregar descripciones libres.",
-                "En la tabla de costos, haz click en '+ Agregar línea', escribe el concepto y precio unitario sugeridos.",
-                "Haz click en el botón verde 'Guardar PDF en expediente' al pie del formulario para registrar la cotización."
-              ]
-        )
-      : curRaw.steps,
-    fields: isQuoteStep
-      ? (quoteSubMode === "choose"
-          ? undefined
-          : quoteSubMode === "catalogo"
-            ? [
-                { label: "Número de serie", value: "MY-829281" },
-                { label: "Falla reportada", value: "Líneas negras en imagen" },
-                { label: "Concepto / Costo", value: "Reparación de arreglo de cristales y reencapsulado" },
-                { label: "Precio unitario", value: "6500" }
-              ]
-            : [
-                { label: "Marca del equipo", value: "Mindray" },
-                { label: "Modelo del equipo", value: "7L-4s" },
-                { label: "No. de Serie", value: "MY-829281" },
-                { label: "Falla / Síntoma", value: "Líneas negras en imagen" },
-                { label: "Concepto / Costo", value: "Reparación de transductor lineal" },
-                { label: "Precio unitario", value: "6500" }
-              ]
-        )
-      : curRaw.fields,
-    saveHint: isQuoteStep
-      ? (quoteSubMode === "choose"
-          ? undefined
-          : "💡 Consejo útil: Una vez completa, haz click en el botón verde 'Guardar PDF en expediente' para vincular permanentemente esta cotización al lead de prueba y poder avanzar."
-        )
-      : curRaw.saveHint,
-    selector: isQuoteStep
-      ? (quoteSubMode === "choose"
-          ? '[data-tour="quote-mode-toggle"]'
-          : quoteSubMode === "catalogo"
-            ? '[data-tour="quote-mode-catalogo-btn"]'
-            : '[data-tour="quote-mode-manual-btn"]'
-        )
-      : step === 10
-        ? (typeof document !== "undefined" && document.querySelector('[data-tour="doc-viewer-modal"]')
-            ? '[data-tour="close-doc-viewer"]'
-            : '[data-tour="quote-approve-btn"]'
-          )
-        : curRaw.selector,
+      : curRaw.selector,
   };
 
   const isLast = step === STEPS.length - 1;
   const pct    = step === 0 ? 0 : Math.round((step / (STEPS.length - 1)) * 100);
+
+  // Scroll automático para centrar el elemento del spotlight cuando se vuelve visible
+  const lastScrolledSelector = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!active || !cur.selector || !coords) return;
+    const key = `${step}-${cur.selector}`;
+    if (lastScrolledSelector.current !== key) {
+      const el = Array.from(document.querySelectorAll(cur.selector)).find(e => {
+        const r = e.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      });
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        lastScrolledSelector.current = key;
+      }
+    }
+  }, [step, cur.selector, coords, active]);
 
   // ─── Activación ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -708,117 +697,7 @@ export default function OnboardingTour() {
             </div>
           )}
 
-          {isQuoteStep && quoteSubMode === "choose" && (
-            <div className="pt-2 space-y-2.5">
-              <button
-                onClick={() => selectSubMode("catalogo")}
-                className="w-full p-4 rounded-xl border-2 border-indigo-500/20 hover:border-indigo-500 bg-indigo-50/50 hover:bg-indigo-50 text-left transition-all hover:scale-[1.02] flex items-start gap-3 group"
-              >
-                <span className="text-[20px] shrink-0 mt-0.5">💡</span>
-                <div>
-                  <div className="text-[13px] font-extrabold text-[#4E60A9] group-hover:text-indigo-600">Modo Catálogo (Recomendado)</div>
-                  <p className="text-[11.5px] text-gray-500 font-medium mt-1 leading-snug">Carga automática de diagramas, fotografías y cláusulas oficiales del transductor Mindray.</p>
-                </div>
-              </button>
-              <button
-                onClick={() => selectSubMode("manual")}
-                className="w-full p-4 rounded-xl border-2 border-emerald-500/20 hover:border-emerald-500 bg-emerald-50/50 hover:bg-emerald-50 text-left transition-all hover:scale-[1.02] flex items-start gap-3 group"
-              >
-                <span className="text-[20px] shrink-0 mt-0.5">🛠️</span>
-                <div>
-                  <div className="text-[13px] font-extrabold text-emerald-600 group-hover:text-emerald-700">Modo Manual</div>
-                  <p className="text-[11.5px] text-gray-500 font-medium mt-1 leading-snug">Escribe especificaciones libres, conceptos personalizados y configura descuentos o impuestos.</p>
-                </div>
-              </button>
-            </div>
-          )}
 
-          {isQuoteStep && quoteSubMode !== "choose" && (
-            <div className="border-t border-gray-100 pt-3 mt-3 space-y-2.5">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-[#94A3B8]">💡 Guía rápida de botones y campos:</p>
-              <div className="max-h-[220px] overflow-y-auto pr-1 space-y-2 text-[12px] leading-relaxed scrollbar-thin" style={{ scrollbarWidth: "thin" }}>
-                {quoteSubMode === "catalogo" ? (
-                  <>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <strong className="text-[#4E60A9] font-bold block mb-0.5">🏷️ Marca y Modelo</strong>
-                      <span>Selectores inteligentes. Al elegir <em>Mindray</em> y <em>7L-4s</em>, el CRM autocompleta el diagrama y la descripción técnica del transductor.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <strong className="text-[#4E60A9] font-bold block mb-0.5">⚡ Agregar servicio rápido</strong>
-                      <span>Botones con precios precargados. Haz click y sumará la reparación del transductor al instante sin tener que escribir.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <strong className="text-[#4E60A9] font-bold block mb-0.5">➕ Agregar línea</strong>
-                      <span>Añade una fila vacía en la tabla de costos si necesitas cobrar conceptos o refacciones adicionales.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <strong className="text-[#4E60A9] font-bold block mb-0.5">🧾 IVA 16% / Descuento %</strong>
-                      <span>Controles rápidos para desglosar impuestos y aplicar descuentos directos con recálculo en tiempo real.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <strong className="text-[#4E60A9] font-bold block mb-0.5">👤 Generado por</strong>
-                      <span>Firma la cotización como Director General o a nombre de un técnico para personalizar las firmas en el PDF.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <strong className="text-[#4E60A9] font-bold block mb-0.5">✉️ Enviar por correo</strong>
-                      <span>Envía automáticamente la propuesta comercial con el PDF adjunto formal al correo electrónico del cliente.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#047857]">
-                      <strong className="font-extrabold block mb-0.5">💾 Guardar PDF en expediente (Recomendado)</strong>
-                      <span>Guarda y vincula permanentemente este presupuesto en el expediente digital de este lead para avanzar.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-900">
-                      <strong className="text-indigo-700 font-extrabold block mb-0.5">📄 Generar PDF</strong>
-                      <span>Guarda y compila los datos, y abre el visor de PDF interactivo de alta definición para revisión e impresión.</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <strong className="text-emerald-700 font-bold block mb-0.5">🛠️ Tipo / Marca / Modelo libres</strong>
-                      <span>Campos libres para escribir a mano cualquier tipo de equipo médico (ej. desfibrilador, monitor) sin plantillas fijas.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <strong className="text-emerald-700 font-bold block mb-0.5">📝 Características / Descripción</strong>
-                      <span>Agrega hasta 4 puntos técnicos usando el botón '+ Agregar punto' para desglosar las bondades del equipo.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <strong className="text-emerald-700 font-bold block mb-0.5">📸 Subir imagen de equipo</strong>
-                      <span>Permite subir y adjuntar una fotografía real del equipo que se incluirá en la parte superior del PDF.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <strong className="text-emerald-700 font-bold block mb-0.5">🖼️ Evidencia Fotográfica</strong>
-                      <span>Carga hasta 4 fotos del daño real con sus respectivas descripciones para sustentar técnicamente tu diagnóstico.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <strong className="text-emerald-700 font-bold block mb-0.5">📄 Texto de la propuesta</strong>
-                      <span>Acordeón para editar libremente el cuerpo del documento. Si queda en blanco, ¡el CRM autogenera un texto formal premium!</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                      <strong className="text-emerald-700 font-bold block mb-0.5">🏢 Datos de facturación</strong>
-                      <span>Acordeón para llenar datos fiscales (RFC, Régimen, Uso de CFDI) y agilizar la emisión de facturas.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#047857]">
-                      <strong className="font-extrabold block mb-0.5">💾 Guardar PDF en expediente (Recomendado)</strong>
-                      <span>Guarda y vincula permanentemente este presupuesto personalizado en la base de datos y expediente del lead para avanzar.</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-900">
-                      <strong className="text-indigo-700 font-extrabold block mb-0.5">📄 Generar PDF</strong>
-                      <span>Compila los datos libres, fotos de evidencia, datos fiscales y abre el visor de PDF interactivo de alta calidad.</span>
-                    </div>
-                  </>
-                )}
-              </div>
-              <div className="pt-1.5 flex justify-end">
-                <button
-                  onClick={() => setQuoteSubMode("choose")}
-                  className="text-[11px] font-extrabold text-gray-400 hover:text-[#4E60A9] underline transition-colors"
-                >
-                  ← Volver a elegir modo
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Estado de espera */}
           {cur.detect && !ready && !cur.autoAdvance && (
