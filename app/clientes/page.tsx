@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -147,6 +147,7 @@ export default function ClientesPage() {
                 <Link
                   key={l.id}
                   href={`/clientes/${l.id}`}
+                  data-tour={l.nombre.includes("Tutorial") || l.nombre.includes("(Prueba)") ? "tour-client-card" : undefined}
                   className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 flex flex-col overflow-hidden"
                 >
                   {/* Header card */}

@@ -448,6 +448,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
               { val: "consumibles",   label: "Venta de Consumibles",         color: "#D97706", bg: "#FFFBEB" },
             ].map(t => (
               <button key={t.val}
+                data-tour={t.val === "reparacion" ? "quote-type-reparacion" : undefined}
                 onClick={() => { setQuoteType(t.val); setShowQuoteTypePicker(false); setShowQuote(true); }}
                 className="flex items-center px-4 py-3 rounded-xl border-2 text-left transition-all hover:scale-[1.01]"
                 style={{ background: t.bg, borderColor: t.color + "30" }}>
@@ -590,10 +591,12 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                 {/* Action buttons */}
                 <div className="mt-3 flex items-center gap-2 flex-wrap">
                   <button onClick={() => setShowQuoteTypePicker(true)}
+                    data-tour="profile-quote-btn"
                     className="flex items-center gap-1.5 text-[12px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-2 rounded-full transition-colors shadow-sm">
                     <FileText size={13} /> Cotizar
                   </button>
                   <a href={`/taller?nuevo=1&lead_id=${lead.id}`}
+                    data-tour="profile-new-ot-btn"
                     className="flex items-center gap-1.5 text-[12px] font-bold text-[#7C3AED] bg-[#F5F3FF] hover:bg-[#7C3AED] hover:text-white px-3 py-2 rounded-full transition-colors shadow-sm">
                     <ClipboardList size={13} /> Nueva OT
                   </a>
