@@ -108,6 +108,7 @@ export default function DocumentViewerModal({
             {/* Close Button */}
             <button 
               onClick={onClose}
+              data-tour="close-doc-viewer"
               className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all"
             >
               <X size={18} />

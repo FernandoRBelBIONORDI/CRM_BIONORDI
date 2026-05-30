@@ -221,19 +221,19 @@ const STEPS: StepDef[] = [
       "Copia y pega los datos técnicos y de falla sugeridos abajo.",
       "Asigna un técnico en el selector para definir quién realizará el diagnóstico físico.",
     ],
-    saveHint: "Para finalizar el registro → hacé click en el botón azul 'Guardar OT' al pie del formulario. Esto ubicará el transductor en el tablero Kanban del taller.",
+    saveHint: "Para finalizar el registro → hacé click en el botón azul 'Crear Orden de Servicio' al pie del formulario. Esto ubicará el transductor en el tablero Kanban del taller.",
     selector: '[data-tour="tour-new-order-modal"]',
     position: "left",
     fields: [
-      { label: "Tipo de transductor", value: "Transductor Lineal" },
-      { label: "Marca del transductor", value: "Mindray" },
-      { label: "Modelo del transductor", value: "7L-4s" },
-      { label: "Número de serie",      value: "MY-829281" },
-      { label: "Falla reportada",      value: "Líneas negras en imagen y reencapsulado" },
-      { label: "Técnico asignado",     value: "Ing. Residente" },
+      { label: "Tipo de transductor *", value: "Transductor Lineal" },
+      { label: "Marca",                 value: "Mindray" },
+      { label: "Modelo",                value: "7L-4s" },
+      { label: "No. serie",             value: "MY-829281" },
+      { label: "Falla reportada",       value: "Líneas negras en imagen y reencapsulado" },
+      { label: "Técnico",               value: "Ing. Residente" },
     ],
     detect: () => !document.querySelector('[data-tour="tour-new-order-modal"]') && Array.from(document.querySelectorAll("div, span, td")).some(el => el.textContent && el.textContent.includes("Tutorial")),
-    autoAdvance: false,
+    autoAdvance: true,
   },
   /* 12 */ {
     title: "¡Flujo completado!",
@@ -380,7 +380,12 @@ export default function OnboardingTour() {
             ? '[data-tour="quote-mode-catalogo-btn"]'
             : '[data-tour="quote-mode-manual-btn"]'
         )
-      : curRaw.selector,
+      : step === 10
+        ? (typeof document !== "undefined" && document.querySelector('[data-tour="doc-viewer-modal"]')
+            ? '[data-tour="close-doc-viewer"]'
+            : '[data-tour="profile-new-ot-btn"]'
+          )
+        : curRaw.selector,
   };
 
   const isLast = step === STEPS.length - 1;
