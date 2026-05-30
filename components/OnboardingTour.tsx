@@ -295,11 +295,13 @@ const STEPS: StepDef[] = [
     why: "Bionordi genera automáticamente las cláusulas y descripción técnica en el PDF. Si deseás personalizar este texto, podés desplegar esta sección.",
     steps: [
       "Hacé click en la barra 'Texto de la propuesta en el PDF' para expandir la sección.",
+      "Para regenerar el texto original a partir de los datos, usá el botón 'Generar automáticamente' a la derecha.",
+      "Cuando termines de revisar, hacé click en Siguiente.",
     ],
     selector: '[data-tour="quote-propuesta-btn"]',
     position: "top",
     detect: () => !!document.querySelector('textarea[placeholder*="deja vacío"]') || !!document.querySelector('textarea[placeholder*="según el equipo"]'),
-    autoAdvance: true,
+    autoAdvance: false,
   },
   /* 17 */ {
     title: "Datos de Facturación",
@@ -308,11 +310,13 @@ const STEPS: StepDef[] = [
     why: "Esta sección te permite asociar de forma permanente el RFC, Razón Social, Régimen Fiscal y Uso de CFDI de tu cliente para automatizar futuros PDF.",
     steps: [
       "Hacé click en la sección 'Datos de facturación del cliente' para expandirla.",
+      "Al guardarla, estos datos quedarán vinculados de manera permanente en el expediente para futuras cotizaciones.",
+      "Hacé click en Siguiente para continuar.",
     ],
     selector: '[data-tour="quote-facturacion-btn"]',
     position: "top",
     detect: () => !!document.querySelector('input[placeholder="XXXX000000XX0"]'),
-    autoAdvance: true,
+    autoAdvance: false,
   },
   /* 18 */ {
     title: "Enviar por correo (Opcional)",
@@ -617,7 +621,12 @@ export default function OnboardingTour() {
       const data = await fetch("/api/leads?limit=300").then(r => r.json());
       if (Array.isArray(data.leads)) {
         for (const l of data.leads.filter((l: any) =>
-          l.nombre.toLowerCase().includes("tutorial") || l.nombre.toLowerCase().includes("prueba")
+          l.nombre.toLowerCase().includes("tutorial") ||
+          l.nombre.toLowerCase().includes("prueba") ||
+          l.nombre.toLowerCase().includes("test") ||
+          l.nombre.toLowerCase().includes("juan garcía") ||
+          l.nombre.toLowerCase().includes("juan garcia") ||
+          (l.correo && l.correo.toLowerCase() === "juan.garcia@bionordi.mx")
         )) {
           await fetch("/api/leads", {
             method: "DELETE",
@@ -643,19 +652,23 @@ export default function OnboardingTour() {
     if (mobile) return {
       position: "fixed", bottom: 12, left: 12, right: 12,
       width: "calc(100% - 24px)", zIndex: 9999, pointerEvents: "auto",
+      maxHeight: "calc(100vh - 24px)",
     };
     if (!coords || cur.position === "center") return {
       position: "fixed", top: "50%", left: "50%",
       transform: "translate(-50%, -50%)",
       width: `${W}px`, zIndex: 9999, pointerEvents: "auto",
+      maxHeight: "calc(100vh - 40px)",
     };
 
     const { top, left, width, height } = coords;
+    const cardH = 500; // altura máxima estimada para calcular límites seguros
+
     switch (cur.position) {
-      case "right": return { position: "fixed", top: `${clamp(top, 12, vh - 600)}px`, left: `${left + width + gap}px`, width: `${W}px`, zIndex: 9999, pointerEvents: "auto" };
-      case "left":  return { position: "fixed", top: `${clamp(top, 12, vh - 600)}px`, left: `${clamp(left - W - gap, 12, vw - W - 12)}px`, width: `${W}px`, zIndex: 9999, pointerEvents: "auto" };
-      case "top":   return { position: "fixed", bottom: `${vh - top + gap}px`, left: `${clamp(left + width / 2 - W / 2, 12, vw - W - 12)}px`, width: `${W}px`, zIndex: 9999, pointerEvents: "auto" };
-      default:      return { position: "fixed", top: `${top + height + gap}px`, left: `${clamp(left + width / 2 - W / 2, 12, vw - W - 12)}px`, width: `${W}px`, zIndex: 9999, pointerEvents: "auto" };
+      case "right": return { position: "fixed", top: `${clamp(top, 12, vh - cardH - 12)}px`, left: `${clamp(left + width + gap, 12, vw - W - 12)}px`, width: `${W}px`, zIndex: 9999, pointerEvents: "auto", maxHeight: "calc(100vh - 40px)" };
+      case "left":  return { position: "fixed", top: `${clamp(top, 12, vh - cardH - 12)}px`, left: `${clamp(left - W - gap, 12, vw - W - 12)}px`, width: `${W}px`, zIndex: 9999, pointerEvents: "auto", maxHeight: "calc(100vh - 40px)" };
+      case "top":   return { position: "fixed", top: `${clamp(top - cardH - gap, 12, vh - cardH - 12)}px`, left: `${clamp(left + width / 2 - W / 2, 12, vw - W - 12)}px`, width: `${W}px`, zIndex: 9999, pointerEvents: "auto", maxHeight: "calc(100vh - 40px)" };
+      default:      return { position: "fixed", top: `${clamp(top + height + gap, 12, vh - cardH - 12)}px`, left: `${clamp(left + width / 2 - W / 2, 12, vw - W - 12)}px`, width: `${W}px`, zIndex: 9999, pointerEvents: "auto", maxHeight: "calc(100vh - 40px)" };
     }
   };
 
