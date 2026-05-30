@@ -27,6 +27,8 @@ interface Lead {
   fecha_proximo_contacto?: string; fecha_ultimo_cambio?: string;
   tamano_estimado?: string; nivel_socioeconomico?: string;
   asignado_a?: string;
+  fac_razon_social?: string; fac_rfc?: string; fac_regimen?: string;
+  fac_uso_cfdi?: string; fac_dir_fiscal?: string; fac_correo?: string;
 }
 
 interface Interaccion {
@@ -253,6 +255,16 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
   const [editNotas, setEditNotas] = useState(false);
   const [notasVal,  setNotasVal]  = useState("");
 
+  // Facturación
+  const [editFac,      setEditFac]      = useState(false);
+  const [facRazonSoc,  setFacRazonSoc]  = useState("");
+  const [facRFC,       setFacRFC]       = useState("");
+  const [facRegimen,   setFacRegimen]   = useState("612");
+  const [facCFDI,      setFacCFDI]      = useState("G03");
+  const [facDirFiscal, setFacDirFiscal] = useState("");
+  const [facCorreo,    setFacCorreo]    = useState("");
+  const [savingFac,    setSavingFac]    = useState(false);
+
   // Cotizar
   const [showQuote, setShowQuote] = useState(false);
   const [showQuoteTypePicker, setShowQuoteTypePicker] = useState(false);
@@ -283,6 +295,12 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
         setAsignadoA(d.lead?.asignado_a || "");
         setProxDate(d.lead?.fecha_proximo_contacto?.slice(0, 10) || "");
         setWaVal(d.lead?.whatsapp || "");
+        setFacRazonSoc(d.lead?.fac_razon_social || "");
+        setFacRFC(d.lead?.fac_rfc || "");
+        setFacRegimen(d.lead?.fac_regimen || "612");
+        setFacCFDI(d.lead?.fac_uso_cfdi || "G03");
+        setFacDirFiscal(d.lead?.fac_dir_fiscal || "");
+        setFacCorreo(d.lead?.fac_correo || "");
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -340,6 +358,21 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
     await patchLead({ notas: notasVal });
     setLead(p => p ? { ...p, notas: notasVal } : p);
     setEditNotas(false);
+  };
+
+  const guardarFac = async () => {
+    setSavingFac(true);
+    await patchLead({
+      fac_razon_social: facRazonSoc || null,
+      fac_rfc: facRFC || null,
+      fac_regimen: facRegimen || null,
+      fac_uso_cfdi: facCFDI || null,
+      fac_dir_fiscal: facDirFiscal || null,
+      fac_correo: facCorreo || null,
+    });
+    setLead(p => p ? { ...p, fac_razon_social: facRazonSoc, fac_rfc: facRFC, fac_regimen: facRegimen, fac_uso_cfdi: facCFDI, fac_dir_fiscal: facDirFiscal, fac_correo: facCorreo } : p);
+    setSavingFac(false);
+    setEditFac(false);
   };
 
   const updateCotStatus = async (cotId: number, newStatus: string) => {
@@ -525,6 +558,12 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
             ciudad: lead.ciudad,
             estado_republica: lead.estado_republica,
             direccion: lead.direccion,
+            fac_razon_social: facRazonSoc || lead.fac_razon_social,
+            fac_rfc: facRFC || lead.fac_rfc,
+            fac_regimen: facRegimen || lead.fac_regimen,
+            fac_uso_cfdi: facCFDI || lead.fac_uso_cfdi,
+            fac_dir_fiscal: facDirFiscal || lead.fac_dir_fiscal,
+            fac_correo: facCorreo || lead.fac_correo,
           }}
           onClose={() => { setShowQuote(false); reload(); }}
           onSuccess={() => { reload(); }}
@@ -810,6 +849,69 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                   <p className="text-[12px] text-gray-600 leading-relaxed whitespace-pre-wrap">
                     {lead.notas || <span className="text-gray-400 italic">Sin notas</span>}
                   </p>
+                )}
+              </div>
+
+              {/* Datos de Facturación */}
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-[13px] font-extrabold text-[#1E293B]">Datos de Facturación</h3>
+                  {!editFac
+                    ? <button onClick={() => setEditFac(true)} className="text-[11px] text-[#4E60A9] hover:underline flex items-center gap-1"><Edit2 size={11} />Editar</button>
+                    : (
+                      <div className="flex gap-2">
+                        <button onClick={guardarFac} className="text-[11px] text-[#059669] hover:underline flex items-center gap-1">
+                          {savingFac ? <Activity size={11} className="animate-spin" /> : <Save size={11} />} Guardar
+                        </button>
+                        <button onClick={() => { setEditFac(false); setFacRazonSoc(lead.fac_razon_social || ""); setFacRFC(lead.fac_rfc || ""); setFacRegimen(lead.fac_regimen || "612"); setFacCFDI(lead.fac_uso_cfdi || "G03"); setFacDirFiscal(lead.fac_dir_fiscal || ""); setFacCorreo(lead.fac_correo || ""); }}
+                          className="text-[11px] text-gray-400 hover:underline flex items-center gap-1"><X size={11} />Cancelar</button>
+                      </div>
+                    )}
+                </div>
+                {editFac ? (
+                  <div className="space-y-2">
+                    <input placeholder="Razón Social" value={facRazonSoc} onChange={e => setFacRazonSoc(e.target.value)}
+                      className={inp} />
+                    <input placeholder="RFC" value={facRFC} onChange={e => setFacRFC(e.target.value.toUpperCase())}
+                      className={inp + " uppercase"} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <select value={facRegimen} onChange={e => setFacRegimen(e.target.value)} className={sel}>
+                        <option value="612">PF Act. Empresariales</option>
+                        <option value="601">PM General de Ley</option>
+                        <option value="626">RESICO</option>
+                        <option value="605">Sueldos y Salarios</option>
+                      </select>
+                      <select value={facCFDI} onChange={e => setFacCFDI(e.target.value)} className={sel}>
+                        <option value="G03">G03 – Gastos en general</option>
+                        <option value="G01">G01 – Adquisición de mercancias</option>
+                        <option value="D01">D01 – Honorarios médicos</option>
+                        <option value="P01">P01 – Por definir</option>
+                      </select>
+                    </div>
+                    <input placeholder="Correo para factura" value={facCorreo} onChange={e => setFacCorreo(e.target.value)}
+                      className={inp} />
+                    <input placeholder="Dirección fiscal" value={facDirFiscal} onChange={e => setFacDirFiscal(e.target.value)}
+                      className={inp} />
+                  </div>
+                ) : (
+                  <dl className="space-y-2">
+                    {[
+                      ["Razón Social", lead.fac_razon_social],
+                      ["RFC",          lead.fac_rfc],
+                      ["Régimen",      lead.fac_regimen],
+                      ["Uso CFDI",     lead.fac_uso_cfdi],
+                      ["Correo",       lead.fac_correo],
+                      ["Dir. Fiscal",  lead.fac_dir_fiscal],
+                    ].map(([k, v]) => v ? (
+                      <div key={k as string} className="flex items-start gap-2">
+                        <dt className="text-[11px] text-gray-400 shrink-0 w-24">{k}</dt>
+                        <dd className="text-[11px] font-semibold text-[#1E293B] flex-1 break-all">{v}</dd>
+                      </div>
+                    ) : null)}
+                    {!lead.fac_razon_social && !lead.fac_rfc && (
+                      <p className="text-[11px] text-gray-400 italic">Sin datos fiscales registrados.</p>
+                    )}
+                  </dl>
                 )}
               </div>
 

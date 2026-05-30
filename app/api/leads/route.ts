@@ -148,6 +148,7 @@ export async function PATCH(req: Request) {
       'estado_republica','nicho','status_crm','confianza_fuente','notas',
       'fecha_seguimiento','fecha_proximo_contacto','score_potencial','prioridad',
       'whatsapp_verificado','sitio_activo','fuente','sitio_web','barrido_id','asignado_a',
+      'fac_razon_social','fac_rfc','fac_regimen','fac_uso_cfdi','fac_dir_fiscal','fac_correo',
     ]);
     const safeUpdates = Object.fromEntries(
       Object.entries(updates).filter(([k]) => COLS.has(k))

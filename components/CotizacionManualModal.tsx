@@ -236,6 +236,12 @@ export default function CotizacionManualModal({
     ciudad?: string;
     estado_republica?: string;
     direccion?: string;
+    fac_razon_social?: string;
+    fac_rfc?: string;
+    fac_regimen?: string;
+    fac_uso_cfdi?: string;
+    fac_dir_fiscal?: string;
+    fac_correo?: string;
   };
   initialCotizacion?: any; // any for simplicity, contains the cotizacion object
 }) {
@@ -356,6 +362,12 @@ export default function CotizacionManualModal({
         setCliNombre(initialCotizacion.lead_nombre);
       } else if (initialLead) {
         setCliNombre(initialLead.nombre || "");
+        if (initialLead.fac_razon_social) setFacRazonSoc(initialLead.fac_razon_social);
+        if (initialLead.fac_rfc) setFacRFC(initialLead.fac_rfc);
+        if (initialLead.fac_regimen) setFacRegimen(initialLead.fac_regimen);
+        if (initialLead.fac_uso_cfdi) setFacCFDI(initialLead.fac_uso_cfdi);
+        if (initialLead.fac_dir_fiscal) setFacDirFiscal(initialLead.fac_dir_fiscal);
+        if (initialLead.fac_correo) setFacCorreo(initialLead.fac_correo);
       }
       setEqTipo(initialCotizacion.eq_tipo || "");
       setEqMarca(initialCotizacion.eq_marca || "");
@@ -1071,9 +1083,9 @@ export default function CotizacionManualModal({
 
 ${equipoHTML}
 ${diagramaHTML}
-${evidenciaHTML}
 ${brochureHTML}
 ${tableHTML}
+${evidenciaHTML}
 
 
 </div>

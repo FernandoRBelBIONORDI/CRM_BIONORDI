@@ -21,6 +21,8 @@ interface Lead {
   decisor_nombre?: string; decisor_cargo?: string;
   fecha_ultimo_cambio?: string; fecha_proximo_contacto?: string;
   fuente?: string; confianza_fuente?: string; asignado_a?: string;
+  fac_razon_social?: string; fac_rfc?: string; fac_regimen?: string;
+  fac_uso_cfdi?: string; fac_dir_fiscal?: string; fac_correo?: string;
 }
 interface Interaccion { id: number; tipo: string; contenido: string; fecha: string; resultado?: string; usuario_nombre?: string; }
 interface Equipo { id: number; tipo: string; marca?: string; modelo?: string; num_serie?: string; estado: string; notas?: string; fecha_alta: string; }
@@ -132,6 +134,13 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   const [creatingOT, setCreatingOT]   = useState<number | null>(null);
   const [visitaMateriales, setVisitaMateriales] = useState<string[]>([]);
   const [visitaProxima, setVisitaProxima]       = useState("");
+  const [facRazonSoc,  setFacRazonSoc]  = useState("");
+  const [facRFC,       setFacRFC]       = useState("");
+  const [facRegimen,   setFacRegimen]   = useState("612");
+  const [facCFDI,      setFacCFDI]      = useState("G03");
+  const [facDirFiscal, setFacDirFiscal] = useState("");
+  const [facCorreo,    setFacCorreo]    = useState("");
+  const [savingFac,    setSavingFac]    = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -141,6 +150,12 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
     setStatus(lead.status_crm);
     setAsignadoA(lead.asignado_a || "");
     setWaVal(lead.whatsapp || "");
+    setFacRazonSoc(lead.fac_razon_social || "");
+    setFacRFC(lead.fac_rfc || "");
+    setFacRegimen(lead.fac_regimen || "612");
+    setFacCFDI(lead.fac_uso_cfdi || "G03");
+    setFacDirFiscal(lead.fac_dir_fiscal || "");
+    setFacCorreo(lead.fac_correo || "");
     setInts([]);
     setEquipos([]);
     setCotizaciones([]);
@@ -350,6 +365,32 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
     onUpdate(lead.id, { fecha_proximo_contacto: val || undefined });
   };
 
+  const saveFac = async () => {
+    if (!lead) return;
+    setSavingFac(true);
+    await fetch("/api/leads", {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: lead.id,
+        fac_razon_social: facRazonSoc || null,
+        fac_rfc: facRFC || null,
+        fac_regimen: facRegimen || null,
+        fac_uso_cfdi: facCFDI || null,
+        fac_dir_fiscal: facDirFiscal || null,
+        fac_correo: facCorreo || null,
+      }),
+    });
+    onUpdate(lead.id, {
+      fac_razon_social: facRazonSoc || undefined,
+      fac_rfc: facRFC || undefined,
+      fac_regimen: facRegimen || undefined,
+      fac_uso_cfdi: facCFDI || undefined,
+      fac_dir_fiscal: facDirFiscal || undefined,
+      fac_correo: facCorreo || undefined,
+    });
+    setSavingFac(false);
+  };
+
   const changeStatus = async (val: string) => {
     if (!lead) return;
     setStatus(val);
@@ -402,7 +443,7 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   return (
     <>
       <ConfirmDialog />
-      {showQuote && <CotizacionManualModal initialLead={lead} onClose={() => { setShowQuote(false); loadCotizaciones(lead.id); }} onSuccess={() => loadCotizaciones(lead.id)} />}
+      {showQuote && <CotizacionManualModal initialLead={{ ...lead, fac_razon_social: facRazonSoc || lead.fac_razon_social, fac_rfc: facRFC || lead.fac_rfc, fac_regimen: facRegimen || lead.fac_regimen, fac_uso_cfdi: facCFDI || lead.fac_uso_cfdi, fac_dir_fiscal: facDirFiscal || lead.fac_dir_fiscal, fac_correo: facCorreo || lead.fac_correo }} onClose={() => { setShowQuote(false); loadCotizaciones(lead.id); }} onSuccess={() => loadCotizaciones(lead.id)} />}
       {editingCotizacion && <CotizacionManualModal initialCotizacion={editingCotizacion as any} onClose={() => { setEditingCotizacion(null); loadCotizaciones(lead.id); }} onSuccess={() => loadCotizaciones(lead.id)} />}
 
       <div className="fixed inset-0 z-50 flex justify-end">
@@ -531,6 +572,43 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
                     + Agregar WhatsApp
                   </button>
                 )}
+              </div>
+            </div>
+
+            {/* Datos de Facturación */}
+            <div className="px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Datos de Facturación</h3>
+                <button onClick={saveFac}
+                  className="flex items-center gap-1 text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#4E60A9] hover:text-white px-3 py-1 rounded-full transition-colors">
+                  {savingFac ? <Activity size={10} className="animate-spin" /> : <Check size={10} />} Guardar
+                </button>
+              </div>
+              <div className="space-y-2">
+                <input placeholder="Razón Social" value={facRazonSoc} onChange={e => setFacRazonSoc(e.target.value)}
+                  className="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400" />
+                <input placeholder="RFC" value={facRFC} onChange={e => setFacRFC(e.target.value.toUpperCase())}
+                  className="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400 uppercase" />
+                <div className="grid grid-cols-2 gap-2">
+                  <select value={facRegimen} onChange={e => setFacRegimen(e.target.value)}
+                    className="text-[11px] font-bold bg-gray-50 border border-gray-200 rounded-lg px-2 py-2 outline-none cursor-pointer">
+                    <option value="612">PF Act. Empresariales</option>
+                    <option value="601">PM General de Ley</option>
+                    <option value="626">RESICO</option>
+                    <option value="605">Sueldos y Salarios</option>
+                  </select>
+                  <select value={facCFDI} onChange={e => setFacCFDI(e.target.value)}
+                    className="text-[11px] font-bold bg-gray-50 border border-gray-200 rounded-lg px-2 py-2 outline-none cursor-pointer">
+                    <option value="G03">G03 – Gastos en general</option>
+                    <option value="G01">G01 – Adquisición de mercancias</option>
+                    <option value="D01">D01 – Honorarios médicos</option>
+                    <option value="P01">P01 – Por definir</option>
+                  </select>
+                </div>
+                <input placeholder="Correo para factura" value={facCorreo} onChange={e => setFacCorreo(e.target.value)}
+                  className="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400" />
+                <input placeholder="Dirección fiscal" value={facDirFiscal} onChange={e => setFacDirFiscal(e.target.value)}
+                  className="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400" />
               </div>
             </div>
 
