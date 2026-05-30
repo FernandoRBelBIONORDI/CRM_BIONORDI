@@ -117,7 +117,7 @@ const STEPS: StepDef[] = [
       "En la sección de servicios, marcá el servicio correspondiente.",
       "Si querés podés agregar notas adicionales sobre el equipo.",
     ],
-    saveHint: "Cuando hayas elegido el servicio → hacé click en el botón 'Generar PDF · Reparación' en la parte inferior.",
+    saveHint: "Cuando hayas elegido el servicio → hacé click en 'Generar PDF · Reparación'. El modal se cierra solo y el tutorial avanza.",
     position: "center",
     detect: () => !document.querySelector('[data-tour="cot-modal-open"]'),
     autoAdvance: false,
@@ -260,11 +260,11 @@ export default function OnboardingTour() {
     // Ejecuta la detección del paso
     const runDetect = () => {
       if (advTimer || !def.detect) return;
-      if (Date.now() - stepStart < 400) return; // guard mínimo
+      if (Date.now() - stepStart < 200) return; // guard mínimo anti-falso-positivo
       if (def.detect(pathname)) {
         setReady(true);
         if (def.autoAdvance) {
-          advTimer = setTimeout(() => setStep(s => s + 1), 400);
+          advTimer = setTimeout(() => setStep(s => s + 1), 200); // avance rápido
         }
       }
     };
@@ -274,18 +274,17 @@ export default function OnboardingTour() {
     const coordsInterval = setInterval(updateCoords, 250);
     window.addEventListener("resize", updateCoords);
 
-    // MutationObserver para detección instantánea de cambios en el DOM
-    // (apertura/cierre de modales, aparición de elementos)
+    // MutationObserver: detección instantánea cuando el DOM cambia
     let mutDebounce: ReturnType<typeof setTimeout> | null = null;
     const observer = new MutationObserver(() => {
-      updateCoords(); // actualizar coords inmediatamente
+      updateCoords();
       if (mutDebounce) clearTimeout(mutDebounce);
-      mutDebounce = setTimeout(runDetect, 80); // detección con pequeño debounce
+      mutDebounce = setTimeout(runDetect, 20); // 20ms de debounce
     });
     observer.observe(document.body, { childList: true, subtree: true });
 
-    // También polling de detección como fallback
-    const detectInterval = setInterval(runDetect, 300);
+    // Polling como fallback
+    const detectInterval = setInterval(runDetect, 200);
 
     return () => {
       clearInterval(coordsInterval);

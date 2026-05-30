@@ -893,6 +893,7 @@ export default function CRMPage() {
           <span data-tour="cot-modal-open" style={{ display: "none" }} />
           <CotizacionManualModal
             onClose={() => setManualCotLead(null)}
+            onSuccess={() => setManualCotLead(null)}
             initialTipo={manualCotTipo as any}
             initialLead={{
               id: manualCotLead.id,
