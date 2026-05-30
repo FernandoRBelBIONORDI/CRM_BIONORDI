@@ -885,9 +885,9 @@ export default function CotizacionManualModal({
         Realizamos pruebas de pulso-eco, medición de capacitancia, análisis de cristales piezoeléctricos y revisión de fugas eléctricas para garantizar la seguridad del paciente y la resolución óptima de imagen.
       </p>
       <div class="diag-grid">
-        <div style="flex:.8;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;height:128px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+        <div style="flex:.8;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;height:148px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
           <div style="position:relative;display:inline-block;">
-            <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="max-width:100%;max-height:120px;width:auto;height:auto;display:block;" />
+            <img src="${imgTransductor}" alt="${eqMarca || "Transductor"} ${eqModelo || ""}" style="max-width:100%;max-height:140px;width:auto;height:auto;display:block;" />
             <div class="dot" style="top:25%;left:39%;margin-top:-10px;margin-left:-10px;">1</div>
             <div class="dot" style="top:20%;left:55%;margin-top:-10px;margin-left:-10px;">2</div>
             <div class="dot" style="top:68%;left:30%;margin-top:-10px;margin-left:-10px;">3</div>
@@ -942,7 +942,7 @@ export default function CotizacionManualModal({
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
         ${evidencias.map((ev, i) => `
           <div style="flex:1;min-width:130px;max-width:200px;">
-            <img src="${ev.b64}" alt="Evidencia ${i + 1}" style="max-width:100%;max-height:105px;width:auto;height:auto;background:white;border-radius:6px;border:1px solid ${evidenciaImgBorder};display:block;margin:0 auto;" />
+            <img src="${ev.b64}" alt="Evidencia ${i + 1}" style="max-width:100%;max-height:140px;width:auto;height:auto;background:white;border-radius:6px;border:1px solid ${evidenciaImgBorder};display:block;margin:0 auto;" />
             <div style="margin-top:4px;font-size:9px;color:${evidenciaTextColor};font-weight:600;text-align:center;">
               Foto ${i + 1}${ev.caption ? ` — ${ev.caption}` : ""}
             </div>
@@ -990,8 +990,8 @@ export default function CotizacionManualModal({
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#334155;background:#fff;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   /* P1: contenido sin altura fija. P2 (.page-two): flex-column con min-height:244mm (Letter) + page-break forzado al inicio. page-spacer empuja firma al fondo de P2. */
-  .page{padding:20px 65px;max-width:816px;margin:0 auto;}
-  .page-two{padding:20px 65px;max-width:816px;margin:0 auto;display:flex;flex-direction:column;min-height:244mm;page-break-before:always;break-before:always;}
+  .page{padding:30px 65px;max-width:816px;margin:0 auto;}
+  .page-two{padding:30px 65px;max-width:816px;margin:0 auto;display:flex;flex-direction:column;min-height:244mm;page-break-before:always;break-before:always;}
   .page-spacer{flex:1;}
   .avoid-break{page-break-inside:avoid;break-inside:avoid;}
   .text-muted{color:#94A3B8}.b{font-weight:700}.c{text-align:center}.r{text-align:right}
@@ -1006,18 +1006,18 @@ export default function CotizacionManualModal({
   .meta-val{color:#1E293B;font-weight:600}
   .divider{height:4px;background:linear-gradient(90deg,#4E60A9,#38AD64,#E2E8F0);border-radius:4px;margin-bottom:10px}
   .info-section{display:flex;gap:20px;margin-bottom:8px}
-  .info-card{flex:1;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:8px 12px}
+  .info-card{flex:1;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px 14px}
   .card-title{font-size:10px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;border-bottom:2px solid #E2E8F0;padding-bottom:6px}
   .i-row{display:flex;margin-bottom:5px;font-size:11px;line-height:1.4}
   .i-lbl{width:85px;color:#64748B;font-weight:700}
   .i-val{flex:1;color:#1E293B;font-weight:500}
-  .eq-card{background:#fff;border:1px solid #CBD5E1;border-radius:12px;padding:8px 12px;margin-bottom:8px;border-left:4px solid #4E60A9}
+  .eq-card{background:#fff;border:1px solid #CBD5E1;border-radius:12px;padding:10px 14px;margin-bottom:8px;border-left:4px solid #4E60A9}
   .eq-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
   .eq-item{display:flex;flex-direction:column;gap:4px}
   .eq-lbl{font-size:9px;color:#64748B;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
   .eq-val{font-size:12px;color:#0F172A;font-weight:600}
   .eq-full{grid-column:span 4;background:#FEF2F2;padding:8px 12px;border-radius:8px;border-left:3px solid #EF4444;margin-top:5px}
-  .tech-card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:8px 12px;margin-top:8px;margin-bottom:8px}
+  .tech-card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px 14px;margin-top:8px;margin-bottom:8px}
   .diag-p{font-size:11px;color:#475569;line-height:1.5;margin-bottom:10px}
   .diag-grid{display:flex;gap:20px;align-items:center}
   .img-container{flex:.8;position:relative;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
