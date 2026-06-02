@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS configuracion (
 );
 
 -- Inserts iniciales de configuración (Ignorar si ya existen)
-INSERT OR IGNORE INTO configuracion (clave, valor) VALUES ('nombre_representante', 'Fernando');
+INSERT OR IGNORE INTO configuracion (clave, valor) VALUES ('nombre_representante', '');
 INSERT OR IGNORE INTO configuracion (clave, valor) VALUES ('empresa', 'Bionordi');
 INSERT OR IGNORE INTO configuracion (clave, valor) VALUES ('servicios', 'Reparación de transductores de ultrasonido, mantenimiento de equipo médico');
 INSERT OR IGNORE INTO configuracion (clave, valor) VALUES ('garantia', '6 meses');

@@ -42,16 +42,19 @@ function NavItem({
       )}
       {badge != null && badge > 0 && (
         <span
-          className="absolute top-1.5 min-w-[16px] h-4 rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center border-2 border-[#F4F7FB] px-0.5"
-          style={{ right: collapsed ? 4 : 8 }}>
+          className="absolute min-w-[16px] h-4 rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center border-2 border-[#F4F7FB] px-0.5"
+          style={{
+            top: collapsed ? -3 : 6,
+            right: collapsed ? -3 : 8
+          }}>
           {badge > 9 ? "9+" : badge}
         </span>
       )}
     </>
   );
 
-  const cls = `relative flex items-center w-full rounded-xl border-none cursor-pointer transition-all duration-[120ms] ${
-    collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2.5"
+  const cls = `relative flex items-center rounded-xl border-none cursor-pointer transition-all duration-[120ms] ${
+    collapsed ? "w-10 h-10 justify-center mx-auto" : "w-full gap-2.5 px-3 py-2.5"
   }`;
 
   if (onClick) {
@@ -131,35 +134,34 @@ export default function SidebarNav() {
     <>
       <aside
         data-tour="sidebar-nav"
-        className="hidden md:flex shrink-0 flex-col h-screen bg-white border-r border-[#E8EFF8] px-2 overflow-hidden"
+        className="relative hidden md:flex shrink-0 flex-col h-screen bg-white border-r border-[#E8EFF8] px-2"
         style={{ width: w, transition: mounted && !reducedMotion ? "width .22s cubic-bezier(.4,0,.2,1)" : "none" }}>
 
-        {/* Logo + botón colapsar */}
-        <div className={`flex items-center pt-5 pb-4 px-1 gap-2 ${collapsed ? "justify-center" : "justify-between"}`}>
-          {!collapsed && (
-            <div className="flex items-center gap-2.5 min-w-0">
-              <img src="/ISOTIPO.png" alt="" className="w-8 h-8 shrink-0 object-contain" />
+        {/* Header con Logo */}
+        <div className={`flex items-center pt-5 pb-4 px-1 min-w-0 relative ${collapsed ? "justify-center" : ""}`}>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <img src="/ISOTIPO.png" alt="Bionordi" className="w-8 h-8 shrink-0 object-contain" />
+            {!collapsed && (
               <div className="min-w-0">
                 <div className="text-[14px] font-extrabold text-[#1E293B] tracking-[-0.03em] leading-none">Bionordi</div>
                 <div className="text-[9px] text-[#94A3B8] font-semibold tracking-[0.05em] mt-0.5">PLATAFORMA OPS</div>
               </div>
-            </div>
-          )}
-          {collapsed && (
-            <img src="/ISOTIPO.png" alt="Bionordi" className="w-8 h-8 shrink-0 object-contain" />
-          )}
+            )}
+          </div>
+          
+          {/* Botón flotante para colapsar/expandir */}
           <button onClick={toggle} suppressHydrationWarning
             aria-label={collapsed ? "Expandir menú" : "Colapsar menú"}
             aria-expanded={!collapsed}
-            className="min-w-[44px] min-h-[44px] rounded-xl border border-[#E2E8F4] bg-[#F8FAFC] flex items-center justify-center text-[#94A3B8] hover:text-[#475569] transition-colors cursor-pointer shrink-0">
+            className="absolute -right-5 top-[26px] w-6 h-6 rounded-full border border-[#E2E8F4] bg-white flex items-center justify-center text-[#94A3B8] hover:text-[#475569] shadow-sm hover:shadow transition-all cursor-pointer z-50">
             {collapsed
-              ? <ChevronRight size={12} strokeWidth={2.5} />
-              : <ChevronLeft  size={12} strokeWidth={2.5} />}
+              ? <ChevronRight size={10} strokeWidth={3} />
+              : <ChevronLeft  size={10} strokeWidth={3} />}
           </button>
         </div>
 
         {/* Navegación */}
-        <nav className="flex-1 flex flex-col gap-0.5 overflow-y-auto overflow-x-hidden pb-2">
+        <nav className={`flex-1 flex flex-col ${collapsed ? "gap-2" : "gap-0.5"} overflow-y-auto overflow-x-hidden pb-2`}>
           <NavItem href="/"           icon={Home}     label="Inicio"      active={is("/")}             collapsed={collapsed} />
           <Section label="Ventas"    collapsed={collapsed} />
           <NavItem href="/encontrar"  icon={Search}   label="Encontrar"   active={is("/encontrar")}    collapsed={collapsed} color="#4E60A9" />
@@ -218,7 +220,7 @@ export default function SidebarNav() {
         </nav>
 
         {/* Avatar + Logout */}
-        <div className={`border-t border-[#E8EFF8] py-3 px-1 flex items-center gap-2 shrink-0 ${collapsed ? "justify-center flex-col" : "justify-between"}`}>
+        <div className={`border-t border-[#E8EFF8] px-1 flex items-center shrink-0 ${collapsed ? "justify-center flex-col gap-3 py-4" : "justify-between py-3 gap-2"}`}>
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#4E60A9] to-[#38AD64] flex items-center justify-center text-white text-[11px] font-extrabold shrink-0 border-2 border-white shadow-sm">
               {session?.user?.name?.charAt(0).toUpperCase() ?? "U"}
@@ -234,7 +236,9 @@ export default function SidebarNav() {
             onClick={() => signOut({ callbackUrl: "/login" })}
             aria-label="Cerrar sesión"
             suppressHydrationWarning
-            className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-[#94A3B8] hover:text-[#EF4444] hover:bg-red-50 transition-colors cursor-pointer shrink-0">
+            className={`rounded-xl flex items-center justify-center text-[#94A3B8] hover:text-[#EF4444] hover:bg-red-50 transition-colors cursor-pointer shrink-0 ${
+              collapsed ? "w-10 h-10 mx-auto" : "min-w-[44px] min-h-[44px]"
+            }`}>
             <LogOut size={14} strokeWidth={2} />
           </button>
         </div>

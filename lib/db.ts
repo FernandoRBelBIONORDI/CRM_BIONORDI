@@ -277,7 +277,7 @@ function initDb(): Database.Database {
   `);
 
   for (const [clave, valor] of [
-    ['nombre_representante', 'Fernando'],
+    ['nombre_representante', ''],
     ['empresa', 'Bionordi'],
     ['servicios', 'Reparación de transductores de ultrasonido, mantenimiento de equipo médico'],
     ['garantia', '6 meses'],

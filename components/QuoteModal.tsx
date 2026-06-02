@@ -175,7 +175,7 @@ export default function QuoteModal({ lead, onClose }: Props) {
   const [bn, setBn] = useState<BionordiCfg>({
     razonSocial: "Bionordi S.A. de C.V.", rfc: "—", banco: "—", cuenta: "—",
     clabe: "—", direccionFiscal: "Ciudad de México, CDMX",
-    correo: "contacto@bionordi.mx", representante: "Fernando Rosas", cargo: "Director General",
+    correo: "contacto@bionordi.mx", representante: "", cargo: "",
   });
 
   useEffect(() => {
@@ -189,8 +189,8 @@ export default function QuoteModal({ lead, onClose }: Props) {
         clabe: c.fact_clabe || "—",
         direccionFiscal: c.fact_direccion_fiscal || "Ciudad de México, CDMX",
         correo: c.fact_correo_facturacion || "contacto@bionordi.mx",
-        representante: c.nombre_representante || "Fernando Rosas",
-        cargo: c.fact_cargo_representante || "Director General",
+        representante: c.nombre_representante || "",
+        cargo: c.fact_cargo_representante || "",
       });
     });
   }, []);

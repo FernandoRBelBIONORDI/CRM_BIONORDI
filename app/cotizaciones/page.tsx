@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { FileText, Search, Plus, X, Trash2, Activity, Check, Clock, Download, Eye, Edit3 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useConfirm } from "@/hooks/useConfirm";
 import CotizacionManualModal from "@/components/CotizacionManualModal";
 import DocumentViewerModal from "@/components/DocumentViewerModal";
@@ -41,6 +42,7 @@ function tipoInfo(t: string) { return TIPO_INFO[t] || { label: t, color: "#64748
 function statusInfo(s: string) { return STATUS_INFO[s] || { label: s, color: "#64748B", bg: "#F1F5F9" }; }
 
 export default function CotizacionesPage() {
+  const router = useRouter();
   const { confirm, ConfirmDialog } = useConfirm();
   const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +53,14 @@ export default function CotizacionesPage() {
   const [changingStatus, setChangingStatus] = useState(false);
   const [pdfViewerUrl, setPdfViewerUrl] = useState<string | null>(null);
   const [editingCotizacion, setEditingCotizacion] = useState<Cotizacion | null>(null);
+
+  const handleEdit = (c: Cotizacion) => {
+    if (c.tipo === "reparacion") {
+      router.push(`/cotizar/reparacion?id=${c.id}`);
+    } else {
+      setEditingCotizacion(c);
+    }
+  };
 
   const fetchCotizaciones = async () => {
     setLoading(true);
@@ -327,7 +337,7 @@ export default function CotizacionesPage() {
                     </a>
                   </>
                 ) : (
-                  <button onClick={() => setEditingCotizacion(selected)}
+                  <button onClick={() => handleEdit(selected)}
                     className="flex-1 flex items-center justify-center gap-2 text-[12px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] px-3 py-2.5 rounded-xl border border-[#4E60A9]/20 transition-colors">
                     <Eye size={13} /> Generar / Ver PDF
                   </button>
@@ -348,7 +358,7 @@ export default function CotizacionesPage() {
                 <Trash2 size={12} /> Eliminar
               </button>
               <div className="flex gap-1.5">
-                <button onClick={() => setEditingCotizacion(selected)}
+                <button onClick={() => handleEdit(selected)}
                   className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 hover:text-[#1E293B] hover:bg-gray-100 px-3 py-2 rounded-full transition-colors">
                   <Edit3 size={12} /> Editar
                 </button>
@@ -372,7 +382,7 @@ export default function CotizacionesPage() {
           editAction={{
             label: "Editar",
             onClick: () => {
-              setEditingCotizacion(selected);
+              if (selected) handleEdit(selected);
               setPdfViewerUrl(null);
             }
           }}

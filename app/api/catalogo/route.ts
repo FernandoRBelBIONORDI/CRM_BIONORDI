@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 
 export async function GET() {
+  try {
+    db.prepare(`UPDATE catalogo_equipos SET activo = 1 WHERE tipo = 'transductor'`).run();
+  } catch {}
+
   const equipos = db.prepare(
     `SELECT * FROM catalogo_equipos WHERE activo = 1 ORDER BY tipo, marca, modelo`
   ).all();

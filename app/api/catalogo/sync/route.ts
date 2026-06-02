@@ -278,10 +278,10 @@ export async function POST() {
       }
     }
 
-    // 2. Desactivar los que ya no están en el sitio
+    // 2. Desactivar los que ya no están en el sitio (solo ultrasonidos, transductores se quedan siempre activos ya que se pueden reparar)
     for (const d of dbItems) {
       const key = `${(d.marca || '').toLowerCase()}|${d.modelo.toLowerCase()}`;
-      if (!keyWeb.has(key) && d.activo === 1) {
+      if (!keyWeb.has(key) && d.activo === 1 && d.tipo !== 'transductor') {
         db.prepare('UPDATE catalogo_equipos SET activo = 0 WHERE id = ?').run(d.id);
         desactivados++;
       }

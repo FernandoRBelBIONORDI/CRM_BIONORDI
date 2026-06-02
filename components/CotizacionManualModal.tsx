@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { X, Printer, Plus, Trash2, ChevronDown, ChevronUp, Layers, Mail, Check, AlertCircle, Save, Loader2 } from "lucide-react";
 import DocumentViewerModal from "@/components/DocumentViewerModal";
 
@@ -245,12 +246,13 @@ export default function CotizacionManualModal({
   };
   initialCotizacion?: any; // any for simplicity, contains the cotizacion object
 }) {
+  const router = useRouter();
   // ── Estado ────────────────────────────────────────────────────────────────
   const [tipo, setTipo] = useState<TipoCotizacion>(initialCotizacion?.tipo || initialTipo);
   const [bn, setBn] = useState<BionordiCfg>({
     razonSocial: "Bionordi S.A. de C.V.", rfc: "—", banco: "—", cuenta: "—",
     clabe: "—", direccionFiscal: "Ciudad de México, CDMX",
-    correo: "contacto@bionordi.mx", representante: "Fernando Rosas", cargo: "Director General",
+    correo: "contacto@bionordi.mx", representante: "", cargo: "",
   });
 
   // Cliente
@@ -377,7 +379,10 @@ export default function CotizacionManualModal({
       setSavedCot({ id: initialCotizacion.id, folio: initialCotizacion.folio });
       if (initialCotizacion.items_json) {
         try {
-          const parsed = JSON.parse(initialCotizacion.items_json);
+          let parsed = typeof initialCotizacion.items_json === 'string' ? JSON.parse(initialCotizacion.items_json) : initialCotizacion.items_json;
+          if (typeof parsed === 'string') {
+            parsed = JSON.parse(parsed); // Double-stringified due to visual editor bug
+          }
           if (Array.isArray(parsed) && parsed.length > 0) {
             setItems(parsed.map((item: any) => ({
               id: Math.random().toString(36).slice(2),
@@ -484,8 +489,8 @@ export default function CotizacionManualModal({
         clabe: c.fact_clabe || "—",
         direccionFiscal: c.fact_direccion_fiscal || "Ciudad de México, CDMX",
         correo: c.fact_correo_facturacion || "contacto@bionordi.mx",
-        representante: c.nombre_representante || "Fernando Rosas",
-        cargo: c.fact_cargo_representante || "Director General",
+        representante: c.nombre_representante || "",
+        cargo: c.fact_cargo_representante || "",
       });
     }).catch(() => { });
   }, []);
@@ -1494,6 +1499,34 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           </button>
         </div>
 
+        {/* Alerta de Redirección para Reparaciones */}
+        {tipo === "reparacion" && (
+          <div className="px-6 py-2.5 bg-indigo-50 border-b border-indigo-100 flex items-center justify-between shrink-0">
+            <span className="text-[11px] font-bold text-indigo-700 flex items-center gap-1.5">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+              </span>
+              Esta cotización se puede editar con el nuevo editor visual de alta fidelidad.
+            </span>
+            <button
+              onClick={() => {
+                if (initialCotizacion?.id) {
+                  router.push(`/cotizar/reparacion?id=${initialCotizacion.id}`);
+                } else if (leadId) {
+                  router.push(`/cotizar/reparacion?leadId=${leadId}`);
+                } else {
+                  router.push(`/cotizar/reparacion`);
+                }
+                onClose();
+              }}
+              className="text-[10px] font-black text-indigo-700 bg-indigo-100 hover:bg-indigo-200 px-3 py-1 rounded-lg transition-colors cursor-pointer shrink-0"
+            >
+              Abrir Editor Visual
+            </button>
+          </div>
+        )}
+
         <div className="flex-1 overflow-y-auto">
 
           {/* Cliente */}
@@ -1582,15 +1615,9 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
                 <input value={cliCorreo} onChange={e => setCliCorreo(e.target.value)} placeholder="correo@ejemplo.com" className={inp} />
               </Field>
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              <Field label="Dirección">
-                <input value={cliDireccion} onChange={e => setCliDireccion(e.target.value)} placeholder="Calle y número" className={inp} />
-              </Field>
-              <Field label="Ciudad / Municipio">
-                <input value={cliCiudad} onChange={e => setCliCiudad(e.target.value)} placeholder="Ciudad" className={inp} />
-              </Field>
-              <Field label="Estado">
-                <input value={cliEstado} onChange={e => setCliEstado(e.target.value)} placeholder="CDMX" className={inp} />
+            <div className="mb-3">
+              <Field label="Dirección (Calle, Ciudad, Estado)">
+                <input value={cliDireccion} onChange={e => setCliDireccion(e.target.value)} placeholder="Calle, Ciudad, Estado" className={inp} />
               </Field>
             </div>
           </div>

@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Wrench, ShoppingBag, Stethoscope, Package, ArrowRight, CheckCircle2 } from "lucide-react";
 import CotizacionManualModal from "@/components/CotizacionManualModal";
 
@@ -64,12 +65,21 @@ const TIPOS: {
 ];
 
 export default function CotizarPage() {
+  const router = useRouter();
   const [modal, setModal] = useState<TipoCotizacion | null>(null);
   const [lastFolio, setLastFolio] = useState<string | null>(null);
 
   const handleSuccess = (folio: string) => {
     setLastFolio(folio);
     setTimeout(() => setLastFolio(null), 6000);
+  };
+
+  const handleTipo = (id: TipoCotizacion) => {
+    if (id === "reparacion") {
+      router.push("/cotizar/reparacion");
+    } else {
+      setModal(id);
+    }
   };
 
   return (
@@ -99,7 +109,7 @@ export default function CotizarPage() {
             return (
               <button
                 key={t.id}
-                onClick={() => setModal(t.id)}
+                onClick={() => handleTipo(t.id)}
                 className="group text-left bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-1 flex flex-col overflow-hidden"
               >
                 {/* Header de la card */}

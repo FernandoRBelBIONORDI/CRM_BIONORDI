@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import { Activity, Save, Check, Database, User, MapPin, Bell, CreditCard, Mail, Eye, EyeOff } from "lucide-react";
@@ -18,7 +18,7 @@ interface Config {
 }
 
 const DEFAULTS:Config = {
-  nombre_representante:"Fernando", empresa:"Bionordi",
+  nombre_representante:"", empresa:"Bionordi",
   servicios:"Reparación de transductores de ultrasonido, mantenimiento de equipo médico",
   garantia:"6 meses", tiempo_entrega:"5-7 días hábiles",
   ciudad_base:"Ciudad de México", zonas_cobertura:"CDMX, EDOMEX, Querétaro, Puebla",
@@ -29,7 +29,7 @@ const DEFAULTS:Config = {
   fact_banco:"", fact_cuenta:"", fact_clabe:"",
   fact_direccion_fiscal:"Ciudad de México, CDMX",
   fact_correo_facturacion:"contacto@bionordi.mx",
-  fact_cargo_representante:"Director General",
+  fact_cargo_representante:"",
   // Resend
   resend_api_key:"",
   smtp_from_name:"Bionordi", smtp_from_email:"",

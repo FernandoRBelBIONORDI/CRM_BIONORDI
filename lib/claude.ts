@@ -56,7 +56,7 @@ CONTEXTO DE BIONORDI:
 - Servicios: Reparación de transductores de ultrasonido, mantenimiento de equipo médico
 - Diferenciadores: Ingenieros biomédicos certificados, entrega en 5-7 días hábiles, garantía de 6 meses
 - Zonas: CDMX, EDOMEX, Querétaro, Puebla
-- Representante: ${contextData.representante || 'Fernando'}
+- Representante: ${contextData.representante || ''}
 
 LEAD:
 - Empresa: ${contextData.empresa}

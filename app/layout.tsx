@@ -8,6 +8,11 @@ const ibmPlexMono = IBM_Plex_Mono({ subsets: ['latin', 'latin-ext'], weight: ['4
 
 export const metadata: Metadata = {
   title: 'Bionordi CRM',
+  icons: {
+    icon: '/LOGO_CRM_BIONORDI_OG.png',
+    shortcut: '/LOGO_CRM_BIONORDI_OG.png',
+    apple: '/LOGO_CRM_BIONORDI_OG.png',
+  }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
