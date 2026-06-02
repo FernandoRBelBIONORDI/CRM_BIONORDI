@@ -1153,10 +1153,31 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               <span style={{ fontSize: "13px", color: "#64748B", fontWeight: 700 }}>Cargando cotización...</span>
             </div>
           ) : (
-            <div style={{ maxWidth: "816px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "30px" }}>
+            <div style={{ width: "816px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "35px" }}>
               
+              {/* Etiqueta Hoja 1 */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "-25px", padding: "0 4px" }}>
+                <span style={{ fontSize: "11px", fontWeight: 700, color: "#4E60A9", letterSpacing: "0.5px" }}>PÁGINA 1 · VISTA PREVIA DE IMPRESIÓN (CARTA)</span>
+                <span style={{ fontSize: "10px", fontWeight: 600, color: "#94A3B8" }}>8.5" x 11" (816 x 1056 px)</span>
+              </div>
+
               {/* ───── HOJA 1 ───── */}
-              <div style={{ background: "#fff", boxShadow: "0 4px 20px rgba(0,0,0,0.15)", borderRadius: "4px", padding: "30px 65px", position: "relative" }}>
+              <div style={{
+                background: "#fff",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+                borderRadius: "4px",
+                padding: "45px 65px",
+                position: "relative",
+                width: "816px",
+                height: "1056px",
+                minHeight: "1056px",
+                maxHeight: "1056px",
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-start",
+                overflow: "hidden"
+              }}>
               
               {/* Header de la Hoja */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "12px" }}>
@@ -1363,8 +1384,29 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
             </div>
 
+            {/* Etiqueta Hoja 2 */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "-25px", padding: "0 4px", marginTop: "10px" }}>
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "#4E60A9", letterSpacing: "0.5px" }}>PÁGINA 2 · VISTA PREVIA DE IMPRESIÓN (CARTA)</span>
+              <span style={{ fontSize: "10px", fontWeight: 600, color: "#94A3B8" }}>8.5" x 11" (816 x 1056 px)</span>
+            </div>
+
             {/* ───── HOJA 2 ───── */}
-            <div style={{ background: "#fff", boxShadow: "0 4px 20px rgba(0,0,0,0.15)", borderRadius: "4px", padding: "30px 65px", minHeight: "840px", display: "flex", flexDirection: "column", position: "relative" }}>
+            <div style={{
+              background: "#fff",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+              borderRadius: "4px",
+              padding: "45px 65px",
+              position: "relative",
+              width: "816px",
+              height: "1056px",
+              minHeight: "1056px",
+              maxHeight: "1056px",
+              boxSizing: "border-box",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              overflow: "hidden"
+            }}>
               
               {/* Ficha técnica del catálogo */}
               {eqBrochureB64 && (
