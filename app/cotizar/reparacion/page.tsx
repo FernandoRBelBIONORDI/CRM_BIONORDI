@@ -1158,15 +1158,20 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               {/* Etiqueta Hoja 1 */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "-25px", padding: "0 4px" }}>
                 <span style={{ fontSize: "11px", fontWeight: 700, color: "#4E60A9", letterSpacing: "0.5px" }}>PÁGINA 1 · VISTA PREVIA DE IMPRESIÓN (CARTA)</span>
-                <span style={{ fontSize: "10px", fontWeight: 600, color: "#94A3B8" }}>8.5" x 11" (816 x 1056 px)</span>
+                <span style={{ fontSize: "10px", fontWeight: 600, color: "#94A3B8" }}>8.5" x 11" (816 x 1056 px) · área útil 939 px</span>
               </div>
 
               {/* ───── HOJA 1 ───── */}
+              {/* paddingTop=30px (@page:first margin-top=0 + .page padding=30px) */}
+              {/* paddingBottom=87px (30px CSS + 57px @page margin-bottom 15mm) → área útil=939px */}
               <div style={{
                 background: "#fff",
                 boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
                 borderRadius: "4px",
-                padding: "45px 65px",
+                paddingTop: "30px",
+                paddingRight: "65px",
+                paddingBottom: "87px",
+                paddingLeft: "65px",
                 position: "relative",
                 width: "816px",
                 height: "1056px",
@@ -1382,20 +1387,30 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
               {/* AJUSTE: Se eliminó la tabla del previsualizador de solo lectura del PDF */}
 
+              {/* Indicador visual: margen inferior @page 15mm = 57px */}
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "57px", background: "rgba(248,250,252,0.88)", borderTop: "1px dashed #CBD5E1", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 10 }}>
+                <span style={{ fontSize: "8px", color: "#CBD5E1", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>Margen inferior @page — 15 mm</span>
+              </div>
+
             </div>
 
             {/* Etiqueta Hoja 2 */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "-25px", padding: "0 4px", marginTop: "10px" }}>
               <span style={{ fontSize: "11px", fontWeight: 700, color: "#4E60A9", letterSpacing: "0.5px" }}>PÁGINA 2 · VISTA PREVIA DE IMPRESIÓN (CARTA)</span>
-              <span style={{ fontSize: "10px", fontWeight: 600, color: "#94A3B8" }}>8.5" x 11" (816 x 1056 px)</span>
+              <span style={{ fontSize: "10px", fontWeight: 600, color: "#94A3B8" }}>8.5" x 11" (816 x 1056 px) · área útil 863 px</span>
             </div>
 
             {/* ───── HOJA 2 ───── */}
+            {/* paddingTop=106px (76px @page margin-top 20mm + 30px CSS padding) */}
+            {/* paddingBottom=87px (57px @page margin-bottom 15mm + 30px CSS padding) → área útil=863px */}
             <div style={{
               background: "#fff",
               boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
               borderRadius: "4px",
-              padding: "45px 65px",
+              paddingTop: "106px",
+              paddingRight: "65px",
+              paddingBottom: "87px",
+              paddingLeft: "65px",
               position: "relative",
               width: "816px",
               height: "1056px",
@@ -1407,7 +1422,16 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               justifyContent: "space-between",
               overflow: "hidden"
             }}>
-              
+
+              {/* Indicador visual: margen superior @page 20mm = 76px */}
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "76px", background: "rgba(248,250,252,0.88)", borderBottom: "1px dashed #CBD5E1", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 10 }}>
+                <span style={{ fontSize: "8px", color: "#CBD5E1", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>Margen superior @page — 20 mm</span>
+              </div>
+              {/* Indicador visual: margen inferior @page 15mm = 57px */}
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "57px", background: "rgba(248,250,252,0.88)", borderTop: "1px dashed #CBD5E1", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 10 }}>
+                <span style={{ fontSize: "8px", color: "#CBD5E1", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>Margen inferior @page — 15 mm</span>
+              </div>
+
               {/* Ficha técnica del catálogo */}
               {eqBrochureB64 && (
                 <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "12px", padding: "10px 14px", marginBottom: "16px", position: "relative" }}>
