@@ -162,37 +162,39 @@ export async function GET(req: Request) {
           @page:first{margin-top:0}
           *{box-sizing:border-box;margin:0;padding:0}
           body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#334155;background:#fff;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-          .page{padding:40px 70px;max-width:850px;margin:0 auto}
-          .avoid-break{page-break-inside:avoid}
+          .page{padding:30px 65px;max-width:816px;margin:0 auto}
+          .page-two{padding:30px 65px;max-width:816px;margin:0 auto;display:flex;flex-direction:column;min-height:244mm;page-break-before:always;break-before:always;}
+          .page-spacer{flex:1;}
+          .avoid-break{page-break-inside:avoid;break-inside:avoid;}
           .text-muted{color:#94A3B8}.b{font-weight:700}.c{text-align:center}.r{text-align:right}
-          .hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:15px}
+          .hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px}
           .meta-box{text-align:right}
           .doc-title{font-size:18px;font-weight:300;color:#94A3B8;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
           .meta-grid{display:grid;grid-template-columns:auto auto;gap:4px 15px;justify-content:end;font-size:11px}
           .meta-lbl{font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px}
           .meta-val{color:#1E293B;font-weight:600}
-          .divider{height:4px;background:linear-gradient(90deg,#4E60A9,#38AD64,#E2E8F0);border-radius:4px;margin-bottom:15px}
-          .info-section{display:flex;gap:20px;margin-bottom:12px}
-          .info-card{flex:1;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px}
+          .divider{height:4px;background:linear-gradient(90deg,#4E60A9,#38AD64,#E2E8F0);border-radius:4px;margin-bottom:12px}
+          .info-section{display:flex;gap:20px;margin-bottom:8px}
+          .info-card{flex:1;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px 14px}
           .card-title{font-size:10px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;border-bottom:2px solid #E2E8F0;padding-bottom:6px}
           .i-row{display:flex;margin-bottom:5px;font-size:11px;line-height:1.4}
           .i-lbl{width:85px;color:#64748B;font-weight:700}
           .i-val{flex:1;color:#1E293B;font-weight:500}
-          .eq-card{background:#fff;border:1px solid #CBD5E1;border-radius:12px;padding:12px 16px;margin-bottom:12px;border-left:4px solid #4E60A9}
+          .eq-card{background:#fff;border:1px solid #CBD5E1;border-radius:12px;padding:10px 14px;margin-bottom:8px;border-left:4px solid #4E60A9}
           .eq-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
           .eq-item{display:flex;flex-direction:column;gap:4px}
           .eq-lbl{font-size:9px;color:#64748B;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
           .eq-val{font-size:12px;color:#0F172A;font-weight:600}
           .eq-full{grid-column:span 4;background:#FEF2F2;padding:8px 12px;border-radius:8px;border-left:3px solid #EF4444;margin-top:5px}
-          .tech-card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-top:12px;margin-bottom:12px}
+          .tech-card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px 14px;margin-top:8px;margin-bottom:8px}
           .diag-p{font-size:11px;color:#475569;line-height:1.5;margin-bottom:5px}
-          .signatures{margin-top:40px;display:flex;justify-content:flex-end;page-break-inside:avoid}
+          .signatures{margin-top:8px;display:flex;justify-content:space-between;page-break-inside:avoid}
           .sig-box{text-align:center;width:240px}
           .sig-line{border-top:2px solid #CBD5E1;margin-bottom:10px;padding-top:10px}
           .sig-name{font-size:13px;font-weight:800;color:#4E60A9}
           .sig-role{font-size:10px;font-weight:600;color:#64748B;text-transform:uppercase;margin-top:2px}
-          .footer{text-align:center;border-top:1px solid #E2E8F0;padding-top:15px;margin-top:30px;font-size:10px;color:#94A3B8;line-height:1.6}
-          @media print{body{padding:0}.page{padding:40px 70px}}
+          .footer{text-align:center;border-top:1px solid #E2E8F0;padding-top:10px;margin-top:10px;font-size:10px;color:#94A3B8;line-height:1.6}
+          @media print{body{padding:0}.page{padding:30px 65px}.page-two{padding:30px 65px}}
         </style>
       </head>
       <body>
@@ -283,9 +285,12 @@ export async function GET(req: Request) {
             </div>` : ''}
           </div>
 
+        </div>
+
+        <div class="page-two">
           <!-- Conclusión técnica final + fotos resultado: tarjeta independiente, nunca se parte -->
           ${orden.reporte_tecnico_final || fotosResB64.length > 0 ? `
-          <div class="tech-card avoid-break" style="border-left:4px solid #4E60A9;">
+          <div class="tech-card avoid-break" style="border-left:4px solid #4E60A9;margin-top:0px;">
             <div class="card-title" style="color:#4E60A9;">Conclusión Técnica Final</div>
 
             ${orden.reporte_tecnico_final ? `
@@ -323,24 +328,28 @@ export async function GET(req: Request) {
             </div>` : ''}
           </div>` : ''}
 
-          <!-- Firmas -->
-          <div class="signatures">
-            <div class="sig-box" style="margin-right:40px;text-align:left;">
-              <div class="sig-line"></div>
-              <div class="sig-name">${clienteNombre}</div>
-              <div class="sig-role">Firma de Conformidad del Cliente</div>
-            </div>
-            <div class="sig-box" style="text-align:left;">
-              <div class="sig-line"></div>
-              <div class="sig-name">${orden.tecnico || 'Bionordi Medical Technology'}</div>
-              <div class="sig-role">Ingeniero Biomédico / Técnico Responsable</div>
-            </div>
-          </div>
+          <div class="page-spacer"></div>
 
-          <div class="footer">
-            <strong>Bionordi Medical Technology</strong> | Servicio Técnico Especializado<br/>
-            Este documento certifica el servicio realizado al equipo médico especificado.<br/>
-            Para cualquier consulta, comuníquese directamente con su asesor Bionordi o con el ingeniero a cargo.
+          <!-- Firmas -->
+          <div class="signatures-wrapper avoid-break">
+            <div class="signatures">
+              <div class="sig-box">
+                <div class="sig-line"></div>
+                <div class="sig-name">${clienteNombre}</div>
+                <div class="sig-role">Firma de Conformidad del Cliente</div>
+              </div>
+              <div class="sig-box">
+                <div class="sig-line"></div>
+                <div class="sig-name">${orden.tecnico || 'Bionordi Medical Technology'}</div>
+                <div class="sig-role">Ingeniero Biomédico / Técnico Responsable</div>
+              </div>
+            </div>
+
+            <div class="footer">
+              <strong>Bionordi Medical Technology</strong> | Servicio Técnico Especializado<br/>
+              Este documento certifica el servicio realizado al equipo médico especificado.<br/>
+              Para cualquier consulta, comuníquese directamente con su asesor Bionordi o con el ingeniero a cargo.
+            </div>
           </div>
 
         </div>

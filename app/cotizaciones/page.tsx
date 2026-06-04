@@ -55,11 +55,7 @@ export default function CotizacionesPage() {
   const [editingCotizacion, setEditingCotizacion] = useState<Cotizacion | null>(null);
 
   const handleEdit = (c: Cotizacion) => {
-    if (c.tipo === "reparacion") {
-      router.push(`/cotizar/reparacion?id=${c.id}`);
-    } else {
-      setEditingCotizacion(c);
-    }
+    router.push(`/cotizar/${c.tipo}?id=${c.id}`);
   };
 
   const fetchCotizaciones = async () => {

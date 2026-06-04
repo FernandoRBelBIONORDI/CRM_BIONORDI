@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -75,11 +75,7 @@ export default function CotizarPage() {
   };
 
   const handleTipo = (id: TipoCotizacion) => {
-    if (id === "reparacion") {
-      router.push("/cotizar/reparacion");
-    } else {
-      setModal(id);
-    }
+    router.push(`/cotizar/${id}`);
   };
 
   return (

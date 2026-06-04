@@ -1499,33 +1499,31 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
           </button>
         </div>
 
-        {/* Alerta de Redirección para Reparaciones */}
-        {tipo === "reparacion" && (
-          <div className="px-6 py-2.5 bg-indigo-50 border-b border-indigo-100 flex items-center justify-between shrink-0">
-            <span className="text-[11px] font-bold text-indigo-700 flex items-center gap-1.5">
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-              </span>
-              Esta cotización se puede editar con el nuevo editor visual de alta fidelidad.
+        {/* Alerta de Redirección para todas las cotizaciones */}
+        <div className="px-6 py-2.5 bg-indigo-50 border-b border-indigo-100 flex items-center justify-between shrink-0">
+          <span className="text-[11px] font-bold text-indigo-700 flex items-center gap-1.5">
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
             </span>
-            <button
-              onClick={() => {
-                if (initialCotizacion?.id) {
-                  router.push(`/cotizar/reparacion?id=${initialCotizacion.id}`);
-                } else if (leadId) {
-                  router.push(`/cotizar/reparacion?leadId=${leadId}`);
-                } else {
-                  router.push(`/cotizar/reparacion`);
-                }
-                onClose();
-              }}
-              className="text-[10px] font-black text-indigo-700 bg-indigo-100 hover:bg-indigo-200 px-3 py-1 rounded-lg transition-colors cursor-pointer shrink-0"
-            >
-              Abrir Editor Visual
-            </button>
-          </div>
-        )}
+            Esta cotización se puede editar con el nuevo editor visual de alta fidelidad.
+          </span>
+          <button
+            onClick={() => {
+              if (initialCotizacion?.id) {
+                router.push(`/cotizar/${tipo}?id=${initialCotizacion.id}`);
+              } else if (leadId) {
+                router.push(`/cotizar/${tipo}?leadId=${leadId}`);
+              } else {
+                router.push(`/cotizar/${tipo}`);
+              }
+              onClose();
+            }}
+            className="text-[10px] font-black text-indigo-700 bg-indigo-100 hover:bg-indigo-200 px-3 py-1 rounded-lg transition-colors cursor-pointer shrink-0"
+          >
+            Abrir Editor Visual
+          </button>
+        </div>
 
         <div className="flex-1 overflow-y-auto">
 
