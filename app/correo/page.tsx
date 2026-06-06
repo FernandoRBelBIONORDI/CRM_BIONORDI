@@ -104,221 +104,222 @@ const TPLS = {
   },
   mindray: {
     label: "Licencias Mindray",
-    color: "#0071C5",
+    color: "#0C1630",
     defaultSubject: "Actualización tecnológica y licencias de software Mindray · Bionordi",
     body: `
-      <div style="background:#0C1630;padding:36px 40px 32px;border-radius:16px;margin-bottom:24px;font-family:Arial,Helvetica,sans-serif;box-shadow:0 10px 25px rgba(12,22,48,0.08);border-top:4px solid #38AD64;">
-        <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;"><tr>
-          <td style="background:rgba(56,173,100,0.12);border:1px solid rgba(56,173,100,0.25);border-radius:100px;padding:6px 14px;font-size:11px;font-weight:700;color:#38AD64;text-transform:uppercase;letter-spacing:0.06em;font-family:Arial,Helvetica,sans-serif;">● Actualización autorizada Mindray</td>
-        </tr></table>
-        <p style="font-size:15px;font-weight:600;color:rgba(255,255,255,0.7);margin:0 0 12px;font-family:Arial,Helvetica,sans-serif;">Estimado/a {{nombre_doctor}},</p>
-        <p style="font-size:26px;font-weight:700;color:#ffffff;line-height:1.3;letter-spacing:-0.02em;margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;">Habilite módulos adicionales en su <span style="color:#38AD64;">ultrasonido Mindray</span></p>
-        <p style="font-size:14px;color:rgba(255,255,255,0.65);line-height:1.7;margin:0;font-family:Arial,Helvetica,sans-serif;">Su sistema cuenta con el hardware de soporte necesario. Las actualizaciones por software permiten activar herramientas y funciones de diagnóstico avanzadas directamente.</p>
+      <div class="mobile-banner" style="background:#0C1630;padding:36px 40px 32px;border-radius:16px;margin-bottom:24px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;box-shadow:0 10px 25px rgba(12,22,48,0.1);border-top:4px solid #38AD64;">
+        <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px;">
+          <tr>
+            <td style="background:rgba(56,173,100,0.15);border:1px solid rgba(56,173,100,0.3);border-radius:100px;padding:5px 12px;font-size:10px;font-weight:700;color:#38AD64;text-transform:uppercase;letter-spacing:0.08em;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:inline-block;">
+              ● ACTUALIZACIÓN OFICIAL MINDRAY
+            </td>
+          </tr>
+        </table>
+        <p style="font-size:15px;font-weight:600;color:rgba(255,255,255,0.7);margin:0 0 10px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Estimado/a {{nombre_doctor}},</p>
+        <p class="mobile-banner-title" style="font-size:24px;font-weight:800;color:#ffffff;line-height:1.35;letter-spacing:-0.01em;margin:0 0 16px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Habilite Nuevas Funciones Clínicas en su <span style="color:#38AD64;">Ultrasonido Mindray</span></p>
+        <p style="font-size:13.5px;color:rgba(255,255,255,0.65);line-height:1.7;margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Su sistema cuenta con el hardware necesario listo. A través de la carga de licencias de software originales, active herramientas avanzadas directamente en su consola actual.</p>
         {{mensaje_extra}}
       </div>
       
-      <div style="border-left:3px solid #4E60A9;padding-left:16px;margin:28px 0 28px;font-family:Arial,Helvetica,sans-serif;">
-        <p style="font-size:14.5px;color:#475569;line-height:1.75;margin:0;font-style:italic;">En <strong>Bionordi</strong> colaboramos con profesionales que requieren optimizar la capacidad de sus sistemas de ultrasonido. La integración de <strong>módulos de software originales</strong> permite habilitar herramientas adicionales directamente en su consola actual mediante códigos específicos de activación.</p>
+      <div style="border-left:4px solid #4E60A9;padding-left:16px;margin:28px 0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <p style="font-size:14px;color:#475569;line-height:1.75;margin:0;font-style:italic;">En <strong>Bionordi</strong> colaboramos con profesionales que buscan maximizar el alcance de sus consolas médicas. La integración de <strong>módulos digitales</strong> permite activar herramientas de especialidad vinculadas exclusivamente al número de serie de su equipo de manera definitiva.</p>
       </div>
       
-      <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:22px 24px;margin-bottom:32px;font-family:Arial,Helvetica,sans-serif;">
-        <h3 style="font-size:12.5px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 8px;">¿En qué consisten los módulos de actualización de software?</h3>
-        <p style="font-size:13px;color:#475569;line-height:1.7;margin:0;">Los sistemas de ultrasonido Mindray permiten la activación de funciones clínicas adicionales mediante una <strong>clave de activación (license key)</strong> vinculada de forma exclusiva al número de serie de su equipo. Al ingresar dicho código, la herramienta queda habilitada de manera permanente en el equipo, permitiendo ampliar las capacidades de diagnóstico sin requerir inversiones físicas adicionales.</p>
+      <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:20px 24px;margin-bottom:28px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <h3 style="font-size:12px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 8px;">¿Cómo funcionan las licencias de software?</h3>
+        <p style="font-size:13px;color:#475569;line-height:1.65;margin:0;">Cada equipo de ultrasonido tiene preinstalado el soporte de hardware. Las licencias clínicas se habilitan mediante un <strong>código digital de activación (license key)</strong> único. Al ingresarse en el sistema, las funciones se liberan de forma permanente, sin requerir adaptaciones mecánicas ni interrupciones físicas en su consultorio.</p>
       </div>
       
-      <div style="margin-bottom:32px;font-family:Arial,Helvetica,sans-serif;">
-        <h3 style="font-size:11px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 16px;">Módulos disponibles por licencia</h3>
+      <div style="margin-bottom:28px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <h3 style="font-size:11px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 16px;">Módulos de Diagnóstico Destacados</h3>
         
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;border:1px solid #E2E8F0;border-radius:12px;margin-bottom:12px;font-family:Arial,Helvetica,sans-serif;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.01);"><tr>
-          <td style="padding:18px 20px;">
-            <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="42" valign="top">
-                <table width="40" height="40" cellpadding="0" cellspacing="0" border="0" bgcolor="#F0F4F8" style="border-radius:10px;border-collapse:collapse;">
-                  <tr><td align="center" valign="middle">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4E60A9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><circle cx="12" cy="10" r="3"/><path d="M12 13v8M9 16h6"/><path d="M12 2v5"/></svg>
-                  </td></tr>
-                </table>
-              </td>
-              <td valign="top" style="padding-left:16px;">
-                <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-                  <td><h4 style="font-size:14.5px;font-weight:700;color:#0C1630;margin:0 0 4px;">Smart OB™ &amp; Smart NT™</h4></td>
-                  <td align="right" valign="top"><span style="font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#E8FAF1;color:#2A9D6A;text-transform:uppercase;letter-spacing:0.02em;">Obstetricia</span></td>
-                </tr></table>
-                <p style="font-size:12px;color:#5A6A85;line-height:1.65;margin:4px 0 0;">Medición automática de biometría fetal (BPD, FL, HC, AC) y traslucencia nucal. Reduce el tiempo de examen y minimiza el error del operador en estudios de primer y segundo trimestre.</p>
-              </td>
-            </tr></table>
-          </td>
-        </tr></table>
-
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;border:1px solid #E2E8F0;border-radius:12px;margin-bottom:12px;font-family:Arial,Helvetica,sans-serif;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.01);"><tr>
-          <td style="padding:18px 20px;">
-            <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="42" valign="top">
-                <table width="40" height="40" cellpadding="0" cellspacing="0" border="0" bgcolor="#FDE8E8" style="border-radius:10px;border-collapse:collapse;">
-                  <tr><td align="center" valign="middle">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B71C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 5v14M5 12h14" stroke-dasharray="2 2"/></svg>
-                  </td></tr>
-                </table>
-              </td>
-              <td valign="top" style="padding-left:16px;">
-                <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-                  <td><h4 style="font-size:14.5px;font-weight:700;color:#0C1630;margin:0 0 4px;">TDI – Tissue Doppler Imaging</h4></td>
-                  <td align="right" valign="top"><span style="font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#FDE8E8;color:#B71C1C;text-transform:uppercase;letter-spacing:0.02em;">Cardiología</span></td>
-                </tr></table>
-                <p style="font-size:12px;color:#5A6A85;line-height:1.65;margin:4px 0 0;">Mide la velocidad de movimiento miocárdico. Permite evaluar función diastólica, detectar isquemia regional y analizar sincronía ventricular con TVI, TVD, TVM y TEI.</p>
-              </td>
-            </tr></table>
-          </td>
-        </tr></table>
-
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;border:1px solid #E2E8F0;border-radius:12px;margin-bottom:12px;font-family:Arial,Helvetica,sans-serif;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.01);"><tr>
-          <td style="padding:18px 20px;">
-            <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="42" valign="top">
-                <table width="40" height="40" cellpadding="0" cellspacing="0" border="0" bgcolor="#ECF0FD" style="border-radius:10px;border-collapse:collapse;">
-                  <tr><td align="center" valign="middle">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4E60A9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="15"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/></svg>
-                  </td></tr>
-                </table>
-              </td>
-              <td valign="top" style="padding-left:16px;">
-                <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-                  <td><h4 style="font-size:14.5px;font-weight:700;color:#0C1630;margin:0 0 4px;">Natural Touch Elastography</h4></td>
-                  <td align="right" valign="top"><span style="font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#ECF0FD;color:#4E60A9;text-transform:uppercase;letter-spacing:0.02em;">Imagen avanzada</span></td>
-                </tr></table>
-                <p style="font-size:12px;color:#5A6A85;line-height:1.65;margin:4px 0 0;">Mapa de rigidez tisular para detección de lesiones no palpables. Aplicaciones en tiroides, mama, hígado y tejidos blandos. Complemento ideal a estudios de Doppler.</p>
-              </td>
-            </tr></table>
-          </td>
-        </tr></table>
-
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;border:1px solid #E2E8F0;border-radius:12px;margin-bottom:12px;font-family:Arial,Helvetica,sans-serif;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.01);"><tr>
-          <td style="padding:18px 20px;">
-            <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="42" valign="top">
-                <table width="40" height="40" cellpadding="0" cellspacing="0" border="0" bgcolor="#ECF0FD" style="border-radius:10px;border-collapse:collapse;">
-                  <tr><td align="center" valign="middle">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4E60A9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                  </td></tr>
-                </table>
-              </td>
-              <td valign="top" style="padding-left:16px;">
-                <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-                  <td><h4 style="font-size:14.5px;font-weight:700;color:#0C1630;margin:0 0 4px;">iLive™ – Imagen 4D Avanzada</h4></td>
-                  <td align="right" valign="top"><span style="font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#ECF0FD;color:#4E60A9;text-transform:uppercase;letter-spacing:0.02em;">Imagen avanzada</span></td>
-                </tr></table>
-                <p style="font-size:12px;color:#5A6A85;line-height:1.65;margin:4px 0 0;">Renderizado volumétrico en tiempo real con alta resolución espacial y temporal. Visualización realista del feto para estudios de morfología y comunicación con los padres.</p>
-              </td>
-            </tr></table>
-          </td>
-        </tr></table>
-
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;border:1px solid #E2E8F0;border-radius:12px;margin-bottom:12px;font-family:Arial,Helvetica,sans-serif;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.01);"><tr>
-          <td style="padding:18px 20px;">
-            <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="42" valign="top">
-                <table width="40" height="40" cellpadding="0" cellspacing="0" border="0" bgcolor="#FEF3E2" style="border-radius:10px;border-collapse:collapse;">
-                  <tr><td align="center" valign="middle">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v1"/><path d="M18 8h4a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-4"/></svg>
-                  </td></tr>
-                </table>
-              </td>
-              <td valign="top" style="padding-left:16px;">
-                <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-                  <td><h4 style="font-size:14.5px;font-weight:700;color:#0C1630;margin:0 0 4px;">DICOM Worklist &amp; Storage</h4></td>
-                  <td align="right" valign="top"><span style="font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#FEF3E2;color:#B45309;text-transform:uppercase;letter-spacing:0.02em;">Conectividad</span></td>
-                </tr></table>
-                <p style="font-size:12px;color:#5A6A85;line-height:1.65;margin:4px 0 0;">Integración con sistemas HIS/RIS y PACS hospitalarios. Permite la consulta de lista de trabajo, almacenamiento estructurado de imágenes y transferencia a servidor de imágenes médicas.</p>
-              </td>
-            </tr></table>
-          </td>
-        </tr></table>
-
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;border:1px solid #E2E8F0;border-radius:12px;margin-bottom:12px;font-family:Arial,Helvetica,sans-serif;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.01);"><tr>
-          <td style="padding:18px 20px;">
-            <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="42" valign="top">
-                <table width="40" height="40" cellpadding="0" cellspacing="0" border="0" bgcolor="#F0E8FD" style="border-radius:10px;border-collapse:collapse;">
-                  <tr><td align="center" valign="middle">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6A1AB0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                  </td></tr>
-                </table>
-              </td>
-              <td valign="top" style="padding-left:16px;">
-                <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-                  <td><h4 style="font-size:14.5px;font-weight:700;color:#0C1630;margin:0 0 4px;">Auto EF &amp; Tissue Tracking (TTQA)</h4></td>
-                  <td align="right" valign="top"><span style="font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#F0E8FD;color:#6A1AB0;text-transform:uppercase;letter-spacing:0.02em;">IA / Automedición</span></td>
-                </tr></table>
-                <p style="font-size:12px;color:#5A6A85;line-height:1.65;margin:4px 0 0;">Medición automática de la fracción de eyección ventricular y análisis cuantitativo de deformación miocárdica (strain/strain rate). Reduce la variabilidad inter-operador en cardiología.</p>
-              </td>
-            </tr></table>
-          </td>
-        </tr></table>
-      </div>
-
-      <div style="background:linear-gradient(135deg, #0C1630 0%, #1A2E5A 100%);border-radius:12px;padding:28px 32px;margin:32px 0 28px;font-family:Arial,sans-serif;color:#ffffff;box-shadow:0 6px 20px rgba(12,22,48,0.15);">
-        <h3 style="font-size:15px;font-weight:700;color:#38AD64;text-transform:uppercase;letter-spacing:0.05em;margin:0 0 8px;">Preservación y Escalabilidad de su Plataforma</h3>
-        <p style="font-size:13.5px;color:#E2E8F0;line-height:1.7;margin:0;">La habilitación de funciones adicionales permite ampliar el alcance clínico de sus sistemas de diagnóstico existentes con una inversión planificada y escalable. Su equipo cuenta con el soporte técnico y la compatibilidad para recibir estas actualizaciones directamente.</p>
-      </div>
-
-      <div style="margin-bottom:32px;font-family:Arial,sans-serif;">
-        <h3 style="font-size:11px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:0.1em;margin:0 0 18px;">Protocolo de Implementación</h3>
-        
-        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <!-- Smart OB & NT -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;margin-bottom:12px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.01);">
           <tr>
-            <td valign="top" width="28">
-              <table width="24" height="24" cellpadding="0" cellspacing="0" border="0" bgcolor="#4E60A9" style="border-radius:50%;border-collapse:collapse;">
-                <tr><td align="center" valign="middle" style="font-size:11px;font-weight:bold;color:#ffffff;font-family:Arial,sans-serif;">1</td></tr>
+            <td class="mobile-card" style="padding:18px 20px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td class="mobile-stack mobile-icon-container" width="44" valign="top" style="padding-right:16px;">
+                    <table width="44" height="44" cellpadding="0" cellspacing="0" border="0" bgcolor="#E8FAF1" style="border-radius:10px;border-collapse:collapse;">
+                      <tr>
+                        <td align="center" valign="middle">
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A9D6A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td class="mobile-stack mobile-padding" valign="top">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td class="mobile-stack">
+                          <h4 class="mobile-card-title" style="font-size:15px;font-weight:700;color:#0C1630;margin:0 0 4px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Smart OB™ &amp; Smart NT™</h4>
+                        </td>
+                        <td class="mobile-stack mobile-badge" align="right" valign="top">
+                          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;background:#E8FAF1;color:#2A9D6A;text-transform:uppercase;letter-spacing:0.04em;display:inline-block;">Obstetricia / Ginecología</span>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="font-size:12.5px;color:#5A6A85;line-height:1.6;margin:8px 0 0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Medición automatizada de biometría fetal (BPD, FL, HC, AC) y translucencia nucal. Reduce el tiempo de examen hasta un 50% y minimiza la variabilidad entre operadores.</p>
+                  </td>
+                </tr>
               </table>
-            </td>
-            <td valign="top" style="padding-left:14px;padding-bottom:18px;">
-              <h4 style="font-size:13.5px;font-weight:700;color:#0C1630;margin:0 0 4px;">Revisión de compatibilidad</h4>
-              <p style="font-size:12px;color:#5A6A85;line-height:1.6;margin:0;">Determinación de compatibilidad de software basada en el modelo y número de serie específico de su consola Mindray.</p>
             </td>
           </tr>
+        </table>
+
+        <!-- iLive -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;margin-bottom:12px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.01);">
           <tr>
-            <td valign="top" width="28">
-              <table width="24" height="24" cellpadding="0" cellspacing="0" border="0" bgcolor="#4E60A9" style="border-radius:50%;border-collapse:collapse;">
-                <tr><td align="center" valign="middle" style="font-size:11px;font-weight:bold;color:#ffffff;font-family:Arial,sans-serif;">2</td></tr>
+            <td class="mobile-card" style="padding:18px 20px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td class="mobile-stack mobile-icon-container" width="44" valign="top" style="padding-right:16px;">
+                    <table width="44" height="44" cellpadding="0" cellspacing="0" border="0" bgcolor="#ECF0FD" style="border-radius:10px;border-collapse:collapse;">
+                      <tr>
+                        <td align="center" valign="middle">
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4E60A9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></svg>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td class="mobile-stack mobile-padding" valign="top">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td class="mobile-stack">
+                          <h4 class="mobile-card-title" style="font-size:15px;font-weight:700;color:#0C1630;margin:0 0 4px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">iLive™ – Imagen 4D Realista</h4>
+                        </td>
+                        <td class="mobile-stack mobile-badge" align="right" valign="top">
+                          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;background:#ECF0FD;color:#4E60A9;text-transform:uppercase;letter-spacing:0.04em;display:inline-block;">Imagen Avanzada</span>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="font-size:12.5px;color:#5A6A85;line-height:1.6;margin:8px 0 0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Renderizado volumétrico con simulación de fuente de luz móvil. Genera una vista fotorrealista de alta definición del feto para estudios morfológicos más detallados.</p>
+                  </td>
+                </tr>
               </table>
-            </td>
-            <td valign="top" style="padding-left:14px;padding-bottom:18px;">
-              <h4 style="font-size:13.5px;font-weight:700;color:#0C1630;margin:0 0 4px;">Especificación y propuesta técnica</h4>
-              <p style="font-size:12px;color:#5A6A85;line-height:1.6;margin:0;">Presentación formal de las licencias validadas y el alcance clínico de cada una de las opciones disponibles.</p>
             </td>
           </tr>
+        </table>
+
+        <!-- Natural Touch Elastography -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;margin-bottom:12px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.01);">
           <tr>
-            <td valign="top" width="28">
-              <table width="24" height="24" cellpadding="0" cellspacing="0" border="0" bgcolor="#4E60A9" style="border-radius:50%;border-collapse:collapse;">
-                <tr><td align="center" valign="middle; "style="font-size:11px;font-weight:bold;color:#ffffff;font-family:Arial,sans-serif;">3</td></tr>
+            <td class="mobile-card" style="padding:18px 20px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td class="mobile-stack mobile-icon-container" width="44" valign="top" style="padding-right:16px;">
+                    <table width="44" height="44" cellpadding="0" cellspacing="0" border="0" bgcolor="#F0E8FD" style="border-radius:10px;border-collapse:collapse;">
+                      <tr>
+                        <td align="center" valign="middle">
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6A1AB0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td class="mobile-stack mobile-padding" valign="top">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td class="mobile-stack">
+                          <h4 class="mobile-card-title" style="font-size:15px;font-weight:700;color:#0C1630;margin:0 0 4px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Natural Touch Elastography™</h4>
+                        </td>
+                        <td class="mobile-stack mobile-badge" align="right" valign="top">
+                          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;background:#F0E8FD;color:#6A1AB0;text-transform:uppercase;letter-spacing:0.04em;display:inline-block;">Radiología / Oncología</span>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="font-size:12.5px;color:#5A6A85;line-height:1.6;margin:8px 0 0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Mapa de rigidez tisular cuantitativo. Ideal para la detección temprana y delimitación de nódulos y lesiones en tiroides, mama, hígado y tejidos blandos.</p>
+                  </td>
+                </tr>
               </table>
-            </td>
-            <td valign="top" style="padding-left:14px;padding-bottom:18px;">
-              <h4 style="font-size:13.5px;font-weight:700;color:#0C1630;margin:0 0 4px;">Generación de llave digital</h4>
-              <p style="font-size:12px;color:#5A6A85;line-height:1.6;margin:0;">Emisión y registro del código de licencia original ante el fabricante para la vinculación definitiva con su consola.</p>
             </td>
           </tr>
+        </table>
+
+        <!-- Cardiología & Conectividad -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;margin-bottom:12px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.01);">
           <tr>
-            <td valign="top" width="28">
-              <table width="24" height="24" cellpadding="0" cellspacing="0" border="0" bgcolor="#4E60A9" style="border-radius:50%;border-collapse:collapse;">
-                <tr><td align="center" valign="middle" style="font-size:11px;font-weight:bold;color:#ffffff;font-family:Arial,sans-serif;">4</td></tr>
+            <td class="mobile-card" style="padding:18px 20px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td class="mobile-stack mobile-icon-container" width="44" valign="top" style="padding-right:16px;">
+                    <table width="44" height="44" cellpadding="0" cellspacing="0" border="0" bgcolor="#FDE8E8" style="border-radius:10px;border-collapse:collapse;">
+                      <tr>
+                        <td align="center" valign="middle">
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B71C1C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td class="mobile-stack mobile-padding" valign="top">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td class="mobile-stack">
+                          <h4 class="mobile-card-title" style="font-size:15px;font-weight:700;color:#0C1630;margin:0 0 4px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">TDI &amp; Auto EF (Cardiología / IA)</h4>
+                        </td>
+                        <td class="mobile-stack mobile-badge" align="right" valign="top">
+                          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;background:#FDE8E8;color:#B71C1C;text-transform:uppercase;letter-spacing:0.04em;display:inline-block;">Cardiología</span>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="font-size:12.5px;color:#5A6A85;line-height:1.6;margin:8px 0 0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Mide velocidades miocárdicas (Tissue Doppler) y calcula de forma automatizada la fracción de eyección. Diagnósticos cardiovasculares rápidos y reproducibles.</p>
+                  </td>
+                </tr>
               </table>
-            </td>
-            <td valign="top" style="padding-left:14px;">
-              <h4 style="font-size:13.5px;font-weight:700;color:#0C1630;margin:0 0 4px;">Habilitación y validación final</h4>
-              <p style="font-size:12px;color:#5A6A85;line-height:1.6;margin:0;">Carga remota o presencial de la clave digital, validando el correcto despliegue del software y pruebas operativas.</p>
             </td>
           </tr>
         </table>
       </div>
 
-      <div style="text-align:center;padding:24px 0 12px;font-family:Arial,sans-serif;">
-        <a href="mailto:contacto@bionordi.mx?subject=Consulta%20Compatibilidad%20Licencias%20Mindray" style="display:inline-block;background-color:#38AD64;color:#ffffff;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;padding:15px 36px;border-radius:100px;box-shadow:0 4px 12px rgba(56,173,100,0.25);">Solicitar Validación de Compatibilidad</a>
+      <div style="margin-bottom:32px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+        <h3 style="font-size:12px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 20px;">Protocolo de Activación</h3>
+        
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+          <!-- Step 1 -->
+          <tr>
+            <td valign="top" width="36" style="padding-bottom:24px;">
+              <table width="28" height="28" cellpadding="0" cellspacing="0" border="0" bgcolor="#0C1630" style="border-radius:50%;border-collapse:collapse;">
+                <tr><td align="center" valign="middle" style="font-size:12px;font-weight:bold;color:#ffffff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">1</td></tr>
+              </table>
+            </td>
+            <td valign="top" style="padding-left:14px;padding-bottom:24px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+              <h4 style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 4px;">Identificación de Compatibilidad</h4>
+              <p style="font-size:12.5px;color:#5A6A85;line-height:1.6;margin:0;">Comparta el modelo y número de serie de su ultrasonido para validar las licencias admitidas por su hardware.</p>
+            </td>
+          </tr>
+          <!-- Step 2 -->
+          <tr>
+            <td valign="top" width="36" style="padding-bottom:24px;">
+              <table width="28" height="28" cellpadding="0" cellspacing="0" border="0" bgcolor="#0C1630" style="border-radius:50%;border-collapse:collapse;">
+                <tr><td align="center" valign="middle" style="font-size:12px;font-weight:bold;color:#ffffff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">2</td></tr>
+              </table>
+            </td>
+            <td valign="top" style="padding-left:14px;padding-bottom:24px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+              <h4 style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 4px;">Propuesta y Clave Oficial</h4>
+              <p style="font-size:12.5px;color:#5A6A85;line-height:1.6;margin:0;">Presentamos las opciones disponibles y solicitamos el código de activación directamente ante el fabricante Mindray.</p>
+            </td>
+          </tr>
+          <!-- Step 3 -->
+          <tr>
+            <td valign="top" width="36;">
+              <table width="28" height="28" cellpadding="0" cellspacing="0" border="0" bgcolor="#0C1630" style="border-radius:50%;border-collapse:collapse;">
+                <tr><td align="center" valign="middle" style="font-size:12px;font-weight:bold;color:#ffffff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">3</td></tr>
+              </table>
+            </td>
+            <td valign="top" style="padding-left:14px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+              <h4 style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 4px;">Carga y Activación Permanente</h4>
+              <p style="font-size:12.5px;color:#5A6A85;line-height:1.6;margin:0;">Ingreso de la clave digital de activación en su equipo (remoto o en sitio) y pruebas inmediatas de funcionamiento clínico.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="text-align:center;padding:24px 0 12px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <a class="mobile-button" href="mailto:contacto@bionordi.mx?subject=Consulta%20Compatibilidad%20Licencias%20Mindray" style="display:inline-block;background-color:#38AD64;color:#ffffff;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;text-decoration:none;padding:16px 36px;border-radius:100px;box-shadow:0 4px 14px rgba(56,173,100,0.3);font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Solicitar Validación de Compatibilidad</a>
       </div>
     `,
     plain: (v: Vars) => {
       const remitenteName = v.nombre_remitente || "Fernando";
-      return `Estimado/a ${v.nombre_doctor},\n\nHabilite módulos adicionales y funciones clínicas en su ultrasonido Mindray.\n\nSu equipo ya cuenta con el hardware necesario. Las licencias de software originales de Mindray activan funciones avanzadas directamente sobre la plataforma de hardware existente.\n\nMódulos de actualización disponibles:\n\n- Smart OB y Smart NT (Obstetricia): Medición automática de biometría fetal y traslucencia nucal para optimizar el tiempo de examen.\n- TDI - Tissue Doppler Imaging (Cardiología): Evaluación cuantitativa del movimiento miocárdico y la función diastólica.\n- Natural Touch Elastography (Imagen avanzada): Evaluación cualitativa de la rigidez tisular para el análisis de lesiones.\n- iLive - Imagen 4D Avanzada (Imagen avanzada): Renderizado volumétrico fotorrealista en tiempo real.\n- DICOM Worklist y Storage (Conectividad): Integración directa con redes hospitalarias PACS/RIS.\n- Auto EF y Tissue Tracking (IA / Auto-medición): Cálculo automatizado de la fracción de eyección y strain miocárdico.\n\nProceso de habilitación:\n1. Identificación: Comparta modelo y número de serie para verificar compatibilidad.\n2. Especificación: Presentamos las opciones compatibles y presupuesto técnico.\n3. Llave de activación: Gestionamos el código de habilitación directamente con el fabricante.\n4. Soporte técnico: Realizamos la habilitación técnica del módulo.\n\nPara validar la compatibilidad de su equipo, puede responder a este correo o escribir a contacto@bionordi.mx.\n\nAtentamente,\n${remitenteName}\nBionordi S.A. de C.V.`;
+      return `Estimado/a ${v.nombre_doctor},\n\nHabilite nuevos módulos y funciones clínicas en su ultrasonido Mindray.\n\nSu equipo ya cuenta con el hardware necesario. Las licencias de software originales de Mindray activan funciones avanzadas directamente sobre la plataforma de hardware existente.\n\nMódulos de actualización disponibles:\n\n- Smart OB y Smart NT (Obstetricia / Ginecología): Medición automatizada de biometría fetal y translucencia nucal para optimizar el tiempo de examen.\n- iLive - Imagen 4D Realista (Imagen avanzada): Renderizado volumétrico fotorrealista de alta definición del feto.\n- Natural Touch Elastography (Radiología / Oncología): Mapa cualitativo y cuantitativo de rigidez tisular para detección de nódulos.\n- TDI & Auto EF (Cardiología / IA): Doppler tisular miocárdico y cálculo automático de fracción de eyección.\n\nProceso de activación:\n1. Identificación: Comparta modelo y número de serie para validar compatibilidad.\n2. Propuesta: Le presentamos las opciones y solicitamos la clave oficial con el fabricante.\n3. Habilitación: Carga de la clave digital (remota o en sitio) y pruebas funcionales.\n\nPara validar la compatibilidad de su equipo, puede responder a este correo o escribir a contacto@bionordi.mx.\n\nAtentamente,\n${remitenteName}\nBionordi S.A. de C.V.`;
     }
   },
   presentacion: {
