@@ -164,7 +164,7 @@ export default function UsuariosPage() {
             {error && <p className="text-red-500 text-[12px]">{error}</p>}
             {[
               { label: "Nombre", key: "nombre", type: "text", placeholder: "Ej. María García" },
-              { label: "Cargo", key: "cargo", type: "text", placeholder: "Ej. Director General, Vendedor..." },
+              { label: "Cargo", key: "cargo", type: "text", placeholder: "Ej. Gerente Comercial, Vendedor..." },
               { label: "Email", key: "email", type: "email", placeholder: "usuario@empresa.com" },
               { label: "Contraseña", key: "password", type: "password", placeholder: "Mínimo 6 caracteres" },
             ].map(({ label, key, type, placeholder }) => (

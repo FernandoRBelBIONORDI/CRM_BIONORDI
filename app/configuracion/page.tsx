@@ -210,7 +210,7 @@ export default function ConfiguracionPage() {
                 <input value={config.fact_correo_facturacion} onChange={set("fact_correo_facturacion")} placeholder="facturacion@bionordi.mx" className="inp"/>
               </Field>
               <Field label="Cargo del representante">
-                <input value={config.fact_cargo_representante} onChange={set("fact_cargo_representante")} placeholder="Director General" className="inp"/>
+                <input value={config.fact_cargo_representante} onChange={set("fact_cargo_representante")} placeholder="Gerente Comercial" className="inp"/>
               </Field>
             </div>
             <Field label="Dirección fiscal">

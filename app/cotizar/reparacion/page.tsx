@@ -521,7 +521,7 @@ function CotizarReparacionPage() {
 <head><meta charset="UTF-8"/>
 <title>Cotización ${usedFolio} · Bionordi</title>
 <style>
-  @page{margin:20mm 0 15mm 0}@page:first{margin-top:0}
+  @page{margin:10mm 0 15mm 0}@page:first{margin-top:0}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#334155;background:#fff;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .page{padding:30px 65px;max-width:816px;margin:0 auto;}
@@ -1401,13 +1401,13 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
             </div>
 
             {/* ───── HOJA 2 ───── */}
-            {/* paddingTop=106px (76px @page margin-top 20mm + 30px CSS padding) */}
+            {/* paddingTop=68px (38px @page margin-top 10mm + 30px CSS padding) */}
             {/* paddingBottom=87px (57px @page margin-bottom 15mm + 30px CSS padding) → área útil=863px */}
             <div style={{
               background: "#fff",
               boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
               borderRadius: "4px",
-              paddingTop: "106px",
+              paddingTop: "68px",
               paddingRight: "65px",
               paddingBottom: "87px",
               paddingLeft: "65px",
@@ -1423,9 +1423,9 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               overflow: "hidden"
             }}>
 
-              {/* Indicador visual: margen superior @page 20mm = 76px */}
-              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "76px", background: "rgba(248,250,252,0.88)", borderBottom: "1px dashed #CBD5E1", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 10 }}>
-                <span style={{ fontSize: "8px", color: "#CBD5E1", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>Margen superior @page — 20 mm</span>
+              {/* Indicador visual: margen superior @page 10mm = 38px */}
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "38px", background: "rgba(248,250,252,0.88)", borderBottom: "1px dashed #CBD5E1", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 10 }}>
+                <span style={{ fontSize: "8px", color: "#CBD5E1", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>Margen superior @page — 10 mm</span>
               </div>
               {/* Indicador visual: margen inferior @page 15mm = 57px */}
               <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "57px", background: "rgba(248,250,252,0.88)", borderTop: "1px dashed #CBD5E1", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 10 }}>

@@ -321,7 +321,7 @@ export default function QuoteModal({ lead, onClose }: Props) {
 <meta charset="UTF-8"/>
 <title>Propuesta Técnica ${folio} · Bionordi</title>
 <style>
-  @page { margin: 20mm 0 15mm 0; }
+  @page { margin: 10mm 0 15mm 0; }
   @page:first { margin-top: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #334155; background: #fff; font-size: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
