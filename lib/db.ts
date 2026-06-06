@@ -387,10 +387,24 @@ function initDb(): Database.Database {
     )
   `);
 
+  _db.exec(`
+    CREATE TABLE IF NOT EXISTS email_logs (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      lead_id      INTEGER REFERENCES leads(id) ON DELETE SET NULL,
+      destinatario TEXT NOT NULL,
+      asunto       TEXT NOT NULL,
+      cuerpo       TEXT,
+      fecha        TEXT DEFAULT (datetime('now','localtime')),
+      remitente    TEXT,
+      status       TEXT DEFAULT 'enviado'
+    )
+  `);
+
   try { _db.exec(`ALTER TABLE mensajes_wa ADD COLUMN media_type TEXT`); } catch {}
   try { _db.exec(`ALTER TABLE mensajes_wa ADD COLUMN media_url  TEXT`); } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_mensajes_wa_chat ON mensajes_wa(chat_id)`); } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_wa_messages_phone ON wa_messages(phone)`); } catch {}
+  try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_email_logs_lead ON email_logs(lead_id)`); } catch {}
 
   // Limpiar chats con chatId en formato LID (@lid) — formato antiguo de WhatsApp Multi-Device
   try {

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { to, subject, html, replyTo, text: textBody, attachments } = await req.json();
+    const { lead_id, to, subject, html, replyTo, text: textBody, attachments } = await req.json();
 
     if (!to || !subject || !html) {
       return NextResponse.json({ error: 'Faltan campos: to, subject, html' }, { status: 400 });
@@ -68,6 +68,60 @@ export async function POST(req: Request) {
     if (!res.ok) {
       const err = await res.json().catch(() => ({ message: res.statusText }));
       throw new Error((err as { message?: string }).message || `Resend error ${res.status}`);
+    }
+
+    // Resolve final lead_id
+    let finalLeadId = lead_id || null;
+    const emailToMatch = Array.isArray(to) ? to[0] : to;
+    if (!finalLeadId && emailToMatch) {
+      try {
+        const match = db.prepare('SELECT id FROM leads WHERE correo = ? LIMIT 1').get(emailToMatch) as { id: number } | undefined;
+        if (match) {
+          finalLeadId = match.id;
+        }
+      } catch (e) {
+        console.error('[email_logs] Error resolving lead_id', e);
+      }
+    }
+
+    // Insert into email_logs
+    try {
+      db.prepare(`
+        INSERT INTO email_logs (lead_id, destinatario, asunto, cuerpo, remitente, status)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).run(
+        finalLeadId,
+        Array.isArray(to) ? to.join(', ') : to,
+        subject,
+        plainText,
+        session.user?.name || session.user?.email || 'Fernando',
+        'enviado'
+      );
+    } catch (e) {
+      console.error('[email_logs] Error writing log', e);
+    }
+
+    // Insert into interacciones and update lead last contact
+    if (finalLeadId) {
+      try {
+        db.prepare(`
+          INSERT INTO interacciones (lead_id, tipo, contenido, resultado, usuario_id, usuario_nombre)
+          VALUES (?, 'correo', ?, 'Enviado con éxito', ?, ?)
+        `).run(
+          finalLeadId,
+          `Asunto: ${subject}\n\n${plainText.slice(0, 500)}`,
+          session.user?.id || null,
+          session.user?.name || 'Sistema'
+        );
+
+        db.prepare(`
+          UPDATE leads
+          SET fecha_ultimo_contacto = datetime('now','localtime')
+          WHERE id = ?
+        `).run(finalLeadId);
+      } catch (e) {
+        console.error('[email_logs] Error writing interaction', e);
+      }
     }
 
     return NextResponse.json({ success: true });

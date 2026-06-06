@@ -17,8 +17,20 @@ interface Vars {
   nombre_remitente: string;
 }
 
+interface EmailLog {
+  id: number;
+  lead_id: number | null;
+  destinatario: string;
+  asunto: string;
+  cuerpo: string;
+  fecha: string;
+  remitente: string;
+  status: string;
+  lead_nombre?: string;
+}
+
 function applyVars(tplKey: string, tplBody: string, v: Vars): string {
-  const isDark = tplKey === "presentacion";
+  const isDark = tplKey === "presentacion" || tplKey === "mindray";
   const extraBlock = v.mensaje_extra
     ? isDark
       ? `<p style="font-size:13px;color:rgba(255,255,255,0.72);font-style:italic;line-height:1.7;border-left:3px solid #38AD64;padding-left:14px;margin:16px 0 0;font-family:Arial,Helvetica,sans-serif;">${v.mensaje_extra}</p>`
@@ -86,9 +98,156 @@ const TPLS = {
       <p style="font-size:15px;font-weight:700;color:#1E293B;margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;">Estimado/a {{nombre_doctor}},</p>
       <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;">Le escribo para ponerme a sus órdenes y presentarle nuestros servicios especializados de Bionordi.</p>
       <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;">Estamos a su entera disposición para cualquier requerimiento de soporte técnico, refacciones o equipos que su consultorio pueda necesitar.</p>
-      <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;">Quedo al pendiente de sus comentarios.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;margin:0;font-family:Arial,Helvetica,sans-serif;">Quedo al pendiente de sus comentarios.</p>
     `,
     plain: (v: Vars) => `Estimado/a ${v.nombre_doctor},\n\nLe escribo para ponerme a sus órdenes y presentarle nuestros servicios especializados de Bionordi.\n\nEstamos a su entera disposición para cualquier requerimiento de soporte técnico, refacciones o equipos que su consultorio pueda necesitar.\n\nQuedo al pendiente de sus comentarios.`
+  },
+  mindray: {
+    label: "Licencias Mindray",
+    color: "#0071C5",
+    defaultSubject: "Desbloquee todo el potencial de su ultrasonido Mindray · Bionordi",
+    body: `
+      <div style="background:#0C1630;padding:32px 40px;border-radius:12px;margin-bottom:20px;font-family:Arial,Helvetica,sans-serif;">
+        <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:18px;"><tr>
+          <td style="background:rgba(75,94,199,0.18);border:1px solid rgba(75,94,199,0.35);border-radius:100px;padding:5px 14px;font-size:11px;font-weight:700;color:#38AD64;text-transform:uppercase;letter-spacing:0.08em;font-family:Arial,Helvetica,sans-serif;">&#9679; Licencias Originales Mindray</td>
+        </tr></table>
+        <p style="font-size:15px;font-weight:600;color:rgba(255,255,255,0.7);margin:0 0 14px;font-family:Arial,Helvetica,sans-serif;">Estimado/a {{nombre_doctor}},</p>
+        <p style="font-size:28px;font-weight:700;color:#ffffff;line-height:1.25;letter-spacing:-0.02em;margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;">Desbloquee todo el potencial de su <span style="color:#38AD64;">ultrasonido Mindray</span></p>
+        <p style="font-size:14px;color:rgba(255,255,255,0.62);line-height:1.65;margin:0;font-family:Arial,Helvetica,sans-serif;">Su equipo ya tiene el hardware. Las licencias de software Mindray activan los módulos clínicos avanzados que están esperando ser utilizados.</p>
+        {{mensaje_extra}}
+      </div>
+      
+      <div style="margin-bottom:24px;font-family:Arial,Helvetica,sans-serif;">
+        <p style="font-size:14px;color:#475569;line-height:1.75;margin:0 0 16px;">En <strong>Bionordi</strong> trabajamos con clínicas y médicos que buscan sacar el máximo provecho de sus equipos de ultrasonido. Una de las formas más eficientes de hacerlo es a través de las <strong>licencias de software originales Mindray</strong>: códigos de activación que habilitan módulos especializados directamente en su equipo actual, sin reemplazarlo ni adquirir hardware adicional.</p>
+      </div>
+      
+      <div style="background:#F4F7FC;border:1px solid #E5EAF4;border-left:4px solid #4E60A9;border-radius:8px;padding:18px 20px;margin-bottom:24px;font-family:Arial,Helvetica,sans-serif;">
+        <div style="font-size:11px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">¿Qué es una licencia de software Mindray?</div>
+        <p style="font-size:13.5px;color:#475569;line-height:1.7;margin:0;">Los equipos de ultrasonido Mindray vienen de fábrica con capacidades bloqueadas que se activan mediante una <strong>license key</strong>: un código único vinculado al número de serie de su equipo. Una vez ingresada, el módulo queda habilitado de forma permanente. Es la manera más costo-eficiente de ampliar las capacidades diagnósticas de un equipo que ya conoce y en el que ya confía.</p>
+      </div>
+      
+      <div style="margin-bottom:24px;font-family:Arial,Helvetica,sans-serif;">
+        <p style="font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#4E60A9;margin:0 0 6px;">Módulos disponibles por licencia</p>
+        
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F4F7FC;border-radius:12px;border:1px solid #E5EAF4;margin-bottom:10px;font-family:Arial,Helvetica,sans-serif;"><tr>
+          <td width="4" bgcolor="#4E60A9" style="border-radius:12px 0 0 12px;font-size:1px;line-height:1px;">&nbsp;</td>
+          <td style="padding:14px 16px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;font-size:20px;">👶</td></tr></table></td>
+              <td valign="top" style="padding-left:14px;">
+                <p style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 3px;">Smart OB™ &amp; Smart NT™</p>
+                <span style="display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#E8FAF1;color:#2A9D6A;margin-bottom:6px;">Obstetricia</span>
+                <p style="font-size:12px;color:#617090;line-height:1.5;margin:0;">Medición automática de biometría fetal (BPD, FL, HC, AC) y traslucencia nucal. Reduce el tiempo de examen y minimiza el error del operador en estudios de primer y segundo trimestre.</p>
+              </td>
+            </tr></table>
+          </td>
+        </tr></table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F4F7FC;border-radius:12px;border:1px solid #E5EAF4;margin-bottom:10px;font-family:Arial,Helvetica,sans-serif;"><tr>
+          <td width="4" bgcolor="#4E60A9" style="border-radius:12px 0 0 12px;font-size:1px;line-height:1px;">&nbsp;</td>
+          <td style="padding:14px 16px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;font-size:20px;">🫀</td></tr></table></td>
+              <td valign="top" style="padding-left:14px;">
+                <p style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 3px;">TDI – Tissue Doppler Imaging</p>
+                <span style="display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#FDE8E8;color:#B71C1C;margin-bottom:6px;">Cardiología</span>
+                <p style="font-size:12px;color:#617090;line-height:1.5;margin:0;">Mide la velocidad de movimiento miocárdico. Permite evaluar función diastólica, detectar isquemia regional y analizar sincronía ventricular con TVI, TVD, TVM y TEI.</p>
+              </td>
+            </tr></table>
+          </td>
+        </tr></table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F4F7FC;border-radius:12px;border:1px solid #E5EAF4;margin-bottom:10px;font-family:Arial,Helvetica,sans-serif;"><tr>
+          <td width="4" bgcolor="#4E60A9" style="border-radius:12px 0 0 12px;font-size:1px;line-height:1px;">&nbsp;</td>
+          <td style="padding:14px 16px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;font-size:20px;">🔬</td></tr></table></td>
+              <td valign="top" style="padding-left:14px;">
+                <p style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 3px;">Natural Touch Elastography</p>
+                <span style="display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#ECF0FD;color:#4E60A9;margin-bottom:6px;">Imagen avanzada</span>
+                <p style="font-size:12px;color:#617090;line-height:1.5;margin:0;">Mapa de rigidez tisular para detección de lesiones no palpables. Aplicaciones en tiroides, mama, hígado y tejidos blandos. Complemento ideal a estudios de Doppler.</p>
+              </td>
+            </tr></table>
+          </td>
+        </tr></table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F4F7FC;border-radius:12px;border:1px solid #E5EAF4;margin-bottom:10px;font-family:Arial,Helvetica,sans-serif;"><tr>
+          <td width="4" bgcolor="#4E60A9" style="border-radius:12px 0 0 12px;font-size:1px;line-height:1px;">&nbsp;</td>
+          <td style="padding:14px 16px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;font-size:20px;">🌐</td></tr></table></td>
+              <td valign="top" style="padding-left:14px;">
+                <p style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 3px;">iLive™ – Imagen 4D Avanzada</p>
+                <span style="display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#ECF0FD;color:#4E60A9;margin-bottom:6px;">Imagen avanzada</span>
+                <p style="font-size:12px;color:#617090;line-height:1.5;margin:0;">Renderizado volumétrico en tiempo real con alta resolución espacial y temporal. Visualización realista del feto para estudios de morfología y comunicación con los padres.</p>
+              </td>
+            </tr></table>
+          </td>
+        </tr></table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F4F7FC;border-radius:12px;border:1px solid #E5EAF4;margin-bottom:10px;font-family:Arial,Helvetica,sans-serif;"><tr>
+          <td width="4" bgcolor="#4E60A9" style="border-radius:12px 0 0 12px;font-size:1px;line-height:1px;">&nbsp;</td>
+          <td style="padding:14px 16px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;font-size:20px;">🔗</td></tr></table></td>
+              <td valign="top" style="padding-left:14px;">
+                <p style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 3px;">DICOM Worklist &amp; Storage</p>
+                <span style="display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#FEF3E2;color:#B45309;margin-bottom:6px;">Conectividad</span>
+                <p style="font-size:12px;color:#617090;line-height:1.5;margin:0;">Integración con sistemas HIS/RIS y PACS hospitalarios. Permite la consulta de lista de trabajo, almacenamiento estructurado de imágenes y transferencia a servidor de imágenes médicas.</p>
+              </td>
+            </tr></table>
+          </td>
+        </tr></table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F4F7FC;border-radius:12px;border:1px solid #E5EAF4;margin-bottom:10px;font-family:Arial,Helvetica,sans-serif;"><tr>
+          <td width="4" bgcolor="#38AD64" style="border-radius:12px 0 0 12px;font-size:1px;line-height:1px;">&nbsp;</td>
+          <td style="padding:14px 16px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;font-size:20px;">🧠</td></tr></table></td>
+              <td valign="top" style="padding-left:14px;">
+                <p style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 3px;">Auto EF &amp; Tissue Tracking (TTQA)</p>
+                <span style="display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#F0E8FD;color:#6A1AB0;margin-bottom:6px;">IA / Auto-medición</span>
+                <p style="font-size:12px;color:#617090;line-height:1.5;margin:0;">Medición automática de la fracción de eyección ventricular y análisis cuantitativo de deformación miocárdica (strain/strain rate). Reduce la variabilidad inter-operador en cardiología.</p>
+              </td>
+            </tr></table>
+          </td>
+        </tr></table>
+      </div>
+
+      <div style="background:linear-gradient(135deg, #0C1630 0%, #4E60A9 100%);border-radius:12px;padding:26px 28px;margin-bottom:20px;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
+        <div style="font-size:16px;font-weight:700;color:#38AD64;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">La inversión más inteligente para su equipo</div>
+        <p style="font-size:13.5px;color:rgba(255,255,255,0.82);line-height:1.75;margin:0;">Adquirir una licencia de software Mindray representa una fracción del costo de reemplazar el equipo completo, con el beneficio de <strong>obtener funcionalidades que muchos sistemas de mayor precio ya incluyen de serie</strong>. Su equipo ya está calificado para el trabajo — la licencia simplemente lo desbloquea.</p>
+      </div>
+
+      <div style="margin-bottom:20px;font-family:Arial,Helvetica,sans-serif;">
+        <p style="font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#4E60A9;margin:0 0 10px;">¿Cómo funciona el proceso?</p>
+        
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;"><tr>
+          <td width="30" valign="top"><div style="width:24px;height:24px;background:#4E60A9;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:700;color:#fff;">1</div></td>
+          <td style="padding-left:10px;font-size:13px;color:#475569;line-height:1.6;"><strong>Identificación del equipo:</strong> Nos comparte el modelo y número de serie de su ultrasonido Mindray. Verificamos la compatibilidad con los módulos disponibles.</td>
+        </tr></table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;"><tr>
+          <td width="30" valign="top"><div style="width:24px;height:24px;background:#4E60A9;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:700;color:#fff;">2</div></td>
+          <td style="padding-left:10px;font-size:13px;color:#475569;line-height:1.6;"><strong>Cotización a su medida:</strong> Le presentamos las licencias compatibles con su plataforma y precios en pesos mexicanos, sin costos ocultos.</td>
+        </tr></table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;"><tr>
+          <td width="30" valign="top"><div style="width:24px;height:24px;background:#4E60A9;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:700;color:#fff;">3</div></td>
+          <td style="padding-left:10px;font-size:13px;color:#475569;line-height:1.6;"><strong>Adquisición de la license key:</strong> Gestionamos la llave de activación original directamente con Mindray, vinculada al número de serie de su equipo.</td>
+        </tr></table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;"><tr>
+          <td width="30" valign="top"><div style="width:24px;height:24px;background:#4E60A9;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:700;color:#fff;">4</div></td>
+          <td style="padding-left:10px;font-size:13px;color:#475569;line-height:1.6;"><strong>Activación e instrucción:</strong> Realizamos la activación del módulo en su equipo y le capacitamos en el uso de las nuevas funciones. El módulo queda activo de forma permanente.</td>
+        </tr></table>
+      </div>
+
+      <div style="text-align:center;padding:20px 0;font-family:Arial,Helvetica,sans-serif;">
+        <a href="mailto:contacto@bionordi.com?subject=Consulta%20Licencias%20Mindray" style="display:inline-block;background-color:#4E60A9;color:#ffffff;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;padding:12px 28px;border-radius:100px;">Consultar Compatibilidad</a>
+      </div>
+    `,
+    plain: (v: Vars) => `Estimado/a ${v.nombre_doctor},\n\nEn Bionordi le ayudamos a desbloquear todo el potencial de su ultrasonido Mindray mediante las licencias originales.\n\nMódulos disponibles:\n- Smart OB / NT\n- Tissue Doppler (TDI)\n- Stress Echo\n- Natural Touch Elastography\n- iLive 4D Avanzado\n- DICOM Worklist / Storage\n- Auto EF & Tissue Tracking\n\nAtentamente,\n${v.nombre_remitente}`
   },
   presentacion: {
     label: "Primer contacto",
@@ -303,11 +462,16 @@ export default function CorreoPage() {
   // Control de edición manual
   const [isEditedManual, setIsEditedManual] = useState(false);
 
-  // Destinatario
-  const [toInput, setToInput]     = useState("");
-  const [leadQuery, setLeadQuery] = useState("");
-  const [leads, setLeads]         = useState<{ id: number; nombre: string; correo?: string; ciudad?: string; nicho?: string }[]>([]);
-  const [showLeads, setShowLeads] = useState(false);
+  // Destinatario y ID del Lead Seleccionado
+  const [toInput, setToInput]           = useState("");
+  const [selectedLeadId, setSelectedLeadId] = useState<number | null>(null);
+  const [leadQuery, setLeadQuery]       = useState("");
+  const [leads, setLeads]               = useState<{ id: number; nombre: string; correo?: string; ciudad?: string; nicho?: string }[]>([]);
+  const [showLeads, setShowLeads]       = useState(false);
+
+  // Historial de logs de correos enviados
+  const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
+  const [selectedLog, setSelectedLog] = useState<EmailLog | null>(null);
 
   // Asunto
   const [subject, setSubject] = useState<string>(TPLS.libre.defaultSubject);
@@ -319,7 +483,20 @@ export default function CorreoPage() {
   // Anti-spam tip
   const [tipDismissed, setTipDismissed] = useState(false);
 
-  // Cargar config del remitente
+  // Cargar logs de correos
+  const fetchLogs = useCallback(async () => {
+    try {
+      const res = await fetch("/api/email/logs");
+      const data = await res.json();
+      if (data.logs) {
+        setEmailLogs(data.logs);
+      }
+    } catch (e) {
+      console.error("Error al cargar historial de correos", e);
+    }
+  }, []);
+
+  // Cargar config del remitente y leads iniciales
   useEffect(() => {
     fetch("/api/config").then(r => r.json()).then(d => {
       const c = d.config || {};
@@ -328,7 +505,8 @@ export default function CorreoPage() {
       setVars(p => ({ ...p, nombre_remitente: name }));
     });
     fetch("/api/leads").then(r => r.json()).then(d => setLeads(d.leads || []));
-  }, []);
+    fetchLogs();
+  }, [fetchLogs]);
 
   // Cambiar template y reiniciar edición manual
   const changeTpl = (key: Mode) => {
@@ -425,6 +603,7 @@ export default function CorreoPage() {
 
   const selectLead = (l: typeof leads[0]) => {
     setToInput(l.correo || "");
+    setSelectedLeadId(l.id);
     setVars(p => ({
       ...p,
       nombre_doctor: l.nombre,
@@ -448,11 +627,12 @@ export default function CorreoPage() {
     const res = await fetch("/api/email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ to: toInput.trim(), subject, html, text }),
+      body: JSON.stringify({ lead_id: selectedLeadId, to: toInput.trim(), subject, html, text }),
     });
     const data = await res.json();
     if (data.success) {
       setStatus("ok"); setMsg(`Enviado a ${toInput}`);
+      fetchLogs(); // Recargar historial tras enviar
       setTimeout(() => setStatus("idle"), 5000);
     } else {
       setStatus("error"); setMsg(data.error || "Error desconocido");
@@ -468,7 +648,7 @@ export default function CorreoPage() {
       <div className="px-8 py-4 bg-white border-b border-[#E8EFF8] shrink-0 flex items-center justify-between">
         <div>
           <h1 className="text-[22px] font-extrabold text-[#1E293B] tracking-tight">Correo Electrónico</h1>
-          <p className="text-[12px] text-[#94A3B8] font-medium mt-0.5">Redacta y envía correos WYSIWYG profesionales con cromado de Bionordi</p>
+          <p className="text-[12px] text-[#94A3B8] font-medium mt-0.5">Redacta, envía y audita los correos electrónicos oficiales del sistema</p>
         </div>
       </div>
 
@@ -551,7 +731,7 @@ export default function CorreoPage() {
                 <Mail size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   value={toInput}
-                  onChange={e => setToInput(e.target.value)}
+                  onChange={e => { setToInput(e.target.value); setSelectedLeadId(null); }}
                   placeholder="doctor@clinica.mx"
                   type="email"
                   className="w-full text-[12px] border border-gray-200 rounded-lg pl-8 pr-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white"
@@ -643,11 +823,11 @@ export default function CorreoPage() {
         </div>
 
         {/* ── Panel derecho: WYSIWYG Editor o HTML Raw Code View ───────────── */}
-        <div className="flex-1 flex flex-col bg-[#E8EFF8]/40 border border-gray-100 rounded-2xl overflow-hidden">
+        <div className="flex-1 flex flex-col bg-[#E8EFF8]/40 border border-gray-100 rounded-2xl overflow-y-auto">
           
           {tpl !== "personalizado" ? (
             // Editor Enriquecido WYSIWYG
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="w-full flex flex-col min-h-full">
               
               {/* Barra de herramientas de edición */}
               <div className="px-5 py-3 border-b border-gray-200/80 bg-white shrink-0 flex items-center justify-between shadow-sm">
@@ -688,7 +868,7 @@ export default function CorreoPage() {
               </div>
 
               {/* Contenedor del Editor de Correo */}
-              <div className="flex-1 overflow-y-auto p-6 flex justify-center bg-[#F1F5F9]">
+              <div className="flex-1 p-6 flex flex-col items-center justify-start bg-[#F1F5F9] space-y-6">
                 
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden max-w-[650px] w-full flex flex-col h-fit">
                   
@@ -745,6 +925,64 @@ export default function CorreoPage() {
 
                 </div>
 
+                {/* Tabla de Historial de Correos Enviados */}
+                <div className="max-w-[650px] w-full bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden p-5 space-y-4">
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <div>
+                      <h3 className="text-[13px] font-bold text-slate-800">Control de Correos Enviados</h3>
+                      <p className="text-[11px] text-slate-400 font-medium">Historial general de envíos y destinatarios</p>
+                    </div>
+                    <button onClick={fetchLogs} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors" title="Actualizar historial">
+                      <RefreshCw size={13} />
+                    </button>
+                  </div>
+                  
+                  {emailLogs.length === 0 ? (
+                    <p className="text-[11px] text-slate-400 italic text-center py-6">No hay registros de correos enviados recientemente.</p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-[11px]">
+                        <thead>
+                          <tr className="border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[9px]">
+                            <th className="py-2 px-2">Fecha</th>
+                            <th className="py-2 px-2">Destinatario</th>
+                            <th className="py-2 px-2">Asunto</th>
+                            <th className="py-2 px-2">Remitente</th>
+                            <th className="py-2 px-2 text-right">Detalle</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {emailLogs.map(log => (
+                            <tr key={log.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors text-slate-600">
+                              <td className="py-2 px-2 whitespace-nowrap text-slate-400 font-medium">
+                                {new Date(log.fecha).toLocaleString('es-MX', { hour12: false, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </td>
+                              <td className="py-2 px-2 max-w-[140px] truncate">
+                                <span className="font-semibold text-slate-700 block truncate">{log.lead_nombre || "Externo"}</span>
+                                <span className="text-[10px] text-slate-400 block truncate">{log.destinatario}</span>
+                              </td>
+                              <td className="py-2 px-2 max-w-[180px] truncate" title={log.asunto}>
+                                {log.asunto}
+                              </td>
+                              <td className="py-2 px-2 font-medium text-slate-500">
+                                {log.remitente}
+                              </td>
+                              <td className="py-2 px-2 text-right">
+                                <button 
+                                  onClick={() => setSelectedLog(log)} 
+                                  className="px-2 py-1 rounded bg-[#E8EFF8] hover:bg-[#4E60A9]/10 text-[#4E60A9] font-bold text-[9.5px] transition-colors"
+                                >
+                                  Ver
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
               </div>
 
             </div>
@@ -783,6 +1021,60 @@ export default function CorreoPage() {
         </div>
 
       </div>
+
+      {/* Modal de Detalle de Correo Log */}
+      {selectedLog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-[600px] w-full flex flex-col max-h-[85vh] overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50 shrink-0">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Detalle del Correo Enviado</span>
+                <h4 className="text-[14px] font-bold text-slate-800 truncate max-w-[400px]">{selectedLog.asunto}</h4>
+              </div>
+              <button onClick={() => setSelectedLog(null)} className="p-1 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-slate-600 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-[12px] border-b border-slate-100 pb-4">
+                <div>
+                  <span className="font-semibold text-slate-400 block text-[10px] uppercase">Para:</span>
+                  <span className="text-slate-700 font-bold">{selectedLog.destinatario} {selectedLog.lead_nombre ? `(${selectedLog.lead_nombre})` : ''}</span>
+                </div>
+                <div>
+                  <span className="font-semibold text-slate-400 block text-[10px] uppercase">Enviado por:</span>
+                  <span className="text-slate-700 font-bold">{selectedLog.remitente}</span>
+                </div>
+                <div>
+                  <span className="font-semibold text-slate-400 block text-[10px] uppercase">Fecha de envío:</span>
+                  <span className="text-slate-700 font-bold">{new Date(selectedLog.fecha).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                </div>
+                <div>
+                  <span className="font-semibold text-slate-400 block text-[10px] uppercase">Estatus:</span>
+                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-200">
+                    {selectedLog.status}
+                  </span>
+                </div>
+              </div>
+              
+              <div>
+                <span className="font-semibold text-slate-400 block text-[10px] uppercase mb-2">Contenido (Texto Plano):</span>
+                <pre className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-mono text-[11px] whitespace-pre-wrap text-slate-600 max-h-[300px] overflow-y-auto leading-relaxed">
+                  {selectedLog.cuerpo}
+                </pre>
+              </div>
+            </div>
+            
+            <div className="px-6 py-3 border-t border-slate-100 bg-slate-50 text-right shrink-0">
+              <button onClick={() => setSelectedLog(null)} className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-[12px] transition-colors">
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
