@@ -50,28 +50,54 @@ function applyVars(tplKey: string, tplBody: string, v: Vars): string {
 function chrome(body: string, remitente: string, origin = "") {
   return `<!DOCTYPE html>
 <html lang="es">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Bionordi</title></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Bionordi</title>
+  <style type="text/css">
+    @media only screen and (max-width: 600px) {
+      .outer-container { padding: 10px 0 !important; }
+      .outer-cell { padding: 10px 0 !important; }
+      .main-table { width: 100% !important; border-radius: 0px !important; border-left: none !important; border-right: none !important; }
+      .header-cell { padding: 18px 20px 14px !important; }
+      .body-cell { padding: 24px 20px 20px !important; }
+      .footer-cell { padding: 20px 20px 24px !important; }
+      
+      /* Mobile optimizations for body components */
+      .mobile-banner { padding: 28px 20px 24px !important; }
+      .mobile-banner-title { font-size: 22px !important; }
+      .mobile-card { padding: 14px 14px !important; }
+      .mobile-card-title { font-size: 13.5px !important; }
+      .mobile-badge { margin-top: 8px !important; display: block !important; float: none !important; text-align: left !important; }
+      .mobile-badge span { display: inline-block !important; }
+      .mobile-stack { display: block !important; width: 100% !important; }
+      .mobile-icon-container { margin-bottom: 12px !important; }
+      .mobile-padding { padding-left: 0px !important; }
+      .mobile-button { width: 100% !important; box-sizing: border-box !important; padding: 14px 20px !important; font-size: 12.5px !important; }
+      .mobile-timeline-cell { padding-bottom: 22px !important; }
+    }
+  </style>
+</head>
 <body style="margin:0;padding:0;background:#f1f5f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#f1f5f9" style="border-collapse:collapse;padding:40px 0;">
-  <tr><td align="center" style="padding:40px 0;">
-    <table width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="border-collapse:collapse;border:1px solid #E8EDF4;border-radius:16px;overflow:hidden;">
+<table class="outer-container" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f1f5f9" style="border-collapse:collapse;padding:40px 0;">
+  <tr><td class="outer-cell" align="center" style="padding:40px 0;">
+    <table class="main-table" width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="border-collapse:collapse;border:1px solid #E8EDF4;border-radius:16px;overflow:hidden;max-width:600px;">
       
       <!-- Top accent bar -->
       <tr><td height="5" style="background:linear-gradient(90deg,#4E60A9,#38AD64);font-size:1px;line-height:5px;">&nbsp;</td></tr>
 
       <!-- Logo header -->
-      <tr><td style="background:#ffffff;padding:22px 40px 18px;border-bottom:1px solid #E8EDF4;">
-        <img src="${origin}/LOGO_PRINCIPAL.png" alt="Bionordi Medical Technology" height="38" border="0" style="display:block;height:38px;width:auto;" />
+      <tr><td class="header-cell" style="background:#ffffff;padding:22px 40px 18px;border-bottom:1px solid #E8EDF4;">
+        <img src="${origin}/LOGO_PRINCIPAL.png" alt="Bionordi Medical Technology" width="162" height="38" border="0" style="display:block;height:38px;width:162px;" />
       </td></tr>
 
       <!-- Main Content Body -->
-      <tr><td style="background:#ffffff;padding:34px 40px 30px;font-family:Arial,Helvetica,sans-serif;">
+      <tr><td class="body-cell" style="background:#ffffff;padding:34px 40px 30px;font-family:Arial,Helvetica,sans-serif;">
         ${body}
       </td></tr>
 
       <!-- Footer -->
-      <tr><td style="padding:24px 40px 28px;background:#F8FAFC;border-top:1px solid #E8EDF4;">
+      <tr><td class="footer-cell" style="padding:24px 40px 28px;background:#F8FAFC;border-top:1px solid #E8EDF4;">
         <p style="font-size:11px;color:#94A3B8;line-height:1.7;margin:0;font-family:Arial,Helvetica,sans-serif;">
           <strong style="color:#64748B;">${remitente}</strong> · Bionordi S.A. de C.V.<br>
           Laboratorio especializado en reparación y mantenimiento de transductores de ultrasonido.<br>
@@ -277,9 +303,7 @@ const TPLS = {
           <!-- Step 1 -->
           <tr>
             <td valign="top" width="36" style="padding-bottom:24px;">
-              <table width="28" height="28" cellpadding="0" cellspacing="0" border="0" bgcolor="#0C1630" style="border-radius:50%;border-collapse:collapse;">
-                <tr><td align="center" valign="middle" style="font-size:12px;font-weight:bold;color:#ffffff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">1</td></tr>
-              </table>
+              <div style="background-color:#0C1630; color:#ffffff; font-weight:bold; border-radius:50%; width:28px; height:28px; line-height:28px; text-align:center; font-size:12px; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; display:inline-block;">1</div>
             </td>
             <td valign="top" style="padding-left:14px;padding-bottom:24px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
               <h4 style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 4px;">Identificación de Compatibilidad</h4>
@@ -289,9 +313,7 @@ const TPLS = {
           <!-- Step 2 -->
           <tr>
             <td valign="top" width="36" style="padding-bottom:24px;">
-              <table width="28" height="28" cellpadding="0" cellspacing="0" border="0" bgcolor="#0C1630" style="border-radius:50%;border-collapse:collapse;">
-                <tr><td align="center" valign="middle" style="font-size:12px;font-weight:bold;color:#ffffff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">2</td></tr>
-              </table>
+              <div style="background-color:#0C1630; color:#ffffff; font-weight:bold; border-radius:50%; width:28px; height:28px; line-height:28px; text-align:center; font-size:12px; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; display:inline-block;">2</div>
             </td>
             <td valign="top" style="padding-left:14px;padding-bottom:24px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
               <h4 style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 4px;">Propuesta y Clave Oficial</h4>
@@ -301,9 +323,7 @@ const TPLS = {
           <!-- Step 3 -->
           <tr>
             <td valign="top" width="36;">
-              <table width="28" height="28" cellpadding="0" cellspacing="0" border="0" bgcolor="#0C1630" style="border-radius:50%;border-collapse:collapse;">
-                <tr><td align="center" valign="middle" style="font-size:12px;font-weight:bold;color:#ffffff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">3</td></tr>
-              </table>
+              <div style="background-color:#0C1630; color:#ffffff; font-weight:bold; border-radius:50%; width:28px; height:28px; line-height:28px; text-align:center; font-size:12px; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; display:inline-block;">3</div>
             </td>
             <td valign="top" style="padding-left:14px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
               <h4 style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 4px;">Carga y Activación Permanente</h4>
