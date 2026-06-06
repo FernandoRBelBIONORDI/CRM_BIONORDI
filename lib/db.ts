@@ -127,6 +127,8 @@ function initDb(): Database.Database {
     `ALTER TABLE leads ADD COLUMN fac_uso_cfdi TEXT`,
     `ALTER TABLE leads ADD COLUMN fac_dir_fiscal TEXT`,
     `ALTER TABLE leads ADD COLUMN fac_correo TEXT`,
+    `ALTER TABLE leads ADD COLUMN latitud REAL`,
+    `ALTER TABLE leads ADD COLUMN longitud REAL`,
   ]) { try { _db.exec(sql); } catch { /* column already exists */ } }
 
   _db.exec(`

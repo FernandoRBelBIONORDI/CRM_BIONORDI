@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { waLink } from "@/lib/ui";
 
 const STATUS_COLORS: Record<string, string> = {
   nuevo:       "#4F46E5",
@@ -15,25 +14,134 @@ const STATUS_COLORS: Record<string, string> = {
   descartado:  "#DC2626",
 };
 
-function buildIcon(color: string): L.DivIcon {
+const STATUS_BG: Record<string, string> = {
+  nuevo:       "#EEF3FC",
+  contactado:  "#FFFBEB",
+  seguimiento: "#FFF7ED",
+  diagnostico: "#F5F3FF",
+  cliente:     "#ECFDF5",
+  sin_equipo:  "#F1F5F9",
+  descartado:  "#FEF2F2",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  nuevo:       "Nuevo",
+  contactado:  "Contactado",
+  seguimiento: "Seguimiento",
+  diagnostico: "Diagnóstico",
+  cliente:     "Cliente",
+  sin_equipo:  "Sin equipo",
+  descartado:  "Descartado",
+};
+
+const TAMANO_LABELS: Record<string, string> = {
+  consultorio: "Consultorio",
+  clinica_p:   "Clínica pequeña",
+  clinica_m:   "Clínica mediana",
+  hospital:    "Hospital",
+};
+
+function buildIcon(color: string, precise: boolean): L.DivIcon {
+  const size = precise ? 15 : 12;
+  const ring = precise ? `box-shadow:0 0 0 3px ${color}33,0 2px 8px rgba(0,0,0,0.22)` : `box-shadow:0 2px 6px rgba(0,0,0,0.20)`;
   return L.divIcon({
-    html: `<div style="width:13px;height:13px;background:${color};border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.25)"></div>`,
+    html: `<div style="width:${size}px;height:${size}px;background:${color};border-radius:50%;border:2.5px solid #fff;${ring}"></div>`,
     className: "",
-    iconSize: [13, 13],
-    iconAnchor: [6, 6],
+    iconSize:   [size, size],
+    iconAnchor: [size / 2, size / 2],
   });
+}
+
+function escHtml(s?: string | null): string {
+  if (!s) return "";
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function waHref(phone?: string | null): string | null {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return null;
+  const number = digits.startsWith("52") ? digits : `52${digits}`;
+  return `https://wa.me/${number}`;
+}
+
+function scoreColor(s: number): string {
+  if (s >= 7) return "#22C55E";
+  if (s >= 4) return "#EAB308";
+  return "#94A3B8";
+}
+
+function buildPopupHtml(lead: Lead): string {
+  const sColor   = STATUS_COLORS[lead.status_crm] || "#6B7280";
+  const sBg      = STATUS_BG[lead.status_crm]     || "#F1F5F9";
+  const sLabel   = STATUS_LABELS[lead.status_crm] || lead.status_crm;
+  const score    = lead.score_potencial;
+  const scColor  = score ? scoreColor(score) : null;
+  const precise  = !!(lead.latitud && lead.longitud);
+  const wa       = waHref(lead.whatsapp || lead.telefono);
+  const specialty= [lead.nicho, lead.sub_nicho].filter(Boolean).join(" · ");
+  const location = [lead.ciudad, lead.estado_republica].filter(Boolean).join(", ");
+  const tamano   = lead.tamano_estimado ? TAMANO_LABELS[lead.tamano_estimado] || lead.tamano_estimado : null;
+
+  return `
+<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-width:248px;max-width:276px;padding:2px 0 0">
+
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
+    <div style="font-weight:700;font-size:13.5px;color:#0F172A;line-height:1.3;flex:1">${escHtml(lead.nombre)}</div>
+    <span style="background:${sBg};color:${sColor};font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;border:1px solid ${sColor}33;flex-shrink:0">${sLabel}</span>
+  </div>
+
+  ${score ? `
+  <div style="background:#F8FAFC;border-radius:8px;padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;gap:10px;border:1px solid #F1F5F9">
+    <div style="font-size:22px;font-weight:900;color:${scColor};line-height:1;min-width:28px;text-align:center">${score}</div>
+    <div style="flex:1">
+      <div style="font-size:9px;color:#94A3B8;font-weight:700;letter-spacing:0.06em;margin-bottom:4px">SCORE POTENCIAL</div>
+      <div style="background:#E2E8F0;border-radius:4px;height:5px;overflow:hidden">
+        <div style="background:${scColor};width:${score * 10}%;height:5px;border-radius:4px"></div>
+      </div>
+    </div>
+    ${tamano ? `<div style="font-size:10px;color:#94A3B8;font-weight:600;white-space:nowrap">${escHtml(tamano)}</div>` : ""}
+  </div>
+  ` : ""}
+
+  ${specialty ? `<div style="font-size:11.5px;color:#475569;margin-bottom:5px;display:flex;align-items:center;gap:5px"><span style="font-size:13px;opacity:0.7">🏥</span><span>${escHtml(specialty)}</span></div>` : ""}
+
+  ${lead.direccion ? `
+  <div style="font-size:11.5px;color:#374151;margin-bottom:2px;display:flex;align-items:flex-start;gap:5px">
+    <span style="font-size:13px;flex-shrink:0;margin-top:0px">${precise ? "📍" : "🗺️"}</span>
+    <span style="line-height:1.4">${escHtml(lead.direccion)}</span>
+  </div>
+  ` : ""}
+
+  ${location ? `<div style="font-size:11px;color:#94A3B8;margin-bottom:10px;padding-left:${lead.direccion ? "18px" : "0"}">${escHtml(location)}</div>` : `<div style="margin-bottom:10px"></div>`}
+
+  ${lead.correo ? `<div style="font-size:11px;color:#64748B;margin-bottom:8px;display:flex;align-items:center;gap:5px;overflow:hidden"><span style="opacity:0.6">✉️</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(lead.correo)}</span></div>` : ""}
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;padding-top:8px;border-top:1px solid #F1F5F9">
+    ${wa ? `<a href="${wa}" target="_blank" rel="noreferrer" style="background:#22C55E;color:#fff;padding:5px 11px;border-radius:7px;text-decoration:none;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:3px">📱 WhatsApp</a>` : ""}
+    <a href="/clientes/${lead.id}" style="background:#4F46E5;color:#fff;padding:5px 11px;border-radius:7px;text-decoration:none;font-size:11px;font-weight:700;flex:1;text-align:center;display:inline-block">Ver lead →</a>
+  </div>
+
+</div>`.trim();
 }
 
 interface Lead {
   id: number;
   nombre: string;
   ciudad?: string;
+  estado_republica?: string;
+  municipio?: string;
   nicho?: string;
+  sub_nicho?: string;
   telefono?: string;
   whatsapp?: string;
+  correo?: string;
   score_potencial?: number;
   status_crm: string;
   direccion?: string;
+  tamano_estimado?: string;
+  latitud?: number | null;
+  longitud?: number | null;
 }
 
 interface Props {
@@ -76,51 +184,43 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
     if (!markersRef.current || !mapRef.current) return;
     markersRef.current.clearLayers();
 
-    const coordMap: Record<string, Lead[]> = {};
+    // Spread algorithm only for city-level (non-geocoded) leads
+    const citySlots: Record<string, number> = {};
 
     for (const lead of leads) {
       if (!visibleStatus.has(lead.status_crm)) continue;
 
-      const coords = getCoordsForCity(lead.ciudad);
-      if (!coords) continue;
+      let pos: [number, number];
+      const precise = !!(lead.latitud && lead.longitud);
 
-      const key = `${coords[0].toFixed(2)}_${coords[1].toFixed(2)}`;
-      coordMap[key] = coordMap[key] || [];
-      coordMap[key].push(lead);
+      if (precise) {
+        pos = [lead.latitud as number, lead.longitud as number];
+      } else {
+        const coords = getCoordsForCity(lead.ciudad);
+        if (!coords) continue;
 
-      const idx   = coordMap[key].length - 1;
-      const angle = idx * 137.508 * (Math.PI / 180);
-      const r     = idx === 0 ? 0 : 0.01 + Math.floor(idx / 8) * 0.01;
-      const pos: [number, number] = [coords[0] + r * Math.sin(angle), coords[1] + r * Math.cos(angle)];
+        const key = `${coords[0].toFixed(2)}_${coords[1].toFixed(2)}`;
+        const idx = citySlots[key] ?? 0;
+        citySlots[key] = idx + 1;
+
+        const angle = idx * 137.508 * (Math.PI / 180);
+        const r     = idx === 0 ? 0 : 0.01 + Math.floor(idx / 8) * 0.01;
+        pos = [coords[0] + r * Math.sin(angle), coords[1] + r * Math.cos(angle)];
+      }
 
       const color  = STATUS_COLORS[lead.status_crm] || "#6B7280";
-      const icon   = buildIcon(color);
+      const icon   = buildIcon(color, precise);
       const marker = L.marker(pos, { icon });
 
-      const scoreBar = lead.score_potencial
-        ? `<div style="margin-top:4px"><span style="color:${scoreColor(lead.score_potencial)};font-weight:bold">${lead.score_potencial}/10</span> potencial</div>`
-        : "";
-
-      marker.bindPopup(`
-        <div style="font-family:monospace;font-size:12px;min-width:180px">
-          <div style="font-weight:700;font-size:13px;margin-bottom:4px">${lead.nombre}</div>
-          <div style="color:#9CA3AF">${lead.nicho || ""} · ${lead.ciudad || ""}</div>
-          ${scoreBar}
-          <div style="margin-top:8px;display:flex;gap:6px">
-            ${waLink(lead.whatsapp || lead.telefono) ? `<a href="${waLink(lead.whatsapp || lead.telefono)}" 
-              style="background:#22C55E;color:#fff;padding:3px 8px;border-radius:4px;text-decoration:none;font-size:11px">WA</a>` : ""}
-            <a href="/clientes/${lead.id}" style="background:#0EA5E9;color:#fff;padding:3px 8px;border-radius:4px;text-decoration:none;font-size:11px">Ver lead</a>
-          </div>
-        </div>
-      `, { maxWidth: 240 });
+      marker.bindPopup(buildPopupHtml(lead), { maxWidth: 300, className: "bionordi-popup" });
 
       if (heatmap) {
         L.circle(pos, {
-          radius: 8000,
-          color: color,
-          fillColor: color,
-          fillOpacity: 0.06,
-          weight: 0,
+          radius:      precise ? 3000 : 8000,
+          color:       color,
+          fillColor:   color,
+          fillOpacity: 0.07,
+          weight:      0,
         }).addTo(markersRef.current!);
       }
 
@@ -128,7 +228,25 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
     }
   }, [leads, visibleStatus, heatmap]);
 
-  return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
+  return (
+    <>
+      <style>{`
+        .bionordi-popup .leaflet-popup-content-wrapper {
+          border-radius: 12px;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
+          border: 1px solid #E2E8F0;
+          padding: 0;
+        }
+        .bionordi-popup .leaflet-popup-content {
+          margin: 14px 16px;
+        }
+        .bionordi-popup .leaflet-popup-tip-container {
+          margin-top: -1px;
+        }
+      `}</style>
+      <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
+    </>
+  );
 }
 
 const CIUDAD_COORDS: Record<string, [number, number]> = {
@@ -188,10 +306,4 @@ function getCoordsForCity(city?: string): [number, number] | null {
   }
   const h = cityHash(key);
   return [20 + (h % 700) / 100, -98 - (h % 1100) / 100];
-}
-
-function scoreColor(s: number): string {
-  if (s >= 7) return "#22C55E";
-  if (s >= 4) return "#EAB308";
-  return "#9CA3AF";
 }
