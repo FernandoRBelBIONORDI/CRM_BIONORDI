@@ -77,14 +77,16 @@ function buildPopupHtml(lead: Lead): string {
   const sLabel   = STATUS_LABELS[lead.status_crm] || lead.status_crm;
   const score    = lead.score_potencial;
   const scColor  = score ? scoreColor(score) : null;
-  const precise  = !!(lead.latitud && lead.longitud);
+  const precise  = lead.latitud != null && lead.longitud != null && lead.latitud !== 0 && lead.longitud !== 0;
   const wa       = waHref(lead.whatsapp || lead.telefono);
   const specialty= [lead.nicho, lead.sub_nicho].filter(Boolean).join(" · ");
   const location = [lead.ciudad, lead.estado_republica].filter(Boolean).join(", ");
   const tamano   = lead.tamano_estimado ? TAMANO_LABELS[lead.tamano_estimado] || lead.tamano_estimado : null;
+  const agent    = lead.asignado_a;
+  const lastContact = lead.fecha_ultimo_contacto ? lead.fecha_ultimo_contacto.slice(0, 10) : null;
 
   return `
-<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-width:248px;max-width:276px;padding:2px 0 0">
+<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-width:260px;max-width:290px;padding:2px 0 0">
 
   <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
     <div style="font-weight:700;font-size:13.5px;color:#0F172A;line-height:1.3;flex:1">${escHtml(lead.nombre)}</div>
@@ -104,7 +106,11 @@ function buildPopupHtml(lead: Lead): string {
   </div>
   ` : ""}
 
-  ${specialty ? `<div style="font-size:11.5px;color:#475569;margin-bottom:5px;display:flex;align-items:center;gap:5px"><span style="font-size:13px;opacity:0.7">🏥</span><span>${escHtml(specialty)}</span></div>` : ""}
+  <div style="font-size:11px;color:#475569;margin-bottom:8px;display:flex;flex-direction:column;gap:4px;background:#F8FAFC;padding:6px 10px;border-radius:8px;border:1px solid #F1F5F9">
+    ${specialty ? `<div><span style="font-weight:600;color:#64748B">Especialidad:</span> <span style="color:#1E293B">${escHtml(specialty)}</span></div>` : ""}
+    ${agent ? `<div><span style="font-weight:600;color:#64748B">Asignado a:</span> <span style="color:#1E293B">${escHtml(agent)}</span></div>` : ""}
+    ${lastContact ? `<div><span style="font-weight:600;color:#64748B">Último contacto:</span> <span style="color:#1E293B">${lastContact}</span></div>` : ""}
+  </div>
 
   ${lead.direccion ? `
   <div style="font-size:11.5px;color:#374151;margin-bottom:2px;display:flex;align-items:flex-start;gap:5px">
@@ -115,11 +121,13 @@ function buildPopupHtml(lead: Lead): string {
 
   ${location ? `<div style="font-size:11px;color:#94A3B8;margin-bottom:10px;padding-left:${lead.direccion ? "18px" : "0"}">${escHtml(location)}</div>` : `<div style="margin-bottom:10px"></div>`}
 
-  ${lead.correo ? `<div style="font-size:11px;color:#64748B;margin-bottom:8px;display:flex;align-items:center;gap:5px;overflow:hidden"><span style="opacity:0.6">✉️</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(lead.correo)}</span></div>` : ""}
+  ${lead.correo ? `<div style="font-size:11px;color:#64748B;margin-bottom:10px;display:flex;align-items:center;gap:5px;overflow:hidden"><span style="opacity:0.6">✉️</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(lead.correo)}</span></div>` : ""}
 
-  <div style="display:flex;gap:6px;flex-wrap:wrap;padding-top:8px;border-top:1px solid #F1F5F9">
-    ${wa ? `<a href="${wa}" target="_blank" rel="noreferrer" style="background:#22C55E;color:#fff;padding:5px 11px;border-radius:7px;text-decoration:none;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:3px">📱 WhatsApp</a>` : ""}
-    <a href="/clientes/${lead.id}" style="background:#4F46E5;color:#fff;padding:5px 11px;border-radius:7px;text-decoration:none;font-size:11px;font-weight:700;flex:1;text-align:center;display:inline-block">Ver lead →</a>
+  <div style="display:grid;grid-template-cols:1fr 1fr;gap:6px;padding-top:8px;border-top:1px solid #F1F5F9">
+    ${wa ? `<a href="${wa}" target="_blank" rel="noreferrer" style="background:#22C55E;color:#fff;padding:6px;border-radius:8px;text-decoration:none;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:3px;box-shadow:0 1px 2px rgba(34,197,94,0.2)">📱 WhatsApp</a>` : ""}
+    <a href="/clientes/${lead.id}" style="background:#4F46E5;color:#fff;padding:6px;border-radius:8px;text-decoration:none;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(79,70,229,0.2)">👤 Ver expediente</a>
+    <a href="/cotizar/venta?leadId=${lead.id}" style="background:#0F172A;color:#fff;padding:6px;border-radius:8px;text-decoration:none;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(15,23,42,0.2)">📄 Cotizar Venta</a>
+    <a href="/cotizar/mantenimiento?leadId=${lead.id}" style="background:#475569;color:#fff;padding:6px;border-radius:8px;text-decoration:none;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(71,85,105,0.2)">🔧 Cotizar Manto.</a>
   </div>
 
 </div>`.trim();
@@ -142,20 +150,24 @@ interface Lead {
   tamano_estimado?: string;
   latitud?: number | null;
   longitud?: number | null;
+  asignado_a?: string;
+  fecha_ultimo_contacto?: string;
 }
 
 interface Props {
   leads: Lead[];
   visibleStatus: Set<string>;
   heatmap: boolean;
+  selectedLeadId: number | null;
 }
 
 const MEXICO_CENTER: [number, number] = [23.5, -102.0];
 
-export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) {
+export default function MapsViewInner({ leads, visibleStatus, heatmap, selectedLeadId }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef       = useRef<L.Map | null>(null);
   const markersRef   = useRef<L.LayerGroup | null>(null);
+  const markersMapRef = useRef<Record<number, L.Marker>>({});
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -183,6 +195,7 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
   useEffect(() => {
     if (!markersRef.current || !mapRef.current) return;
     markersRef.current.clearLayers();
+    markersMapRef.current = {};
 
     // Spread algorithm only for city-level (non-geocoded) leads
     const citySlots: Record<string, number> = {};
@@ -191,7 +204,7 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
       if (!visibleStatus.has(lead.status_crm)) continue;
 
       let pos: [number, number];
-      const precise = !!(lead.latitud && lead.longitud);
+      const precise = lead.latitud != null && lead.longitud != null && lead.latitud !== 0 && lead.longitud !== 0;
 
       if (precise) {
         pos = [lead.latitud as number, lead.longitud as number];
@@ -212,7 +225,7 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
       const icon   = buildIcon(color, precise);
       const marker = L.marker(pos, { icon });
 
-      marker.bindPopup(buildPopupHtml(lead), { maxWidth: 300, className: "bionordi-popup" });
+      marker.bindPopup(buildPopupHtml(lead), { maxWidth: 320, className: "bionordi-popup" });
 
       if (heatmap) {
         L.circle(pos, {
@@ -225,8 +238,22 @@ export default function MapsViewInner({ leads, visibleStatus, heatmap }: Props) 
       }
 
       markersRef.current?.addLayer(marker);
+      markersMapRef.current[lead.id] = marker;
     }
   }, [leads, visibleStatus, heatmap]);
+
+  // Effect to center the map and trigger popup on selection
+  useEffect(() => {
+    if (!mapRef.current || !selectedLeadId) return;
+    const marker = markersMapRef.current[selectedLeadId];
+    if (marker) {
+      const pos = marker.getLatLng();
+      mapRef.current.setView(pos, 15, { animate: true });
+      setTimeout(() => {
+        marker.openPopup();
+      }, 300);
+    }
+  }, [selectedLeadId]);
 
   return (
     <>

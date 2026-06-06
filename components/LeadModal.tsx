@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
@@ -134,6 +134,17 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
   const [creatingOT, setCreatingOT]   = useState<number | null>(null);
   const [visitaMateriales, setVisitaMateriales] = useState<string[]>([]);
   const [visitaProxima, setVisitaProxima]       = useState("");
+  const [editContact, setEditContact]   = useState(false);
+  const [editNombre,  setEditNombre]    = useState("");
+  const [editTel,     setEditTel]       = useState("");
+  const [editCorreo,  setEditCorreo]    = useState("");
+  const [editSitio,   setEditSitio]     = useState("");
+  const [editDir,     setEditDir]       = useState("");
+  const [editCiudad,  setEditCiudad]    = useState("");
+  const [editMunicipio, setEditMunicipio] = useState("");
+  const [editEstado,  setEditEstado]    = useState("");
+  const [editNicho,   setEditNicho]     = useState("");
+  const [savingContact, setSavingContact] = useState(false);
   const [facRazonSoc,  setFacRazonSoc]  = useState("");
   const [facRFC,       setFacRFC]       = useState("");
   const [facRegimen,   setFacRegimen]   = useState("612");
@@ -150,6 +161,16 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
     setStatus(lead.status_crm);
     setAsignadoA(lead.asignado_a || "");
     setWaVal(lead.whatsapp || "");
+    setEditNombre(lead.nombre || "");
+    setEditTel(lead.telefono || "");
+    setEditCorreo(lead.correo || "");
+    setEditSitio(lead.sitio_web || "");
+    setEditDir(lead.direccion || "");
+    setEditCiudad(lead.ciudad || "");
+    setEditMunicipio(lead.municipio || "");
+    setEditEstado(lead.estado_republica || "");
+    setEditNicho(lead.nicho || "");
+    setEditContact(false);
     setFacRazonSoc(lead.fac_razon_social || "");
     setFacRFC(lead.fac_rfc || "");
     setFacRegimen(lead.fac_regimen || "612");
@@ -350,6 +371,37 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
     setEditWA(false);
   };
 
+  const saveContact = async () => {
+    if (!lead) return;
+    setSavingContact(true);
+    const patch = {
+      id: lead.id,
+      nombre: editNombre.trim() || lead.nombre,
+      telefono: editTel.trim() || null,
+      correo: editCorreo.trim() || null,
+      sitio_web: editSitio.trim() || null,
+      direccion: editDir.trim() || null,
+      ciudad: editCiudad.trim() || null,
+      municipio: editMunicipio.trim() || null,
+      estado_republica: editEstado.trim() || null,
+      nicho: editNicho.trim() || null,
+    };
+    await fetch("/api/leads", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(patch) });
+    onUpdate(lead.id, {
+      nombre: patch.nombre,
+      telefono: patch.telefono || undefined,
+      correo: patch.correo || undefined,
+      sitio_web: patch.sitio_web || undefined,
+      direccion: patch.direccion || undefined,
+      ciudad: patch.ciudad || undefined,
+      municipio: patch.municipio || undefined,
+      estado_republica: patch.estado_republica || undefined,
+      nicho: patch.nicho || undefined,
+    });
+    setSavingContact(false);
+    setEditContact(false);
+  };
+
   const saveNota = async () => {
     if (!lead) return;
     setSavingNota(true);
@@ -519,28 +571,72 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete }: Props) 
 
             {/* Contact info */}
             <div className="px-6 py-4 border-b border-gray-100">
-              <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Datos de Contacto</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { icon: Phone,    label: "Teléfono",  val: lead.telefono },
-                  { icon: Mail,     label: "Correo",    val: lead.correo },
-                  { icon: Globe,    label: "Sitio web", val: lead.sitio_web, href: lead.sitio_web },
-                  { icon: Tag,      label: "Nicho",     val: lead.nicho },
-                  { icon: Building2,label: "Tamaño",    val: lead.tamano_estimado },
-                ].map(({ icon: Icon, label, val, href }) => (
-                  <div key={label} className={`flex items-start gap-2 p-2 rounded-lg ${val ? "bg-gray-50" : "opacity-0 pointer-events-none"}`}>
-                    <Icon size={13} className="text-gray-400 mt-0.5 shrink-0" />
-                    <div className="min-w-0">
-                      <div className="text-[10px] text-gray-400 font-medium">{label}</div>
-                      {href
-                        ? <a href={href.startsWith("http") ? href : `https://${href}`} target="_blank" rel="noopener noreferrer"
-                            className="text-[12px] font-bold text-[#4E60A9] hover:underline truncate block">{val}</a>
-                        : <div className="text-[12px] font-bold text-[#1E293B] truncate">{val || ""}</div>}
-                    </div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Datos de Contacto</h3>
+                {!editContact ? (
+                  <button onClick={() => setEditContact(true)}
+                    className="flex items-center gap-1 text-[11px] font-bold text-[#4E60A9] hover:text-[#2B5FD9] transition-colors">
+                    <Edit3 size={11} /> Editar
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => { setEditContact(false); setEditNombre(lead.nombre); setEditTel(lead.telefono||""); setEditCorreo(lead.correo||""); setEditSitio(lead.sitio_web||""); setEditDir(lead.direccion||""); setEditCiudad(lead.ciudad||""); setEditMunicipio(lead.municipio||""); setEditEstado(lead.estado_republica||""); setEditNicho(lead.nicho||""); }}
+                      className="text-[11px] text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg transition-colors">
+                      Cancelar
+                    </button>
+                    <button onClick={saveContact}
+                      className="flex items-center gap-1 text-[11px] font-bold text-white bg-[#4E60A9] hover:bg-[#2B5FD9] px-3 py-1 rounded-full transition-colors">
+                      {savingContact ? <Activity size={10} className="animate-spin" /> : <Check size={10} />} Guardar
+                    </button>
                   </div>
-                ))}
+                )}
               </div>
 
+              {editContact ? (
+                <div className="space-y-2 mb-3">
+                  <input placeholder="Nombre *" value={editNombre} onChange={e => setEditNombre(e.target.value)}
+                    className="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400 font-bold" />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input placeholder="Teléfono" value={editTel} onChange={e => setEditTel(e.target.value)}
+                      className="text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400" />
+                    <input placeholder="Correo" value={editCorreo} onChange={e => setEditCorreo(e.target.value)}
+                      className="text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400" />
+                    <input placeholder="Ciudad" value={editCiudad} onChange={e => setEditCiudad(e.target.value)}
+                      className="text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400" />
+                    <input placeholder="Municipio" value={editMunicipio} onChange={e => setEditMunicipio(e.target.value)}
+                      className="text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400" />
+                    <input placeholder="Estado" value={editEstado} onChange={e => setEditEstado(e.target.value)}
+                      className="text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400" />
+                    <input placeholder="Nicho" value={editNicho} onChange={e => setEditNicho(e.target.value)}
+                      className="text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400" />
+                  </div>
+                  <input placeholder="Dirección" value={editDir} onChange={e => setEditDir(e.target.value)}
+                    className="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400" />
+                  <input placeholder="Sitio web" value={editSitio} onChange={e => setEditSitio(e.target.value)}
+                    className="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 focus:bg-white placeholder:text-gray-400" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  {[
+                    { icon: Phone,    label: "Teléfono",  val: lead.telefono },
+                    { icon: Mail,     label: "Correo",    val: lead.correo },
+                    { icon: Globe,    label: "Sitio web", val: lead.sitio_web, href: lead.sitio_web },
+                    { icon: Tag,      label: "Nicho",     val: lead.nicho },
+                    { icon: Building2,label: "Tamaño",    val: lead.tamano_estimado },
+                  ].map(({ icon: Icon, label, val, href }) => (
+                    <div key={label} className={`flex items-start gap-2 p-2 rounded-lg ${val ? "bg-gray-50" : "opacity-0 pointer-events-none"}`}>
+                      <Icon size={13} className="text-gray-400 mt-0.5 shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-[10px] text-gray-400 font-medium">{label}</div>
+                        {href
+                          ? <a href={href.startsWith("http") ? href : `https://${href}`} target="_blank" rel="noopener noreferrer"
+                              className="text-[12px] font-bold text-[#4E60A9] hover:underline truncate block">{val}</a>
+                          : <div className="text-[12px] font-bold text-[#1E293B] truncate">{val || ""}</div>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
               {/* WhatsApp editable */}
               <div className="mt-2 flex items-center gap-2">
                 <MessageCircle size={13} className="text-[#22C55E] shrink-0" />

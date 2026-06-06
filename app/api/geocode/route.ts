@@ -49,8 +49,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ lat, lng, display_name: data[0].display_name });
     }
 
-    // No result found — mark as attempted with null sentinel to avoid retrying
-    return NextResponse.json({ error: 'Sin resultado' }, { status: 404 });
+    // No result found — mark as attempted with 0,0 sentinel to avoid retrying
+    db.prepare(`UPDATE leads SET latitud = 0.0, longitud = 0.0 WHERE id = ?`).run(lead_id);
+    return NextResponse.json({ error: 'Sin resultado', lat: 0, lng: 0 }, { status: 404 });
 
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
