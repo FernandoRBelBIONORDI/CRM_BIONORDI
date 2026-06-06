@@ -105,25 +105,25 @@ const TPLS = {
   mindray: {
     label: "Licencias Mindray",
     color: "#0071C5",
-    defaultSubject: "Desbloquee todo el potencial de su ultrasonido Mindray · Bionordi",
+    defaultSubject: "Actualización tecnológica y licencias de software Mindray · Bionordi",
     body: `
       <div style="background:#0C1630;padding:32px 40px;border-radius:12px;margin-bottom:20px;font-family:Arial,Helvetica,sans-serif;">
         <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:18px;"><tr>
           <td style="background:rgba(75,94,199,0.18);border:1px solid rgba(75,94,199,0.35);border-radius:100px;padding:5px 14px;font-size:11px;font-weight:700;color:#38AD64;text-transform:uppercase;letter-spacing:0.08em;font-family:Arial,Helvetica,sans-serif;">&#9679; Licencias Originales Mindray</td>
         </tr></table>
         <p style="font-size:15px;font-weight:600;color:rgba(255,255,255,0.7);margin:0 0 14px;font-family:Arial,Helvetica,sans-serif;">Estimado/a {{nombre_doctor}},</p>
-        <p style="font-size:28px;font-weight:700;color:#ffffff;line-height:1.25;letter-spacing:-0.02em;margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;">Desbloquee todo el potencial de su <span style="color:#38AD64;">ultrasonido Mindray</span></p>
-        <p style="font-size:14px;color:rgba(255,255,255,0.62);line-height:1.65;margin:0;font-family:Arial,Helvetica,sans-serif;">Su equipo ya tiene el hardware. Las licencias de software Mindray activan los módulos clínicos avanzados que están esperando ser utilizados.</p>
+        <p style="font-size:28px;font-weight:700;color:#ffffff;line-height:1.25;letter-spacing:-0.02em;margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;">Habilite módulos adicionales en su <span style="color:#38AD64;">ultrasonido Mindray</span></p>
+        <p style="font-size:14px;color:rgba(255,255,255,0.62);line-height:1.65;margin:0;font-family:Arial,Helvetica,sans-serif;">Su sistema cuenta con el hardware necesario. Las actualizaciones por software de Mindray permiten activar herramientas de diagnóstico clínico especializadas.</p>
         {{mensaje_extra}}
       </div>
       
       <div style="margin-bottom:24px;font-family:Arial,Helvetica,sans-serif;">
-        <p style="font-size:14px;color:#475569;line-height:1.75;margin:0 0 16px;">En <strong>Bionordi</strong> trabajamos con clínicas y médicos que buscan sacar el máximo provecho de sus equipos de ultrasonido. Una de las formas más eficientes de hacerlo es a través de las <strong>licencias de software originales Mindray</strong>: códigos de activación que habilitan módulos especializados directamente en su equipo actual, sin reemplazarlo ni adquirir hardware adicional.</p>
+        <p style="font-size:14px;color:#475569;line-height:1.75;margin:0 0 16px;">En <strong>Bionordi</strong> colaboramos con profesionales que requieren optimizar la capacidad de sus sistemas de ultrasonido. La integración de <strong>módulos de software originales Mindray</strong> permite habilitar herramientas adicionales directamente en su consola actual mediante códigos específicos de activación.</p>
       </div>
       
       <div style="background:#F4F7FC;border:1px solid #E5EAF4;border-left:4px solid #4E60A9;border-radius:8px;padding:18px 20px;margin-bottom:24px;font-family:Arial,Helvetica,sans-serif;">
-        <div style="font-size:11px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">¿Qué es una licencia de software Mindray?</div>
-        <p style="font-size:13.5px;color:#475569;line-height:1.7;margin:0;">Los equipos de ultrasonido Mindray vienen de fábrica con capacidades bloqueadas que se activan mediante una <strong>license key</strong>: un código único vinculado al número de serie de su equipo. Una vez ingresada, el módulo queda habilitado de forma permanente. Es la manera más costo-eficiente de ampliar las capacidades diagnósticas de un equipo que ya conoce y en el que ya confía.</p>
+        <div style="font-size:11px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">¿En qué consisten los módulos de actualización de software?</div>
+        <p style="font-size:13.5px;color:#475569;line-height:1.7;margin:0;">Los sistemas de ultrasonido Mindray permiten la activación de funciones clínicas adicionales mediante una <strong>clave de activación (license key)</strong> vinculada de forma exclusiva al número de serie de su equipo. Al ingresar dicho código, la herramienta queda habilitada de manera permanente en el equipo, permitiendo ampliar las capacidades de diagnóstico sin requerir inversiones físicas adicionales.</p>
       </div>
       
       <div style="margin-bottom:24px;font-family:Arial,Helvetica,sans-serif;">
@@ -133,7 +133,7 @@ const TPLS = {
           <td width="4" bgcolor="#4E60A9" style="border-radius:12px 0 0 12px;font-size:1px;line-height:1px;">&nbsp;</td>
           <td style="padding:14px 16px;">
             <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;font-size:20px;">👶</td></tr></table></td>
+              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4E60A9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><circle cx="12" cy="10" r="3"/><path d="M12 13v8M9 16h6"/><path d="M12 2v5"/></svg></td></tr></table></td>
               <td valign="top" style="padding-left:14px;">
                 <p style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 3px;">Smart OB™ &amp; Smart NT™</p>
                 <span style="display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#E8FAF1;color:#2A9D6A;margin-bottom:6px;">Obstetricia</span>
@@ -147,7 +147,7 @@ const TPLS = {
           <td width="4" bgcolor="#4E60A9" style="border-radius:12px 0 0 12px;font-size:1px;line-height:1px;">&nbsp;</td>
           <td style="padding:14px 16px;">
             <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;font-size:20px;">🫀</td></tr></table></td>
+              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B71C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></td></tr></table></td>
               <td valign="top" style="padding-left:14px;">
                 <p style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 3px;">TDI – Tissue Doppler Imaging</p>
                 <span style="display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#FDE8E8;color:#B71C1C;margin-bottom:6px;">Cardiología</span>
@@ -161,7 +161,7 @@ const TPLS = {
           <td width="4" bgcolor="#4E60A9" style="border-radius:12px 0 0 12px;font-size:1px;line-height:1px;">&nbsp;</td>
           <td style="padding:14px 16px;">
             <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;font-size:20px;">🔬</td></tr></table></td>
+              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4E60A9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="15"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/></svg></td></tr></table></td>
               <td valign="top" style="padding-left:14px;">
                 <p style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 3px;">Natural Touch Elastography</p>
                 <span style="display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#ECF0FD;color:#4E60A9;margin-bottom:6px;">Imagen avanzada</span>
@@ -175,7 +175,7 @@ const TPLS = {
           <td width="4" bgcolor="#4E60A9" style="border-radius:12px 0 0 12px;font-size:1px;line-height:1px;">&nbsp;</td>
           <td style="padding:14px 16px;">
             <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;font-size:20px;">🌐</td></tr></table></td>
+              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4E60A9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></td></tr></table></td>
               <td valign="top" style="padding-left:14px;">
                 <p style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 3px;">iLive™ – Imagen 4D Avanzada</p>
                 <span style="display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#ECF0FD;color:#4E60A9;margin-bottom:6px;">Imagen avanzada</span>
@@ -189,7 +189,7 @@ const TPLS = {
           <td width="4" bgcolor="#4E60A9" style="border-radius:12px 0 0 12px;font-size:1px;line-height:1px;">&nbsp;</td>
           <td style="padding:14px 16px;">
             <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;font-size:20px;">🔗</td></tr></table></td>
+              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v1"/><path d="M18 8h4a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-4"/></svg></td></tr></table></td>
               <td valign="top" style="padding-left:14px;">
                 <p style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 3px;">DICOM Worklist &amp; Storage</p>
                 <span style="display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#FEF3E2;color:#B45309;margin-bottom:6px;">Conectividad</span>
@@ -203,7 +203,7 @@ const TPLS = {
           <td width="4" bgcolor="#38AD64" style="border-radius:12px 0 0 12px;font-size:1px;line-height:1px;">&nbsp;</td>
           <td style="padding:14px 16px;">
             <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;font-size:20px;">🧠</td></tr></table></td>
+              <td width="50" valign="top"><table cellpadding="0" cellspacing="0" border="0"><tr><td width="42" height="42" bgcolor="#E5EAF4" align="center" valign="middle" style="border-radius:50%;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6A1AB0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></td></tr></table></td>
               <td valign="top" style="padding-left:14px;">
                 <p style="font-size:14px;font-weight:700;color:#0C1630;margin:0 0 3px;">Auto EF &amp; Tissue Tracking (TTQA)</p>
                 <span style="display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:#F0E8FD;color:#6A1AB0;margin-bottom:6px;">IA / Auto-medición</span>
@@ -215,12 +215,12 @@ const TPLS = {
       </div>
 
       <div style="background:linear-gradient(135deg, #0C1630 0%, #4E60A9 100%);border-radius:12px;padding:26px 28px;margin-bottom:20px;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
-        <div style="font-size:16px;font-weight:700;color:#38AD64;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">La inversión más inteligente para su equipo</div>
-        <p style="font-size:13.5px;color:rgba(255,255,255,0.82);line-height:1.75;margin:0;">Adquirir una licencia de software Mindray representa una fracción del costo de reemplazar el equipo completo, con el beneficio de <strong>obtener funcionalidades que muchos sistemas de mayor precio ya incluyen de serie</strong>. Su equipo ya está calificado para el trabajo — la licencia simplemente lo desbloquea.</p>
+        <div style="font-size:16px;font-weight:700;color:#38AD64;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Optimización de equipamiento médico</div>
+        <p style="font-size:13.5px;color:rgba(255,255,255,0.82);line-height:1.75;margin:0;">La habilitación de funciones adicionales permite ampliar el alcance clínico de sus sistemas de diagnóstico existentes con una inversión planificada y escalable. Su equipo cuenta con el soporte técnico y la compatibilidad para recibir estas actualizaciones directamente.</p>
       </div>
 
       <div style="margin-bottom:20px;font-family:Arial,Helvetica,sans-serif;">
-        <p style="font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#4E60A9;margin:0 0 10px;">¿Cómo funciona el proceso?</p>
+        <p style="font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#4E60A9;margin:0 0 10px;">Etapas de implementación técnica</p>
         
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;"><tr>
           <td width="30" valign="top"><div style="width:24px;height:24px;background:#4E60A9;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:700;color:#fff;">1</div></td>
@@ -229,25 +229,28 @@ const TPLS = {
 
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;"><tr>
           <td width="30" valign="top"><div style="width:24px;height:24px;background:#4E60A9;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:700;color:#fff;">2</div></td>
-          <td style="padding-left:10px;font-size:13px;color:#475569;line-height:1.6;"><strong>Cotización a su medida:</strong> Le presentamos las licencias compatibles con su plataforma y precios en pesos mexicanos, sin costos ocultos.</td>
+          <td style="padding-left:10px;font-size:13px;color:#475569;line-height:1.6;"><strong>Especificación técnica y presupuesto:</strong> Presentamos las alternativas compatibles con su equipo y las condiciones comerciales correspondientes.</td>
         </tr></table>
 
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;"><tr>
           <td width="30" valign="top"><div style="width:24px;height:24px;background:#4E60A9;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:700;color:#fff;">3</div></td>
-          <td style="padding-left:10px;font-size:13px;color:#475569;line-height:1.6;"><strong>Adquisición de la license key:</strong> Gestionamos la llave de activación original directamente con Mindray, vinculada al número de serie de su equipo.</td>
+          <td style="padding-left:10px;font-size:13px;color:#475569;line-height:1.6;"><strong>Generación de llave de activación:</strong> Tramitamos el código de habilitación directamente con el fabricante, vinculado al número de serie de su sistema.</td>
         </tr></table>
 
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;"><tr>
           <td width="30" valign="top"><div style="width:24px;height:24px;background:#4E60A9;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:700;color:#fff;">4</div></td>
-          <td style="padding-left:10px;font-size:13px;color:#475569;line-height:1.6;"><strong>Activación e instrucción:</strong> Realizamos la activación del módulo en su equipo y le capacitamos en el uso de las nuevas funciones. El módulo queda activo de forma permanente.</td>
+          <td style="padding-left:10px;font-size:13px;color:#475569;line-height:1.6;"><strong>Habilitación y soporte técnico:</strong> Coordinamos la carga de la llave de activación en su equipo y realizamos las pruebas de funcionamiento correspondientes.</td>
         </tr></table>
       </div>
 
       <div style="text-align:center;padding:20px 0;font-family:Arial,Helvetica,sans-serif;">
-        <a href="mailto:contacto@bionordi.com?subject=Consulta%20Licencias%20Mindray" style="display:inline-block;background-color:#4E60A9;color:#ffffff;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;padding:12px 28px;border-radius:100px;">Consultar Compatibilidad</a>
+        <a href="mailto:contacto@bionordi.mx?subject=Consulta%20Licencias%20Mindray" style="display:inline-block;background-color:#4E60A9;color:#ffffff;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;padding:12px 28px;border-radius:100px;">Solicitar Validación de Compatibilidad</a>
       </div>
     `,
-    plain: (v: Vars) => `Estimado/a ${v.nombre_doctor},\n\nEn Bionordi le ayudamos a desbloquear todo el potencial de su ultrasonido Mindray mediante las licencias originales.\n\nMódulos disponibles:\n- Smart OB / NT\n- Tissue Doppler (TDI)\n- Stress Echo\n- Natural Touch Elastography\n- iLive 4D Avanzado\n- DICOM Worklist / Storage\n- Auto EF & Tissue Tracking\n\nAtentamente,\n${v.nombre_remitente}`
+    plain: (v: Vars) => {
+      const remitenteName = v.nombre_remitente || "Fernando";
+      return `Estimado/a ${v.nombre_doctor},\n\nHabilite módulos adicionales y funciones clínicas en su ultrasonido Mindray.\n\nSu equipo ya cuenta con el hardware necesario. Las licencias de software originales de Mindray activan funciones avanzadas directamente sobre la plataforma de hardware existente.\n\nMódulos de actualización disponibles:\n\n- Smart OB y Smart NT (Obstetricia): Medición automática de biometría fetal y traslucencia nucal para optimizar el tiempo de examen.\n- TDI - Tissue Doppler Imaging (Cardiología): Evaluación cuantitativa del movimiento miocárdico y la función diastólica.\n- Natural Touch Elastography (Imagen avanzada): Evaluación cualitativa de la rigidez tisular para el análisis de lesiones.\n- iLive - Imagen 4D Avanzada (Imagen avanzada): Renderizado volumétrico fotorrealista en tiempo real.\n- DICOM Worklist y Storage (Conectividad): Integración directa con redes hospitalarias PACS/RIS.\n- Auto EF y Tissue Tracking (IA / Auto-medición): Cálculo automatizado de la fracción de eyección y strain miocárdico.\n\nProceso de habilitación:\n1. Identificación: Comparta modelo y número de serie para verificar compatibilidad.\n2. Especificación: Presentamos las opciones compatibles y presupuesto técnico.\n3. Llave de activación: Gestionamos el código de habilitación directamente con el fabricante.\n4. Soporte técnico: Realizamos la habilitación técnica del módulo.\n\nPara validar la compatibilidad de su equipo, puede responder a este correo o escribir a contacto@bionordi.mx.\n\nAtentamente,\n${remitenteName}\nBionordi S.A. de C.V.`;
+    }
   },
   presentacion: {
     label: "Primer contacto",
@@ -337,7 +340,7 @@ const TPLS = {
               </td></tr></table></td>
               <td valign="top" style="padding-left:14px;">
                 <p style="font-size:15px;font-weight:700;color:#ffffff;margin:0 0 5px;">Reparación de Transductores — Nivel componente</p>
-                <p style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.55;margin:0 0 12px;">Recuperamos el 98% de los transductores que otros declaran irrecuperables. Diagnóstico gratuito, entrega en 48h.</p>
+                <p style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.55;margin:0 0 12px;">Recuperamos el 98% de los transductores que otros declaran irrecuperables. Diagnóstico de cortesía, entrega en 48h.</p>
                 <span style="font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:rgba(61,187,121,0.15);color:#38AD64;border:1px solid rgba(61,187,121,0.2);display:inline-block;margin-right:4px;">GE Healthcare</span>
                 <span style="font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:rgba(61,187,121,0.15);color:#38AD64;border:1px solid rgba(61,187,121,0.2);display:inline-block;margin-right:4px;">Philips</span>
                 <span style="font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:rgba(61,187,121,0.15);color:#38AD64;border:1px solid rgba(61,187,121,0.2);display:inline-block;margin-right:4px;">Siemens</span>
@@ -356,82 +359,91 @@ const TPLS = {
     `,
     plain: (v: Vars) => `Estimado/a ${v.nombre_doctor},\n\nSomos Bionordi, proveedor especializado en tecnología de ultrasonido médico para consultorios de ${v.especialidad} en ${v.ciudad}.\n\nNUESTROS EQUIPOS:\n• Ultrasonido Portátil Mindray M9 — $320,000 MXN\n• Ultrasonido 4D Voluson — $850,000 MXN\n• Transductor Convex 3.5 MHz — $45,000 MXN\n\nAtentamente,\n${v.nombre_remitente}`
   },
-
   seguimiento: {
     label: "Seguimiento",
     color: "#7C3AED",
-    defaultSubject: "¿Puedo resolver alguna duda? · Bionordi",
+    defaultSubject: "Seguimiento a la consulta de soporte técnico · Bionordi",
     body: `
       <p style="font-size:15px;font-weight:700;color:#1E293B;margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;">Estimado/a {{nombre_doctor}},</p>
-      <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 14px;font-family:Arial,Helvetica,sans-serif;">Hace unos días le escribí sobre nuestros servicios de reparación de transductores en <strong>Bionordi</strong>. Quería hacer un breve seguimiento por si tiene alguna pregunta, o si desea una valoración sin compromiso para su equipo en <strong>{{consultorio}}</strong>.</p>
-      <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 20px;font-family:Arial,Helvetica,sans-serif;">Entendemos que su agenda es apretada, por eso el proceso es muy simple: usted nos envía el transductor, nosotros emitimos el diagnóstico en 24 horas y usted decide si autoriza la reparación. Sin cargos ocultos.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 14px;font-family:Arial,Helvetica,sans-serif;">Le escribimos para dar seguimiento a nuestra comunicación anterior respecto a los servicios de soporte y diagnóstico para transductores de ultrasonido de Bionordi. Quedamos a su disposición para coordinar cualquier revisión técnica o solventar dudas respecto a su equipo en <strong>{{consultorio}}</strong>.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 20px;font-family:Arial,Helvetica,sans-serif;">Nuestro protocolo de servicio está diseñado para optimizar sus tiempos: al recibir el transductor en nuestro laboratorio, realizamos una evaluación técnica especializada en 24 horas hábiles y le enviamos un informe detallado para su consideración.</p>
       
       <div style="background:#F5F3FF;border-radius:12px;padding:18px 24px;font-size:13px;color:#5B21B6;line-height:1.8;margin-bottom:20px;font-family:Arial,Helvetica,sans-serif;">
-        <strong>Tiempo de reparación:</strong> 5 a 7 días hábiles<br>
-        <strong>Garantía:</strong> 6 meses por escrito<br>
-        <strong>Diagnóstico:</strong> Sin cargo si autoriza la reparación
+        <strong>Tiempo estimado de reparación:</strong> 5 a 7 días hábiles<br>
+        <strong>Periodo de cobertura técnica:</strong> 6 meses (garantía por escrito)<br>
+        <strong>Evaluación técnica de la sonda:</strong> Incluida en el servicio de reparación
       </div>
       
       {{mensaje_extra}}
       
       <p style="font-size:13px;color:#475569;line-height:1.8;margin:20px 0 0;font-family:Arial,Helvetica,sans-serif;">Quedo atento a cualquier consulta.<br><br>Atentamente,<br><strong style="color:#1E293B;">{{nombre_remitente}}</strong><br><span style="color:#64748B;font-size:12px;">Bionordi — Laboratorio de Transductores</span></p>
     `,
-    plain: (v: Vars) => `Estimado/a ${v.nombre_doctor},\n\nHago seguimiento a mi mensaje anterior sobre Bionordi y reparación de transductores.\n\nEl proceso es sencillo: envía el equipo → diagnóstico en 24 h → usted decide. Sin cargos ocultos.\n\nTiempo de reparación: 5-7 días hábiles. Garantía: 6 meses.\n\n${v.mensaje_extra ? v.mensaje_extra + "\n\n" : ""}Quedo a sus órdenes.\n\nAtentamente,\n${v.nombre_remitente}\nBionordi`,
+    plain: (v: Vars) => {
+      const remitenteName = v.nombre_remitente || "Fernando";
+      const consultorioName = v.consultorio || "su consultorio";
+      return `Estimado/a ${v.nombre_doctor},\n\nLe escribimos para dar seguimiento a nuestra comunicación anterior respecto a los servicios de soporte técnico y diagnóstico para transductores de ultrasonido de Bionordi.\n\nQuedamos a su disposición para coordinar cualquier revisión técnica o solventar dudas respecto a su equipamiento en ${consultorioName}.\n\nNuestro protocolo de servicio está diseñado para optimizar sus tiempos:\n- Tiempo estimado de reparación: 5 a 7 días hábiles.\n- Cobertura técnica: Garantía de 6 meses por escrito.\n- Evaluación de la sonda: Incluida al autorizar el servicio.\n\n${v.mensaje_extra ? v.mensaje_extra + "\n\n" : ""}Quedamos a su entera disposición.\n\nAtentamente,\n${remitenteName}\nBionordi S.A. de C.V.\nLaboratorio especializado en transductores`;
+    }
   },
-
   diagnostico: {
-    label: "Diagnóstico gratis",
+    label: "Valoración técnica",
     color: "#059669",
-    defaultSubject: "Diagnóstico sin costo para su transductor · Bionordi",
+    defaultSubject: "Evaluación técnica especializada para su transductor · Bionordi",
     body: `
       <p style="font-size:15px;font-weight:700;color:#1E293B;margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;">Estimado/a {{nombre_doctor}},</p>
-      <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 20px;font-family:Arial,Helvetica,sans-serif;">Antes de tomar cualquier decisión sobre su equipo, usted necesita información técnica precisa. Por eso en <strong>Bionordi</strong> le ofrecemos un <strong>diagnóstico técnico sin costo</strong> para su transductor de ultrasonido.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 20px;font-family:Arial,Helvetica,sans-serif;">Para facilitar la toma de decisiones sobre el mantenimiento de su equipamiento médico, <strong>Bionordi</strong> pone a su disposición una <strong>evaluación técnica especializada</strong> para su transductor de ultrasonido.</p>
       
       <div style="background:#ECFDF5;border-radius:12px;border:1px solid #A7F3D0;padding:20px 24px;margin-bottom:20px;font-family:Arial,Helvetica,sans-serif;">
-        <div style="font-size:10px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;">El diagnóstico gratuito incluye</div>
-        <p style="font-size:13px;color:#064E3B;margin:0 0 8px;"><span style="color:#10B981;font-weight:700;margin-right:8px;">→</span> Prueba de cristales piezoeléctricos</p>
-        <p style="font-size:13px;color:#064E3B;margin:0 0 8px;"><span style="color:#10B981;font-weight:700;margin-right:8px;">→</span> Análisis de lente acústico y sellado</p>
-        <p style="font-size:13px;color:#064E3B;margin:0 0 8px;"><span style="color:#10B981;font-weight:700;margin-right:8px;">→</span> Revisión de cable y conector</p>
-        <p style="font-size:13px;color:#064E3B;margin:0;"><span style="color:#10B981;font-weight:700;margin-right:8px;">→</span> Reporte técnico detallado por escrito</p>
+        <div style="font-size:10px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;">La evaluación técnica comprende</div>
+        <p style="font-size:13px;color:#064E3B;margin:0 0 8px;"><span style="color:#10B981;font-weight:700;margin-right:8px;">→</span> Prueba de integridad de cristales piezoeléctricos</p>
+        <p style="font-size:13px;color:#064E3B;margin:0 0 8px;"><span style="color:#10B981;font-weight:700;margin-right:8px;">→</span> Evaluación del estado del lente acústico y sellos de estanqueidad</p>
+        <p style="font-size:13px;color:#064E3B;margin:0 0 8px;"><span style="color:#10B981;font-weight:700;margin-right:8px;">→</span> Inspección de cableado y pines de conexión</p>
+        <p style="font-size:13px;color:#064E3B;margin:0;"><span style="color:#10B981;font-weight:700;margin-right:8px;">→</span> Emisión de reporte técnico detallado</p>
       </div>
       
       {{mensaje_extra}}
       
-      <p style="font-size:13px;color:#475569;line-height:1.8;margin:20px 0 16px;font-family:Arial,Helvetica,sans-serif;">Si decide autorizar la reparación, el costo del diagnóstico se aplica como descuento. Si prefiere no proceder, le devolvemos el equipo sin cargo alguno.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;margin:20px 0 16px;font-family:Arial,Helvetica,sans-serif;">En caso de autorizar la reparación, el importe de la revisión se bonifica íntegramente en el servicio. Si decide no proceder con la reparación, el equipo se le retorna en las mismas condiciones.</p>
       <p style="font-size:13px;color:#475569;line-height:1.8;margin:0;font-family:Arial,Helvetica,sans-serif;">Atentamente,<br><strong style="color:#1E293B;">{{nombre_remitente}}</strong><br><span style="color:#64748B;font-size:12px;">Bionordi — Laboratorio de Transductores</span></p>
     `,
-    plain: (v: Vars) => `Estimado/a ${v.nombre_doctor},\n\nBionordi le ofrece un diagnóstico técnico SIN COSTO para su transductor.\n\nIncluye:\n- Prueba de cristales piezoeléctricos\n- Análisis de lente acústico\n- Revisión de cable y conector\n- Reporte técnico por escrito\n\n${v.mensaje_extra ? v.mensaje_extra + "\n\n" : ""}Si autoriza la reparación, el diagnóstico se descuenta. Si no, devolvemos el equipo sin cargo.\n\nAtentamente,\n${v.nombre_remitente}\nBionordi`,
+    plain: (v: Vars) => {
+      const remitenteName = v.nombre_remitente || "Fernando";
+      return `Estimado/a ${v.nombre_doctor},\n\nPara facilitar la toma de decisiones sobre el mantenimiento de su equipamiento médico, Bionordi pone a su disposición una valoración técnica especializada para su transductor de ultrasonido.\n\nLa evaluación técnica comprende:\n- Prueba de integridad de cristales piezoeléctricos.\n- Evaluación del estado del lente acústico y sellos de estanqueidad.\n- Inspección de cableado y pines de conexión.\n- Emisión de reporte técnico detallado.\n\n${v.mensaje_extra ? v.mensaje_extra + "\n\n" : ""}En caso de autorizar la reparación, el importe de la revisión se bonifica íntegramente en el servicio. Si decide no proceder, el equipo se le retorna en las mismas condiciones.\n\nAtentamente,\n${remitenteName}\nBionordi S.A. de C.V.\nLaboratorio especializado en transductores`;
+    }
   },
-
   mantenimiento: {
     label: "Mantenimiento",
     color: "#D97706",
-    defaultSubject: "Mantenga su equipo en condiciones óptimas · Bionordi",
+    defaultSubject: "Programa de mantenimiento preventivo para ultrasonidos · Bionordi",
     body: `
       <p style="font-size:15px;font-weight:700;color:#1E293B;margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;">Estimado/a {{nombre_doctor}},</p>
-      <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 14px;font-family:Arial,Helvetica,sans-serif;">El mantenimiento preventivo de su equipo de ultrasonido no solo prolonga su vida útil, sino que garantiza la calidad de imagen necesaria para un diagnóstico preciso en <strong>{{consultorio}}</strong>.</p>
-      <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 20px;font-family:Arial,Helvetica,sans-serif;">En <strong>Bionordi</strong> ofrecemos un programa de mantenimiento diseñado para consultorios de <strong>{{especialidad}}</strong>:</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 14px;font-family:Arial,Helvetica,sans-serif;">El mantenimiento preventivo es fundamental para preservar la vida útil de su equipo de ultrasonido y garantizar la consistencia en la calidad de imagen para sus diagnósticos en <strong>{{consultorio}}</strong>.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 20px;font-family:Arial,Helvetica,sans-serif;">Bionordi dispone de un protocolo de mantenimiento preventivo estructurado especialmente para equipos utilizados en la especialidad de <strong>{{especialidad}}</strong>:</p>
       
       <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;">
         <tr>
           <td width="48%" style="background:#FEF3C7;border-radius:10px;padding:16px 20px;vertical-align:top;">
-            <div style="font-size:10px;font-weight:800;color:#92400E;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Básico · Cada 6 meses</div>
-            <p style="font-size:12px;color:#78350F;line-height:1.6;margin:0;">Limpieza profunda, calibración de imagen y reporte de estado del equipo.</p>
+            <div style="font-size:10px;font-weight:800;color:#92400E;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Servicio Preventivo Semestral</div>
+            <p style="font-size:12px;color:#78350F;line-height:1.6;margin:0;">Limpieza interna y externa, verificación de voltajes de fuente, optimización de ventilación y reporte técnico de estado.</p>
           </td>
           <td width="4%"></td>
           <td width="48%" style="background:#FEF3C7;border-radius:10px;padding:16px 20px;vertical-align:top;border:2px solid #F59E0B;">
-            <div style="font-size:10px;font-weight:800;color:#92400E;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">⭐ Completo · Anual</div>
-            <p style="font-size:12px;color:#78350F;line-height:1.6;margin:0;">Revisión eléctrica, verificación de transductores, limpieza interna y garantía de 3 meses.</p>
+            <div style="font-size:10px;font-weight:800;color:#92400E;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Servicio Preventivo y Correctivo Anual</div>
+            <p style="font-size:12px;color:#78350F;line-height:1.6;margin:0;">Desensamble de tarjetas de procesamiento, limpieza e inspección de transductores, pruebas de seguridad eléctrica y cobertura técnica por 90 días.</p>
           </td>
         </tr>
       </table>
       
       {{mensaje_extra}}
       
-      <p style="font-size:13px;color:#475569;line-height:1.8;margin:20px 0 16px;font-family:Arial,Helvetica,sans-serif;">Realizamos el servicio en su consultorio o recibimos el equipo en nuestro laboratorio, según su conveniencia.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;margin:20px 0 16px;font-family:Arial,Helvetica,sans-serif;">El servicio puede llevarse a cabo directamente en sus instalaciones o en nuestro laboratorio especializado, de acuerdo a las necesidades de su agenda.</p>
       <p style="font-size:13px;color:#475569;line-height:1.8;margin:0;font-family:Arial,Helvetica,sans-serif;">Quedo a sus órdenes.<br><br>Atentamente,<br><strong style="color:#1E293B;">{{nombre_remitente}}</strong><br><span style="color:#64748B;font-size:12px;">Bionordi — Laboratorio de Transductores</span></p>
     `,
-    plain: (v: Vars) => `Estimado/a ${v.nombre_doctor},\n\nEl mantenimiento preventivo garantiza calidad de imagen y prolonga la vida de su equipo.\n\nBionordi ofrece:\n- Básico (cada 6 meses): limpieza, calibración, reporte\n- Completo (anual): revisión eléctrica + transductores + garantía 3 meses\n\n${v.mensaje_extra ? v.mensaje_extra + "\n\n" : ""}Servicio en su consultorio o en nuestro laboratorio.\n\nAtentamente,\n${v.nombre_remitente}\nBionordi`,
+    plain: (v: Vars) => {
+      const remitenteName = v.nombre_remitente || "Fernando";
+      const consultorioName = v.consultorio || "su consultorio";
+      const especialidadName = v.especialidad || "su especialidad";
+      return `Estimado/a ${v.nombre_doctor},\n\nEl mantenimiento preventivo es fundamental para preservar la vida útil de su equipo de ultrasonido y garantizar la consistencia en la calidad de imagen en ${consultorioName}.\n\nBionordi dispone de un protocolo de mantenimiento preventivo estructurado especialmente para equipos de ${especialidadName}:\n\n- Servicio Preventivo Semestral:\nLimpieza interna y externa, verificación de voltajes de fuente, optimización de ventilación y reporte técnico de estado.\n\n- Servicio Preventivo y Correctivo Anual:\nDesensamble de tarjetas de procesamiento, limpieza e inspección de transductores, pruebas de seguridad eléctrica y cobertura técnica por 90 días.\n\n${v.mensaje_extra ? v.mensaje_extra + "\n\n" : ""}El servicio puede realizarse directamente en sus instalaciones o en nuestro laboratorio especializado, de acuerdo a las necesidades de su agenda.\n\nAtentamente,\n${remitenteName}\nBionordi S.A. de C.V.\nLaboratorio especializado en transductores`;
+    }
   },
 } as const;
 
