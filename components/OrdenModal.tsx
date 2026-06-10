@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, CheckCircle, Clock, FileText, ChevronRight, Trash2, Check, AlertTriangle, Activity, Mail, Camera, Download } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { X, CheckCircle, Clock, FileText, ChevronRight, Trash2, Check, AlertTriangle, Activity, Mail, Camera, Download, Printer } from "lucide-react";
 import DocumentViewerModal from "@/components/DocumentViewerModal";
 
 export interface Orden {
@@ -22,6 +23,8 @@ export interface Orden {
   tecnico?: string; presupuesto?: number; presupuesto_aprobado?: number; precio_final?: number;
   status: string;
   fecha_ingreso?: string; fecha_compromiso?: string; fecha_entrega?: string; fecha_creacion?: string;
+  condicion_recepcion?: string; costo_diagnostico?: number; entregado_por?: string; recibido_por?: string;
+  clausulas_recepcion?: string;
 }
 
 const STATUSES: { value: string; label: string; color: string; bg: string }[] = [
@@ -189,6 +192,7 @@ function ConfirmDeleteDialog({
 
 // ─── Modal principal ──────────────────────────────────────────────────────────
 export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props) {
+  const router = useRouter();
   const [form, setForm] = useState<Partial<Orden>>({});
   const [saving, setSaving] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
@@ -199,6 +203,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [showRecepcionPdfPreview, setShowRecepcionPdfPreview] = useState(false);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -489,8 +494,12 @@ ${falla || techNote ? `<!-- Notes -->
                 </h2>
               </div>
               <div className="flex items-center gap-2">
+                <button onClick={() => setShowRecepcionPdfPreview(true)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full text-indigo-500 bg-indigo-50 hover:bg-indigo-100 transition-colors shrink-0" title="Ver Hoja de Recepción">
+                  <Printer size={15} />
+                </button>
                 <button onClick={() => setShowPdfPreview(true)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full text-red-500 bg-red-50 hover:bg-red-100 transition-colors shrink-0" title="Ver PDF">
+                  className="w-8 h-8 flex items-center justify-center rounded-full text-red-500 bg-red-50 hover:bg-red-100 transition-colors shrink-0" title="Ver Reporte Técnico (PDF)">
                   <FileText size={15} />
                 </button>
                 <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors shrink-0">
@@ -561,6 +570,20 @@ ${falla || techNote ? `<!-- Notes -->
                   <div><Input label="Año de fabricación" field="equipo_ano" form={form} setForm={setForm} onBlur={saveField} /></div>
                   <div><Input label="Área Médica" field="equipo_area_medica" form={form} setForm={setForm} onBlur={saveField} /></div>
                   <div className="col-span-2"><Textarea label="Accesorios recibidos (cables, manuales, etc)" field="accesorios_recibidos" form={form} setForm={setForm} onBlur={saveField} rows={2} /></div>
+                  <div className="col-span-2"><Textarea label="Condición física de recepción (estado visible)" field="condicion_recepcion" form={form} setForm={setForm} onBlur={saveField} rows={2} /></div>
+                  <div className="col-span-2"><Input label="Persona que entrega (Cliente)" field="entregado_por" form={form} setForm={setForm} onBlur={saveField} /></div>
+                  <div className="col-span-2 pt-2">
+                    <button
+                      onClick={() => {
+                        router.push(`/taller/recepcion?id=${orden.id}`);
+                        onClose();
+                      }}
+                      className="flex items-center gap-1.5 text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#D7E2F8] px-4 py-2.5 rounded-xl transition-all shadow-sm"
+                    >
+                      <Printer size={13} />
+                      Personalizar Recepción (Firmas y Cláusulas)
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -631,6 +654,16 @@ ${falla || techNote ? `<!-- Notes -->
                       </div>
                       <span className="text-[12px] font-bold text-gray-600">Presupuesto aprobado por el cliente</span>
                     </label>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-[10px] font-bold text-gray-400 block mb-1">Costo de diagnóstico si se rechaza (MXN)</label>
+                    <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus-within:border-[#4E60A9]/40 focus-within:bg-white transition-all">
+                      <span className="text-[12px] text-gray-400 font-bold">$</span>
+                      <input type="number" min={0} value={form.costo_diagnostico || ""}
+                        onChange={e => setForm(p => ({ ...p, costo_diagnostico: Number(e.target.value) }))}
+                        onBlur={e => saveField("costo_diagnostico", Number(e.target.value) || null)}
+                        className="flex-1 text-[13px] font-bold bg-transparent outline-none text-[#1E293B]" />
+                    </div>
                   </div>
                 </div>
 
@@ -707,6 +740,15 @@ ${falla || techNote ? `<!-- Notes -->
           url={`/api/pdf/orden?id=${orden.id}`}
           downloadName={`Orden_${orden.folio}.pdf`}
           onClose={() => setShowPdfPreview(false)}
+        />
+      )}
+
+      {showRecepcionPdfPreview && (
+        <DocumentViewerModal
+          title={`Hoja de Recepción — ${orden.folio}`}
+          url={`/api/pdf/recepcion?id=${orden.id}`}
+          downloadName={`Recepcion_${orden.folio}.pdf`}
+          onClose={() => setShowRecepcionPdfPreview(false)}
         />
       )}
     </>

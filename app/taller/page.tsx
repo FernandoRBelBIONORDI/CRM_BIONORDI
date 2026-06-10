@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Wrench, Plus, Activity, Search, X, Clock, AlertTriangle, CheckCircle } from "lucide-react";
 import OrdenModal, { Orden } from "@/components/OrdenModal";
 
@@ -265,6 +266,10 @@ export default function TallerPage() {
             <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar orden o cliente..."
               className="inp pl-10 w-full rounded-full py-[10px]" />
           </div>
+          <Link href="/taller/recepcion"
+            className="flex items-center gap-2 text-[12px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#D7E2F8] border border-[#4E60A9]/10 px-4 py-2.5 rounded-full transition-all shrink-0 shadow-sm">
+            <Plus size={14} /> Nueva Recepción
+          </Link>
           <button onClick={() => setShowNueva(true)}
             data-tour="tour-new-order-btn"
             className="btn-primary flex items-center gap-2 shrink-0">

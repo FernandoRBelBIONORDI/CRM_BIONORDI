@@ -129,6 +129,11 @@ function initDb(): Database.Database {
     `ALTER TABLE leads ADD COLUMN fac_correo TEXT`,
     `ALTER TABLE leads ADD COLUMN latitud REAL`,
     `ALTER TABLE leads ADD COLUMN longitud REAL`,
+    `ALTER TABLE ordenes_trabajo ADD COLUMN condicion_recepcion TEXT`,
+    `ALTER TABLE ordenes_trabajo ADD COLUMN costo_diagnostico REAL`,
+    `ALTER TABLE ordenes_trabajo ADD COLUMN entregado_por TEXT`,
+    `ALTER TABLE ordenes_trabajo ADD COLUMN recibido_por TEXT`,
+    `ALTER TABLE ordenes_trabajo ADD COLUMN clausulas_recepcion TEXT`,
   ]) { try { _db.exec(sql); } catch { /* column already exists */ } }
 
   _db.exec(`
@@ -172,7 +177,12 @@ function initDb(): Database.Database {
       fecha_ingreso         TEXT,
       fecha_compromiso      TEXT,
       fecha_entrega         TEXT,
-      fecha_creacion        TEXT
+      fecha_creacion        TEXT,
+      condicion_recepcion   TEXT,
+      costo_diagnostico     REAL,
+      entregado_por         TEXT,
+      recibido_por          TEXT,
+      clausulas_recepcion   TEXT
     )
   `);
 

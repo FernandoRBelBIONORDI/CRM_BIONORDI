@@ -46,6 +46,12 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const lead_id = searchParams.get('lead_id');
   const status  = searchParams.get('status');
+  const id      = searchParams.get('id');
+
+  if (id) {
+    const row = db.prepare(`${SELECT_BASE} WHERE o.id = ?`).get(Number(id));
+    return NextResponse.json({ orden: row });
+  }
 
   let rows: any[];
   if (lead_id) {
@@ -88,14 +94,16 @@ export async function POST(req: Request) {
         equipo_tipo, equipo_marca, equipo_modelo, equipo_num_serie, equipo_version, equipo_ano, equipo_area_medica, accesorios_recibidos,
         falla_reportada, diagnostico, actividades_realizadas, mantenimiento_realizado, refacciones_utilizadas, pruebas_realizadas, notas_tecnicas, observaciones, recomendaciones, garantia, fotografias_json, firmas_json, tiempos_servicio_json, reporte_tecnico_final, tecnico,
         presupuesto, presupuesto_aprobado, precio_final,
-        status, fecha_ingreso, fecha_compromiso, fecha_entrega, fecha_creacion
+        status, fecha_ingreso, fecha_compromiso, fecha_entrega, fecha_creacion,
+        condicion_recepcion, costo_diagnostico, entregado_por, recibido_por, clausulas_recepcion
       ) VALUES (
         @folio, @tipo_orden, @lead_id, @cotizacion_id,
         @datos_fiscales, @datos_hospital, @direccion, @correo, @telefono,
         @equipo_tipo, @equipo_marca, @equipo_modelo, @equipo_num_serie, @equipo_version, @equipo_ano, @equipo_area_medica, @accesorios_recibidos,
         @falla_reportada, @diagnostico, @actividades_realizadas, @mantenimiento_realizado, @refacciones_utilizadas, @pruebas_realizadas, @notas_tecnicas, @observaciones, @recomendaciones, @garantia, @fotografias_json, @firmas_json, @tiempos_servicio_json, @reporte_tecnico_final, @tecnico,
         @presupuesto, @presupuesto_aprobado, @precio_final,
-        @status, @fecha_ingreso, @fecha_compromiso, @fecha_entrega, @fecha_creacion
+        @status, @fecha_ingreso, @fecha_compromiso, @fecha_entrega, @fecha_creacion,
+        @condicion_recepcion, @costo_diagnostico, @entregado_por, @recibido_por, @clausulas_recepcion
       )
     `).run({
       folio,
@@ -138,6 +146,11 @@ export async function POST(req: Request) {
       fecha_compromiso:     data.fecha_compromiso || null,
       fecha_entrega:        data.fecha_entrega    || null,
       fecha_creacion:       now,
+      condicion_recepcion:  data.condicion_recepcion || null,
+      costo_diagnostico:    data.costo_diagnostico   || null,
+      entregado_por:        data.entregado_por       || null,
+      recibido_por:         data.recibido_por        || null,
+      clausulas_recepcion:  data.clausulas_recepcion || null,
     });
 
     const orden = db.prepare(`${SELECT_BASE} WHERE o.id = ?`).get(Number(lastInsertRowid));
@@ -165,6 +178,7 @@ export async function PATCH(req: Request) {
       'tecnico',
       'presupuesto','presupuesto_aprobado','precio_final','status',
       'fecha_compromiso','fecha_entrega',
+      'condicion_recepcion', 'costo_diagnostico', 'entregado_por', 'recibido_por', 'clausulas_recepcion'
     ]);
     const safe = Object.fromEntries(Object.entries(updates).filter(([k]) => COLS.has(k)));
     if (Object.keys(safe).length === 0) return NextResponse.json({ success: true });
