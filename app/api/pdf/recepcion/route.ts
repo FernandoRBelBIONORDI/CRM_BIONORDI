@@ -54,10 +54,13 @@ function formatearFecha(fecha: string) {
   return f.toLocaleDateString("es-MX", { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-const CLAUSULAS_DEFAULT = `1. DIAGNÓSTICO: El cliente acepta que todo equipo ingresado para diagnóstico causa un honorario de $1,500.00 MXN (más IVA) si el presupuesto de reparación es rechazado. El tiempo estimado de diagnóstico es de 3 a 5 días hábiles a partir de la fecha de ingreso.
-2. RESPALDO DE INFORMACIÓN: Bionordi no se hace responsable por la pérdida de datos, imágenes o configuraciones contenidas en la memoria del equipo. Es responsabilidad del cliente respaldar su información previamente.
-3. ALMACENAMIENTO Y ABANDONO: Transcurridos 30 días naturales a partir del aviso de reparación o presupuesto sin que el cliente recoja el equipo, se cobrará una tarifa de almacenaje de $50.00 MXN diarios. A los 90 días naturales, el equipo se considerará abandonado, facultando a Bionordi a disponer de él para recuperar costos.
-4. ENVÍOS Y TRASLADO: Bionordi no asume responsabilidad por daños, golpes o extravíos que sufra el equipo durante el transporte por paqueterías externas o transportistas contratados por el cliente.`;
+const CLAUSULAS_DEFAULT = `1. DIAGNÓSTICO TÉCNICO: Todo equipo o transductor ingresado a laboratorio de Bionordi está sujeto a un diagnóstico de ingeniería especializado. Bionordi cobrará un honorario fijo de $1,500.00 MXN (más IVA) por concepto de diagnóstico técnico únicamente en caso de que el cliente rechace el presupuesto de reparación subsiguiente. El tiempo estimado de emisión del diagnóstico es de 3 a 5 días hábiles a partir de la recepción física del equipo.
+2. RESPONSABILIDAD SOBRE DATOS Y SOFTWARE: Bionordi no asume responsabilidad alguna por la pérdida, daño o alteración de datos, imágenes de pacientes, archivos clínicos, configuraciones de software o licencias almacenadas en los discos internos o memorias del equipo. El cliente tiene la obligación estricta de respaldar su información médica confidencial antes de entregar el equipo.
+3. PLAZOS DE ACEPTACIÓN Y RECOLECCIÓN (ALMACENAMIENTO Y ABANDONO): Una vez notificado el diagnóstico y presupuesto de reparación, el cliente cuenta con 10 días hábiles para su aceptación o rechazo. Transcurridos 30 días naturales a partir del aviso final de reparación o rechazo sin que el equipo sea retirado de nuestras instalaciones, se generará un cargo por concepto de almacenaje técnico de $50.00 MXN (más IVA) por día. Transcurridos 90 días naturales, el equipo se considerará legalmente en estado de abandono, quedando Bionordi facultada para enajenarlo, desecharlo o disponer del mismo a fin de recuperar los costos de diagnóstico y almacenaje incurridos.
+4. TRASLADO, RIESGO DE TRANSPORTE Y LOGÍSTICA: El costo y riesgo del transporte de ida y vuelta de los equipos es responsabilidad exclusiva del cliente. Bionordi no asume ninguna responsabilidad por daños, golpes, averías o extravíos que sufra el equipo durante su traslado por parte de empresas de mensajería, fleteras externas o personal de transporte contratado por el cliente.
+5. REFACCIONES Y PIEZAS REEMPLAZADAS: En caso de aceptación del presupuesto de servicio, las refacciones o componentes dañados que sean sustituidos durante la reparación serán desechados por Bionordi para cumplir con normativas de bioseguridad, a menos que el cliente solicite por escrito su devolución al momento de aprobar el presupuesto.
+6. GARANTÍA DE SERVICIO: Las reparaciones efectuadas cuentan con una garantía limitada sobre mano de obra y refacciones sustituidas, cuyo plazo será especificado en la cotización definitiva. La garantía no cubre fallas distintas a las reparadas, daños por fluctuaciones eléctricas, mal uso, caídas, contaminación por fluidos o manipulación por personal ajeno a Bionordi.
+7. AUTORIZACIÓN DE DESENSAMBLE Y PRUEBAS: El cliente autoriza expresamente a los ingenieros de Bionordi a realizar la apertura física del equipo, pruebas eléctricas, remoción de blindajes y soldaduras necesarias para efectuar el diagnóstico técnico correspondiente.`;
 
 export async function GET(req: Request) {
   await acquireQueueSlot();
@@ -218,6 +221,10 @@ export async function GET(req: Request) {
             background: linear-gradient(90deg, #4E60A9, #38AD64, #E2E8F0);
             border-radius: 3px;
             margin-bottom: 10px;
+          }
+          .avoid-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
           }
           
           .info-section {
@@ -381,6 +388,8 @@ export async function GET(req: Request) {
           .signatures-wrapper {
             margin-top: auto; /* Empuja las firmas al final de la página */
             padding-top: 10px;
+            break-inside: avoid;
+            page-break-inside: avoid;
           }
           .signatures {
             display: flex;
@@ -394,21 +403,28 @@ export async function GET(req: Request) {
             display: flex;
             flex-direction: column;
             align-items: center;
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          .sig-img-container {
+            height: 50px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            width: 100%;
+          }
+          .sig-img {
+            max-height: 48px;
+            max-width: 180px;
+            object-fit: contain;
+            display: block;
           }
           .sig-line {
             width: 100%;
             border-top: 1.5px solid #CBD5E1;
-            margin-top: 35px; /* Espacio para la firma manual */
+            margin-top: 4px; /* Espacio para la firma manual */
             padding-top: 4px;
             position: relative;
-          }
-          .sig-img {
-            height: 45px;
-            max-width: 180px;
-            object-fit: contain;
-            margin-bottom: -40px;
-            margin-top: -45px;
-            z-index: 10;
           }
           .sig-name {
             font-size: 11px;
@@ -453,7 +469,7 @@ export async function GET(req: Request) {
           
           <div class="divider"></div>
 
-          <div class="info-section">
+          <div class="info-section avoid-break">
             <!-- Datos del Cliente -->
             <div class="info-card">
               <div class="card-title">Datos del Cliente</div>
@@ -480,7 +496,7 @@ export async function GET(req: Request) {
           </div>
 
           <!-- Especificaciones del Equipo -->
-          <div class="eq-card">
+          <div class="eq-card avoid-break">
             <div class="card-title" style="border:none; padding:0; margin-bottom:6px;">Especificaciones del Equipo</div>
             <div class="eq-grid">
               <div class="eq-item"><div class="eq-lbl">Equipo / Sonda</div><div class="eq-val">${orden.equipo_tipo || '—'}</div></div>
@@ -502,7 +518,7 @@ export async function GET(req: Request) {
           </div>
 
           <!-- Detalles de Recepción -->
-          <div class="recep-card">
+          <div class="recep-card avoid-break">
             <div class="card-title">Falla Reportada y Estado Físico</div>
             <div class="recep-grid">
               <div class="recep-item">
@@ -518,7 +534,7 @@ export async function GET(req: Request) {
 
           <!-- Evidencia Fotográfica de Ingreso (si hay) -->
           ${fotosRecepcion.length > 0 ? `
-            <div class="evidencias-container">
+            <div class="evidencias-container avoid-break">
               <div class="eq-lbl" style="margin-bottom: 2px;">Evidencia Fotográfica de Ingreso</div>
               <div class="evidencias-grid">
                 ${fotosRecepcion.map((b64, i) => `
@@ -529,7 +545,7 @@ export async function GET(req: Request) {
           ` : ''}
 
           <!-- Cláusulas y Términos -->
-          <div class="cond-section">
+          <div class="cond-section avoid-break">
             <div class="card-title">Términos y Condiciones del Servicio de Recepción</div>
             <ul class="cond-list">
               ${clausulasHTML}
@@ -540,14 +556,18 @@ export async function GET(req: Request) {
           <div class="signatures-wrapper">
             <div class="signatures">
               <div class="sig-box">
-                ${firmaCliente ? `<img src="${firmaCliente}" alt="Firma Cliente" class="sig-img" />` : ''}
+                <div class="sig-img-container">
+                  ${firmaCliente ? `<img src="${firmaCliente}" alt="Firma Cliente" class="sig-img" />` : ''}
+                </div>
                 <div class="sig-line"></div>
                 <div class="sig-name">${entregadoPor}</div>
                 <div class="sig-role">Entrega (Cliente / Representante)</div>
               </div>
               
               <div class="sig-box">
-                ${firmaTecnico ? `<img src="${firmaTecnico}" alt="Firma Técnico" class="sig-img" />` : ''}
+                <div class="sig-img-container">
+                  ${firmaTecnico ? `<img src="${firmaTecnico}" alt="Firma Técnico" class="sig-img" />` : ''}
+                </div>
                 <div class="sig-line"></div>
                 <div class="sig-name">${recibidoPor}</div>
                 <div class="sig-role">Recibe (Bionordi)</div>
