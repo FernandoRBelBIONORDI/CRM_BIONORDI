@@ -450,6 +450,100 @@ export async function GET(req: Request) {
             margin-top: 8px;
             margin-bottom: 8px;
           }
+          .inspect-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 6px;
+          }
+          .inspect-card {
+            background: #ffffff;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+          }
+          .inspect-title {
+            font-size: 8.5px;
+            font-weight: 800;
+            color: #4E60A9;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #F1F5F9;
+            padding-bottom: 2px;
+          }
+          .pill-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex-grow: 1;
+          }
+          .pill {
+            display: flex;
+            align-items: center;
+            font-size: 8px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 1px solid #F8FAFC;
+            color: #94A3B8;
+            font-weight: 500;
+          }
+          .pill.active {
+            font-weight: 700;
+          }
+          .pill.active.green {
+            background: #ECFDF5;
+            border-color: #A7F3D0;
+            color: #065F46;
+          }
+          .pill.active.amber {
+            background: #FFFBEB;
+            border-color: #FDE68A;
+            color: #92400E;
+          }
+          .pill.active.red {
+            background: #FEF2F2;
+            border-color: #FCA5A5;
+            color: #991B1B;
+          }
+          .pill.active.slate {
+            background: #F1F5F9;
+            border-color: #E2E8F0;
+            color: #334155;
+          }
+          .chk-box {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border: 1px solid #CBD5E1;
+            border-radius: 2px;
+            margin-right: 4px;
+            position: relative;
+            flex-shrink: 0;
+          }
+          .active .chk-box {
+            background-color: currentColor;
+            border-color: currentColor;
+          }
+          .active .chk-box::after {
+            content: "";
+            position: absolute;
+            left: 2.2px;
+            top: 0.5px;
+            width: 1.8px;
+            height: 3.5px;
+            border: solid white;
+            border-width: 0 1px 1px 0;
+            transform: rotate(45deg);
+          }
+          .motivo-list, .accesorios-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            margin-top: 4px;
+          }
           .diag-p {
             font-size: 10px;
             color: #475569;
@@ -579,49 +673,86 @@ export async function GET(req: Request) {
 
           <!-- ESTADO FÍSICO AL MOMENTO DE RECEPCIÓN -->
           <div class="tech-card avoid-break" style="margin-top: 8px; margin-bottom: 8px;">
-            <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5;">Estado Físico al Momento de Recepción</div>
-            <table style="width: 100%; font-size: 9.5px; border-collapse: collapse; margin-top: 4px;">
-              <tbody>
-                <tr style="border-bottom: 1px solid #F1F5F9;">
-                  <td style="padding: 4px 0; font-weight: 700; width: 140px; color: #475569;">Conector:</td>
-                  <td style="padding: 4px 0;">
-                    <span style="color: ${conectorState === 'sin_danio' ? '#1E293B' : '#94A3B8'}; font-weight: ${conectorState === 'sin_danio' ? '700' : '400'}; margin-right: 15px;">${conectorState === 'sin_danio' ? '☑' : '☐'} Sin daño visible</span>
-                    <span style="color: ${conectorState === 'danio_fisico' ? '#B91C1C' : '#94A3B8'}; font-weight: ${conectorState === 'danio_fisico' ? '700' : '400'}; margin-right: 15px;">${conectorState === 'danio_fisico' ? '☑' : '☐'} Daño físico</span>
-                    <span style="color: ${conectorState === 'cables_expuestos' ? '#B91C1C' : '#94A3B8'}; font-weight: ${conectorState === 'cables_expuestos' ? '700' : '400'};">${conectorState === 'cables_expuestos' ? '☑' : '☐'} Cables expuestos</span>
-                  </td>
-                </tr>
-                <tr style="border-bottom: 1px solid #F1F5F9;">
-                  <td style="padding: 4px 0; font-weight: 700; color: #475569;">Carcasa:</td>
-                  <td style="padding: 4px 0;">
-                    <span style="color: ${carcasaState === 'sin_danio' ? '#1E293B' : '#94A3B8'}; font-weight: ${carcasaState === 'sin_danio' ? '700' : '400'}; margin-right: 15px;">${carcasaState === 'sin_danio' ? '☑' : '☐'} Sin daño visible</span>
-                    <span style="color: ${carcasaState === 'grietas' ? '#B91C1C' : '#94A3B8'}; font-weight: ${carcasaState === 'grietas' ? '700' : '400'}; margin-right: 15px;">${carcasaState === 'grietas' ? '☑' : '☐'} Grietas</span>
-                    <span style="color: ${carcasaState === 'golpes' ? '#B91C1C' : '#94A3B8'}; font-weight: ${carcasaState === 'golpes' ? '700' : '400'}; margin-right: 15px;">${carcasaState === 'golpes' ? '☑' : '☐'} Golpes</span>
-                    <span style="color: ${carcasaState === 'desgaste' ? '#D97706' : '#94A3B8'}; font-weight: ${carcasaState === 'desgaste' ? '700' : '400'};">${carcasaState === 'desgaste' ? '☑' : '☐'} Desgaste</span>
-                  </td>
-                </tr>
-                <tr style="border-bottom: 1px solid #F1F5F9;">
-                  <td style="padding: 4px 0; font-weight: 700; color: #475569;">Cable de transductor:</td>
-                  <td style="padding: 4px 0;">
-                    <span style="color: ${cableState === 'sin_danio' ? '#1E293B' : '#94A3B8'}; font-weight: ${cableState === 'sin_danio' ? '700' : '400'}; margin-right: 15px;">${cableState === 'sin_danio' ? '☑' : '☐'} Sin daño visible</span>
-                    <span style="color: ${cableState === 'doblado_torcido' ? '#D97706' : '#94A3B8'}; font-weight: ${cableState === 'doblado_torcido' ? '700' : '400'}; margin-right: 15px;">${cableState === 'doblado_torcido' ? '☑' : '☐'} Doblado/torcido</span>
-                    <span style="color: ${cableState === 'pelado' ? '#B91C1C' : '#94A3B8'}; font-weight: ${cableState === 'pelado' ? '700' : '400'};">${cableState === 'pelado' ? '☑' : '☐'} Pelado</span>
-                  </td>
-                </tr>
-                <tr style="border-bottom: 1px solid #F1F5F9;">
-                  <td style="padding: 4px 0; font-weight: 700; color: #475569;">Cristales / Face:</td>
-                  <td style="padding: 4px 0;">
-                    <span style="color: ${cristalesState === 'sin_danio' ? '#1E293B' : '#94A3B8'}; font-weight: ${cristalesState === 'sin_danio' ? '700' : '400'}; margin-right: 15px;">${cristalesState === 'sin_danio' ? '☑' : '☐'} Sin daño visible</span>
-                    <span style="color: ${cristalesState === 'burbujas' ? '#B91C1C' : '#94A3B8'}; font-weight: ${cristalesState === 'burbujas' ? '700' : '400'}; margin-right: 15px;">${cristalesState === 'burbujas' ? '☑' : '☐'} Burbujas</span>
-                    <span style="color: ${cristalesState === 'astillado' ? '#B91C1C' : '#94A3B8'}; font-weight: ${cristalesState === 'astillado' ? '700' : '400'}; margin-right: 15px;">${cristalesState === 'astillado' ? '☑' : '☐'} Astillado</span>
-                    <span style="color: ${cristalesState === 'no_evaluable' ? '#64748B' : '#94A3B8'}; font-weight: ${cristalesState === 'no_evaluable' ? '700' : '400'};">${cristalesState === 'no_evaluable' ? '☑' : '☐'} No evaluable</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 4px 0; font-weight: 700; color: #475569; vertical-align: top;">Observaciones adicionales:</td>
-                  <td style="padding: 4px 0; color: #334155; line-height: 1.3;">${observacionesAdicionales || 'Sin observaciones adicionales.'}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 6px;">Estado Físico al Momento de Recepción</div>
+            <p style="font-size: 8px; color: #64748B; margin-bottom: 8px; font-style: italic; line-height: 1.3;">
+              El personal de Bionordi declara haber recibido el equipo con las siguientes condiciones observadas a simple vista:
+            </p>
+            <div class="inspect-grid">
+              <!-- Conector -->
+              <div class="inspect-card">
+                <div class="inspect-title">Conector</div>
+                <div class="pill-group">
+                  <div class="pill ${conectorState === 'sin_danio' ? 'active green' : ''}">
+                    <span class="chk-box"></span> Sin daño visible
+                  </div>
+                  <div class="pill ${conectorState === 'danio_fisico' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Daño físico
+                  </div>
+                  <div class="pill ${conectorState === 'cables_expuestos' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Cables expuestos
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Carcasa -->
+              <div class="inspect-card">
+                <div class="inspect-title">Carcasa</div>
+                <div class="pill-group">
+                  <div class="pill ${carcasaState === 'sin_danio' ? 'active green' : ''}">
+                    <span class="chk-box"></span> Sin daño visible
+                  </div>
+                  <div class="pill ${carcasaState === 'grietas' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Grietas
+                  </div>
+                  <div class="pill ${carcasaState === 'golpes' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Golpes
+                  </div>
+                  <div class="pill ${carcasaState === 'desgaste' ? 'active amber' : ''}">
+                    <span class="chk-box"></span> Desgaste
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Cable -->
+              <div class="inspect-card">
+                <div class="inspect-title">Cable de transductor</div>
+                <div class="pill-group">
+                  <div class="pill ${cableState === 'sin_danio' ? 'active green' : ''}">
+                    <span class="chk-box"></span> Sin daño visible
+                  </div>
+                  <div class="pill ${cableState === 'doblado_torcido' ? 'active amber' : ''}">
+                    <span class="chk-box"></span> Doblado/torcido
+                  </div>
+                  <div class="pill ${cableState === 'pelado' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Pelado
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Cristales / Face -->
+              <div class="inspect-card">
+                <div class="inspect-title">Cristales / Face</div>
+                <div class="pill-group">
+                  <div class="pill ${cristalesState === 'sin_danio' ? 'active green' : ''}">
+                    <span class="chk-box"></span> Sin daño visible
+                  </div>
+                  <div class="pill ${cristalesState === 'burbujas' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Burbujas
+                  </div>
+                  <div class="pill ${cristalesState === 'astillado' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Astillado
+                  </div>
+                  <div class="pill ${cristalesState === 'no_evaluable' ? 'active slate' : ''}">
+                    <span class="chk-box"></span> No evaluable
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div style="margin-top: 8px; border-top: 1px dashed #E2E8F0; padding-top: 6px;">
+              <div style="font-size: 8.5px; font-weight: 700; color: #4E60A9; text-transform: uppercase;">Observaciones adicionales:</div>
+              <div style="font-size: 9px; color: #334155; line-height: 1.35; margin-top: 2px;">${observacionesAdicionales || 'Sin observaciones adicionales.'}</div>
+            </div>
           </div>
 
           <!-- MOTIVO DE INGRESO Y ACCESORIOS -->
@@ -629,25 +760,25 @@ export async function GET(req: Request) {
             <div style="display: flex; gap: 20px;">
               <div style="flex: 1;">
                 <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 4px;">Motivo de Ingreso</div>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 9.5px; margin-top: 2px; margin-bottom: 6px;">
-                  <span style="color: ${motivoIngreso === 'diagnostico' ? '#1E293B' : '#94A3B8'}; font-weight: ${motivoIngreso === 'diagnostico' ? '700' : '400'}">${motivoIngreso === 'diagnostico' ? '☑' : '☐'} Diagnóstico</span>
-                  <span style="color: ${motivoIngreso === 'reparacion' ? '#1E293B' : '#94A3B8'}; font-weight: ${motivoIngreso === 'reparacion' ? '700' : '400'}">${motivoIngreso === 'reparacion' ? '☑' : '☐'} Reparación</span>
-                  <span style="color: ${motivoIngreso === 'mantenimiento' ? '#1E293B' : '#94A3B8'}; font-weight: ${motivoIngreso === 'mantenimiento' ? '700' : '400'}">${motivoIngreso === 'mantenimiento' ? '☑' : '☐'} Mantenimiento preventivo</span>
-                  <span style="color: ${motivoIngreso === 'otro' ? '#1E293B' : '#94A3B8'}; font-weight: ${motivoIngreso === 'otro' ? '700' : '400'}">${motivoIngreso === 'otro' ? '☑' : '☐'} Otro${motivoIngreso === 'otro' && motivoOtro ? `: ${motivoOtro}` : ''}</span>
+                <div class="motivo-list">
+                  <div class="pill ${motivoIngreso === 'diagnostico' ? 'active slate' : ''}"><span class="chk-box"></span> Diagnóstico</div>
+                  <div class="pill ${motivoIngreso === 'reparacion' ? 'active slate' : ''}"><span class="chk-box"></span> Reparación</div>
+                  <div class="pill ${motivoIngreso === 'mantenimiento' ? 'active slate' : ''}"><span class="chk-box"></span> Mantenimiento preventivo</div>
+                  <div class="pill ${motivoIngreso === 'otro' ? 'active slate' : ''}"><span class="chk-box"></span> Otro${motivoIngreso === 'otro' && motivoOtro ? `: ${motivoOtro}` : ''}</div>
                 </div>
-                <div style="font-size: 8px; color: #64748B; font-weight: 800; text-transform: uppercase;">Descripción del problema:</div>
-                <div style="font-size: 9.5px; color: #334155; margin-top: 2px; line-height: 1.3;">${(orden.falla_reportada || 'Sin falla especificada').replace(/\n/g, '<br/>')}</div>
+                <div style="font-size: 8px; color: #64748B; font-weight: 800; text-transform: uppercase; margin-top: 8px;">Descripción del problema reportado:</div>
+                <div class="recep-p" style="margin-top: 3px;">${(orden.falla_reportada || 'Sin falla especificada').replace(/\n/g, '<br/>')}</div>
               </div>
               <div style="flex: 1; border-left: 1px dashed #E2E8F0; padding-left: 20px;">
-                <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 4px;">Accesorios Entregados</div>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 9.5px; margin-top: 2px; margin-bottom: 6px;">
-                  <span style="color: ${accesoriosEntregados.includes('transductor') ? '#1E293B' : '#94A3B8'}; font-weight: ${accesoriosEntregados.includes('transductor') ? '700' : '400'}">${accesoriosEntregados.includes('transductor') ? '☑' : '☐'} Transductor</span>
-                  <span style="color: ${accesoriosEntregados.includes('estuche_funda') ? '#1E293B' : '#94A3B8'}; font-weight: ${accesoriosEntregados.includes('estuche_funda') ? '700' : '400'}">${accesoriosEntregados.includes('estuche_funda') ? '☑' : '☐'} Estuche/funda</span>
-                  <span style="color: ${accesoriosEntregados.includes('cable_extension') ? '#1E293B' : '#94A3B8'}; font-weight: ${accesoriosEntregados.includes('cable_extension') ? '700' : '400'}">${accesoriosEntregados.includes('cable_extension') ? '☑' : '☐'} Extensión</span>
-                  <span style="color: ${accesoriosEntregados.includes('otro') ? '#1E293B' : '#94A3B8'}; font-weight: ${accesoriosEntregados.includes('otro') ? '700' : '400'}">${accesoriosEntregados.includes('otro') ? '☑' : '☐'} Otro${accesoriosEntregados.includes('otro') && accesoriosOtro ? `: ${accesoriosOtro}` : ''}</span>
+                <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 4px;">Accesorios y Elementos Entregados</div>
+                <div class="accesorios-list">
+                  <div class="pill ${accesoriosEntregados.includes('transductor') ? 'active slate' : ''}"><span class="chk-box"></span> Transductor</div>
+                  <div class="pill ${accesoriosEntregados.includes('estuche_funda') ? 'active slate' : ''}"><span class="chk-box"></span> Estuche/funda</div>
+                  <div class="pill ${accesoriosEntregados.includes('cable_extension') ? 'active slate' : ''}"><span class="chk-box"></span> Extensión</div>
+                  <div class="pill ${accesoriosEntregados.includes('otro') ? 'active slate' : ''}"><span class="chk-box"></span> Otro${accesoriosEntregados.includes('otro') && accesoriosOtro ? `: ${accesoriosOtro}` : ''}</div>
                 </div>
-                <div style="font-size: 8px; color: #64748B; font-weight: 800; text-transform: uppercase;">Otros accesorios / Checklist:</div>
-                <div style="font-size: 9.5px; color: #334155; margin-top: 2px; line-height: 1.3;">${orden.accesorios_recibidos || 'Ninguno adicional.'}</div>
+                <div style="font-size: 8px; color: #64748B; font-weight: 800; text-transform: uppercase; margin-top: 8px;">Otros accesorios / Checklist:</div>
+                <div class="recep-p" style="margin-top: 3px;">${orden.accesorios_recibidos || 'Ninguno adicional.'}</div>
               </div>
             </div>
           </div>

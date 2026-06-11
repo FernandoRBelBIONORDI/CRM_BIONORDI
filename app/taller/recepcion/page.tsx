@@ -218,14 +218,16 @@ function RecepcionPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [collCliente, setCollCliente] = useState(false);
   const [collEquipo, setCollEquipo] = useState(false);
+  const [collEstado, setCollEstado] = useState(false);
   const [collRecepcion, setCollRecepcion] = useState(false);
   const [collClausulas, setCollClausulas] = useState(true);
   const [collFirmas, setCollFirmas] = useState(false);
 
-  const expandCardOnly = (cardName: "cliente" | "equipo" | "recepcion" | "clausulas" | "firmas") => {
+  const expandCardOnly = (cardName: "cliente" | "equipo" | "estado" | "recepcion" | "clausulas" | "firmas") => {
     setSidebarCollapsed(false);
     setCollCliente(cardName !== "cliente");
     setCollEquipo(cardName !== "equipo");
+    setCollEstado(cardName !== "estado");
     setCollRecepcion(cardName !== "recepcion");
     setCollClausulas(cardName !== "clausulas");
     setCollFirmas(cardName !== "firmas");
@@ -832,6 +834,100 @@ function RecepcionPage() {
             line-height: 1.4;
             margin-bottom: 8px;
           }
+          .inspect-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 6px;
+          }
+          .inspect-card {
+            background: #ffffff;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+          }
+          .inspect-title {
+            font-size: 8.5px;
+            font-weight: 800;
+            color: #4E60A9;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #F1F5F9;
+            padding-bottom: 2px;
+          }
+          .pill-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex-grow: 1;
+          }
+          .pill {
+            display: flex;
+            align-items: center;
+            font-size: 8px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 1px solid #F8FAFC;
+            color: #94A3B8;
+            font-weight: 500;
+          }
+          .pill.active {
+            font-weight: 700;
+          }
+          .pill.active.green {
+            background: #ECFDF5;
+            border-color: #A7F3D0;
+            color: #065F46;
+          }
+          .pill.active.amber {
+            background: #FFFBEB;
+            border-color: #FDE68A;
+            color: #92400E;
+          }
+          .pill.active.red {
+            background: #FEF2F2;
+            border-color: #FCA5A5;
+            color: #991B1B;
+          }
+          .pill.active.slate {
+            background: #F1F5F9;
+            border-color: #E2E8F0;
+            color: #334155;
+          }
+          .chk-box {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border: 1px solid #CBD5E1;
+            border-radius: 2px;
+            margin-right: 4px;
+            position: relative;
+            flex-shrink: 0;
+          }
+          .active .chk-box {
+            background-color: currentColor;
+            border-color: currentColor;
+          }
+          .active .chk-box::after {
+            content: "";
+            position: absolute;
+            left: 2.2px;
+            top: 0.5px;
+            width: 1.8px;
+            height: 3.5px;
+            border: solid white;
+            border-width: 0 1px 1px 0;
+            transform: rotate(45deg);
+          }
+          .motivo-list, .accesorios-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            margin-top: 4px;
+          }
           .footer {
             text-align: center;
             border-top: 1px solid #E2E8F0;
@@ -895,56 +991,88 @@ function RecepcionPage() {
               <div class="eq-item"><div class="eq-lbl">Número de Serie</div><div class="eq-val" style="font-family: monospace;">${eqSerie || '—'}</div></div>
               <div class="eq-item"><div class="eq-lbl">Versión / SW</div><div class="eq-val">${eqVersion || '—'}</div></div>
               <div class="eq-item"><div class="eq-lbl">Año Fab.</div><div class="eq-val">${eqAno || '—'}</div></div>
-              <div class="eq-item"><div class="eq-lbl">Área Médica</div><div class="eq-val">${eqArea || '—'}</div></div>
-              <div class="eq-item"><div class="eq-lbl">Técnico Resp.</div><div class="eq-val">${eqTecnico || '—'}</div></div>
-            </div>
-          </div>
-
-          <!-- ESTADO FÍSICO AL MOMENTO DE RECEPCIÓN -->
+              <div class="eq-item"><div class="eq-lbl">Área          <!-- ESTADO FÍSICO AL MOMENTO DE RECEPCIÓN -->
           <div class="tech-card avoid-break" style="margin-top: 8px; margin-bottom: 8px;">
-            <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5;">Estado Físico al Momento de Recepción</div>
-            <table style="width: 100%; font-size: 9.5px; border-collapse: collapse; margin-top: 4px;">
-              <tbody>
-                <tr style="border-bottom: 1px solid #F1F5F9;">
-                  <td style="padding: 4px 0; font-weight: 700; width: 140px; color: #475569;">Conector:</td>
-                  <td style="padding: 4px 0;">
-                    <span style="color: ${conectorState === 'sin_danio' ? '#1E293B' : '#94A3B8'}; font-weight: ${conectorState === 'sin_danio' ? '700' : '400'}; margin-right: 15px;">${conectorState === 'sin_danio' ? '☑' : '☐'} Sin daño visible</span>
-                    <span style="color: ${conectorState === 'danio_fisico' ? '#B91C1C' : '#94A3B8'}; font-weight: ${conectorState === 'danio_fisico' ? '700' : '400'}; margin-right: 15px;">${conectorState === 'danio_fisico' ? '☑' : '☐'} Daño físico</span>
-                    <span style="color: ${conectorState === 'cables_expuestos' ? '#B91C1C' : '#94A3B8'}; font-weight: ${conectorState === 'cables_expuestos' ? '700' : '400'};">${conectorState === 'cables_expuestos' ? '☑' : '☐'} Cables expuestos</span>
-                  </td>
-                </tr>
-                <tr style="border-bottom: 1px solid #F1F5F9;">
-                  <td style="padding: 4px 0; font-weight: 700; color: #475569;">Carcasa:</td>
-                  <td style="padding: 4px 0;">
-                    <span style="color: ${carcasaState === 'sin_danio' ? '#1E293B' : '#94A3B8'}; font-weight: ${carcasaState === 'sin_danio' ? '700' : '400'}; margin-right: 15px;">${carcasaState === 'sin_danio' ? '☑' : '☐'} Sin daño visible</span>
-                    <span style="color: ${carcasaState === 'grietas' ? '#B91C1C' : '#94A3B8'}; font-weight: ${carcasaState === 'grietas' ? '700' : '400'}; margin-right: 15px;">${carcasaState === 'grietas' ? '☑' : '☐'} Grietas</span>
-                    <span style="color: ${carcasaState === 'golpes' ? '#B91C1C' : '#94A3B8'}; font-weight: ${carcasaState === 'golpes' ? '700' : '400'}; margin-right: 15px;">${carcasaState === 'golpes' ? '☑' : '☐'} Golpes</span>
-                    <span style="color: ${carcasaState === 'desgaste' ? '#D97706' : '#94A3B8'}; font-weight: ${carcasaState === 'desgaste' ? '700' : '400'};">${carcasaState === 'desgaste' ? '☑' : '☐'} Desgaste</span>
-                  </td>
-                </tr>
-                <tr style="border-bottom: 1px solid #F1F5F9;">
-                  <td style="padding: 4px 0; font-weight: 700; color: #475569;">Cable de transductor:</td>
-                  <td style="padding: 4px 0;">
-                    <span style="color: ${cableState === 'sin_danio' ? '#1E293B' : '#94A3B8'}; font-weight: ${cableState === 'sin_danio' ? '700' : '400'}; margin-right: 15px;">${cableState === 'sin_danio' ? '☑' : '☐'} Sin daño visible</span>
-                    <span style="color: ${cableState === 'doblado_torcido' ? '#D97706' : '#94A3B8'}; font-weight: ${cableState === 'doblado_torcido' ? '700' : '400'}; margin-right: 15px;">${cableState === 'doblado_torcido' ? '☑' : '☐'} Doblado/torcido</span>
-                    <span style="color: ${cableState === 'pelado' ? '#B91C1C' : '#94A3B8'}; font-weight: ${cableState === 'pelado' ? '700' : '400'};">${cableState === 'pelado' ? '☑' : '☐'} Pelado</span>
-                  </td>
-                </tr>
-                <tr style="border-bottom: 1px solid #F1F5F9;">
-                  <td style="padding: 4px 0; font-weight: 700; color: #475569;">Cristales / Face:</td>
-                  <td style="padding: 4px 0;">
-                    <span style="color: ${cristalesState === 'sin_danio' ? '#1E293B' : '#94A3B8'}; font-weight: ${cristalesState === 'sin_danio' ? '700' : '400'}; margin-right: 15px;">${cristalesState === 'sin_danio' ? '☑' : '☐'} Sin daño visible</span>
-                    <span style="color: ${cristalesState === 'burbujas' ? '#B91C1C' : '#94A3B8'}; font-weight: ${cristalesState === 'burbujas' ? '700' : '400'}; margin-right: 15px;">${cristalesState === 'burbujas' ? '☑' : '☐'} Burbujas</span>
-                    <span style="color: ${cristalesState === 'astillado' ? '#B91C1C' : '#94A3B8'}; font-weight: ${cristalesState === 'astillado' ? '700' : '400'}; margin-right: 15px;">${cristalesState === 'astillado' ? '☑' : '☐'} Astillado</span>
-                    <span style="color: ${cristalesState === 'no_evaluable' ? '#64748B' : '#94A3B8'}; font-weight: ${cristalesState === 'no_evaluable' ? '700' : '400'};">${cristalesState === 'no_evaluable' ? '☑' : '☐'} No evaluable</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 4px 0; font-weight: 700; color: #475569; vertical-align: top;">Observaciones adicionales:</td>
-                  <td style="padding: 4px 0; color: #334155; line-height: 1.3;">${observacionesAdicionales || 'Sin observaciones adicionales.'}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 6px;">Estado Físico al Momento de Recepción</div>
+            <p style="font-size: 8px; color: #64748B; margin-bottom: 8px; font-style: italic; line-height: 1.3;">
+              El personal de Bionordi declara haber recibido el equipo con las siguientes condiciones observadas a simple vista:
+            </p>
+            <div class="inspect-grid">
+              <!-- Conector -->
+              <div class="inspect-card">
+                <div class="inspect-title">Conector</div>
+                <div class="pill-group">
+                  <div class="pill ${conectorState === 'sin_danio' ? 'active green' : ''}">
+                    <span class="chk-box"></span> Sin daño visible
+                  </div>
+                  <div class="pill ${conectorState === 'danio_fisico' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Daño físico
+                  </div>
+                  <div class="pill ${conectorState === 'cables_expuestos' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Cables expuestos
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Carcasa -->
+              <div class="inspect-card">
+                <div class="inspect-title">Carcasa</div>
+                <div class="pill-group">
+                  <div class="pill ${carcasaState === 'sin_danio' ? 'active green' : ''}">
+                    <span class="chk-box"></span> Sin daño visible
+                  </div>
+                  <div class="pill ${carcasaState === 'grietas' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Grietas
+                  </div>
+                  <div class="pill ${carcasaState === 'golpes' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Golpes
+                  </div>
+                  <div class="pill ${carcasaState === 'desgaste' ? 'active amber' : ''}">
+                    <span class="chk-box"></span> Desgaste
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Cable -->
+              <div class="inspect-card">
+                <div class="inspect-title">Cable de transductor</div>
+                <div class="pill-group">
+                  <div class="pill ${cableState === 'sin_danio' ? 'active green' : ''}">
+                    <span class="chk-box"></span> Sin daño visible
+                  </div>
+                  <div class="pill ${cableState === 'doblado_torcido' ? 'active amber' : ''}">
+                    <span class="chk-box"></span> Doblado/torcido
+                  </div>
+                  <div class="pill ${cableState === 'pelado' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Pelado
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Cristales / Face -->
+              <div class="inspect-card">
+                <div class="inspect-title">Cristales / Face</div>
+                <div class="pill-group">
+                  <div class="pill ${cristalesState === 'sin_danio' ? 'active green' : ''}">
+                    <span class="chk-box"></span> Sin daño visible
+                  </div>
+                  <div class="pill ${cristalesState === 'burbujas' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Burbujas
+                  </div>
+                  <div class="pill ${cristalesState === 'astillado' ? 'active red' : ''}">
+                    <span class="chk-box"></span> Astillado
+                  </div>
+                  <div class="pill ${cristalesState === 'no_evaluable' ? 'active slate' : ''}">
+                    <span class="chk-box"></span> No evaluable
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div style="margin-top: 8px; border-top: 1px dashed #E2E8F0; padding-top: 6px;">
+              <div style="font-size: 8.5px; font-weight: 700; color: #4E60A9; text-transform: uppercase;">Observaciones adicionales:</div>
+              <div style="font-size: 9px; color: #334155; line-height: 1.35; margin-top: 2px;">${observacionesAdicionales || 'Sin observaciones adicionales.'}</div>
+            </div>
           </div>
 
           <!-- MOTIVO DE INGRESO Y ACCESORIOS -->
@@ -952,25 +1080,25 @@ function RecepcionPage() {
             <div style="display: flex; gap: 20px;">
               <div style="flex: 1;">
                 <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 4px;">Motivo de Ingreso</div>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 9.5px; margin-top: 2px; margin-bottom: 6px;">
-                  <span style="color: ${motivoIngreso === 'diagnostico' ? '#1E293B' : '#94A3B8'}; font-weight: ${motivoIngreso === 'diagnostico' ? '700' : '400'}">${motivoIngreso === 'diagnostico' ? '☑' : '☐'} Diagnóstico</span>
-                  <span style="color: ${motivoIngreso === 'reparacion' ? '#1E293B' : '#94A3B8'}; font-weight: ${motivoIngreso === 'reparacion' ? '700' : '400'}">${motivoIngreso === 'reparacion' ? '☑' : '☐'} Reparación</span>
-                  <span style="color: ${motivoIngreso === 'mantenimiento' ? '#1E293B' : '#94A3B8'}; font-weight: ${motivoIngreso === 'mantenimiento' ? '700' : '400'}">${motivoIngreso === 'mantenimiento' ? '☑' : '☐'} Mantenimiento preventivo</span>
-                  <span style="color: ${motivoIngreso === 'otro' ? '#1E293B' : '#94A3B8'}; font-weight: ${motivoIngreso === 'otro' ? '700' : '400'}">${motivoIngreso === 'otro' ? '☑' : '☐'} Otro${motivoIngreso === 'otro' && motivoOtro ? `: ${motivoOtro}` : ''}</span>
+                <div class="motivo-list">
+                  <div class="pill ${motivoIngreso === 'diagnostico' ? 'active slate' : ''}"><span class="chk-box"></span> Diagnóstico</div>
+                  <div class="pill ${motivoIngreso === 'reparacion' ? 'active slate' : ''}"><span class="chk-box"></span> Reparación</div>
+                  <div class="pill ${motivoIngreso === 'mantenimiento' ? 'active slate' : ''}"><span class="chk-box"></span> Mantenimiento preventivo</div>
+                  <div class="pill ${motivoIngreso === 'otro' ? 'active slate' : ''}"><span class="chk-box"></span> Otro${motivoIngreso === 'otro' && motivoOtro ? `: ${motivoOtro}` : ''}</div>
                 </div>
-                <div style="font-size: 8px; color: #64748B; font-weight: 800; text-transform: uppercase;">Descripción del problema:</div>
-                <div style="font-size: 9.5px; color: #334155; margin-top: 2px; line-height: 1.3;">${(fallaReportada || 'Sin falla especificada').replace(/\n/g, '<br/>')}</div>
+                <div style="font-size: 8px; color: #64748B; font-weight: 800; text-transform: uppercase; margin-top: 8px;">Descripción del problema reportado:</div>
+                <div class="recep-p" style="margin-top: 3px;">${(fallaReportada || 'Sin falla especificada').replace(/\n/g, '<br/>')}</div>
               </div>
               <div style="flex: 1; border-left: 1px dashed #E2E8F0; padding-left: 20px;">
-                <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 4px;">Accesorios Entregados</div>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 9.5px; margin-top: 2px; margin-bottom: 6px;">
-                  <span style="color: ${accesoriosEntregados.includes('transductor') ? '#1E293B' : '#94A3B8'}; font-weight: ${accesoriosEntregados.includes('transductor') ? '700' : '400'}">${accesoriosEntregados.includes('transductor') ? '☑' : '☐'} Transductor</span>
-                  <span style="color: ${accesoriosEntregados.includes('estuche_funda') ? '#1E293B' : '#94A3B8'}; font-weight: ${accesoriosEntregados.includes('estuche_funda') ? '700' : '400'}">${accesoriosEntregados.includes('estuche_funda') ? '☑' : '☐'} Estuche/funda</span>
-                  <span style="color: ${accesoriosEntregados.includes('cable_extension') ? '#1E293B' : '#94A3B8'}; font-weight: ${accesoriosEntregados.includes('cable_extension') ? '700' : '400'}">${accesoriosEntregados.includes('cable_extension') ? '☑' : '☐'} Extensión</span>
-                  <span style="color: ${accesoriosEntregados.includes('otro') ? '#1E293B' : '#94A3B8'}; font-weight: ${accesoriosEntregados.includes('otro') ? '700' : '400'}">${accesoriosEntregados.includes('otro') ? '☑' : '☐'} Otro${accesoriosEntregados.includes('otro') && accesoriosOtro ? `: ${accesoriosOtro}` : ''}</span>
+                <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 4px;">Accesorios y Elementos Entregados</div>
+                <div class="accesorios-list">
+                  <div class="pill ${accesoriosEntregados.includes('transductor') ? 'active slate' : ''}"><span class="chk-box"></span> Transductor</div>
+                  <div class="pill ${accesoriosEntregados.includes('estuche_funda') ? 'active slate' : ''}"><span class="chk-box"></span> Estuche/funda</div>
+                  <div class="pill ${accesoriosEntregados.includes('cable_extension') ? 'active slate' : ''}"><span class="chk-box"></span> Extensión</div>
+                  <div class="pill ${accesoriosEntregados.includes('otro') ? 'active slate' : ''}"><span class="chk-box"></span> Otro${accesoriosEntregados.includes('otro') && accesoriosOtro ? `: ${accesoriosOtro}` : ''}</div>
                 </div>
-                <div style="font-size: 8px; color: #64748B; font-weight: 800; text-transform: uppercase;">Otros accesorios / Checklist:</div>
-                <div style="font-size: 9.5px; color: #334155; margin-top: 2px; line-height: 1.3;">${getAccesoriosString() || 'Ninguno adicional.'}</div>
+                <div style="font-size: 8px; color: #64748B; font-weight: 800; text-transform: uppercase; margin-top: 8px;">Otros accesorios / Checklist:</div>
+                <div class="recep-p" style="margin-top: 3px;">${getAccesoriosString() || 'Ninguno adicional.'}</div>
               </div>
             </div>
           </div>
@@ -1370,13 +1498,150 @@ function RecepcionPage() {
             )}
           </div>
 
-          {/* 3. Evidencia Fotográfica */}
+          {/* 3. Diagnóstico y Estado */}
+          <div style={{ background: "#FFFFFF", padding: "14px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+            <div
+              onClick={() => setCollEstado(p => !p)}
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" }}
+            >
+              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>3. Diagnóstico y Estado</div>
+              <div style={{ color: "#64748B" }}>
+                {collEstado ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              </div>
+            </div>
+
+            {!collEstado && (
+              <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                {/* Motivo de Ingreso */}
+                <div>
+                  <label style={{ fontSize: "9px", color: "#64748B", fontWeight: 700, display: "block", marginBottom: "4px" }}>MOTIVO DE INGRESO</label>
+                  <select value={motivoIngreso} onChange={e => setMotivoIngreso(e.target.value as any)}
+                    style={{ background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "6px", outline: "none", fontSize: "11px", color: "#1E293B", width: "100%", padding: "6px 10px", fontFamily: "inherit", cursor: "pointer" }}>
+                    <option value="diagnostico">Diagnóstico</option>
+                    <option value="reparacion">Reparación</option>
+                    <option value="mantenimiento">Mantenimiento preventivo</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                  {motivoIngreso === "otro" && (
+                    <input
+                      value={motivoOtro}
+                      onChange={e => setMotivoOtro(e.target.value)}
+                      placeholder="Especificar motivo..."
+                      style={{ width: "100%", fontSize: "11px", border: "1px solid #CBD5E1", borderRadius: "6px", padding: "6px 10px", marginTop: "6px", outline: "none", color: "#1E293B" }}
+                    />
+                  )}
+                </div>
+
+                {/* Accesorios Entregados */}
+                <div>
+                  <label style={{ fontSize: "9px", color: "#64748B", fontWeight: 700, display: "block", marginBottom: "4px" }}>ELEMENTOS ENTREGADOS</label>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    {[
+                      { id: "transductor", label: "Transductor" },
+                      { id: "estuche_funda", label: "Estuche / Funda" },
+                      { id: "cable_extension", label: "Cable de extensión" },
+                      { id: "otro", label: "Otro" }
+                    ].map(acc => {
+                      const checked = accesoriosEntregados.includes(acc.id);
+                      return (
+                        <label key={acc.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10px", color: "#334155", background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "5px 8px", borderRadius: "6px", cursor: "pointer" }}>
+                          <input type="checkbox" checked={checked}
+                            onChange={() => {
+                              const next = checked
+                                ? accesoriosEntregados.filter(x => x !== acc.id)
+                                : [...accesoriosEntregados, acc.id];
+                              setAccesoriosEntregados(next);
+                            }}
+                            className="accent-[#4E60A9]"
+                          />
+                          <span>{acc.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  {accesoriosEntregados.includes("otro") && (
+                    <input
+                      value={accesoriosOtro}
+                      onChange={e => setAccesoriosOtro(e.target.value)}
+                      placeholder="Especificar accesorios..."
+                      style={{ width: "100%", fontSize: "11px", border: "1px solid #CBD5E1", borderRadius: "6px", padding: "6px 10px", marginTop: "6px", outline: "none", color: "#1E293B" }}
+                    />
+                  )}
+                </div>
+
+                {/* Checklist Estado Físico */}
+                <div style={{ borderTop: "1px dashed #E2E8F0", paddingTop: "8px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                  <label style={{ fontSize: "9px", color: "#64748B", fontWeight: 700, display: "block" }}>ESTADO FÍSICO AL INGRESO</label>
+                  
+                  {/* Conector */}
+                  <div>
+                    <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Conector:</span>
+                    <select value={conectorState} onChange={e => setConectorState(e.target.value as any)}
+                      style={{ background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "6px", outline: "none", fontSize: "10.5px", color: "#1E293B", width: "100%", padding: "5px 8px", fontFamily: "inherit", cursor: "pointer" }}>
+                      <option value="sin_danio">Sin daño visible</option>
+                      <option value="danio_fisico">Daño físico</option>
+                      <option value="cables_expuestos">Cables expuestos</option>
+                    </select>
+                  </div>
+
+                  {/* Carcasa */}
+                  <div>
+                    <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Carcasa:</span>
+                    <select value={carcasaState} onChange={e => setCarcasaState(e.target.value as any)}
+                      style={{ background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "6px", outline: "none", fontSize: "10.5px", color: "#1E293B", width: "100%", padding: "5px 8px", fontFamily: "inherit", cursor: "pointer" }}>
+                      <option value="sin_danio">Sin daño visible</option>
+                      <option value="grietas">Grietas</option>
+                      <option value="golpes">Golpes</option>
+                      <option value="desgaste">Desgaste</option>
+                    </select>
+                  </div>
+
+                  {/* Cable */}
+                  <div>
+                    <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Cable de Transductor:</span>
+                    <select value={cableState} onChange={e => setCableState(e.target.value as any)}
+                      style={{ background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "6px", outline: "none", fontSize: "10.5px", color: "#1E293B", width: "100%", padding: "5px 8px", fontFamily: "inherit", cursor: "pointer" }}>
+                      <option value="sin_danio">Sin daño visible</option>
+                      <option value="doblado_torcido">Doblado / torcido</option>
+                      <option value="pelado">Pelado</option>
+                    </select>
+                  </div>
+
+                  {/* Cristales */}
+                  <div>
+                    <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Cristales / Face:</span>
+                    <select value={cristalesState} onChange={e => setCristalesState(e.target.value as any)}
+                      style={{ background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "6px", outline: "none", fontSize: "10.5px", color: "#1E293B", width: "100%", padding: "5px 8px", fontFamily: "inherit", cursor: "pointer" }}>
+                      <option value="sin_danio">Sin daño visible</option>
+                      <option value="burbujas">Burbujas</option>
+                      <option value="astillado">Astillado</option>
+                      <option value="no_evaluable">No evaluable</option>
+                    </select>
+                  </div>
+
+                  {/* Observaciones adicionales */}
+                  <div>
+                    <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Observaciones adicionales:</span>
+                    <textarea
+                      value={observacionesAdicionales}
+                      onChange={e => setObservacionesAdicionales(e.target.value)}
+                      placeholder="Observaciones estéticas o físicas..."
+                      rows={2}
+                      style={{ width: "100%", fontSize: "10.5px", border: "1px solid #CBD5E1", borderRadius: "6px", padding: "6px 8px", outline: "none", color: "#1E293B", resize: "none", fontFamily: "inherit" }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 4. Evidencia Fotográfica */}
           <div style={{ background: "#FFFFFF", padding: "14px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
             <div
               onClick={() => setCollRecepcion(p => !p)}
               style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" }}
             >
-              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>3. Evidencia de Recepción</div>
+              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>4. Evidencia de Recepción</div>
               <div style={{ color: "#64748B" }}>
                 {collRecepcion ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
               </div>
@@ -1401,13 +1666,13 @@ function RecepcionPage() {
             )}
           </div>
 
-          {/* 4. Condiciones y Cláusulas */}
+          {/* 5. Condiciones y Cláusulas */}
           <div style={{ background: "#FFFFFF", padding: "14px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
             <div
               onClick={() => setCollClausulas(p => !p)}
               style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" }}
             >
-              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>4. Cláusulas del Contrato</div>
+              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>5. Cláusulas del Contrato</div>
               <div style={{ color: "#64748B" }}>
                 {collClausulas ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
               </div>
@@ -1425,13 +1690,13 @@ function RecepcionPage() {
             )}
           </div>
 
-          {/* 5. Firmas Digitales */}
+          {/* 6. Firmas Digitales */}
           <div style={{ background: "#FFFFFF", padding: "14px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
             <div
               onClick={() => setCollFirmas(p => !p)}
               style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" }}
             >
-              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>5. Firmas Digitales</div>
+              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>6. Firmas Digitales</div>
               <div style={{ color: "#64748B" }}>
                 {collFirmas ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
               </div>
@@ -1765,22 +2030,519 @@ function RecepcionPage() {
                   </div>
                 </div>
 
-                {/* Detalles Diagnostico */}
-                <div 
-                  onClick={() => expandCardOnly("recepcion")}
-                  style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "8px 12px", marginBottom: "8px", cursor: "pointer" }}
+                {/* 3. Diagnóstico y Estado (Paper View) */}
+                <div
+                  onClick={() => expandCardOnly("estado")}
+                  style={{
+                    background: "#F8FAFC",
+                    border: "1px solid #E2E8F0",
+                    borderRadius: "10px",
+                    padding: "8px 12px",
+                    marginBottom: "8px",
+                    cursor: "pointer"
+                  }}
                 >
-                  <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Falla Reportada y Estado Físico</div>
+                  <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px", borderBottom: "1.5px solid #E2E8F0", paddingBottom: "3px" }}>
+                    Estado Físico al Momento de Recepción
+                  </div>
+                  <p style={{ fontSize: "8px", color: "#64748B", marginBottom: "8px", fontStyle: "italic", lineHeight: "1.3" }}>
+                    El personal de Bionordi declara haber recibido el equipo con las siguientes condiciones observadas a simple vista:
+                  </p>
                   
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                    <div>
-                      <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase" }}>Falla Reportada por el Cliente</div>
-                      <F value={fallaReportada} onChange={setFallaReportada} placeholder="Escribe la falla que describe el doctor..." multiline={true} rows={2} style={{ fontSize: "10px", borderBottom: "none", background: "#FFFFFF", padding: "6px 8px", border: "1px solid #E2E8F0", borderRadius: "6px", marginTop: "2px" }} />
+                  {/* Visual Checklist Grid */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px", marginTop: "6px" }}>
+                    
+                    {/* Conector */}
+                    <div style={{ background: "#ffffff", border: "1px solid #E2E8F0", borderRadius: "8px", padding: "8px 10px", display: "flex", flexDirection: "column" }}>
+                      <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: "5px", borderBottom: "1px solid #F1F5F9", paddingBottom: "2px" }}>
+                        Conector
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "3px", flexGrow: 1 }}>
+                        {[
+                          { id: "sin_danio", label: "Sin daño visible", variant: "green" },
+                          { id: "danio_fisico", label: "Daño físico", variant: "red" },
+                          { id: "cables_expuestos", label: "Cables expuestos", variant: "red" }
+                        ].map(opt => {
+                          const active = conectorState === opt.id;
+                          return (
+                            <div
+                              key={opt.id}
+                              onClick={(e) => { e.stopPropagation(); setConectorState(opt.id as any); expandCardOnly("estado"); }}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                fontSize: "8px",
+                                padding: "3px 6px",
+                                borderRadius: "4px",
+                                border: "1px solid",
+                                transition: "all 0.15s ease",
+                                cursor: "pointer",
+                                ...(active ? {
+                                  fontWeight: 700,
+                                  ...(opt.variant === "green" ? { background: "#ECFDF5", borderColor: "#A7F3D0", color: "#065F46" } : {}),
+                                  ...(opt.variant === "red" ? { background: "#FEF2F2", borderColor: "#FCA5A5", color: "#991B1B" } : {}),
+                                } : {
+                                  borderColor: "#F8FAFC",
+                                  color: "#94A3B8",
+                                  fontWeight: 500
+                                })
+                              }}
+                            >
+                              <span style={{
+                                display: "inline-block",
+                                width: "8px",
+                                height: "8px",
+                                border: "1px solid #CBD5E1",
+                                borderRadius: "2px",
+                                marginRight: "4px",
+                                position: "relative",
+                                flexShrink: 0,
+                                transition: "all 0.15s ease",
+                                ...(active ? {
+                                  backgroundColor: "currentColor",
+                                  borderColor: "currentColor"
+                                } : {})
+                              }}>
+                                {active && (
+                                  <span style={{
+                                    position: "absolute",
+                                    left: "2px",
+                                    top: "0.2px",
+                                    width: "2px",
+                                    height: "4px",
+                                    border: "solid white",
+                                    borderWidth: "0 1px 1px 0",
+                                    transform: "rotate(45deg)"
+                                  }} />
+                                )}
+                              </span>
+                              {opt.label}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div>
-                      <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase" }}>Estado Físico / Estético Visible de Recepción</div>
-                      <F value={condicionRecepcion} onChange={setCondicionRecepcion} placeholder="Escribe observaciones cosméticas (ej. lente rayado, grietas en mango)..." multiline={true} rows={2} style={{ fontSize: "10px", borderBottom: "none", background: "#FFFFFF", padding: "6px 8px", border: "1px solid #E2E8F0", borderRadius: "6px", marginTop: "2px" }} />
+
+                    {/* Carcasa */}
+                    <div style={{ background: "#ffffff", border: "1px solid #E2E8F0", borderRadius: "8px", padding: "8px 10px", display: "flex", flexDirection: "column" }}>
+                      <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: "5px", borderBottom: "1px solid #F1F5F9", paddingBottom: "2px" }}>
+                        Carcasa
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "3px", flexGrow: 1 }}>
+                        {[
+                          { id: "sin_danio", label: "Sin daño visible", variant: "green" },
+                          { id: "grietas", label: "Grietas", variant: "red" },
+                          { id: "golpes", label: "Golpes", variant: "red" },
+                          { id: "desgaste", label: "Desgaste", variant: "amber" }
+                        ].map(opt => {
+                          const active = carcasaState === opt.id;
+                          return (
+                            <div
+                              key={opt.id}
+                              onClick={(e) => { e.stopPropagation(); setCarcasaState(opt.id as any); expandCardOnly("estado"); }}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                fontSize: "8px",
+                                padding: "3px 6px",
+                                borderRadius: "4px",
+                                border: "1px solid",
+                                transition: "all 0.15s ease",
+                                cursor: "pointer",
+                                ...(active ? {
+                                  fontWeight: 700,
+                                  ...(opt.variant === "green" ? { background: "#ECFDF5", borderColor: "#A7F3D0", color: "#065F46" } : {}),
+                                  ...(opt.variant === "red" ? { background: "#FEF2F2", borderColor: "#FCA5A5", color: "#991B1B" } : {}),
+                                  ...(opt.variant === "amber" ? { background: "#FFFBEB", borderColor: "#FDE68A", color: "#92400E" } : {}),
+                                } : {
+                                  borderColor: "#F8FAFC",
+                                  color: "#94A3B8",
+                                  fontWeight: 500
+                                })
+                              }}
+                            >
+                              <span style={{
+                                display: "inline-block",
+                                width: "8px",
+                                height: "8px",
+                                border: "1px solid #CBD5E1",
+                                borderRadius: "2px",
+                                marginRight: "4px",
+                                position: "relative",
+                                flexShrink: 0,
+                                transition: "all 0.15s ease",
+                                ...(active ? {
+                                  backgroundColor: "currentColor",
+                                  borderColor: "currentColor"
+                                } : {})
+                              }}>
+                                {active && (
+                                  <span style={{
+                                    position: "absolute",
+                                    left: "2px",
+                                    top: "0.2px",
+                                    width: "2px",
+                                    height: "4px",
+                                    border: "solid white",
+                                    borderWidth: "0 1px 1px 0",
+                                    transform: "rotate(45deg)"
+                                  }} />
+                                )}
+                              </span>
+                              {opt.label}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
+
+                    {/* Cable de Transductor */}
+                    <div style={{ background: "#ffffff", border: "1px solid #E2E8F0", borderRadius: "8px", padding: "8px 10px", display: "flex", flexDirection: "column" }}>
+                      <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: "5px", borderBottom: "1px solid #F1F5F9", paddingBottom: "2px" }}>
+                        Cable Transductor
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "3px", flexGrow: 1 }}>
+                        {[
+                          { id: "sin_danio", label: "Sin daño visible", variant: "green" },
+                          { id: "doblado_torcido", label: "Doblado/torcido", variant: "amber" },
+                          { id: "pelado", label: "Pelado", variant: "red" }
+                        ].map(opt => {
+                          const active = cableState === opt.id;
+                          return (
+                            <div
+                              key={opt.id}
+                              onClick={(e) => { e.stopPropagation(); setCableState(opt.id as any); expandCardOnly("estado"); }}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                fontSize: "8px",
+                                padding: "3px 6px",
+                                borderRadius: "4px",
+                                border: "1px solid",
+                                transition: "all 0.15s ease",
+                                cursor: "pointer",
+                                ...(active ? {
+                                  fontWeight: 700,
+                                  ...(opt.variant === "green" ? { background: "#ECFDF5", borderColor: "#A7F3D0", color: "#065F46" } : {}),
+                                  ...(opt.variant === "red" ? { background: "#FEF2F2", borderColor: "#FCA5A5", color: "#991B1B" } : {}),
+                                  ...(opt.variant === "amber" ? { background: "#FFFBEB", borderColor: "#FDE68A", color: "#92400E" } : {}),
+                                } : {
+                                  borderColor: "#F8FAFC",
+                                  color: "#94A3B8",
+                                  fontWeight: 500
+                                })
+                              }}
+                            >
+                              <span style={{
+                                display: "inline-block",
+                                width: "8px",
+                                height: "8px",
+                                border: "1px solid #CBD5E1",
+                                borderRadius: "2px",
+                                marginRight: "4px",
+                                position: "relative",
+                                flexShrink: 0,
+                                transition: "all 0.15s ease",
+                                ...(active ? {
+                                  backgroundColor: "currentColor",
+                                  borderColor: "currentColor"
+                                } : {})
+                              }}>
+                                {active && (
+                                  <span style={{
+                                    position: "absolute",
+                                    left: "2px",
+                                    top: "0.2px",
+                                    width: "2px",
+                                    height: "4px",
+                                    border: "solid white",
+                                    borderWidth: "0 1px 1px 0",
+                                    transform: "rotate(45deg)"
+                                  }} />
+                                )}
+                              </span>
+                              {opt.label}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Cristales / Face */}
+                    <div style={{ background: "#ffffff", border: "1px solid #E2E8F0", borderRadius: "8px", padding: "8px 10px", display: "flex", flexDirection: "column" }}>
+                      <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: "5px", borderBottom: "1px solid #F1F5F9", paddingBottom: "2px" }}>
+                        Cristales / Face
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "3px", flexGrow: 1 }}>
+                        {[
+                          { id: "sin_danio", label: "Sin daño visible", variant: "green" },
+                          { id: "burbujas", label: "Burbujas", variant: "red" },
+                          { id: "astillado", label: "Astillado", variant: "red" },
+                          { id: "no_evaluable", label: "No evaluable", variant: "slate" }
+                        ].map(opt => {
+                          const active = cristalesState === opt.id;
+                          return (
+                            <div
+                              key={opt.id}
+                              onClick={(e) => { e.stopPropagation(); setCristalesState(opt.id as any); expandCardOnly("estado"); }}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                fontSize: "8px",
+                                padding: "3px 6px",
+                                borderRadius: "4px",
+                                border: "1px solid",
+                                transition: "all 0.15s ease",
+                                cursor: "pointer",
+                                ...(active ? {
+                                  fontWeight: 700,
+                                  ...(opt.variant === "green" ? { background: "#ECFDF5", borderColor: "#A7F3D0", color: "#065F46" } : {}),
+                                  ...(opt.variant === "red" ? { background: "#FEF2F2", borderColor: "#FCA5A5", color: "#991B1B" } : {}),
+                                  ...(opt.variant === "slate" ? { background: "#F1F5F9", borderColor: "#E2E8F0", color: "#334155" } : {}),
+                                } : {
+                                  borderColor: "#F8FAFC",
+                                  color: "#94A3B8",
+                                  fontWeight: 500
+                                })
+                              }}
+                            >
+                              <span style={{
+                                display: "inline-block",
+                                width: "8px",
+                                height: "8px",
+                                border: "1px solid #CBD5E1",
+                                borderRadius: "2px",
+                                marginRight: "4px",
+                                position: "relative",
+                                flexShrink: 0,
+                                transition: "all 0.15s ease",
+                                ...(active ? {
+                                  backgroundColor: "currentColor",
+                                  borderColor: "currentColor"
+                                } : {})
+                              }}>
+                                {active && (
+                                  <span style={{
+                                    position: "absolute",
+                                    left: "2px",
+                                    top: "0.2px",
+                                    width: "2px",
+                                    height: "4px",
+                                    border: "solid white",
+                                    borderWidth: "0 1px 1px 0",
+                                    transform: "rotate(45deg)"
+                                  }} />
+                                )}
+                              </span>
+                              {opt.label}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Observaciones adicionales */}
+                  <div style={{ marginTop: "8px", borderTop: "1px dashed #E2E8F0", paddingTop: "6px" }} onClick={e => e.stopPropagation()}>
+                    <div style={{ fontSize: "8.5px", fontWeight: 700, color: "#4E60A9", textTransform: "uppercase" }}>Observaciones adicionales:</div>
+                    <F
+                      value={observacionesAdicionales}
+                      onChange={setObservacionesAdicionales}
+                      placeholder="Escribe observaciones cosméticas (ej. lente rayado, grietas en mango)..."
+                      style={{ fontSize: "10px", borderBottom: "none", background: "#FFFFFF", padding: "4px 6px", border: "1px solid #E2E8F0", borderRadius: "6px", marginTop: "2px" }}
+                    />
+                  </div>
+                </div>
+
+                {/* MOTIVO DE INGRESO Y ACCESORIOS (Paper View) */}
+                <div
+                  onClick={() => expandCardOnly("estado")}
+                  style={{
+                    background: "#F8FAFC",
+                    border: "1px solid #E2E8F0",
+                    borderRadius: "10px",
+                    padding: "8px 12px",
+                    marginBottom: "8px",
+                    cursor: "pointer"
+                  }}
+                >
+                  <div style={{ display: "flex", gap: "20px" }}>
+                    
+                    {/* Motivo de ingreso */}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "4px", borderBottom: "1.5px solid #E2E8F0", paddingBottom: "2px" }}>
+                        Motivo de Ingreso
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", marginTop: "4px" }}>
+                        {[
+                          { id: "diagnostico", label: "Diagnóstico" },
+                          { id: "reparacion", label: "Reparación" },
+                          { id: "mantenimiento", label: "Mantenimiento preventivo" },
+                          { id: "otro", label: "Otro" }
+                        ].map(opt => {
+                          const active = motivoIngreso === opt.id;
+                          return (
+                            <div
+                              key={opt.id}
+                              onClick={(e) => { e.stopPropagation(); setMotivoIngreso(opt.id as any); expandCardOnly("estado"); }}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                fontSize: "8px",
+                                padding: "3px 6px",
+                                borderRadius: "4px",
+                                border: "1px solid",
+                                transition: "all 0.15s ease",
+                                cursor: "pointer",
+                                ...(active ? {
+                                  fontWeight: 700,
+                                  background: "#F1F5F9",
+                                  borderColor: "#E2E8F0",
+                                  color: "#334155"
+                                } : {
+                                  borderColor: "#F8FAFC",
+                                  color: "#94A3B8",
+                                  fontWeight: 500
+                                })
+                              }}
+                            >
+                              <span style={{
+                                display: "inline-block",
+                                width: "8px",
+                                height: "8px",
+                                border: "1px solid #CBD5E1",
+                                borderRadius: "2px",
+                                marginRight: "4px",
+                                position: "relative",
+                                flexShrink: 0,
+                                ...(active ? {
+                                  backgroundColor: "currentColor",
+                                  borderColor: "currentColor"
+                                } : {})
+                              }}>
+                                {active && (
+                                  <span style={{
+                                    position: "absolute",
+                                    left: "2px",
+                                    top: "0.2px",
+                                    width: "2px",
+                                    height: "4px",
+                                    border: "solid white",
+                                    borderWidth: "0 1px 1px 0",
+                                    transform: "rotate(45deg)"
+                                  }} />
+                                )}
+                              </span>
+                              {opt.label}
+                              {opt.id === "otro" && active && motivoOtro ? `: ${motivoOtro}` : ""}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      
+                      <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase", marginTop: "8px" }}>
+                        Descripción del problema reportado:
+                      </div>
+                      <div onClick={e => e.stopPropagation()}>
+                        <F
+                          value={fallaReportada}
+                          onChange={setFallaReportada}
+                          placeholder="Escribe la falla que describe el doctor..."
+                          multiline={true}
+                          rows={2}
+                          style={{ fontSize: "10px", borderBottom: "none", background: "#FFFFFF", padding: "6px 8px", border: "1px solid #E2E8F0", borderRadius: "6px", marginTop: "2px" }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Accesorios y elementos entregados */}
+                    <div style={{ flex: 1, borderLeft: "1px dashed #E2E8F0", paddingLeft: "20px" }}>
+                      <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "4px", borderBottom: "1.5px solid #E2E8F0", paddingBottom: "2px" }}>
+                        Accesorios y Elementos Entregados
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", marginTop: "4px" }}>
+                        {[
+                          { id: "transductor", label: "Transductor" },
+                          { id: "estuche_funda", label: "Estuche / Funda" },
+                          { id: "cable_extension", label: "Extensión" },
+                          { id: "otro", label: "Otro" }
+                        ].map(opt => {
+                          const active = accesoriosEntregados.includes(opt.id);
+                          return (
+                            <div
+                              key={opt.id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const next = active
+                                  ? accesoriosEntregados.filter(x => x !== opt.id)
+                                  : [...accesoriosEntregados, opt.id];
+                                setAccesoriosEntregados(next);
+                                expandCardOnly("estado");
+                              }}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                fontSize: "8px",
+                                padding: "3px 6px",
+                                borderRadius: "4px",
+                                border: "1px solid",
+                                transition: "all 0.15s ease",
+                                cursor: "pointer",
+                                ...(active ? {
+                                  fontWeight: 700,
+                                  background: "#F1F5F9",
+                                  borderColor: "#E2E8F0",
+                                  color: "#334155"
+                                } : {
+                                  borderColor: "#F8FAFC",
+                                  color: "#94A3B8",
+                                  fontWeight: 500
+                                })
+                              }}
+                            >
+                              <span style={{
+                                display: "inline-block",
+                                width: "8px",
+                                height: "8px",
+                                border: "1px solid #CBD5E1",
+                                borderRadius: "2px",
+                                marginRight: "4px",
+                                position: "relative",
+                                flexShrink: 0,
+                                ...(active ? {
+                                  backgroundColor: "currentColor",
+                                  borderColor: "currentColor"
+                                } : {})
+                              }}>
+                                {active && (
+                                  <span style={{
+                                    position: "absolute",
+                                    left: "2px",
+                                    top: "0.2px",
+                                    width: "2px",
+                                    height: "4px",
+                                    border: "solid white",
+                                    borderWidth: "0 1px 1px 0",
+                                    transform: "rotate(45deg)"
+                                  }} />
+                                )}
+                              </span>
+                              {opt.label}
+                              {opt.id === "otro" && active && accesoriosOtro ? `: ${accesoriosOtro}` : ""}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase", marginTop: "8px" }}>
+                        Otros accesorios / Checklist:
+                      </div>
+                      <div style={{ fontSize: "10px", color: "#334155", background: "#FFFFFF", padding: "6px 8px", border: "1px solid #E2E8F0", borderRadius: "6px", marginTop: "2px", minHeight: "24px" }}>
+                        {getAccesoriosString() || 'Ninguno adicional.'}
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
