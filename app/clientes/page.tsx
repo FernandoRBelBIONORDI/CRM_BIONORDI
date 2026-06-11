@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Search, Phone, Mail, MapPin, Star, Calendar, FileText, Wrench } from "lucide-react";
 import { initials, avatarColor, fmtDate } from "@/lib/ui";
+import { LEAD_STATUS } from "@/lib/estados";
 
 interface Lead {
   id: number;
@@ -20,15 +21,7 @@ interface Lead {
   decisor_nombre?: string;
 }
 
-const STATUS_COLOR: Record<string, { bg: string; text: string; label: string }> = {
-  nuevo:        { bg: "#EEF3FC", text: "#5A85F1", label: "Nuevo" },
-  contactado:   { bg: "#FFFBEB", text: "#D97706", label: "Contactado" },
-  seguimiento:  { bg: "#FFF7ED", text: "#EA580C", label: "Seguimiento" },
-  diagnostico:  { bg: "#F5F3FF", text: "#7C3AED", label: "Diagnóstico" },
-  cliente:      { bg: "#EEF9F1", text: "#34A853", label: "Cliente" },
-  sin_equipo:   { bg: "#F1F5F9", text: "#64748B", label: "Sin equipo" },
-  descartado:   { bg: "#FEF2F2", text: "#DC2626", label: "Descartado" },
-};
+const STATUS_COLOR = LEAD_STATUS;
 
 
 export default function ClientesPage() {
@@ -78,8 +71,9 @@ export default function ClientesPage() {
     );
   });
 
+  // Etapas reales del pipeline del CRM (mismas columnas que el Kanban) + estados terminales
   const statusOptions = [
-    "cliente", "interesado", "propuesta", "negociacion", "todos",
+    "cliente", "diagnostico", "seguimiento", "contactado", "nuevo", "sin_equipo", "descartado", "todos",
   ];
 
   return (
@@ -110,7 +104,7 @@ export default function ClientesPage() {
         </div>
         <div className="flex items-center gap-1 flex-wrap">
           {statusOptions.map(s => {
-            const cfg = s === "todos" ? { bg: "#F1F5F9", text: "#475569" } : (STATUS_COLOR[s] || { bg: "#F1F5F9", text: "#475569" });
+            const cfg = s === "todos" ? { bg: "#F1F5F9", color: "#475569" } : (STATUS_COLOR[s] || { bg: "#F1F5F9", color: "#475569" });
             const active = filtro === s;
             return (
               <button
@@ -119,8 +113,8 @@ export default function ClientesPage() {
                 className="px-3 py-1.5 rounded-lg text-[11px] font-semibold border transition-all"
                 style={{
                   background: active ? cfg.bg : "white",
-                  color: active ? cfg.text : "#94A3B8",
-                  borderColor: active ? cfg.text + "40" : "#E2E8F0",
+                  color: active ? cfg.color : "#94A3B8",
+                  borderColor: active ? cfg.color + "40" : "#E2E8F0",
                 }}
               >
                 {s === "todos" ? "Ver todos" : (STATUS_COLOR[s]?.label || s)}
@@ -167,7 +161,7 @@ export default function ClientesPage() {
                         </div>
                         <span
                           className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold"
-                          style={{ background: st.bg, color: st.text }}
+                          style={{ background: st.bg, color: st.color }}
                         >
                           {st.label}
                         </span>

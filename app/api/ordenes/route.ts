@@ -26,6 +26,41 @@ function generarFolio(tipo?: string): string {
   return `${prefix}-${date}-${String(seq).padStart(3, '0')}`;
 }
 
+// ── Sincronización taller → CRM ───────────────────────────────────────────────
+// Cuando una orden avanza en el Kanban del taller, el lead vinculado avanza en el
+// pipeline del CRM. Solo promueve (nunca degrada): una orden activa implica que el
+// lead está al menos en 'diagnostico'; una orden entregada lo convierte en 'cliente'.
+const CRM_RANK: Record<string, number> = {
+  nuevo: 0, contactado: 1, seguimiento: 2, diagnostico: 3, cliente: 4,
+};
+
+function syncLeadConOrden(leadId: number | null | undefined, ordenStatus: string | null | undefined) {
+  if (!leadId || !ordenStatus || ordenStatus === 'cancelado') return;
+  const lead = db.prepare(
+    `SELECT id, status_crm, fecha_proximo_contacto FROM leads WHERE id = ?`
+  ).get(leadId) as any;
+  if (!lead) return;
+
+  const target = ordenStatus === 'entregado' ? 'cliente' : 'diagnostico';
+  const curRank = CRM_RANK[lead.status_crm];
+  // sin_equipo/descartado no tienen rank: una orden en taller los reactiva
+  if (curRank !== undefined && curRank >= CRM_RANK[target]) return;
+
+  const now = new Date().toISOString();
+  if (target === 'cliente' && !lead.fecha_proximo_contacto) {
+    // Mismo auto-recordatorio que PATCH /api/leads al pasar a cliente
+    const sixMonths = new Date();
+    sixMonths.setMonth(sixMonths.getMonth() + 6);
+    db.prepare(
+      `UPDATE leads SET status_crm = ?, fecha_proximo_contacto = ?, fecha_ultimo_cambio = ? WHERE id = ?`
+    ).run(target, sixMonths.toISOString().slice(0, 10), now, leadId);
+  } else {
+    db.prepare(
+      `UPDATE leads SET status_crm = ?, fecha_ultimo_cambio = ? WHERE id = ?`
+    ).run(target, now, leadId);
+  }
+}
+
 const SELECT_BASE = `
   SELECT o.*,
          l.nombre  AS lead_nombre,
@@ -153,6 +188,8 @@ export async function POST(req: Request) {
       clausulas_recepcion:  data.clausulas_recepcion || null,
     });
 
+    syncLeadConOrden(data.lead_id, data.status || 'recibido');
+
     const orden = db.prepare(`${SELECT_BASE} WHERE o.id = ?`).get(Number(lastInsertRowid));
 
     return NextResponse.json({ success: true, orden });
@@ -186,7 +223,19 @@ export async function PATCH(req: Request) {
     const setStr = Object.keys(safe).map(k => `${k} = @${k}`).join(', ');
     db.prepare(`UPDATE ordenes_trabajo SET ${setStr} WHERE id = @id`).run({ ...safe, id });
 
-    const orden = db.prepare(`${SELECT_BASE} WHERE o.id = ?`).get(id);
+    // Al marcar entregada una orden sin fecha de entrega, registrarla automáticamente
+    if (safe.status === 'entregado' && !safe.fecha_entrega) {
+      db.prepare(
+        `UPDATE ordenes_trabajo SET fecha_entrega = ? WHERE id = ? AND fecha_entrega IS NULL`
+      ).run(new Date().toISOString().slice(0, 10), id);
+    }
+
+    const orden = db.prepare(`${SELECT_BASE} WHERE o.id = ?`).get(id) as any;
+
+    // El avance de la orden en el Kanban actualiza la etapa del lead vinculado
+    if (safe.status && orden?.lead_id) {
+      syncLeadConOrden(orden.lead_id, safe.status as string);
+    }
 
     return NextResponse.json({ success: true, orden });
   } catch (e: any) {

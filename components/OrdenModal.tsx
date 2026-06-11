@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { X, CheckCircle, Clock, FileText, ChevronRight, Trash2, Check, AlertTriangle, Activity, Mail, Camera, Download, Printer } from "lucide-react";
 import DocumentViewerModal from "@/components/DocumentViewerModal";
+import { ORDEN_STATUS, ORDEN_KANBAN_COLS, ordenStatusList } from "@/lib/estados";
 
 export interface Orden {
   id: number; folio: string; tipo_orden?: string; lead_id?: number;
@@ -27,16 +28,7 @@ export interface Orden {
   clausulas_recepcion?: string;
 }
 
-const STATUSES: { value: string; label: string; color: string; bg: string }[] = [
-  { value: "recibido",              label: "Equipo recibido",     color: "#5A85F1", bg: "#EEF3FC" },
-  { value: "en_diagnostico",        label: "Evaluación técnica",  color: "#7C3AED", bg: "#F5F3FF" },
-  { value: "en_reparacion",         label: "Servicio en proceso", color: "#D97706", bg: "#FFFBEB" },
-  { value: "en_espera_refacciones", label: "Espera refacciones",  color: "#EA580C", bg: "#FFF7ED" },
-  { value: "en_pruebas",            label: "Pruebas de funcionamiento", color: "#0E7490", bg: "#ECFEFF" },
-  { value: "listo",                 label: "Servicio finalizado", color: "#059669", bg: "#ECFDF5" },
-  { value: "entregado",             label: "Entregado",           color: "#34A853", bg: "#EEF9F1" },
-  { value: "cancelado",             label: "Cancelado",           color: "#DC2626", bg: "#FEF2F2" },
-];
+const STATUSES = ordenStatusList(Object.keys(ORDEN_STATUS));
 
 function stColor(s: string) { return STATUSES.find(x => x.value === s) || STATUSES[0]; }
 
@@ -266,15 +258,7 @@ export default function OrdenModal({ orden, onClose, onUpdate, onDelete }: Props
     }
     setSendingEmail(true);
     const st = stColor(statusOverride);
-    const STEPS = [
-      { id: "recibido",              label: "Equipo Recibido" },
-      { id: "en_diagnostico",        label: "Evaluación Técnica" },
-      { id: "en_reparacion",         label: "Servicio en Proceso" },
-      { id: "en_espera_refacciones", label: "Espera de Refacciones" },
-      { id: "en_pruebas",            label: "Pruebas de Funcionamiento" },
-      { id: "listo",                 label: "Servicio Finalizado" },
-      { id: "entregado",             label: "Entregado" },
-    ];
+    const STEPS = ordenStatusList(ORDEN_KANBAN_COLS).map(s => ({ id: s.value, label: s.label }));
     const idx = STEPS.findIndex(s => s.id === statusOverride);
     const timelineRows = STEPS.map((step, i) => {
       const done = i < idx;

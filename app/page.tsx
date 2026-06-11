@@ -12,6 +12,7 @@ import {
 import CotizacionManualModal from "@/components/CotizacionManualModal";
 import OnboardingTour from "@/components/OnboardingTour";
 import { waLink } from "@/lib/ui";
+import { LEAD_STATUS, ORDEN_STATUS } from "@/lib/estados";
 
 interface DashData {
   metrics: { total:number; nuevo:number; contactado:number; seguimiento:number; diagnostico:number; cliente:number; descartado:number; };
@@ -29,18 +30,8 @@ interface DashData {
   cotizaciones: { reparacion?:number; venta?:number; mantenimiento?:number; consumibles?:number; };
 }
 
-const STATUS_COLORS: Record<string,{color:string;bg:string;label:string}> = {
-  recibido:              { color:"#5A85F1", bg:"#EEF3FC",  label:"Recibido" },
-  en_diagnostico:        { color:"#7C3AED", bg:"#F5F3FF",  label:"Diagnóstico" },
-  en_reparacion:         { color:"#D97706", bg:"#FFFBEB",  label:"Reparación" },
-  en_espera_refacciones: { color:"#EA580C", bg:"#FFF7ED",  label:"Esp. refacciones" },
-  listo:                 { color:"#059669", bg:"#ECFDF5",  label:"Listo" },
-};
-
-const STATUS_LABEL: Record<string,string> = {
-  contactado: "Contactado", seguimiento: "Seguimiento",
-  diagnostico: "Diagnóstico", cliente: "Cliente",
-};
+// Estados unificados: mismas etiquetas y colores que el Kanban del taller y el CRM
+const STATUS_COLORS = ORDEN_STATUS;
 
 function fmt(n: number) {
   return new Intl.NumberFormat("es-MX", { style:"currency", currency:"MXN", maximumFractionDigits:0 }).format(n);
@@ -260,6 +251,7 @@ export default function Dashboard() {
             { v: cot.reparacion  ?? 0, l: "Reparación" },
             { v: cot.venta       ?? 0, l: "Venta" },
             { v: cot.mantenimiento ?? 0, l: "Mantenimiento" },
+            { v: cot.consumibles ?? 0, l: "Consumibles" },
           ]}
           cta="Nueva cotización"
           onClick={() => setShowCotizacion(true)}
@@ -340,7 +332,7 @@ export default function Dashboard() {
                   ? <span className="bg-[#FEF2F2] text-[#DC2626] px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase">{q.followUps.length} fríos</span>
                   : null}
             </div>
-            <Link href="/crm" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver CRM ?</Link>
+            <Link href="/crm" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver CRM →</Link>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto pr-1">
             {q.proximosSeguimientos.length === 0 && q.followUps.length === 0 ? (
@@ -409,7 +401,7 @@ export default function Dashboard() {
               <h3 className="font-bold text-[16px] text-[#202538] tracking-tight">Top Prospectos</h3>
               <span className="bg-[#EEF3FC] text-[#5A82ED] px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase">Por Abordar</span>
             </div>
-            <Link href="/crm?status=nuevo" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver todos ?</Link>
+            <Link href="/crm?status=nuevo" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver todos →</Link>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto pr-1">
             {q.topPriorities.length === 0 ? (
@@ -418,7 +410,7 @@ export default function Dashboard() {
                   <Search size={15} className="text-gray-400"/>
                 </div>
                 <p className="text-gray-400 text-[12px] font-medium text-center">Sin prospectos nuevos.<br/>Haz un barrido para empezar.</p>
-                <Link href="/encontrar" className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-4 py-1.5 rounded-full hover:bg-[#4E60A9] hover:text-white transition-all mt-1">Buscar leads ?</Link>
+                <Link href="/encontrar" className="text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-4 py-1.5 rounded-full hover:bg-[#4E60A9] hover:text-white transition-all mt-1">Buscar leads →</Link>
               </div>
             ) : q.topPriorities.map((l: any) => (
               <Link key={l.id} href={`/crm?expand=${l.id}`} className="flex items-center justify-between p-3 px-4 border border-gray-100 rounded-2xl hover:border-[#5A82ED]/30 hover:bg-[#F8FAFF] transition-all group">
@@ -443,7 +435,7 @@ export default function Dashboard() {
             <h3 className="font-bold text-[16px] text-[#202538] tracking-tight flex items-center gap-2">
               <Wrench size={14} className="text-[#7C3AED]"/> Taller
             </h3>
-            <Link href="/taller" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver taller ?</Link>
+            <Link href="/taller" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Ver taller →</Link>
           </div>
           <div className="grid grid-cols-3 gap-2 mb-4 shrink-0">
             <div className="bg-[#EEF3FC] rounded-xl p-2.5 text-center">
@@ -466,7 +458,7 @@ export default function Dashboard() {
                   <Wrench size={14} className="text-[#7C3AED]"/>
                 </div>
                 <p className="text-gray-400 text-[12px] font-medium text-center">Sin órdenes activas.</p>
-                <Link href="/taller" className="text-[11px] font-bold text-[#7C3AED] bg-[#F5F3FF] px-3 py-1.5 rounded-full hover:bg-[#7C3AED] hover:text-white transition-all">Crear OT ?</Link>
+                <Link href="/taller" className="text-[11px] font-bold text-[#7C3AED] bg-[#F5F3FF] px-3 py-1.5 rounded-full hover:bg-[#7C3AED] hover:text-white transition-all">Crear OT →</Link>
               </div>
             ) : taller.ordenes.map((o: any) => {
               const hoy = new Date(); hoy.setHours(0,0,0,0);
@@ -526,8 +518,8 @@ export default function Dashboard() {
                     <div className="min-w-0">
                       <div className="font-bold text-[#1E293B] text-[12px] tracking-tight truncate">{l.nombre}</div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{color: STATUS_COLORS[l.status_crm]?.color || "#666", backgroundColor: STATUS_COLORS[l.status_crm]?.bg || "#f0f0f0"}}>
-                          {STATUS_LABEL[l.status_crm] || l.status_crm}
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{color: LEAD_STATUS[l.status_crm]?.color || "#666", backgroundColor: LEAD_STATUS[l.status_crm]?.bg || "#f0f0f0"}}>
+                          {LEAD_STATUS[l.status_crm]?.label || l.status_crm}
                         </span>
                         {hace !== null && <span className="text-[10px] text-gray-400">hace {hace < 1 ? "<1h" : `${hace}h`}</span>}
                       </div>
@@ -554,7 +546,7 @@ export default function Dashboard() {
                   <span className="bg-[#ECFDF5] text-[#059669] px-2.5 py-0.5 rounded-full text-[10px] font-bold">{fmt(ng.totalPorCobrar)}</span>
                 )}
               </div>
-              <Link href="/taller" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Taller ?</Link>
+              <Link href="/taller" className="text-[11px] font-bold text-[#4E60A9] hover:underline">Taller →</Link>
             </div>
             <div className="flex-1 space-y-2 overflow-y-auto pr-1">
               {ng.otsPorCobrar.length === 0 ? (
@@ -592,7 +584,7 @@ export default function Dashboard() {
                   <span className="bg-[#EEF3FC] text-[#4E60A9] px-2.5 py-0.5 rounded-full text-[10px] font-bold">{totalConvSemana} movimientos</span>
                 )}
               </div>
-              <Link href="/crm" className="text-[11px] font-bold text-[#4E60A9] hover:underline">CRM ?</Link>
+              <Link href="/crm" className="text-[11px] font-bold text-[#4E60A9] hover:underline">CRM →</Link>
             </div>
             <div className="flex-1 flex flex-col justify-center">
               {ng.conversionSemanal.length === 0 ? (

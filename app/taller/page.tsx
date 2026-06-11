@@ -4,16 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Wrench, Plus, Activity, Search, X, Clock, AlertTriangle, CheckCircle } from "lucide-react";
 import OrdenModal, { Orden } from "@/components/OrdenModal";
+import { ORDEN_KANBAN_COLS, ordenStatusList } from "@/lib/estados";
 
-const COLS: { value: string; label: string; color: string; bg: string }[] = [
-  { value: "recibido",              label: "Equipo recibido",     color: "#5A85F1", bg: "#EEF3FC" },
-  { value: "en_diagnostico",        label: "Evaluación técnica",  color: "#7C3AED", bg: "#F5F3FF" },
-  { value: "en_reparacion",         label: "Servicio en proceso", color: "#D97706", bg: "#FFFBEB" },
-  { value: "en_espera_refacciones", label: "Espera refacciones",  color: "#EA580C", bg: "#FFF7ED" },
-  { value: "en_pruebas",            label: "Pruebas de funcionamiento", color: "#0E7490", bg: "#ECFEFF" },
-  { value: "listo",                 label: "Servicio finalizado", color: "#059669", bg: "#ECFDF5" },
-  { value: "entregado",             label: "Entregado",           color: "#34A853", bg: "#EEF9F1" },
-];
+const COLS = ordenStatusList(ORDEN_KANBAN_COLS);
 
 // Modal para crear nueva OT
 function NuevaOrdenModal({ onClose, onCreate, initialLeadId }: { onClose: () => void; onCreate: (o: Orden) => void; initialLeadId?: number }) {
