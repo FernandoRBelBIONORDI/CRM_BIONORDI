@@ -52,15 +52,17 @@ function formatearFecha(fecha: string) {
   const f = new Date(fecha + "T00:00:00");
   if (isNaN(f.getTime())) return fecha;
   return f.toLocaleDateString("es-MX", { year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-const CLAUSULAS_DEFAULT = `1. DIAGNÓSTICO TÉCNICO: Todo equipo o transductor ingresado a laboratorio de Bionordi está sujeto a un diagnóstico de ingeniería especializado. Bionordi cobrará un honorario fijo de $1,500.00 MXN (más IVA) por concepto de diagnóstico técnico únicamente en caso de que el cliente rechace el presupuesto de reparación subsiguiente. El tiempo estimado de emisión del diagnóstico es de 3 a 5 días hábiles a partir de la recepción física del equipo.
-2. RESPONSABILIDAD SOBRE DATOS Y SOFTWARE: Bionordi no asume responsabilidad alguna por la pérdida, daño o alteración de datos, imágenes de pacientes, archivos clínicos, configuraciones de software o licencias almacenadas en los discos internos o memorias del equipo. El cliente tiene la obligación estricta de respaldar su información médica confidencial antes de entregar el equipo.
-3. PLAZOS DE ACEPTACIÓN Y RECOLECCIÓN (ALMACENAMIENTO Y ABANDONO): Una vez notificado el diagnóstico y presupuesto de reparación, el cliente cuenta con 10 días hábiles para su aceptación o rechazo. Transcurridos 30 días naturales a partir del aviso final de reparación o rechazo sin que el equipo sea retirado de nuestras instalaciones, se generará un cargo por concepto de almacenaje técnico de $50.00 MXN (más IVA) por día. Transcurridos 90 días naturales, el equipo se considerará legalmente en estado de abandono, quedando Bionordi facultada para enajenarlo, desecharlo o disponer del mismo a fin de recuperar los costos de diagnóstico y almacenaje incurridos.
-4. TRASLADO, RIESGO DE TRANSPORTE Y LOGÍSTICA: El costo y riesgo del transporte de ida y vuelta de los equipos es responsabilidad exclusiva del cliente. Bionordi no asume ninguna responsabilidad por daños, golpes, averías o extravíos que sufra el equipo durante su traslado por parte de empresas de mensajería, fleteras externas o personal de transporte contratado por el cliente.
-5. REFACCIONES Y PIEZAS REEMPLAZADAS: En caso de aceptación del presupuesto de servicio, las refacciones o componentes dañados que sean sustituidos durante la reparación serán desechados por Bionordi para cumplir con normativas de bioseguridad, a menos que el cliente solicite por escrito su devolución al momento de aprobar el presupuesto.
-6. GARANTÍA DE SERVICIO: Las reparaciones efectuadas cuentan con una garantía limitada sobre mano de obra y refacciones sustituidas, cuyo plazo será especificado en la cotización definitiva. La garantía no cubre fallas distintas a las reparadas, daños por fluctuaciones eléctricas, mal uso, caídas, contaminación por fluidos o manipulación por personal ajeno a Bionordi.
-7. AUTORIZACIÓN DE DESENSAMBLE Y PRUEBAS: El cliente autoriza expresamente a los ingenieros de Bionordi a realizar la apertura física del equipo, pruebas eléctricas, remoción de blindajes y soldaduras necesarias para efectuar el diagnóstico técnico correspondiente.`;
+}const CLAUSULAS_DEFAULT = `1. DIAGNÓSTICO TÉCNICO: Todo equipo ingresado a las instalaciones de Bionordi S.A. de C.V. será sometido a un proceso de diagnóstico técnico especializado. Dicho diagnóstico tiene un costo de $1,500.00 MXN (más IVA), el cual es obligatorio e independiente de la decisión que tome el cliente respecto al servicio. En caso de que el cliente apruebe la reparación, el costo del diagnóstico quedará integrado dentro del presupuesto total, sin cargo adicional. El tiempo estimado para la emisión del diagnóstico es de 3 a 5 días hábiles contados a partir de la fecha de ingreso registrada en el presente documento. Bionordi se reserva el derecho de ampliar este plazo en casos de alta complejidad técnica, notifying al cliente oportunamente.
+2. PRESUPUESTO Y AUTORIZACIÓN DE REPARACIÓN: Una vez concluido el diagnóstico, Bionordi emitirá un presupuesto detallado que será comunicado al cliente por escrito o por los medios de contacto registrados. El cliente contará con un plazo de 5 días hábiles a partir de la notificación para aprobar o rechazar dicho presupuesto. La falta de respuesta dentro de este plazo se interpretará como rechazo del presupuesto, aplicándose el cobro de diagnóstico indicado en la cláusula anterior. Ninguna reparación será iniciada sin la autorización expresa del cliente. Bionordi no se responsabiliza por demoras atribuibles a la falta de respuesta oportuna por parte del cliente.
+3. ESQUEMA DE PAGOS: El servicio de reparación se liquida en dos parcialidades: 50% al momento de aprobar el presupuesto, previo al inicio de cualquier intervención técnica. Este pago tiene carácter de anticipo y confirma formalmente la autorización del servicio. El 50% restante a la entrega del equipo reparado, antes de que el cliente retire el equipo de las instalaciones de Bionordi. Ninguna reparación será iniciada sin la recepción del anticipo correspondiente. Bionordi emitirá comprobante fiscal (CFDI) por cada pago recibido.
+4. CANCELACIONES Y POLÍTICA DE REEMBOLSO: Una vez autorizado el presupuesto y recibido el anticipo del 50%, el cliente podrá solicitar la cancelación del servicio bajo las siguientes condiciones: Cancelación antes de iniciar trabajos: Se reembolsará el 100% del anticipo, descontando únicamente el costo del diagnóstico técnico ($1,500.00 MXN más IVA) si este aún no ha sido liquidado de forma independiente. Cancelación con trabajos ya iniciados: No procede reembolso del anticipo, ya que los costos de mano de obra, refacciones adquiridas y tiempo técnico invertido no son recuperables. Bionordi entregará al cliente un reporte detallado de los trabajos realizados hasta el momento de la cancelación. Cancelación con trabajos concluidos: No procede reembolso bajo ninguna circunstancia. El cliente deberá liquidar el 50% restante para retirar su equipo. Toda solicitud de cancelación deberá realizarse por escrito o mediante confirmación por los canales oficiales de Bionordi. La empresa no reconocerá cancelaciones verbales.
+5. GARANTÍA DEL SERVICIO: Las reparaciones realizadas por Bionordi S.A. de C.V. cuentan con una garantía de 90 días naturales a partir de la fecha de entrega del equipo, la cual cubre exclusivamente la falla o defecto reparado originalmente. Esta garantía quedará sin efecto en los siguientes casos: Manipulación o intervención del equipo por parte de terceros no autorizados por Bionordi. Daños ocasionados por uso inadecuado, caídas, golpes, humedad o agentes externos. Fallas derivadas de mantenimiento insuficiente o negligente por parte del cliente. Daños en componentes distintos al que fue objeto de la reparación original. Para hacer válida la garantía, el cliente deberá presentar el presente documento como comprobante de servicio.
+6. RESPALDO DE INFORMACIÓN Y CONFIGURACIONES: Bionordi S.A. de C.V. no se hace responsable por la pérdida, alteración o corrupción de datos, imágenes de diagnóstico, configuraciones de usuario, parámetros clínicos o cualquier otra información almacenada en la memoria interna del equipo o de sus componentes. Es responsabilidad exclusiva del cliente realizar el respaldo de su información antes de ingresar el equipo al servicio. Al firmar este documento, el cliente libera a Bionordi de cualquier responsabilidad derivada de la pérdida de información.
+7. ALMACENAMIENTO, RESGUARDO Y ABANDONO DE EQUIPO: Bionordi garantizará el resguardo del equipo en sus instalaciones durante el proceso de diagnóstico y reparación, así como por un período de cortesía de 30 días naturales posteriores a la notificación de conclusión del servicio o de rechazo del presupuesto. Transcurrido dicho período sin que el cliente retire el equipo, se aplicará una tarifa de almacenaje de $50.00 MXN por día natural, misma que deberá ser liquidada al momento de la recolección del equipo. En caso de que el equipo permanezca en las instalaciones de Bionordi por un período superior a 90 días naturales sin que el cliente lo retire ni establezca comunicación formal para acordar su recolección, el equipo será declarado en estado de abandono. Bajo esta circunstancia, Bionordi S.A. de C.V. quedará facultada para disponer del equipo de la manera que considere pertinente para la recuperación parcial o total de los costos de diagnóstico, almacenaje y servicio incurridos, sin que ello genere responsabilidad legal alguna para la empresa.
+8. ENVÍOS, TRASLADO Y LOGÍSTICA: Cuando el equipo sea enviado o recibido mediante servicios de paquetería, mensajería o cualquier transportista externo contratado por el cliente o por Bionordi a petición del cliente, la responsabilidad por daños físicos, extravío, robo o cualquier deterioro ocurrido durante el trayecto recaerá exclusivamente sobre el servicio de transporte correspondiente. Se recomienda al cliente contratar un seguro de transporte adecuado al valor del equipo. Bionordi documentará fotográficamente el estado del equipo al momento de su embalaje para envío, y entregará dicho registro al cliente como respaldo.
+9. LIMITACIÓN DE RESPONSABILIDAD: Bionordi S.A. de C.V. no será responsable por daños indirectos, lucro cesante, pérdida de ingresos, interrupción de actividades clínicas o cualquier otro perjuicio económico derivado del tiempo que el equipo permanezca en servicio. La responsabilidad máxima de Bionordi ante el cliente se limitará al valor del servicio contratado y facturado.
+10. PRIVACIDAD Y CONFIDENCIALIDAD: Bionordi S.A. de C.V. se compromete a tratar los datos personales del cliente conforme a lo establecido en la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP). Los datos recabados en este documento serán utilizados exclusivamente para la gestión del servicio y comunicaciones relacionadas con el mismo. El cliente podrá ejercer sus derechos ARCO en cualquier momento a través de los canales oficiales de la empresa.
+11. JURISDICCIÓN Y RESOLUCIÓN DE CONTROVERSIAS: Para cualquier controversia derivada de la interpretación o cumplimiento del presente documento, las partes se someten expresamente a la jurisdicción de los tribunales competentes de la Ciudad de México, renunciando a cualquier otro fuero que pudiera corresponderles por razón de su domicilio presente o futuro.`;
 
 export async function GET(req: Request) {
   await acquireQueueSlot();
@@ -107,11 +109,29 @@ export async function GET(req: Request) {
       logoB64 = 'data:image/png;base64,' + fs.readFileSync(logoPath).toString('base64');
     } catch { /* ignore */ }
 
-    // Cargar firmas
+    const transductorPath = path.join(process.cwd(), 'public', 'transductor.png');
+    let transductorB64 = '';
+    try {
+      transductorB64 = 'data:image/png;base64,' + fs.readFileSync(transductorPath).toString('base64');
+    } catch { /* ignore */ }
+
+    // Cargar firmas y estados de checklist
     let firmaCliente = '';
     let firmaTecnico = '';
     let entregadoPor = orden.entregado_por || clienteNombre;
     let recibidoPor = orden.recibido_por || orden.tecnico || 'Bionordi';
+    const costoDiagnostico = typeof orden.costo_diagnostico === 'number' ? orden.costo_diagnostico : 1500;
+
+    let conectorState = 'sin_danio';
+    let carcasaState = 'sin_danio';
+    let cableState = 'sin_danio';
+    let cristalesState = 'sin_danio';
+    let observacionesAdicionales = '';
+    let motivoIngreso = 'diagnostico';
+    let motivoOtro = '';
+    let accesoriosEntregados: string[] = ['transductor'];
+    let accesoriosOtro = '';
+    let firmaUserId: string | number = 'bionordi';
 
     if (orden.firmas_json) {
       try {
@@ -120,6 +140,16 @@ export async function GET(req: Request) {
         firmaTecnico = parsed.recibe || '';
         if (parsed.entregado_por) entregadoPor = parsed.entregado_por;
         if (parsed.recibido_por) recibidoPor = parsed.recibido_por;
+        if (parsed.firmaUserId) firmaUserId = parsed.firmaUserId;
+        if (parsed.conector) conectorState = parsed.conector;
+        if (parsed.carcasa) carcasaState = parsed.carcasa;
+        if (parsed.cable) cableState = parsed.cable;
+        if (parsed.cristales) cristalesState = parsed.cristales;
+        if (parsed.observacionesAdicionales !== undefined) observacionesAdicionales = parsed.observacionesAdicionales;
+        if (parsed.motivoIngreso) motivoIngreso = parsed.motivoIngreso;
+        if (parsed.motivoOtro !== undefined) motivoOtro = parsed.motivoOtro;
+        if (parsed.accesoriosEntregados) accesoriosEntregados = parsed.accesoriosEntregados;
+        if (parsed.accesoriosOtro !== undefined) accesoriosOtro = parsed.accesoriosOtro;
       } catch { /* ignore */ }
     }
 
@@ -138,7 +168,6 @@ export async function GET(req: Request) {
     if (orden.fotografias_json) {
       try {
         const parsed = JSON.parse(orden.fotografias_json);
-        // Usamos las fotos iniciales (actividades) como evidencia de recepción
         fotosRecepcion = (parsed.actividades || []).slice(0, 4).map(readFotoB64).filter(Boolean);
       } catch { /* ignore */ }
     }
@@ -150,6 +179,52 @@ export async function GET(req: Request) {
       .filter((line: string) => line.trim() !== '')
       .map((line: string) => `<li>${line}</li>`)
       .join('');
+
+    const eqTipoNormalizado = (orden.equipo_tipo || "").toLowerCase();
+    const esTransductor = ["lineal", "convex", "sectorial", "intracavitario", "tee", "3d", "4d", "microconvex", "transductor"].some(t => eqTipoNormalizado.includes(t));
+
+    let fotosRecepcionHTML = "";
+    if (fotosRecepcion.length > 0) {
+      fotosRecepcionHTML = `
+        <div class="tech-card avoid-break" style="margin-top: 10px; margin-bottom: 10px;">
+          <div class="card-title" style="color: #B91C1C; border-bottom-color: #FECACA;">Evidencia Fotográfica de Recepción</div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px;">
+            ${fotosRecepcion.map((b64, i) => `
+              <div style="flex: 1; min-width: 100px; max-width: 140px; text-align: center;">
+                <img src="${b64}" alt="Evidencia ${i + 1}" style="width: 100%; height: 80px; object-fit: contain; background: white; border: 1px solid #E2E8F0; border-radius: 6px;" />
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    let diagramaHTML = "";
+    if (esTransductor) {
+      diagramaHTML = `
+        <div class="tech-card avoid-break" style="margin-top:10px;margin-bottom:10px;">
+          <div class="card-title">Alcance Técnico y Diagnóstico Integral${orden.equipo_marca || orden.equipo_modelo ? ` — ${[orden.equipo_marca, orden.equipo_modelo].filter(Boolean).join(" ")}` : ""}</div>
+          <p class="diag-p" style="margin-bottom:8px;">Todo equipo ingresado a laboratorio es sometido a un <strong>diagnóstico técnico automatizado</strong>. Realizamos pruebas de pulso-eco, medición de capacitancia, análisis de cristales piezoeléctricos y revisión de fugas eléctricas para garantizar la seguridad del paciente y la resolución óptima de imagen.</p>
+          <div style="display:flex;gap:20px;align-items:center;">
+            <div style="flex:.8;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;height:148px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+              <div style="position:relative;display:inline-block;">
+                <img src="${transductorB64}" alt="${[orden.equipo_marca, orden.equipo_modelo].filter(Boolean).join(" ") || "Transductor"}" style="max-width:100%;max-height:140px;width:auto;height:auto;display:block;" />
+                <div style="position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;margin:0;top:25%;left:39%;margin-top:-10px;margin-left:-10px;">1</div>
+                <div style="position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;margin:0;top:20%;left:55%;margin-top:-10px;margin-left:-10px;">2</div>
+                <div style="position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;margin:0;top:68%;left:30%;margin-top:-10px;margin-left:-10px;">3</div>
+                <div style="position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;margin:0;top:88%;left:82%;margin-top:-10px;margin-left:-10px;">4</div>
+              </div>
+            </div>
+            <div style="flex:1.2;display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;gap:8px;font-size:10px;color:#334155;line-height:1.4;align-items:flex-start;"><div style="width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;padding:0;">1</div><div><strong>Lente Acústico / Membrana:</strong> Retiro del material desgastado, descontaminación del arreglo de cristales e inyección de nuevo polímero acústico con curado térmico.</div></div>
+              <div style="display:flex;gap:8px;font-size:10px;color:#334155;line-height:1.4;align-items:flex-start;"><div style="width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;padding:0;">2</div><div><strong>Carcasa y Sellado:</strong> Reencapsulado de uniones para evitar filtraciones de gel transmisor y proteger los componentes electrónicos internos.</div></div>
+              <div style="display:flex;gap:8px;font-size:10px;color:#334155;line-height:1.4;align-items:flex-start;"><div style="width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;padding:0;">3</div><div><strong>Cableado:</strong> Revisión de micro-coaxiales, verificación de continuidad eléctrica y refuerzo estructural en zonas de flexión y estrés mecánico.</div></div>
+              <div style="display:flex;gap:8px;font-size:10px;color:#334155;line-height:1.4;align-items:flex-start;"><div style="width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;padding:0;">4</div><div><strong>Conector:</strong> Limpieza profunda de pines de contacto y prueba de impedancia de señal.</div></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
 
     const html = `
       <!DOCTYPE html>
@@ -175,7 +250,12 @@ export async function GET(req: Request) {
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            min-height: 255mm; /* Para obligar a ocupar casi todo el alto carta */
+            min-height: 255mm;
+            box-sizing: border-box;
+          }
+          .page-break {
+            page-break-before: always;
+            break-before: page;
           }
           .text-muted { color: #94A3B8; }
           .b { font-weight: 700; }
@@ -319,9 +399,6 @@ export async function GET(req: Request) {
           .recep-item {
             margin-bottom: 6px;
           }
-          .recep-item:last-child {
-            margin-bottom: 0;
-          }
           .recep-p {
             font-size: 10px;
             color: #475569;
@@ -339,7 +416,7 @@ export async function GET(req: Request) {
             border-radius: 10px;
             padding: 8px 12px;
             margin-bottom: 8px;
-            flex-grow: 1; /* Permite que esta sección llene el espacio disponible */
+            flex-grow: 1;
           }
           .cond-list {
             list-style: none;
@@ -365,28 +442,22 @@ export async function GET(req: Request) {
             top: -1px;
           }
           
-          .evidencias-container {
+          .tech-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-top: 8px;
             margin-bottom: 8px;
           }
-          .evidencias-grid {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 4px;
+          .diag-p {
+            font-size: 10px;
+            color: #475569;
+            line-height: 1.4;
+            margin-bottom: 8px;
           }
-          .evidencia-img {
-            flex: 1;
-            min-width: 100px;
-            max-width: 140px;
-            height: 80px;
-            object-fit: contain;
-            background: white;
-            border: 1px solid #E2E8F0;
-            border-radius: 6px;
-          }
-          
           .signatures-wrapper {
-            margin-top: auto; /* Empuja las firmas al final de la página */
+            margin-top: auto;
             padding-top: 10px;
             break-inside: avoid;
             page-break-inside: avoid;
@@ -422,7 +493,7 @@ export async function GET(req: Request) {
           .sig-line {
             width: 100%;
             border-top: 1.5px solid #CBD5E1;
-            margin-top: 4px; /* Espacio para la firma manual */
+            margin-top: 4px;
             padding-top: 4px;
             position: relative;
           }
@@ -438,7 +509,6 @@ export async function GET(req: Request) {
             text-transform: uppercase;
             margin-top: 1px;
           }
-          
           .footer {
             text-align: center;
             border-top: 1px solid #E2E8F0;
@@ -450,9 +520,9 @@ export async function GET(req: Request) {
         </style>
       </head>
       <body>
+        <!-- PÁGINA 1: DATOS Y RECEPCIÓN -->
         <div class="page">
           
-          <!-- Encabezado -->
           <div class="hdr">
             <div>
               <img src="${logoB64}" alt="Bionordi Medical Technology" style="height:44px; width:auto; display:block;" />
@@ -470,32 +540,29 @@ export async function GET(req: Request) {
           <div class="divider"></div>
 
           <div class="info-section avoid-break">
-            <!-- Datos del Cliente -->
             <div class="info-card">
               <div class="card-title">Datos del Cliente</div>
-              <div class="i-row"><div class="i-lbl">Institución</div><div class="i-val">${orden.datos_hospital || clienteNombre}</div></div>
-              <div class="i-row"><div class="i-lbl">Atención a</div><div class="i-val">${clienteNombre}</div></div>
+              <div class="i-row"><div class="i-lbl">Institución</div><div class="i-val">${orden.datos_fiscales || clienteNombre}</div></div>
+              <div class="i-row"><div class="i-lbl">Atención a</div><div class="i-val">${orden.lead_nombre || clienteNombre}</div></div>
               <div class="i-row"><div class="i-lbl">Teléfono</div><div class="i-val">${telefono}</div></div>
               <div class="i-row"><div class="i-lbl">Correo</div><div class="i-val">${correo}</div></div>
               <div class="i-row"><div class="i-lbl">Dirección</div><div class="i-val">${direccion}</div></div>
             </div>
             
-            <!-- Datos de Servicio -->
             <div class="info-card">
               <div class="card-title">Información de Recepción</div>
-              <div class="i-row"><div class="i-lbl">Recepción</div><div class="i-val">${recibidoPor}</div></div>
-              <div class="i-row"><div class="i-lbl">Entregado por</div><div class="i-val">${entregadoPor}</div></div>
+              <div class="i-row"><div class="i-lbl">Recepción</div><div class="i-val">${recibidoPor || "—"}</div></div>
+              <div class="i-row"><div class="i-lbl">Entregado por</div><div class="i-val">${entregadoPor || "—"}</div></div>
               <div class="i-row">
                 <div class="i-lbl">Costo Diag.</div>
                 <div class="i-val b" style="color: #4E60A9;">
-                  ${orden.costo_diagnostico ? `$${orden.costo_diagnostico.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN` : '$1,500.00 MXN'}
+                  $${costoDiagnostico.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
                 </div>
               </div>
               <div class="i-row"><div class="i-lbl">Estatus Inicial</div><div class="i-val"><span style="font-weight: 700; color: #5A85F1; text-transform: uppercase;">EQUIPO RECIBIDO</span></div></div>
             </div>
           </div>
 
-          <!-- Especificaciones del Equipo -->
           <div class="eq-card avoid-break">
             <div class="card-title" style="border:none; padding:0; margin-bottom:6px;">Especificaciones del Equipo</div>
             <div class="eq-grid">
@@ -507,53 +574,115 @@ export async function GET(req: Request) {
               <div class="eq-item"><div class="eq-lbl">Año Fab.</div><div class="eq-val">${orden.equipo_ano || '—'}</div></div>
               <div class="eq-item"><div class="eq-lbl">Área Médica</div><div class="eq-val">${orden.equipo_area_medica || '—'}</div></div>
               <div class="eq-item"><div class="eq-lbl">Técnico Resp.</div><div class="eq-val">${orden.tecnico || '—'}</div></div>
-              
-              ${orden.accesorios_recibidos ? `
-                <div class="eq-full" style="border-left-color: #4E60A9;">
-                  <div class="eq-lbl">Accesorios Recibidos / Checklist</div>
-                  <div class="eq-val" style="margin-top: 1px; font-weight: 500;">${orden.accesorios_recibidos}</div>
+            </div>
+          </div>
+
+          <!-- ESTADO FÍSICO AL MOMENTO DE RECEPCIÓN -->
+          <div class="tech-card avoid-break" style="margin-top: 8px; margin-bottom: 8px;">
+            <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5;">Estado Físico al Momento de Recepción</div>
+            <table style="width: 100%; font-size: 9.5px; border-collapse: collapse; margin-top: 4px;">
+              <tbody>
+                <tr style="border-bottom: 1px solid #F1F5F9;">
+                  <td style="padding: 4px 0; font-weight: 700; width: 140px; color: #475569;">Conector:</td>
+                  <td style="padding: 4px 0;">
+                    <span style="color: ${conectorState === 'sin_danio' ? '#1E293B' : '#94A3B8'}; font-weight: ${conectorState === 'sin_danio' ? '700' : '400'}; margin-right: 15px;">${conectorState === 'sin_danio' ? '☑' : '☐'} Sin daño visible</span>
+                    <span style="color: ${conectorState === 'danio_fisico' ? '#B91C1C' : '#94A3B8'}; font-weight: ${conectorState === 'danio_fisico' ? '700' : '400'}; margin-right: 15px;">${conectorState === 'danio_fisico' ? '☑' : '☐'} Daño físico</span>
+                    <span style="color: ${conectorState === 'cables_expuestos' ? '#B91C1C' : '#94A3B8'}; font-weight: ${conectorState === 'cables_expuestos' ? '700' : '400'};">${conectorState === 'cables_expuestos' ? '☑' : '☐'} Cables expuestos</span>
+                  </td>
+                </tr>
+                <tr style="border-bottom: 1px solid #F1F5F9;">
+                  <td style="padding: 4px 0; font-weight: 700; color: #475569;">Carcasa:</td>
+                  <td style="padding: 4px 0;">
+                    <span style="color: ${carcasaState === 'sin_danio' ? '#1E293B' : '#94A3B8'}; font-weight: ${carcasaState === 'sin_danio' ? '700' : '400'}; margin-right: 15px;">${carcasaState === 'sin_danio' ? '☑' : '☐'} Sin daño visible</span>
+                    <span style="color: ${carcasaState === 'grietas' ? '#B91C1C' : '#94A3B8'}; font-weight: ${carcasaState === 'grietas' ? '700' : '400'}; margin-right: 15px;">${carcasaState === 'grietas' ? '☑' : '☐'} Grietas</span>
+                    <span style="color: ${carcasaState === 'golpes' ? '#B91C1C' : '#94A3B8'}; font-weight: ${carcasaState === 'golpes' ? '700' : '400'}; margin-right: 15px;">${carcasaState === 'golpes' ? '☑' : '☐'} Golpes</span>
+                    <span style="color: ${carcasaState === 'desgaste' ? '#D97706' : '#94A3B8'}; font-weight: ${carcasaState === 'desgaste' ? '700' : '400'};">${carcasaState === 'desgaste' ? '☑' : '☐'} Desgaste</span>
+                  </td>
+                </tr>
+                <tr style="border-bottom: 1px solid #F1F5F9;">
+                  <td style="padding: 4px 0; font-weight: 700; color: #475569;">Cable de transductor:</td>
+                  <td style="padding: 4px 0;">
+                    <span style="color: ${cableState === 'sin_danio' ? '#1E293B' : '#94A3B8'}; font-weight: ${cableState === 'sin_danio' ? '700' : '400'}; margin-right: 15px;">${cableState === 'sin_danio' ? '☑' : '☐'} Sin daño visible</span>
+                    <span style="color: ${cableState === 'doblado_torcido' ? '#D97706' : '#94A3B8'}; font-weight: ${cableState === 'doblado_torcido' ? '700' : '400'}; margin-right: 15px;">${cableState === 'doblado_torcido' ? '☑' : '☐'} Doblado/torcido</span>
+                    <span style="color: ${cableState === 'pelado' ? '#B91C1C' : '#94A3B8'}; font-weight: ${cableState === 'pelado' ? '700' : '400'};">${cableState === 'pelado' ? '☑' : '☐'} Pelado</span>
+                  </td>
+                </tr>
+                <tr style="border-bottom: 1px solid #F1F5F9;">
+                  <td style="padding: 4px 0; font-weight: 700; color: #475569;">Cristales / Face:</td>
+                  <td style="padding: 4px 0;">
+                    <span style="color: ${cristalesState === 'sin_danio' ? '#1E293B' : '#94A3B8'}; font-weight: ${cristalesState === 'sin_danio' ? '700' : '400'}; margin-right: 15px;">${cristalesState === 'sin_danio' ? '☑' : '☐'} Sin daño visible</span>
+                    <span style="color: ${cristalesState === 'burbujas' ? '#B91C1C' : '#94A3B8'}; font-weight: ${cristalesState === 'burbujas' ? '700' : '400'}; margin-right: 15px;">${cristalesState === 'burbujas' ? '☑' : '☐'} Burbujas</span>
+                    <span style="color: ${cristalesState === 'astillado' ? '#B91C1C' : '#94A3B8'}; font-weight: ${cristalesState === 'astillado' ? '700' : '400'}; margin-right: 15px;">${cristalesState === 'astillado' ? '☑' : '☐'} Astillado</span>
+                    <span style="color: ${cristalesState === 'no_evaluable' ? '#64748B' : '#94A3B8'}; font-weight: ${cristalesState === 'no_evaluable' ? '700' : '400'};">${cristalesState === 'no_evaluable' ? '☑' : '☐'} No evaluable</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 0; font-weight: 700; color: #475569; vertical-align: top;">Observaciones adicionales:</td>
+                  <td style="padding: 4px 0; color: #334155; line-height: 1.3;">${observacionesAdicionales || 'Sin observaciones adicionales.'}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- MOTIVO DE INGRESO Y ACCESORIOS -->
+          <div class="tech-card avoid-break" style="margin-top: 8px; margin-bottom: 8px;">
+            <div style="display: flex; gap: 20px;">
+              <div style="flex: 1;">
+                <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 4px;">Motivo de Ingreso</div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 9.5px; margin-top: 2px; margin-bottom: 6px;">
+                  <span style="color: ${motivoIngreso === 'diagnostico' ? '#1E293B' : '#94A3B8'}; font-weight: ${motivoIngreso === 'diagnostico' ? '700' : '400'}">${motivoIngreso === 'diagnostico' ? '☑' : '☐'} Diagnóstico</span>
+                  <span style="color: ${motivoIngreso === 'reparacion' ? '#1E293B' : '#94A3B8'}; font-weight: ${motivoIngreso === 'reparacion' ? '700' : '400'}">${motivoIngreso === 'reparacion' ? '☑' : '☐'} Reparación</span>
+                  <span style="color: ${motivoIngreso === 'mantenimiento' ? '#1E293B' : '#94A3B8'}; font-weight: ${motivoIngreso === 'mantenimiento' ? '700' : '400'}">${motivoIngreso === 'mantenimiento' ? '☑' : '☐'} Mantenimiento preventivo</span>
+                  <span style="color: ${motivoIngreso === 'otro' ? '#1E293B' : '#94A3B8'}; font-weight: ${motivoIngreso === 'otro' ? '700' : '400'}">${motivoIngreso === 'otro' ? '☑' : '☐'} Otro${motivoIngreso === 'otro' && motivoOtro ? `: ${motivoOtro}` : ''}</span>
                 </div>
-              ` : ''}
-            </div>
-          </div>
-
-          <!-- Detalles de Recepción -->
-          <div class="recep-card avoid-break">
-            <div class="card-title">Falla Reportada y Estado Físico</div>
-            <div class="recep-grid">
-              <div class="recep-item">
-                <div class="eq-lbl">Falla Reportada por el Cliente</div>
-                <div class="recep-p">${(orden.falla_reportada || 'Sin falla especificada').replace(/\n/g, '<br/>')}</div>
+                <div style="font-size: 8px; color: #64748B; font-weight: 800; text-transform: uppercase;">Descripción del problema:</div>
+                <div style="font-size: 9.5px; color: #334155; margin-top: 2px; line-height: 1.3;">${(orden.falla_reportada || 'Sin falla especificada').replace(/\n/g, '<br/>')}</div>
               </div>
-              <div class="recep-item">
-                <div class="eq-lbl">Estado Físico / Estético Visible de Recepción</div>
-                <div class="recep-p">${(orden.condicion_recepcion || 'Sin observaciones estéticas. El equipo presenta condiciones normales de uso.').replace(/\n/g, '<br/>')}</div>
+              <div style="flex: 1; border-left: 1px dashed #E2E8F0; padding-left: 20px;">
+                <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 4px;">Accesorios Entregados</div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 9.5px; margin-top: 2px; margin-bottom: 6px;">
+                  <span style="color: ${accesoriosEntregados.includes('transductor') ? '#1E293B' : '#94A3B8'}; font-weight: ${accesoriosEntregados.includes('transductor') ? '700' : '400'}">${accesoriosEntregados.includes('transductor') ? '☑' : '☐'} Transductor</span>
+                  <span style="color: ${accesoriosEntregados.includes('estuche_funda') ? '#1E293B' : '#94A3B8'}; font-weight: ${accesoriosEntregados.includes('estuche_funda') ? '700' : '400'}">${accesoriosEntregados.includes('estuche_funda') ? '☑' : '☐'} Estuche/funda</span>
+                  <span style="color: ${accesoriosEntregados.includes('cable_extension') ? '#1E293B' : '#94A3B8'}; font-weight: ${accesoriosEntregados.includes('cable_extension') ? '700' : '400'}">${accesoriosEntregados.includes('cable_extension') ? '☑' : '☐'} Extensión</span>
+                  <span style="color: ${accesoriosEntregados.includes('otro') ? '#1E293B' : '#94A3B8'}; font-weight: ${accesoriosEntregados.includes('otro') ? '700' : '400'}">${accesoriosEntregados.includes('otro') ? '☑' : '☐'} Otro${accesoriosEntregados.includes('otro') && accesoriosOtro ? `: ${accesoriosOtro}` : ''}</span>
+                </div>
+                <div style="font-size: 8px; color: #64748B; font-weight: 800; text-transform: uppercase;">Otros accesorios / Checklist:</div>
+                <div style="font-size: 9.5px; color: #334155; margin-top: 2px; line-height: 1.3;">${orden.accesorios_recibidos || 'Ninguno adicional.'}</div>
               </div>
             </div>
           </div>
 
-          <!-- Evidencia Fotográfica de Ingreso (si hay) -->
-          ${fotosRecepcion.length > 0 ? `
-            <div class="evidencias-container avoid-break">
-              <div class="eq-lbl" style="margin-bottom: 2px;">Evidencia Fotográfica de Ingreso</div>
-              <div class="evidencias-grid">
-                ${fotosRecepcion.map((b64, i) => `
-                  <img src="${b64}" alt="Evidencia ${i + 1}" class="evidencia-img" />
-                `).join('')}
-              </div>
-            </div>
-          ` : ''}
+          ${diagramaHTML}
+          ${fotosRecepcionHTML}
+        </div>
 
-          <!-- Cláusulas y Términos -->
-          <div class="cond-section avoid-break">
-            <div class="card-title">Términos y Condiciones del Servicio de Recepción</div>
-            <ul class="cond-list">
+        <!-- PÁGINA 2: TÉRMINOS Y FIRMAS -->
+        <div class="page page-break">
+          <div class="hdr" style="margin-bottom: 4px;">
+            <div>
+              <img src="${logoB64}" alt="Bionordi Medical Technology" style="height:32px; width:auto; display:block;" />
+            </div>
+            <div style="text-align: right; font-size: 9px; color: #64748B;">
+              <div>Hoja de Recepción | Folio: <strong>${orden.folio}</strong></div>
+              <div>Términos y Condiciones del Servicio</div>
+            </div>
+          </div>
+          <div class="divider" style="margin-bottom: 6px;"></div>
+
+          <div class="cond-section avoid-break" style="flex-grow: 1; padding: 10px 14px; margin-bottom: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px;">
+            <div class="card-title" style="color: #4E60A9; border-bottom: 2px solid #C7D6F5; padding-bottom: 4px; margin-bottom: 8px;">Términos y Condiciones del Servicio de Reparación y Mantenimiento</div>
+            <p style="font-size: 8px; color: #475569; margin-bottom: 8px; font-style: italic; line-height: 1.35;">
+              Al firmar el presente documento, el cliente declara haber leído, comprendido y aceptado en su totalidad los siguientes términos y condiciones, los cuales regulan la relación de servicio entre el cliente y Bionordi S.A. de C.V.
+            </p>
+            <ul class="cond-list" style="font-size: 7.8px; line-height: 1.35; display: flex; flex-direction: column; gap: 4px;">
               ${clausulasHTML}
             </ul>
           </div>
 
-          <!-- Firmas -->
-          <div class="signatures-wrapper">
+          <div class="signatures-wrapper" style="border-top: 1px dashed #CBD5E1; padding-top: 8px;">
+            <p style="font-size: 8.2px; color: #475569; text-align: center; margin-bottom: 8px; line-height: 1.3;">
+              <strong>FIRMAS DE CONFORMIDAD:</strong> El cliente declara haber leído y aceptado los términos anteriores, y confirma que el estado físico descrito corresponde al equipo entregado en esta fecha.
+            </p>
             <div class="signatures">
               <div class="sig-box">
                 <div class="sig-img-container">
@@ -574,13 +703,11 @@ export async function GET(req: Request) {
               </div>
             </div>
 
-            <div class="footer">
-              <strong>Bionordi S.A. de C.V.</strong> | Reparación y Mantenimiento de Equipos de Ultrasonido y Transductores<br/>
-              Este documento certifica el recibo del equipo en las condiciones estéticas y físicas detalladas.<br/>
-              Bionordi · Ciudad de México · contacto@bionordi.mx
+            <div class="footer" style="margin-top: 5px;">
+              <strong>Bionordi S.A. de C.V.</strong> | CDMX · contacto@bionordi.mx · www.bionordi.mx<br/>
+              Este documento de dos páginas certifica de conformidad la recepción y los términos del servicio técnico.
             </div>
           </div>
-
         </div>
       </body>
       </html>
