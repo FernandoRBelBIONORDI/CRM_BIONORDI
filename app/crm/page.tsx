@@ -213,7 +213,7 @@ export default function CRMPage() {
               {total} leads{leads.length < total ? ` · ${leads.length} mostrados` : ""}{activeFilters > 0 ? ` · ${activeFilters} filtro${activeFilters>1?"s":""}` : ""}
             </p>
           </div>
-          <button onClick={()=>setShowNuevoLead(true)} className="btn-primary shrink-0" suppressHydrationWarning>
+          <button onClick={()=>setShowNuevoLead(true)} className="btn-primary shrink-0" suppressHydrationWarning data-tour="new-lead-btn">
             <UserPlus size={14}/> Nuevo Lead
           </button>
         </div>

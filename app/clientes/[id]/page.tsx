@@ -1077,7 +1077,8 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
             {cotizaciones.length === 0 ? (
               <div className="px-6 py-8 text-center text-[12px] text-gray-400">Sin cotizaciones registradas</div>
             ) : (
-              <table className="w-full">
+              <div className="overflow-x-auto">
+              <table className="w-full min-w-[640px]">
                 <thead>
                   <tr className="border-b border-gray-100">
                     {["Folio", "Tipo", "Equipo", "Monto", "Status", "Fecha", ""].map(h => (
@@ -1152,6 +1153,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                   </tr>
                 </tfoot>
               </table>
+              </div>
             )}
           </div>
 
@@ -1167,7 +1169,8 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
             {ordenes.length === 0 ? (
               <div className="px-6 py-8 text-center text-[12px] text-gray-400">Sin órdenes de trabajo registradas</div>
             ) : (
-              <table className="w-full">
+              <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px]">
                 <thead>
                   <tr className="border-b border-gray-100">
                     {["Folio", "Cotización", "Equipo", "Falla", "Precio final", "Status", "Ingreso", "Entrega"].map(h => (
@@ -1205,6 +1208,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                   })}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
 

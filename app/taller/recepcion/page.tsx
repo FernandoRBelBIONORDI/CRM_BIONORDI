@@ -208,6 +208,11 @@ function RecepcionPage() {
 
   // Secciones colapsables y barra lateral
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // En móvil el panel de 340px taparía toda la pantalla: arranca colapsado
+  useEffect(() => {
+    if (window.innerWidth < 768) setSidebarCollapsed(true);
+  }, []);
   const [collCliente, setCollCliente] = useState(false);
   const [collEquipo, setCollEquipo] = useState(false);
   const [collEstado, setCollEstado] = useState(false);
@@ -1338,7 +1343,7 @@ function RecepcionPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-row overflow-hidden" style={{ height: "100vh", fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif", background: "#F4F7FB" }}>
+    <div className="flex-1 flex flex-row overflow-hidden" style={{ height: "100%", fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif", background: "#F4F7FB" }}>
       
       {/* ════════════ PANEL DE CONTROL IZQUIERDO ════════════ */}
       <div style={{

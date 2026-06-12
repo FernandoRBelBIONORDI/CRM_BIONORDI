@@ -254,7 +254,7 @@ export default function SidebarNav() {
       </aside>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-[70px] bg-white border-t border-[#E8EFF8] flex justify-around items-center px-2 z-[60] shadow-[0_-4px_15px_-5px_rgba(0,0,0,0.05)] pb-safe">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-[calc(70px+env(safe-area-inset-bottom))] bg-white border-t border-[#E8EFF8] flex justify-around items-center px-2 z-[60] shadow-[0_-4px_15px_-5px_rgba(0,0,0,0.05)] pb-safe">
         <Link href="/agenda" className={`relative flex flex-col items-center justify-center w-full h-full gap-1 ${is("/agenda") ? "text-[#0284C7]" : "text-[#94A3B8]"}`}>
           <CalendarDays size={22} strokeWidth={is("/agenda") ? 2.5 : 2} />
           <span className="text-[10px] font-bold">Agenda</span>
@@ -273,7 +273,7 @@ export default function SidebarNav() {
           <MessageCircle size={22} strokeWidth={is("/chat") ? 2.5 : 2} />
           <span className="text-[10px] font-bold">Chat</span>
         </Link>
-        <button onClick={() => setMobileMenuOpen(true)} className="flex flex-col items-center justify-center w-full h-full gap-1 text-[#94A3B8] hover:text-[#475569]">
+        <button onClick={() => setMobileMenuOpen(true)} data-tour="nav-more" className="flex flex-col items-center justify-center w-full h-full gap-1 text-[#94A3B8] hover:text-[#475569]">
           <Layers size={22} strokeWidth={2} />
           <span className="text-[10px] font-bold">Más</span>
         </button>
@@ -282,7 +282,7 @@ export default function SidebarNav() {
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-[65] bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => setMobileMenuOpen(false)}>
-          <div className="absolute bottom-[70px] left-0 right-0 bg-white rounded-t-[32px] overflow-hidden flex flex-col max-h-[85vh] motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-300 motion-safe:ease-out shadow-[0_-10px_40px_rgba(0,0,0,0.1)]" onClick={e => e.stopPropagation()}>
+          <div className="absolute bottom-[calc(70px+env(safe-area-inset-bottom))] left-0 right-0 bg-white rounded-t-[32px] overflow-hidden flex flex-col max-h-[85vh] motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-300 motion-safe:ease-out shadow-[0_-10px_40px_rgba(0,0,0,0.1)]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-4 mb-2" />
             <div className="px-6 py-2">
               <h2 className="font-extrabold text-[#1E293B] text-[20px] tracking-tight">Menú Principal</h2>
@@ -301,7 +301,7 @@ export default function SidebarNav() {
                   <CalendarDays size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Agenda</span>
                   {(() => { const hoy = localKey(new Date()); const badge = agenda.filter(e => e.fecha_proximo_contacto?.slice(0,10) <= hoy).length; return badge > 0 ? <span className="absolute top-3 right-3 w-[22px] h-[22px] rounded-full bg-[#EF4444] text-white text-[10px] font-bold flex items-center justify-center border-2 border-sky-50 shadow-sm">{badge > 9 ? "9+" : badge}</span> : null; })()}
                 </Link>
-                <Link onClick={() => setMobileMenuOpen(false)} href="/clientes" className="bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
+                <Link onClick={() => setMobileMenuOpen(false)} href="/clientes" data-tour="nav-clientes" className="bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
                   <Users size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Clientes</span>
                 </Link>
                 <Link onClick={() => setMobileMenuOpen(false)} href="/encontrar" className="bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">

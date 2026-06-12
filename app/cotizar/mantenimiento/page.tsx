@@ -727,7 +727,7 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     : [];
 
   return (
-    <div className="flex-1 flex flex-row overflow-hidden" style={{ height: "100vh", fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif", background: "#F4F7FB" }}>
+    <div className="flex-1 flex flex-row overflow-hidden" style={{ height: "100%", fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif", background: "#F4F7FB" }}>
 
       {/* PANEL DE CONTROL LATERAL */}
       <div style={{

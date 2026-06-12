@@ -80,7 +80,7 @@ export default function ClientesPage() {
     <div className="flex-1 flex flex-col overflow-hidden bg-[#F4F7FB]">
 
       {/* Header */}
-      <div className="bg-white border-b border-[#E8EFF8] px-8 py-5 shrink-0 flex items-center gap-4">
+      <div className="bg-white border-b border-[#E8EFF8] px-4 md:px-8 py-5 shrink-0 flex items-center gap-4">
         <div className="flex-1">
           <h1 className="text-[18px] font-extrabold text-[#1E293B] tracking-tight">Clientes</h1>
           <p className="text-[11px] text-gray-400 mt-0.5">Directorio de clientes activos — cotizaciones, órdenes e historial</p>
@@ -91,8 +91,8 @@ export default function ClientesPage() {
       </div>
 
       {/* Filtros */}
-      <div className="bg-white border-b border-[#E8EFF8] px-8 py-3 shrink-0 flex items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
+      <div className="bg-white border-b border-[#E8EFF8] px-4 md:px-8 py-3 shrink-0 flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
+        <div className="relative flex-1 md:max-w-sm">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             value={query}
@@ -125,7 +125,7 @@ export default function ClientesPage() {
       </div>
 
       {/* Lista */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-4 md:py-6">
         {loading ? (
           <div className="flex items-center justify-center h-32 text-[13px] text-gray-400">Cargando...</div>
         ) : filtered.length === 0 ? (

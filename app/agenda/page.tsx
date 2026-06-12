@@ -123,6 +123,11 @@ export default function AgendaPage() {
 
   const todayKey = toKey(new Date());
 
+  // En móvil la vista útil es "Día": las cuadrículas de 7 columnas quedan ilegibles
+  useEffect(() => {
+    if (window.innerWidth < 768) setView("Día");
+  }, []);
+
   const fetchEvents = useCallback((from: string, to: string) => {
     setLoading(true);
     fetch(`/api/agenda?from=${from}&to=${to}`)
@@ -183,7 +188,7 @@ export default function AgendaPage() {
     <div className="flex flex-col h-full bg-white">
 
       {/* ── Header ── */}
-      <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-4 shrink-0">
+      <div className="px-4 md:px-6 py-3 md:py-4 border-b border-gray-100 flex items-center gap-3 md:gap-4 shrink-0 flex-wrap">
         <div className="flex items-center gap-2.5">
           <Calendar size={18} className="text-[#4E60A9]" />
           <h1 className="text-[18px] font-extrabold text-[#1E293B] tracking-tight">Agenda</h1>
@@ -212,7 +217,7 @@ export default function AgendaPage() {
               className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
               <ChevronLeft size={16} strokeWidth={2.5} />
             </button>
-            <span className="text-[14px] font-bold text-[#1E293B] capitalize w-[260px] text-center select-none">
+            <span className="text-[12px] md:text-[14px] font-bold text-[#1E293B] capitalize w-[150px] md:w-[260px] text-center select-none truncate">
               {title}
             </span>
             <button onClick={() => navigate(1)}
