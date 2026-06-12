@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Calendar, User, MapPin } from "lucide-react";
+import { LEAD_STATUS } from "@/lib/estados";
 
 const DAYS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 const MONTHS = [
@@ -9,27 +10,15 @@ const MONTHS = [
   "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre",
 ];
 
-const S_COLOR: Record<string, string> = {
-  nuevo:       "#5A85F1",
-  contactado:  "#D97706",
-  seguimiento: "#EA580C",
-  diagnostico: "#7C3AED",
-  cliente:     "#34A853",
-  sin_equipo:  "#64748B",
-  descartado:  "#DC2626",
-};
-const S_LABEL: Record<string, string> = {
-  nuevo:       "Nuevo",
-  contactado:  "Contactado",
-  seguimiento: "Seguimiento",
-  diagnostico: "Diagnóstico",
-  cliente:     "Cliente",
-  sin_equipo:  "Sin equipo",
-  descartado:  "Descartado",
-};
+const S_COLOR: Record<string, string> =
+  Object.fromEntries(Object.entries(LEAD_STATUS).map(([k, v]) => [k, v.color]));
+const S_LABEL: Record<string, string> =
+  Object.fromEntries(Object.entries(LEAD_STATUS).map(([k, v]) => [k, v.label]));
 
+// Fecha local (NO toISOString: convierte a UTC y por la tarde-noche en México
+// desplazaba "hoy" y los rangos de consulta un día hacia adelante)
 function toKey(d: Date) {
-  return d.toISOString().slice(0, 10);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function mondayOf(d: Date): Date {
@@ -146,8 +135,8 @@ export default function AgendaPage() {
   useEffect(() => {
     let from: string, to: string;
     if (view === "Mes") {
-      from = new Date(anchor.getFullYear(), anchor.getMonth(), 1).toISOString().slice(0, 10);
-      to   = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0).toISOString().slice(0, 10);
+      from = toKey(new Date(anchor.getFullYear(), anchor.getMonth(), 1));
+      to   = toKey(new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0));
     } else if (view === "Semana") {
       const week = getWeekDays(anchor);
       from = toKey(week[0]);

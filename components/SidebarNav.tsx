@@ -9,6 +9,11 @@ import {
   Settings, ChevronLeft, ChevronRight, Layers, Users, MessageCircle, Map, FolderOpen, Mail, LogOut, UserCog, CalendarDays, ClipboardList,
 } from "lucide-react";
 
+// Fecha local YYYY-MM-DD (no toISOString: convierte a UTC y desplaza el día por la noche)
+function localKey(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function Section({ label, collapsed }: { label: string; collapsed: boolean }) {
   if (collapsed) return <div className="h-px bg-[#E2E8F4] mx-2.5 my-2" />;
   return (
@@ -119,7 +124,11 @@ export default function SidebarNav() {
         const listas = (d.ordenes || []).filter((o: any) => o.status === "listo").length;
         setTallerBadge(listas);
       }).catch(() => {});
-    fetch("/api/agenda?days=14")
+    // Incluir también seguimientos vencidos (la API por defecto solo trae desde hoy)
+    const ahora = new Date();
+    const desde = localKey(new Date(ahora.getTime() - 90 * 86400000));
+    const hasta = localKey(new Date(ahora.getTime() + 14 * 86400000));
+    fetch(`/api/agenda?from=${desde}&to=${hasta}`)
       .then(r => r.json())
       .then(d => setAgenda(d.agenda || []))
       .catch(() => {});
@@ -168,7 +177,7 @@ export default function SidebarNav() {
           <NavItem href={crmBadge > 0 ? "/crm?status=seguimiento" : "/crm"} icon={Database} label="CRM" active={is("/crm")} collapsed={collapsed} color="#4E60A9" badge={crmBadge} tourId="nav-crm" />
           <NavItem href="/barridos"   icon={FolderOpen} label="Barridos"   active={is("/barridos")}     collapsed={collapsed} color="#4E60A9" />
           <NavItem href="/clientes"   icon={Users}      label="Clientes"   active={is("/clientes")}     collapsed={collapsed} color="#4E60A9" tourId="nav-clientes" />
-          <NavItem href="/agenda"     icon={CalendarDays} label="Agenda"    active={is("/agenda")}       collapsed={collapsed} color="#0EA5E9" badge={(() => { const hoy = new Date().toISOString().slice(0, 10); return agenda.filter(e => e.fecha_proximo_contacto?.slice(0,10) <= hoy).length || undefined; })()} />
+          <NavItem href="/agenda"     icon={CalendarDays} label="Agenda"    active={is("/agenda")}       collapsed={collapsed} color="#0EA5E9" badge={(() => { const hoy = localKey(new Date()); return agenda.filter(e => e.fecha_proximo_contacto?.slice(0,10) <= hoy).length || undefined; })()} />
           <NavItem href="/chat"       icon={MessageCircle} label="WhatsApp"   active={is("/chat")}         collapsed={collapsed} color="#25D366" />
           <NavItem href="/correo"     icon={Mail}          label="Correo"   active={is("/correo")}      collapsed={collapsed} color="#0EA5E9" />
           <Section label="Taller"    collapsed={collapsed} />
@@ -249,7 +258,7 @@ export default function SidebarNav() {
         <Link href="/agenda" className={`relative flex flex-col items-center justify-center w-full h-full gap-1 ${is("/agenda") ? "text-[#0284C7]" : "text-[#94A3B8]"}`}>
           <CalendarDays size={22} strokeWidth={is("/agenda") ? 2.5 : 2} />
           <span className="text-[10px] font-bold">Agenda</span>
-          {(() => { const hoy = new Date().toISOString().slice(0, 10); const badge = agenda.filter(e => e.fecha_proximo_contacto?.slice(0,10) <= hoy).length; return badge > 0 ? <span className="absolute top-1 right-1.5 w-4 h-4 rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center border-2 border-white">{badge > 9 ? "9+" : badge}</span> : null; })()}
+          {(() => { const hoy = localKey(new Date()); const badge = agenda.filter(e => e.fecha_proximo_contacto?.slice(0,10) <= hoy).length; return badge > 0 ? <span className="absolute top-1 right-1.5 w-4 h-4 rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center border-2 border-white">{badge > 9 ? "9+" : badge}</span> : null; })()}
         </Link>
         <Link href="/cotizar" className={`flex flex-col items-center justify-center w-full h-full gap-1 ${is("/cotizar") ? "text-[#059669]" : "text-[#94A3B8]"}`}>
           <FileText size={22} strokeWidth={is("/cotizar") ? 2.5 : 2} />
@@ -290,7 +299,7 @@ export default function SidebarNav() {
                 </Link>
                 <Link onClick={() => setMobileMenuOpen(false)} href="/agenda" className="bg-sky-50 text-sky-600 hover:bg-sky-100 rounded-2xl p-4 flex flex-col gap-2.5 relative transition-all active:scale-[0.98]">
                   <CalendarDays size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Agenda</span>
-                  {(() => { const hoy = new Date().toISOString().slice(0, 10); const badge = agenda.filter(e => e.fecha_proximo_contacto?.slice(0,10) <= hoy).length; return badge > 0 ? <span className="absolute top-3 right-3 w-[22px] h-[22px] rounded-full bg-[#EF4444] text-white text-[10px] font-bold flex items-center justify-center border-2 border-sky-50 shadow-sm">{badge > 9 ? "9+" : badge}</span> : null; })()}
+                  {(() => { const hoy = localKey(new Date()); const badge = agenda.filter(e => e.fecha_proximo_contacto?.slice(0,10) <= hoy).length; return badge > 0 ? <span className="absolute top-3 right-3 w-[22px] h-[22px] rounded-full bg-[#EF4444] text-white text-[10px] font-bold flex items-center justify-center border-2 border-sky-50 shadow-sm">{badge > 9 ? "9+" : badge}</span> : null; })()}
                 </Link>
                 <Link onClick={() => setMobileMenuOpen(false)} href="/clientes" className="bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-2xl p-4 flex flex-col gap-2.5 transition-all active:scale-[0.98]">
                   <Users size={24} strokeWidth={2.5} /><span className="font-bold text-[13px]">Clientes</span>

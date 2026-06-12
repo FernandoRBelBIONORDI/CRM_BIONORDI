@@ -50,3 +50,29 @@ export const ORDEN_KANBAN_COLS = [
 
 export const ordenStatusList = (values: readonly string[]) =>
   values.map(v => ({ value: v, ...ORDEN_STATUS[v] }));
+
+// ── Cotizaciones ──────────────────────────────────────────────────────────────
+// Colores canónicos por tipo (coinciden con el acento del PDF de cada cotizador).
+export const COTIZACION_TIPO: Record<string, EstadoCfg> = {
+  reparacion:    { label: "Reparación",    color: "#4E60A9", bg: "#EEF3FC" },
+  mantenimiento: { label: "Mantenimiento", color: "#059669", bg: "#ECFDF5" },
+  venta:         { label: "Venta",         color: "#7C3AED", bg: "#F5F3FF" },
+  consumibles:   { label: "Consumibles",   color: "#D97706", bg: "#FFFBEB" },
+};
+
+// Ciclo de vida de una cotización:
+// guardada (creada por un cotizador) → enviada (al mandarla por correo)
+// → aprobada / rechazada (decisión del cliente). 'borrador' es el default de la API.
+export const COTIZACION_STATUS: Record<string, EstadoCfg> = {
+  borrador:  { label: "Borrador",  color: "#94A3B8", bg: "#F1F5F9" },
+  guardada:  { label: "Guardada",  color: "#64748B", bg: "#F1F5F9" },
+  enviada:   { label: "Enviada",   color: "#4E60A9", bg: "#EEF3FC" },
+  aprobada:  { label: "Aprobada",  color: "#059669", bg: "#ECFDF5" },
+  rechazada: { label: "Rechazada", color: "#DC2626", bg: "#FEF2F2" },
+};
+
+export const cotizacionTipoInfo = (t: string): EstadoCfg =>
+  COTIZACION_TIPO[t] || { label: t, color: "#64748B", bg: "#F1F5F9" };
+
+export const cotizacionStatusInfo = (s: string): EstadoCfg =>
+  COTIZACION_STATUS[s] || { label: s, color: "#64748B", bg: "#F1F5F9" };

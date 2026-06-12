@@ -11,6 +11,7 @@ import {
   Shield, Check, ClipboardList, Activity, Bell, Edit3,
 } from "lucide-react";
 import { initials, avatarColor, fmtDate, fmtDatetime, waLink } from "@/lib/ui";
+import { LEAD_STATUS, ORDEN_STATUS, COTIZACION_TIPO, cotizacionStatusInfo } from "@/lib/estados";
 import CotizacionManualModal from "@/components/CotizacionManualModal";
 import DocumentViewerModal from "@/components/DocumentViewerModal";
 import { useConfirm } from "@/hooks/useConfirm";
@@ -62,15 +63,9 @@ interface Orden {
 
 function $f(n?: number) { return n != null ? `$${n.toLocaleString("es-MX")}` : "—"; }
 
-const S: Record<string, { bg: string; text: string; label: string; color: string }> = {
-  nuevo:        { bg:"#EFF6FF", text:"#1D4ED8", color:"#1D4ED8", label:"Nuevo" },
-  contactado:   { bg:"#FFFBEB", text:"#D97706", color:"#D97706", label:"Contactado" },
-  seguimiento:  { bg:"#FFF7ED", text:"#EA580C", color:"#EA580C", label:"Seguimiento" },
-  diagnostico:  { bg:"#F5F3FF", text:"#7C3AED", color:"#7C3AED", label:"Diagnóstico" },
-  cliente:      { bg:"#DCFCE7", text:"#14532D", color:"#14532D", label:"Cliente ★" },
-  sin_equipo:   { bg:"#F1F5F9", text:"#64748B", color:"#64748B", label:"Sin equipo" },
-  descartado:   { bg:"#FEF2F2", text:"#991B1B", color:"#991B1B", label:"Descartado" },
-};
+// Estados unificados (lib/estados) adaptados al alias `text` usado en este archivo
+const S: Record<string, { bg: string; text: string; label: string; color: string }> =
+  Object.fromEntries(Object.entries(LEAD_STATUS).map(([k, v]) => [k, { ...v, text: v.color }]));
 const STATUS_OPTS = Object.entries(S).map(([k, v]) => ({ value: k, label: v.label }));
 
 const TIPO_INT: Record<string, { label: string; color: string; icon: any }> = {
@@ -92,24 +87,21 @@ const RESULTADO_CFG: Record<string, { icon: any; color: string; label: string }>
   cierre:              { icon: Star,          color:"#F59E0B", label:"Cierre" },
 };
 
-const STATUS_COT: Record<string, { bg: string; text: string; label: string }> = {
-  borrador:  { bg:"#F1F5F9", text:"#475569", label:"Borrador" },
-  enviada:   { bg:"#EFF6FF", text:"#1D4ED8", label:"Enviada" },
-  aprobada:  { bg:"#DCFCE7", text:"#14532D", label:"Aprobada" },
-  rechazada: { bg:"#FEF2F2", text:"#991B1B", label:"Rechazada" },
+// Estados de cotización unificados (incluye 'guardada', que es el estado con el
+// que los cotizadores guardan); fallback neutro en lugar de fingir "Enviada".
+const cotStatus = (s: string) => {
+  const cfg = cotizacionStatusInfo(s);
+  return { bg: cfg.bg, text: cfg.color, label: cfg.label };
 };
 
-const TIPO_COT: Record<string, string> = {
-  reparacion: "Reparación", venta: "Venta", mantenimiento: "Mantenimiento", consumibles: "Consumibles",
-};
+const TIPO_COT: Record<string, string> =
+  Object.fromEntries(Object.entries(COTIZACION_TIPO).map(([k, v]) => [k, v.label]));
 
-const STATUS_ORD: Record<string, { bg: string; text: string; label: string }> = {
-  recibido:    { bg:"#EFF6FF", text:"#1D4ED8", label:"Recibido" },
-  diagnostico: { bg:"#FFF7ED", text:"#9A3412", label:"Diagnóstico" },
-  en_proceso:  { bg:"#FDF4FF", text:"#6B21A8", label:"En proceso" },
-  listo:       { bg:"#DCFCE7", text:"#14532D", label:"Listo" },
-  entregado:   { bg:"#F0FDF4", text:"#166534", label:"Entregado" },
-  cancelado:   { bg:"#FEF2F2", text:"#991B1B", label:"Cancelado" },
+// Estados reales del Kanban del taller (antes este mapa usaba estados inexistentes
+// y cualquier orden en proceso se mostraba como "Recibido")
+const ordStatus = (s: string) => {
+  const cfg = ORDEN_STATUS[s] || ORDEN_STATUS.recibido;
+  return { bg: cfg.bg, text: cfg.color, label: cfg.label };
 };
 
 const ESTADO_EQUIPO = [
@@ -530,10 +522,10 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
           <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-[320px] flex flex-col gap-2.5">
             <h3 className="text-[15px] font-extrabold text-[#1E293B] mb-1">Tipo de cotización</h3>
             {[
-              { val: "reparacion",    label: "Reparación de Transductores", color: "#4E60A9", bg: "#EEF3FC" },
-              { val: "mantenimiento", label: "Mantenimiento de Equipo",      color: "#059669", bg: "#ECFDF5" },
-              { val: "venta",         label: "Venta de Equipo",              color: "#7C3AED", bg: "#F5F3FF" },
-              { val: "consumibles",   label: "Venta de Consumibles",         color: "#D97706", bg: "#FFFBEB" },
+              { ...COTIZACION_TIPO.reparacion,    val: "reparacion",    label: "Reparación de Transductores" },
+              { ...COTIZACION_TIPO.mantenimiento, val: "mantenimiento", label: "Mantenimiento de Equipo" },
+              { ...COTIZACION_TIPO.venta,         val: "venta",         label: "Venta de Equipo" },
+              { ...COTIZACION_TIPO.consumibles,   val: "consumibles",   label: "Venta de Consumibles" },
             ].map(t => (
               <button key={t.val}
                 data-tour={t.val === "reparacion" ? "quote-type-reparacion" : undefined}
@@ -1095,7 +1087,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {cotizaciones.map(c => {
-                    const sc = STATUS_COT[c.status] || STATUS_COT.enviada;
+                    const sc = cotStatus(c.status);
                     const isAprobada = c.status === "aprobada";
                     const isRechazada = c.status === "rechazada";
                     return (
@@ -1185,7 +1177,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {ordenes.map(o => {
-                    const so = STATUS_ORD[o.status] || STATUS_ORD.recibido;
+                    const so = ordStatus(o.status);
                     return (
                       <tr key={o.id} className="hover:bg-[#F8FAFC] transition-colors">
                         <td className="px-5 py-3 text-[12px] font-mono font-bold text-gray-600">{o.folio}</td>
@@ -1220,9 +1212,16 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
 
         {/* ── Cotización Preview Modal ── */}
         {previewCot && (() => {
-          const sc = STATUS_COT[previewCot.status] || STATUS_COT.enviada;
+          const sc = cotStatus(previewCot.status);
+          // Los cotizadores guardan items_json como { items: [...], meta: {...} };
+          // versiones antiguas guardaban el array directamente — soportar ambas formas.
           let items: { descripcion: string; cantidad: number; precioUnit: number }[] = [];
-          try { if (previewCot.items_json) items = JSON.parse(previewCot.items_json); } catch {}
+          try {
+            if (previewCot.items_json) {
+              const parsed = JSON.parse(previewCot.items_json);
+              items = Array.isArray(parsed) ? parsed : (Array.isArray(parsed?.items) ? parsed.items : []);
+            }
+          } catch {}
           
           if (previewCot.pdf_path) {
             return (

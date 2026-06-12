@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Wrench, ShoppingBag, Stethoscope, Package, ArrowRight, CheckCircle2 } from "lucide-react";
-import CotizacionManualModal from "@/components/CotizacionManualModal";
+import { Wrench, ShoppingBag, Stethoscope, Package, ArrowRight } from "lucide-react";
+import { COTIZACION_TIPO } from "@/lib/estados";
 
 type TipoCotizacion = "reparacion" | "venta" | "mantenimiento" | "consumibles";
 
@@ -35,8 +34,8 @@ const TIPOS: {
     sub: "de Equipo Médico",
     desc: "Propuesta comercial con diagrama del equipo y especificaciones.",
     icon: ShoppingBag,
-    color: "#6D28D9",
-    light: "#F5F3FF",
+    color: COTIZACION_TIPO.venta.color,
+    light: COTIZACION_TIPO.venta.bg,
     border: "#DDD6FE",
     features: ["Propuesta técnica", "Diagrama del equipo", "Especificaciones", "Precio desglosado"],
   },
@@ -46,8 +45,8 @@ const TIPOS: {
     sub: "Preventivo / Correctivo",
     desc: "Contrato de servicio con puntos de inspección y alcance definido.",
     icon: Stethoscope,
-    color: "#065F46",
-    light: "#ECFDF5",
+    color: COTIZACION_TIPO.mantenimiento.color,
+    light: COTIZACION_TIPO.mantenimiento.bg,
     border: "#A7F3D0",
     features: ["Inspección completa", "Limpieza y calibración", "Reporte técnico", "Garantía 3 meses"],
   },
@@ -57,8 +56,8 @@ const TIPOS: {
     sub: "y Accesorios",
     desc: "Gel, fundas, papel térmico y accesorios con catálogo de precios.",
     icon: Package,
-    color: "#92400E",
-    light: "#FFFBEB",
+    color: COTIZACION_TIPO.consumibles.color,
+    light: COTIZACION_TIPO.consumibles.bg,
     border: "#FDE68A",
     features: ["Gel conductor", "Fundas desechables", "Papel térmico", "Accesorios técnicos"],
   },
@@ -66,13 +65,6 @@ const TIPOS: {
 
 export default function CotizarPage() {
   const router = useRouter();
-  const [modal, setModal] = useState<TipoCotizacion | null>(null);
-  const [lastFolio, setLastFolio] = useState<string | null>(null);
-
-  const handleSuccess = (folio: string) => {
-    setLastFolio(folio);
-    setTimeout(() => setLastFolio(null), 6000);
-  };
 
   const handleTipo = (id: TipoCotizacion) => {
     router.push(`/cotizar/${id}`);
@@ -86,16 +78,6 @@ export default function CotizarPage() {
         <h1 className="text-[18px] font-extrabold text-[#1E293B] tracking-tight">Generador de Cotizaciones</h1>
         <p className="text-[11px] text-gray-400 mt-0.5">Selecciona el tipo y genera un PDF profesional listo para enviar</p>
       </div>
-
-      {/* Banner de éxito */}
-      {lastFolio && (
-        <div className="mx-4 md:mx-8 mt-4 flex items-center gap-3 bg-[#ECFDF5] border border-[#6EE7B7] rounded-xl px-4 py-3 shrink-0">
-          <CheckCircle2 size={16} className="text-[#059669] shrink-0" />
-          <span className="text-[12px] font-semibold text-[#065F46]">
-            Cotización <span className="font-mono">{lastFolio}</span> generada correctamente
-          </span>
-        </div>
-      )}
 
       {/* Cards */}
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain px-4 md:px-8 py-5 md:py-8 md:flex md:items-center md:justify-center">
@@ -151,13 +133,6 @@ export default function CotizarPage() {
         </div>
       </div>
 
-      {modal && (
-        <CotizacionManualModal
-          initialTipo={modal}
-          onClose={() => setModal(null)}
-          onSuccess={handleSuccess}
-        />
-      )}
     </div>
   );
 }

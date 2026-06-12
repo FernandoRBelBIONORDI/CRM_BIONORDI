@@ -5,9 +5,9 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Activity, Search, Download, MessageCircle, Sparkles, ChevronDown, ChevronUp, Copy, Check, ExternalLink, LayoutList, Kanban, Calendar, AlertTriangle, X, Trash2, SlidersHorizontal, UserPlus, FileText, UserCheck, Users, Wrench, Package, ShoppingCart } from "lucide-react";
 import NuevoLeadModal from "@/components/NuevoLeadModal";
-import QuoteModal from "@/components/QuoteModal";
 import CotizacionManualModal from "@/components/CotizacionManualModal";
 import { waLink } from "@/lib/ui";
+import { LEAD_STATUS, COTIZACION_TIPO } from "@/lib/estados";
 import { useConfirm } from "@/hooks/useConfirm";
 
 interface Lead {
@@ -21,15 +21,7 @@ interface Lead {
 interface Interaccion { id:number; tipo:string; contenido:string; fecha:string; resultado?:string; }
 interface Scripts { profesional:string; directo:string; problema_solucion:string; }
 
-const S: Record<string,{label:string; color:string; bg:string}> = {
-  nuevo:       { label:"Nuevo",       color:"#5A85F1", bg:"#EEF3FC" },
-  contactado:  { label:"Contactado",  color:"#D97706", bg:"#FFFBEB" },
-  seguimiento: { label:"Seguimiento", color:"#EA580C", bg:"#FFF7ED" },
-  diagnostico: { label:"Diagnóstico", color:"#7C3AED", bg:"#F5F3FF" },
-  cliente:     { label:"Cliente",     color:"#34A853", bg:"#EEF9F1" },
-  sin_equipo:  { label:"Sin equipo",  color:"#64748B", bg:"#F1F5F9" },
-  descartado:  { label:"Descartado",  color:"#DC2626", bg:"#FEF2F2" },
-};
+const S = LEAD_STATUS;
 
 const STATUS_OPTS = Object.entries(S).map(([k,v])=>({value:k, label:v.label}));
 const KANBAN_COLS = ["nuevo","contactado","seguimiento","diagnostico","cliente"];
@@ -66,7 +58,6 @@ export default function CRMPage() {
   const [showNuevoLead, setShowNuevoLead] = useState(false);
   const [selectedIds, setSelectedIds]   = useState<Set<number>>(new Set());
   const [bulkStatus, setBulkStatus]     = useState("");
-  const [quoteLead, setQuoteLead]         = useState<Lead|null>(null); // legacy — no se usa desde botón CRM
   const [cotPickLead, setCotPickLead]     = useState<Lead|null>(null); // picker de tipo
   const [manualCotLead, setManualCotLead] = useState<Lead|null>(null);
   const [manualCotTipo, setManualCotTipo] = useState<string>("reparacion");
@@ -99,7 +90,8 @@ export default function CRMPage() {
       if (filterNicho) p.set('nicho', filterNicho);
       if (filterAgente) p.set('asignado_a', filterAgente);
       else if (filterMios && myName) p.set('asignado_a', myName);
-      p.set('limit', '75');
+      // Tabla pagina con "Cargar más"; Kanban y Agente no paginan, así que cargan más amplio
+      p.set('limit', view === 'table' ? '75' : '500');
       const d = await fetch(`/api/leads?${p}`).then(r=>r.json());
       if (!cancelled && d.leads) {
         setLeads(d.leads);
@@ -109,7 +101,7 @@ export default function CRMPage() {
     }, delay);
     return ()=>{ cancelled=true; clearTimeout(timer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[filterS, q, filterNicho, filterMios, filterAgente, myName]);
+  },[filterS, q, filterNicho, filterMios, filterAgente, myName, view]);
 
   const loadMore = async () => {
     if (loadingMore) return;
@@ -539,10 +531,10 @@ export default function CRMPage() {
                                 </div>
                               <div className="flex gap-2">
                                   <select value={newTipo} onChange={e=>setNewTipo(e.target.value)} className="inp text-[12px] py-1.5 px-3 min-w-[120px]">
-                                    {["mensaje_wa","llamada","visita","email","nota_interna"].map(t=><option key={t}>{t}</option>)}
+                                    {[["mensaje_wa","WhatsApp"],["llamada","Llamada"],["visita","Visita"],["email","Email"],["nota_interna","Nota interna"]].map(([v,l])=><option key={v} value={v}>{l}</option>)}
                                   </select>
                                   <select value={newRes} onChange={e=>setNewRes(e.target.value)} className="inp text-[12px] py-1.5 px-3 min-w-[120px]">
-                                    {["sin_respuesta","respondio_positivo","respondio_negativo","cita_agendada","cierre"].map(r=><option key={r}>{r}</option>)}
+                                    {[["sin_respuesta","Sin respuesta"],["respondio_positivo","Respondió positivo"],["respondio_negativo","Respondió negativo"],["cita_agendada","Cita agendada"],["cierre","Cierre"]].map(([v,l])=><option key={v} value={v}>{l}</option>)}
                                   </select>
                                 </div>
                                 <div className="flex gap-2 mt-2">
@@ -839,9 +831,6 @@ export default function CRMPage() {
         </div>
       )}
 
-      {/* QuoteModal legacy — reservado para uso futuro */}
-      {quoteLead && <QuoteModal lead={quoteLead} onClose={() => setQuoteLead(null)} />}
-
       {/* Picker de tipo de cotización — solo para el botón 📄 del CRM */}
       {cotPickLead && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm" onClick={() => setCotPickLead(null)}>
@@ -857,11 +846,13 @@ export default function CRMPage() {
             </div>
             <div className="p-5 grid grid-cols-2 gap-3">
               {([
-                { tipo: "reparacion",    icon: Wrench,       color: "#4E60A9", bg: "#EEF3FC", label: "Reparación de Transductores", desc: "Diagnóstico y reparación de sondas biomédicas" },
-                { tipo: "mantenimiento", icon: Activity,     color: "#7C3AED", bg: "#F5F3FF", label: "Mantenimiento de Equipos",     desc: "Mantenimiento preventivo y correctivo" },
-                { tipo: "venta",         icon: ShoppingCart, color: "#059669", bg: "#ECFDF5", label: "Venta de Equipos",            desc: "Equipos nuevos, usados y certificados" },
-                { tipo: "consumibles",   icon: Package,      color: "#D97706", bg: "#FFFBEB", label: "Consumibles y Accesorios",    desc: "Fundas, geles, cables y suministros" },
-              ] as const).map(({ tipo, icon: Icon, color, bg, label, desc }) => (
+                { tipo: "reparacion",    icon: Wrench,       label: "Reparación de Transductores", desc: "Diagnóstico y reparación de sondas biomédicas" },
+                { tipo: "mantenimiento", icon: Activity,     label: "Mantenimiento de Equipos",     desc: "Mantenimiento preventivo y correctivo" },
+                { tipo: "venta",         icon: ShoppingCart, label: "Venta de Equipos",            desc: "Equipos nuevos, usados y certificados" },
+                { tipo: "consumibles",   icon: Package,      label: "Consumibles y Accesorios",    desc: "Fundas, geles, cables y suministros" },
+              ] as const).map(({ tipo, icon: Icon, label, desc }) => {
+                const { color, bg } = COTIZACION_TIPO[tipo];
+                return (
                 <button
                   key={tipo}
                   data-tour={tipo === "reparacion" ? "quote-type-reparacion" : undefined}
@@ -881,7 +872,7 @@ export default function CRMPage() {
                     <div className="text-[11px] text-[#94A3B8] font-medium mt-0.5 leading-snug">{desc}</div>
                   </div>
                 </button>
-              ))}
+              );})}
             </div>
           </div>
         </div>

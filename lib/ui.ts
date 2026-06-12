@@ -9,15 +9,15 @@ export function avatarColor(name: string) {
   return colors[Math.abs(h) % colors.length];
 }
 
-// Abre el chat interno del CRM en lugar de WhatsApp Web
+// Abre el chat interno del CRM en lugar de WhatsApp Web.
+// `text` precarga el mensaje en el input del chat (p. ej. scripts IA del CRM).
 export function waLink(phone?: string | null, text?: string) {
   if (!phone) return null;
   const digits = phone.replace(/\D/g, "");
   if (!digits) return null;
   const number = digits.startsWith("52") ? digits : `52${digits}`;
   const chatId = `${number}@s.whatsapp.net`;
-  // Podrías pasar el text como parámetro adicional si el chat interno lo soporta: &text=...
-  return `/chat?chatId=${encodeURIComponent(chatId)}`;
+  return `/chat?chatId=${encodeURIComponent(chatId)}${text ? `&text=${encodeURIComponent(text)}` : ""}`;
 }
 
 export function fmtDate(iso?: string) {

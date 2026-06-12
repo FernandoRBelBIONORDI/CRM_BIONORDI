@@ -693,6 +693,13 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
         }),
       });
       if (!res.ok) throw new Error();
+      // El envío exitoso avanza la cotización a "enviada" en el pipeline
+      if (savedCotRef.current) {
+        await fetch(`/api/cotizaciones/${savedCotRef.current.id}`, {
+          method: "PATCH", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "enviada" }),
+        });
+      }
       setEmailStatus("ok");
       setTimeout(() => { setEmailStatus("idle"); setShowEmail(false); }, 3000);
     } catch { setEmailStatus("error"); setTimeout(() => setEmailStatus("idle"), 3000); }

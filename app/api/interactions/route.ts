@@ -37,6 +37,15 @@ export async function POST(req: Request) {
       `UPDATE leads SET fecha_ultimo_contacto = ?, fecha_ultimo_cambio = ? WHERE id = ?`
     ).run(fecha, fecha, lead_id);
 
+    // Registrar un contacto real (no una nota interna) en un lead "nuevo"
+    // lo avanza automáticamente a "contactado" — mismo espíritu que el
+    // automove contactado→seguimiento del dashboard.
+    if (tipo !== 'nota_interna') {
+      db.prepare(
+        `UPDATE leads SET status_crm = 'contactado' WHERE id = ? AND status_crm = 'nuevo'`
+      ).run(lead_id);
+    }
+
     return NextResponse.json({ success: true, id: lastInsertRowid });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

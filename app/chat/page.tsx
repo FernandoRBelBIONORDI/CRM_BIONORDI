@@ -73,6 +73,7 @@ function ChatContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialChatId = searchParams.get("chatId");
+  const initialText = searchParams.get("text");
 
   const [status, setStatus] = useState<"loading" | "disconnected" | "qr" | "ready">("loading");
   const [myPhone, setMyPhone] = useState("");
@@ -80,7 +81,8 @@ function ChatContent() {
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeChat, setActiveChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMsg, setInputMsg] = useState("");
+  // Texto precargado (p. ej. un script IA enviado desde el CRM con ?text=)
+  const [inputMsg, setInputMsg] = useState(initialText || "");
   const [loadingChats, setLoadingChats] = useState(false);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [sendingMedia, setSendingMedia] = useState(false);

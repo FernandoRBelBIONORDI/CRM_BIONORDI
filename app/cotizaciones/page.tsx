@@ -5,8 +5,8 @@ import { FileText, Search, Plus, X, Trash2, Activity, Check, Clock, Download, Ey
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useConfirm } from "@/hooks/useConfirm";
-import CotizacionManualModal from "@/components/CotizacionManualModal";
 import DocumentViewerModal from "@/components/DocumentViewerModal";
+import { COTIZACION_STATUS, cotizacionTipoInfo, cotizacionStatusInfo } from "@/lib/estados";
 
 interface Cotizacion {
   id: number;
@@ -24,22 +24,8 @@ interface Cotizacion {
   pdf_path?: string;
 }
 
-const TIPO_INFO: Record<string, { label: string; color: string; bg: string }> = {
-  reparacion:    { label: "Reparación",    color: "#4E60A9", bg: "#EEF3FC" },
-  mantenimiento: { label: "Mantenimiento", color: "#059669", bg: "#ECFDF5" },
-  venta:         { label: "Venta",         color: "#7C3AED", bg: "#F5F3FF" },
-  consumibles:   { label: "Consumibles",   color: "#D97706", bg: "#FFFBEB" },
-};
-
-const STATUS_INFO: Record<string, { label: string; color: string; bg: string }> = {
-  enviada:   { label: "Enviada",   color: "#4E60A9", bg: "#EEF3FC" },
-  aprobada:  { label: "Aprobada",  color: "#059669", bg: "#ECFDF5" },
-  rechazada: { label: "Rechazada", color: "#DC2626", bg: "#FEF2F2" },
-  borrador:  { label: "Borrador",  color: "#94A3B8", bg: "#F1F5F9" },
-};
-
-function tipoInfo(t: string) { return TIPO_INFO[t] || { label: t, color: "#64748B", bg: "#F1F5F9" }; }
-function statusInfo(s: string) { return STATUS_INFO[s] || { label: s, color: "#64748B", bg: "#F1F5F9" }; }
+const tipoInfo = cotizacionTipoInfo;
+const statusInfo = cotizacionStatusInfo;
 
 export default function CotizacionesPage() {
   const router = useRouter();
@@ -52,7 +38,6 @@ export default function CotizacionesPage() {
   const [selected, setSelected] = useState<Cotizacion | null>(null);
   const [changingStatus, setChangingStatus] = useState(false);
   const [pdfViewerUrl, setPdfViewerUrl] = useState<string | null>(null);
-  const [editingCotizacion, setEditingCotizacion] = useState<Cotizacion | null>(null);
 
   const handleEdit = (c: Cotizacion) => {
     router.push(`/cotizar/${c.tipo}?id=${c.id}`);
@@ -160,10 +145,9 @@ export default function CotizacionesPage() {
           <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)}
             className="text-[11px] font-bold bg-gray-50 border border-gray-200 rounded-full px-3 py-2 outline-none focus:border-[#4E60A9]/40 cursor-pointer">
             <option value="todos">Todos los estados</option>
-            <option value="enviada">Enviadas</option>
-            <option value="aprobada">Aprobadas</option>
-            <option value="rechazada">Rechazadas</option>
-            <option value="borrador">Borradores</option>
+            {Object.entries(COTIZACION_STATUS).map(([val, info]) => (
+              <option key={val} value={val}>{info.label}</option>
+            ))}
           </select>
         </div>
       </div>
@@ -306,7 +290,7 @@ export default function CotizacionesPage() {
               <div>
                 <div className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest mb-2">Estado</div>
                 <div className="grid grid-cols-2 gap-1.5">
-                  {Object.entries(STATUS_INFO).map(([val, info]) => (
+                  {Object.entries(COTIZACION_STATUS).map(([val, info]) => (
                     <button key={val}
                       disabled={changingStatus}
                       onClick={() => changeStatus(selected.id, val)}
@@ -385,19 +369,6 @@ export default function CotizacionesPage() {
         />
       )}
 
-      {/* Edit Modal */}
-      {editingCotizacion && (
-        <CotizacionManualModal
-          initialCotizacion={editingCotizacion}
-          onClose={() => {
-            setEditingCotizacion(null);
-            fetchCotizaciones();
-          }}
-          onSuccess={() => {
-            fetchCotizaciones();
-          }}
-        />
-      )}
     </div>
   );
 }
