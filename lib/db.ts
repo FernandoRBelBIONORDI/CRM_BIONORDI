@@ -292,7 +292,7 @@ function initDb(): Database.Database {
     ['nombre_representante', ''],
     ['empresa', 'Bionordi'],
     ['servicios', 'Reparación de transductores de ultrasonido, mantenimiento de equipo médico'],
-    ['garantia', '6 meses'],
+    ['garantia', '12 meses'],
     ['tiempo_entrega', '5-7 días hábiles'],
     ['ciudad_base', 'Ciudad de México'],
     ['zonas_cobertura', 'CDMX, EDOMEX, Querétaro, Puebla'],
@@ -302,6 +302,10 @@ function initDb(): Database.Database {
   ]) {
     _db.prepare(`INSERT OR IGNORE INTO configuracion (clave, valor) VALUES (?, ?)`).run(clave, valor);
   }
+
+  // Migración: la garantía oficial de reparación es 12 meses — actualizar solo si
+  // el valor sigue siendo el default antiguo (no pisa personalizaciones del usuario)
+  _db.prepare(`UPDATE configuracion SET valor = '12 meses' WHERE clave = 'garantia' AND valor = '6 meses'`).run();
 
   _db.exec(`
     CREATE TABLE IF NOT EXISTS busquedas (

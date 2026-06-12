@@ -20,7 +20,7 @@ interface Config {
 const DEFAULTS:Config = {
   nombre_representante:"", empresa:"Bionordi",
   servicios:"Reparación de transductores de ultrasonido, mantenimiento de equipo médico",
-  garantia:"6 meses", tiempo_entrega:"5-7 días hábiles",
+  garantia:"12 meses", tiempo_entrega:"5-7 días hábiles",
   ciudad_base:"Ciudad de México", zonas_cobertura:"CDMX, EDOMEX, Querétaro, Puebla",
   metodologia_venta:"Problema-Agitación-Solución",
   dias_alerta_seguimiento:"3", dias_alerta_diagnostico:"5",

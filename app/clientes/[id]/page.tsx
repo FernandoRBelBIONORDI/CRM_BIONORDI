@@ -142,14 +142,14 @@ function computeEventos(cotizaciones: Cotizacion[], ordenes: Orden[], lead: Lead
     });
   }
 
-  // Órdenes entregadas — garantía (6 meses) y próximo servicio (12 meses)
+  // Órdenes entregadas — garantía (12 meses) y próximo servicio (12 meses)
   for (const o of ordenes) {
     if (o.status !== "entregado" || !o.fecha_entrega) continue;
     const base = new Date(o.fecha_entrega + "T00:00:00");
     const equipo = [o.equipo_tipo, o.equipo_marca, o.equipo_modelo].filter(Boolean).join(" ") || "Equipo";
 
-    // Garantía: 180 días
-    const venceGar = new Date(base); venceGar.setDate(venceGar.getDate() + 180);
+    // Garantía oficial de reparación: 12 meses (365 días)
+    const venceGar = new Date(base); venceGar.setDate(venceGar.getDate() + 365);
     const diffG = Math.ceil((venceGar.getTime() - hoy.getTime()) / 86400000);
     if (diffG <= 60 && diffG >= -30) {
       eventos.push({

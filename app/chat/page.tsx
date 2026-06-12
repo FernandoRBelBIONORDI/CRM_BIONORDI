@@ -55,7 +55,7 @@ const TEMPLATES = [
   },
   {
     label: "Enviar cotización",
-    text: "Adjunto encontrará la cotización para la reparación de su equipo. Nuestros trabajos incluyen *garantía de 6 meses* en mano de obra y refacciones. ¿Tiene alguna pregunta?",
+    text: "Adjunto encontrará la cotización para la reparación de su equipo. Nuestros trabajos incluyen *garantía de 12 meses* en mano de obra y refacciones. ¿Tiene alguna pregunta?",
   },
   {
     label: "Seguimiento post-cotización",
@@ -63,7 +63,7 @@ const TEMPLATES = [
   },
   {
     label: "Equipo listo para entrega",
-    text: "¡Buenas noticias! Su equipo ya está listo. Puede pasar a recogerlo o coordinar el envío. El trabajo tiene garantía de 6 meses. ¡Gracias por su preferencia! 🙌",
+    text: "¡Buenas noticias! Su equipo ya está listo. Puede pasar a recogerlo o coordinar el envío. El trabajo tiene garantía de 12 meses. ¡Gracias por su preferencia! 🙌",
   },
 ];
 

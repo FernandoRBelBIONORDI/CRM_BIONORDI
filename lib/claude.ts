@@ -54,7 +54,7 @@ Eres un asistente de ventas especializado en servicios biomédicos en México.
 CONTEXTO DE BIONORDI:
 - Empresa: Bionordi, Ciudad de México
 - Servicios: Reparación de transductores de ultrasonido, mantenimiento de equipo médico
-- Diferenciadores: Ingenieros biomédicos certificados, entrega en 5-7 días hábiles, garantía de 6 meses
+- Diferenciadores: Ingenieros biomédicos certificados, entrega en 5-7 días hábiles, garantía de 12 meses
 - Zonas: CDMX, EDOMEX, Querétaro, Puebla
 - Representante: ${contextData.representante || ''}
 
@@ -68,7 +68,7 @@ LEAD:
 
 Genera 3 mensajes de WhatsApp para prospectar este lead. Máximo 4 líneas cada uno, termina con pregunta suave, español mexicano natural, sin revelar precio.
 
-Versión 1 — PROFESIONAL: tono formal, menciona certificación y garantía 6 meses.
+Versión 1 — PROFESIONAL: tono formal, menciona certificación y garantía 12 meses.
 Versión 2 — DIRECTO: máximo 3 líneas, va al punto, genera curiosidad.
 Versión 3 — PROBLEMA-SOLUCIÓN: abre con el dolor (equipo fuera de servicio = ingresos perdidos).
 

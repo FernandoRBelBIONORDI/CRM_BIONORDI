@@ -5,6 +5,7 @@ import fs, { existsSync } from 'fs';
 import path from 'path';
 import db from '@/lib/db';
 import { requireAuth } from '@/lib/require-auth';
+import { CLAUSULAS_RECEPCION_DEFAULT } from '@/lib/recepcion';
 
 const SYSTEM_CHROMIUM_PATHS = [
   process.env.CHROMIUM_PATH,
@@ -52,19 +53,15 @@ function formatearFecha(fecha: string) {
   const f = new Date(fecha + "T00:00:00");
   if (isNaN(f.getTime())) return fecha;
   return f.toLocaleDateString("es-MX", { year: 'numeric', month: 'long', day: 'numeric' });
-}const CLAUSULAS_DEFAULT = `1. DIAGNÓSTICO TÉCNICO: Todo equipo ingresado a las instalaciones de Bionordi S.A. de C.V. será sometido a un proceso de diagnóstico técnico especializado. Dicho diagnóstico tiene un costo de $1,500.00 MXN (más IVA), el cual es obligatorio e independiente de la decisión que tome el cliente respecto al servicio. En caso de que el cliente apruebe la reparación, el costo del diagnóstico quedará integrado dentro del presupuesto total, sin cargo adicional. El tiempo estimado para la emisión del diagnóstico es de 3 a 5 días hábiles contados a partir de la fecha de ingreso registrada en el presente documento. Bionordi se reserva el derecho de ampliar este plazo en casos de alta complejidad técnica, notifying al cliente oportunamente.
-2. PRESUPUESTO Y AUTORIZACIÓN DE REPARACIÓN: Una vez concluido el diagnóstico, Bionordi emitirá un presupuesto detallado que será comunicado al cliente por escrito o por los medios de contacto registrados. El cliente contará con un plazo de 5 días hábiles a partir de la notificación para aprobar o rechazar dicho presupuesto. La falta de respuesta dentro de este plazo se interpretará como rechazo del presupuesto, aplicándose el cobro de diagnóstico indicado en la cláusula anterior. Ninguna reparación será iniciada sin la autorización expresa del cliente. Bionordi no se responsabiliza por demoras atribuibles a la falta de respuesta oportuna por parte del cliente.
-3. ESQUEMA DE PAGOS: El servicio de reparación se liquida en dos parcialidades: 50% al momento de aprobar el presupuesto, previo al inicio de cualquier intervención técnica. Este pago tiene carácter de anticipo y confirma formalmente la autorización del servicio. El 50% restante a la entrega del equipo reparado, antes de que el cliente retire el equipo de las instalaciones de Bionordi. Ninguna reparación será iniciada sin la recepción del anticipo correspondiente. Bionordi emitirá comprobante fiscal (CFDI) por cada pago recibido.
-4. CANCELACIONES Y POLÍTICA DE REEMBOLSO: Una vez autorizado el presupuesto y recibido el anticipo del 50%, el cliente podrá solicitar la cancelación del servicio bajo las siguientes condiciones: Cancelación antes de iniciar trabajos: Se reembolsará el 100% del anticipo, descontando únicamente el costo del diagnóstico técnico ($1,500.00 MXN más IVA) si este aún no ha sido liquidado de forma independiente. Cancelación con trabajos ya iniciados: No procede reembolso del anticipo, ya que los costos de mano de obra, refacciones adquiridas y tiempo técnico invertido no son recuperables. Bionordi entregará al cliente un reporte detallado de los trabajos realizados hasta el momento de la cancelación. Cancelación con trabajos concluidos: No procede reembolso bajo ninguna circunstancia. El cliente deberá liquidar el 50% restante para retirar su equipo. Toda solicitud de cancelación deberá realizarse por escrito o mediante confirmación por los canales oficiales de Bionordi. La empresa no reconocerá cancelaciones verbales.
-5. GARANTÍA DEL SERVICIO: Las reparaciones realizadas por Bionordi S.A. de C.V. cuentan con una garantía de 90 días naturales a partir de la fecha de entrega del equipo, la cual cubre exclusivamente la falla o defecto reparado originalmente. Esta garantía quedará sin efecto en los siguientes casos: Manipulación o intervención del equipo por parte de terceros no autorizados por Bionordi. Daños ocasionados por uso inadecuado, caídas, golpes, humedad o agentes externos. Fallas derivadas de mantenimiento insuficiente o negligente por parte del cliente. Daños en componentes distintos al que fue objeto de la reparación original. Para hacer válida la garantía, el cliente deberá presentar el presente documento como comprobante de servicio.
-6. RESPALDO DE INFORMACIÓN Y CONFIGURACIONES: Bionordi S.A. de C.V. no se hace responsable por la pérdida, alteración o corrupción de datos, imágenes de diagnóstico, configuraciones de usuario, parámetros clínicos o cualquier otra información almacenada en la memoria interna del equipo o de sus componentes. Es responsabilidad exclusiva del cliente realizar el respaldo de su información antes de ingresar el equipo al servicio. Al firmar este documento, el cliente libera a Bionordi de cualquier responsabilidad derivada de la pérdida de información.
-7. ALMACENAMIENTO, RESGUARDO Y ABANDONO DE EQUIPO: Bionordi garantizará el resguardo del equipo en sus instalaciones durante el proceso de diagnóstico y reparación, así como por un período de cortesía de 30 días naturales posteriores a la notificación de conclusión del servicio o de rechazo del presupuesto. Transcurrido dicho período sin que el cliente retire el equipo, se aplicará una tarifa de almacenaje de $50.00 MXN por día natural, misma que deberá ser liquidada al momento de la recolección del equipo. En caso de que el equipo permanezca en las instalaciones de Bionordi por un período superior a 90 días naturales sin que el cliente lo retire ni establezca comunicación formal para acordar su recolección, el equipo será declarado en estado de abandono. Bajo esta circunstancia, Bionordi S.A. de C.V. quedará facultada para disponer del equipo de la manera que considere pertinente para la recuperación parcial o total de los costos de diagnóstico, almacenaje y servicio incurridos, sin que ello genere responsabilidad legal alguna para la empresa.
-8. ENVÍOS, TRASLADO Y LOGÍSTICA: Cuando el equipo sea enviado o recibido mediante servicios de paquetería, mensajería o cualquier transportista externo contratado por el cliente o por Bionordi a petición del cliente, la responsabilidad por daños físicos, extravío, robo o cualquier deterioro ocurrido durante el trayecto recaerá exclusivamente sobre el servicio de transporte correspondiente. Se recomienda al cliente contratar un seguro de transporte adecuado al valor del equipo. Bionordi documentará fotográficamente el estado del equipo al momento de su embalaje para envío, y entregará dicho registro al cliente como respaldo.
-9. LIMITACIÓN DE RESPONSABILIDAD: Bionordi S.A. de C.V. no será responsable por daños indirectos, lucro cesante, pérdida de ingresos, interrupción de actividades clínicas o cualquier otro perjuicio económico derivado del tiempo que el equipo permanezca en servicio. La responsabilidad máxima de Bionordi ante el cliente se limitará al valor del servicio contratado y facturado.
-10. PRIVACIDAD Y CONFIDENCIALIDAD: Bionordi S.A. de C.V. se compromete a tratar los datos personales del cliente conforme a lo establecido en la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP). Los datos recabados en este documento serán utilizados exclusivamente para la gestión del servicio y comunicaciones relacionadas con el mismo. El cliente podrá ejercer sus derechos ARCO en cualquier momento a través de los canales oficiales de la empresa.
-11. JURISDICCIÓN Y RESOLUCIÓN DE CONTROVERSIAS: Para cualquier controversia derivada de la interpretación o cumplimiento del presente documento, las partes se someten expresamente a la jurisdicción de los tribunales competentes de la Ciudad de México, renunciando a cualquier otro fuero que pudiera corresponderles por razón de su domicilio presente o futuro.`;
+}
+
+const CLAUSULAS_DEFAULT = CLAUSULAS_RECEPCION_DEFAULT;
 
 export async function GET(req: Request) {
+  // La hoja contiene datos personales del cliente — requiere sesión
+  const { unauth } = await requireAuth();
+  if (unauth) return unauth;
+
   await acquireQueueSlot();
 
   let browser: any = null;
@@ -74,7 +71,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     if (!id) {
-      releaseQueueSlot();
+      // releaseQueueSlot lo hace el finally — liberar aquí duplicaría el slot
       return NextResponse.json({ error: 'Falta id' }, { status: 400 });
     }
 
@@ -91,7 +88,6 @@ export async function GET(req: Request) {
     `).get(id);
 
     if (!orden) {
-      releaseQueueSlot();
       return NextResponse.json({ error: 'Orden no encontrada' }, { status: 404 });
     }
 
@@ -636,7 +632,7 @@ export async function GET(req: Request) {
           <div class="info-section avoid-break">
             <div class="info-card">
               <div class="card-title">Datos del Cliente</div>
-              <div class="i-row"><div class="i-lbl">Institución</div><div class="i-val">${orden.datos_fiscales || clienteNombre}</div></div>
+              <div class="i-row"><div class="i-lbl">Institución</div><div class="i-val">${orden.datos_hospital || orden.datos_fiscales || clienteNombre}</div></div>
               <div class="i-row"><div class="i-lbl">Atención a</div><div class="i-val">${orden.lead_nombre || clienteNombre}</div></div>
               <div class="i-row"><div class="i-lbl">Teléfono</div><div class="i-val">${telefono}</div></div>
               <div class="i-row"><div class="i-lbl">Correo</div><div class="i-val">${correo}</div></div>
@@ -835,7 +831,7 @@ export async function GET(req: Request) {
             </div>
 
             <div class="footer" style="margin-top: 5px;">
-              <strong>Bionordi S.A. de C.V.</strong> | CDMX · contacto@bionordi.mx · www.bionordi.mx<br/>
+              <strong>Bionordi S.A. de C.V.</strong> | CDMX · contacto@bionordi.mx · www.bionordi.com<br/>
               Este documento de dos páginas certifica de conformidad la recepción y los términos del servicio técnico.
             </div>
           </div>

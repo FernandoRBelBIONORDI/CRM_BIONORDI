@@ -460,7 +460,7 @@ const TPLS = {
       
       <div style="background:#F5F3FF;border-radius:12px;padding:18px 24px;font-size:13px;color:#5B21B6;line-height:1.8;margin-bottom:20px;font-family:Arial,Helvetica,sans-serif;">
         <strong>Tiempo estimado de reparación:</strong> 5 a 7 días hábiles<br>
-        <strong>Periodo de cobertura técnica:</strong> 6 meses (garantía por escrito)<br>
+        <strong>Periodo de cobertura técnica:</strong> 12 meses (garantía por escrito)<br>
         <strong>Evaluación técnica de la sonda:</strong> Incluida en el servicio de reparación
       </div>
       
@@ -471,7 +471,7 @@ const TPLS = {
     plain: (v: Vars) => {
       const remitenteName = v.nombre_remitente || "Fernando";
       const consultorioName = v.consultorio || "su consultorio";
-      return `Estimado/a ${v.nombre_doctor},\n\nLe escribimos para dar seguimiento a nuestra comunicación anterior respecto a los servicios de soporte técnico y diagnóstico para transductores de ultrasonido de Bionordi.\n\nQuedamos a su disposición para coordinar cualquier revisión técnica o solventar dudas respecto a su equipamiento en ${consultorioName}.\n\nNuestro protocolo de servicio está diseñado para optimizar sus tiempos:\n- Tiempo estimado de reparación: 5 a 7 días hábiles.\n- Cobertura técnica: Garantía de 6 meses por escrito.\n- Evaluación de la sonda: Incluida al autorizar el servicio.\n\n${v.mensaje_extra ? v.mensaje_extra + "\n\n" : ""}Quedamos a su entera disposición.\n\nAtentamente,\n${remitenteName}\nBionordi S.A. de C.V.\nLaboratorio especializado en transductores`;
+      return `Estimado/a ${v.nombre_doctor},\n\nLe escribimos para dar seguimiento a nuestra comunicación anterior respecto a los servicios de soporte técnico y diagnóstico para transductores de ultrasonido de Bionordi.\n\nQuedamos a su disposición para coordinar cualquier revisión técnica o solventar dudas respecto a su equipamiento en ${consultorioName}.\n\nNuestro protocolo de servicio está diseñado para optimizar sus tiempos:\n- Tiempo estimado de reparación: 5 a 7 días hábiles.\n- Cobertura técnica: Garantía de 12 meses por escrito.\n- Evaluación de la sonda: Incluida al autorizar el servicio.\n\n${v.mensaje_extra ? v.mensaje_extra + "\n\n" : ""}Quedamos a su entera disposición.\n\nAtentamente,\n${remitenteName}\nBionordi S.A. de C.V.\nLaboratorio especializado en transductores`;
     }
   },
   diagnostico: {

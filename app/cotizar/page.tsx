@@ -26,7 +26,7 @@ const TIPOS: {
     color: "#4E60A9",
     light: "#EFF6FF",
     border: "#BFDBFE",
-    features: ["Diagnóstico técnico", "Alcance en párrafo", "Evidencia fotográfica", "Garantía 6 meses"],
+    features: ["Diagnóstico técnico", "Alcance en párrafo", "Evidencia fotográfica", "Garantía 12 meses"],
   },
   {
     id: "venta",
