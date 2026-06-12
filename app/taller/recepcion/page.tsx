@@ -593,7 +593,10 @@ function RecepcionPage() {
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            min-height: 255mm;
+            /* Carta = 279.4mm − márgenes @page (15+10mm) = 254.4mm útiles.
+               Debe quedar POR DEBAJO de ese límite: con 255mm cada página se
+               derramaba 0.6mm y generaba hojas fantasma / cortes corridos. */
+            min-height: 250mm;
             box-sizing: border-box;
           }
           .page-break {
@@ -774,6 +777,8 @@ function RecepcionPage() {
             position: relative;
             padding-left: 12px;
             line-height: 1.3;
+            break-inside: avoid;
+            page-break-inside: avoid;
           }
           .cond-list li::before {
             content: "•";
@@ -1323,30 +1328,119 @@ function RecepcionPage() {
     try {
       const { html, folio: f } = await buildPDFHtml();
       await persistToDB(f);
-      
-      const mailHtml = `
-        <h3>Estimado(a) ${cliContacto || cliNombre},</h3>
-        <p>Confirmamos la recepción de su equipo médico en nuestro laboratorio de Bionordi.</p>
-        <p>Adjunto a este correo encontrará su <b>Hoja de Recepción</b> con el número de folio <b>${folio}</b>, que detalla las especificaciones del equipo, los accesorios entregados, la falla reportada y las firmas correspondientes.</p>
-        <p>Nuestro equipo de ingenieros biomédicos procederá con la evaluación técnica para enviarle un presupuesto de servicio a la brevedad.</p>
-        <br/>
-        <p>Atentamente,</p>
-        <p><b>Bionordi Medical Technology</b><br/>contacto@bionordi.mx · CDMX</p>
-      `;
+
+      // Adjuntar la Hoja de Recepción en PDF (igual que cotizaciones)
+      const pdfB64 = await generarPDFBase64(html);
+      const attachments = [{ filename: `Recepcion_${f}.pdf`, content: pdfB64, type: "application/pdf" }];
+
+      // Plantilla con el estilo característico Bionordi (tablas + barra degradada,
+      // mismo formato que los correos de cotización)
+      const origin = "https://raw.githubusercontent.com/FernandoRBelBIONORDI/BIONORDI_IMAGENES/main/IMAGENES";
+      const fmtLarga = (s: string) => {
+        if (!s) return "—";
+        const d = new Date(s + "T00:00:00");
+        return isNaN(d.getTime()) ? s : d.toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
+      };
+      const equipoLabel = [eqMarca, eqModelo].filter(Boolean).join(" ") || eqTipo || "Equipo médico";
+
+      const emailHTML = `<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Hoja de Recepci&#243;n ${f}</title>
+</head>
+<body style="margin:0;padding:0;background:#ffffff;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;background:#ffffff;">
+
+  <tr><td height="5" bgcolor="#4E60A9" style="background:linear-gradient(90deg,#4E60A9,#38AD64);font-size:1px;line-height:5px;">&nbsp;</td></tr>
+
+  <tr><td style="padding:16px 36px 14px;border-bottom:1px solid #E8EDF4;background:#ffffff;">
+    <img src="${origin}/LOGO_PRINCIPAL.png" alt="Bionordi Medical Technology" height="34" border="0" style="display:block;height:34px;width:auto;" />
+  </td></tr>
+
+  <tr><td style="padding:20px 36px 18px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;">
+    <p style="margin:0;font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Hoja de Recepci&#243;n de Equipo</p>
+    <p style="margin:5px 0 0;font-size:22px;font-weight:900;color:#1E293B;letter-spacing:-0.5px;">${f}</p>
+    <p style="margin:4px 0 0;font-size:11px;color:#94A3B8;">Ingreso: ${fmtLarga(fechaIngreso)}${fechaCompromiso ? ` &middot; Entrega estimada: ${fmtLarga(fechaCompromiso)}` : ""}</p>
+  </td></tr>
+
+  <tr><td style="padding:20px 36px;border-bottom:1px solid #E2E8F0;">
+    <p style="margin:0 0 10px;font-size:9px;color:#4E60A9;font-weight:800;text-transform:uppercase;letter-spacing:2px;">Para</p>
+    <p style="margin:0;font-size:17px;font-weight:700;color:#1E293B;">${cliDatosFiscales || cliNombre || "&#8212;"}</p>
+    ${cliContacto ? `<p style="margin:3px 0 0;font-size:13px;color:#64748B;">${cliContacto}</p>` : ""}
+    ${cliTel ? `<p style="margin:2px 0 0;font-size:12px;color:#64748B;">Tel: ${cliTel}</p>` : ""}
+  </td></tr>
+
+  <tr><td style="padding:18px 36px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;">
+    <p style="margin:0 0 10px;font-size:9px;color:#4E60A9;font-weight:800;text-transform:uppercase;letter-spacing:2px;">Equipo recibido</p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+      ${eqTipo ? `<tr><td width="90" valign="top" style="padding:3px 0;font-size:12px;color:#64748B;font-weight:600;">Tipo</td><td style="padding:3px 0;font-size:12px;color:#1E293B;">${eqTipo}</td></tr>` : ""}
+      ${eqMarca ? `<tr><td valign="top" style="padding:3px 0;font-size:12px;color:#64748B;font-weight:600;">Marca</td><td style="padding:3px 0;font-size:12px;color:#1E293B;font-weight:600;">${eqMarca}</td></tr>` : ""}
+      ${eqModelo ? `<tr><td valign="top" style="padding:3px 0;font-size:12px;color:#64748B;font-weight:600;">Modelo</td><td style="padding:3px 0;font-size:12px;color:#1E293B;font-weight:600;">${eqModelo}</td></tr>` : ""}
+      ${eqSerie ? `<tr><td valign="top" style="padding:3px 0;font-size:12px;color:#64748B;font-weight:600;">No. Serie</td><td style="padding:3px 0;font-size:12px;color:#1E293B;font-family:monospace;">${eqSerie}</td></tr>` : ""}
+      ${fallaReportada ? `<tr><td colspan="2" style="padding-top:8px;"><table cellpadding="8" cellspacing="0" border="0" width="100%" style="border-left:3px solid #EF4444;background:#FEF2F2;border-collapse:collapse;"><tr><td style="font-size:12px;color:#7F1D1D;"><strong>Falla reportada:</strong> ${fallaReportada}</td></tr></table></td></tr>` : ""}
+    </table>
+  </td></tr>
+
+  <tr><td style="padding:20px 36px;background:#EEF0F7;border-top:2px solid #C5CAE0;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td valign="bottom">
+          <p style="margin:0 0 6px;font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;">Estatus del equipo</p>
+          <p style="margin:0;font-size:24px;font-weight:900;color:#4E60A9;letter-spacing:-0.5px;">EQUIPO RECIBIDO</p>
+          <p style="margin:4px 0 0;font-size:11px;color:#64748B;">Nuestros ingenieros biom&#233;dicos realizar&#225;n la evaluaci&#243;n t&#233;cnica y le enviaremos su presupuesto a la brevedad.</p>
+        </td>
+        <td align="right" valign="bottom">
+          <p style="margin:0;font-size:12px;color:#64748B;">Costo de diagn&#243;stico:<br><strong style="color:#1E293B;font-size:15px;">$${Number(costoDiagnostico || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN</strong></p>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+
+  <tr><td style="padding:20px 36px;border-top:1px solid #E2E8F0;">
+    <p style="margin:0;font-size:13px;color:#334155;line-height:1.8;">Adjunto a este correo encontrar&#225; su <strong>Hoja de Recepci&#243;n en PDF</strong> con las especificaciones del equipo (${equipoLabel}), el estado f&#237;sico documentado, los accesorios entregados y las firmas de conformidad.</p>
+  </td></tr>
+
+  <tr><td style="padding:20px 36px;background:#1E293B;">
+    <p style="margin:0;font-size:11px;color:#94A3B8;text-align:center;line-height:1.8;">
+      Bionordi S.A. de C.V. &middot; <a href="mailto:contacto@bionordi.mx" style="color:#60A5FA;text-decoration:none;">contacto@bionordi.mx</a><br>
+      <span style="color:#475569;">Conserve este documento como comprobante de ingreso de su equipo a nuestro laboratorio.</span>
+    </p>
+  </td></tr>
+
+  <tr><td height="5" bgcolor="#38AD64" style="background:linear-gradient(90deg,#4E60A9,#38AD64);font-size:1px;line-height:5px;">&nbsp;</td></tr>
+
+</table>
+</body></html>`;
 
       const response = await fetch("/api/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          to: emailTo,
-          subject: `Hoja de Recepción - Folio ${folio} | Bionordi`,
-          html: mailHtml
+          lead_id: leadId || undefined,
+          to: emailTo.trim(),
+          subject: `Hoja de Recepción ${f} — Equipo recibido · Bionordi`,
+          html: emailHTML,
+          attachments
         })
       });
 
       const d = await response.json();
       if (d.error) throw new Error(d.error);
-      
+
+      // Registrar la interacción en el expediente del lead
+      if (leadId) {
+        fetch("/api/interactions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            lead_id: Number(leadId),
+            tipo: "email",
+            contenido: `Hoja de Recepción ${f} enviada por correo a ${emailTo.trim()} — ${equipoLabel}`,
+            resultado: "sin_respuesta",
+          }),
+        }).catch(() => {});
+      }
+
       setEmailStatus("ok");
       setToast({ msg: `Correo enviado a ${emailTo}`, ok: true });
       setTimeout(() => setEmailStatus("idle"), 3000);
