@@ -149,6 +149,7 @@ export async function PATCH(req: Request) {
       'fecha_seguimiento','fecha_proximo_contacto','score_potencial','prioridad',
       'whatsapp_verificado','sitio_activo','fuente','sitio_web','barrido_id','asignado_a',
       'fac_razon_social','fac_rfc','fac_regimen','fac_uso_cfdi','fac_dir_fiscal','fac_correo',
+      'tamano_estimado','nivel_socioeconomico',
     ]);
     const safeUpdates = Object.fromEntries(
       Object.entries(updates).filter(([k]) => COLS.has(k))
@@ -156,8 +157,12 @@ export async function PATCH(req: Request) {
     if (Object.keys(safeUpdates).length === 0)
       return NextResponse.json({ success: true });
 
+    const hasAddressChange = 'direccion' in safeUpdates || 'ciudad' in safeUpdates || 'estado_republica' in safeUpdates;
     const keys = Object.keys(safeUpdates);
-    const setString = keys.map(k => `${k} = @${k}`).join(', ');
+    let setString = keys.map(k => `${k} = @${k}`).join(', ');
+    if (hasAddressChange) {
+      setString += ', latitud = NULL, longitud = NULL';
+    }
 
     db.prepare(
       `UPDATE leads SET ${setString}, fecha_ultimo_cambio = @fecha_cambio WHERE id = @id`

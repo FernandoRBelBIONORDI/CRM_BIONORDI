@@ -206,6 +206,13 @@ function RecepcionPage() {
   const [emailStatus, setEmailStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
   const [showEmail, setShowEmail] = useState(false);
 
+  // Paginación del preview: el PDF real pagina en Carta (816×1056px @96dpi)
+  const PAGE_H = 1056;
+  const page1Ref = useRef<HTMLDivElement>(null);
+  const page2Ref = useRef<HTMLDivElement>(null);
+  const [page1Overflow, setPage1Overflow] = useState(false);
+  const [page2Overflow, setPage2Overflow] = useState(false);
+
   // Secciones colapsables y barra lateral
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -213,6 +220,20 @@ function RecepcionPage() {
   useEffect(() => {
     if (window.innerWidth < 768) setSidebarCollapsed(true);
   }, []);
+
+  // Aviso de desborde: si una hoja del preview supera la altura Carta,
+  // el contenido extra fluirá a una página adicional en el PDF real.
+  useEffect(() => {
+    const check = () => {
+      if (page1Ref.current) setPage1Overflow(page1Ref.current.scrollHeight > PAGE_H + 4);
+      if (page2Ref.current) setPage2Overflow(page2Ref.current.scrollHeight > PAGE_H + 4);
+    };
+    check();
+    const obs = new ResizeObserver(check);
+    if (page1Ref.current) obs.observe(page1Ref.current);
+    if (page2Ref.current) obs.observe(page2Ref.current);
+    return () => obs.disconnect();
+  }, [loadingQuote]);
   const [collCliente, setCollCliente] = useState(false);
   const [collEquipo, setCollEquipo] = useState(false);
   const [collEstado, setCollEstado] = useState(false);
@@ -512,6 +533,7 @@ function RecepcionPage() {
             ${b64Evidencias.map((b64, i) => `
               <div style="flex: 1; min-width: 100px; max-width: 140px; text-align: center;">
                 <img src="${b64}" alt="Evidencia ${i + 1}" style="width: 100%; height: 80px; object-fit: contain; background: white; border: 1px solid #E2E8F0; border-radius: 6px;" />
+                ${evidencias[i]?.caption ? `<div style="font-size: 8px; color: #7F1D1D; margin-top: 3px; line-height: 1.2;">${evidencias[i].caption}</div>` : ''}
               </div>
             `).join('')}
           </div>
@@ -988,7 +1010,16 @@ function RecepcionPage() {
               <div class="eq-item"><div class="eq-lbl">Número de Serie</div><div class="eq-val" style="font-family: monospace;">${eqSerie || '—'}</div></div>
               <div class="eq-item"><div class="eq-lbl">Versión / SW</div><div class="eq-val">${eqVersion || '—'}</div></div>
               <div class="eq-item"><div class="eq-lbl">Año Fab.</div><div class="eq-val">${eqAno || '—'}</div></div>
-              <div class="eq-item"><div class="eq-lbl">Área          <!-- ESTADO FÍSICO AL MOMENTO DE RECEPCIÓN -->
+              <div class="eq-item"><div class="eq-lbl">Área Médica</div><div class="eq-val">${eqArea || '—'}</div></div>
+              <div class="eq-item"><div class="eq-lbl">Técnico Resp.</div><div class="eq-val">${eqTecnico || '—'}</div></div>
+              <div class="eq-full">
+                <div class="eq-lbl">Accesorios Recibidos / Checklist</div>
+                <div class="eq-val">${getAccesoriosString() || '—'}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ESTADO FÍSICO AL MOMENTO DE RECEPCIÓN -->
           <div class="tech-card avoid-break" style="margin-top: 8px; margin-bottom: 8px;">
             <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 6px;">Estado Físico al Momento de Recepción</div>
             <p style="font-size: 8px; color: #64748B; margin-bottom: 8px; font-style: italic; line-height: 1.3;">
@@ -1340,6 +1371,21 @@ function RecepcionPage() {
     const f = new Date(fechaStr + "T00:00:00");
     if (isNaN(f.getTime())) return fechaStr;
     return f.toLocaleDateString("es-MX", { day: '2-digit', month: 'short' });
+  };
+
+  // Checklist de llenado: guía las secciones clave; click abre la tarjeta del panel
+  const fillChecklist: { id: string; label: string; done: boolean; card: "cliente" | "equipo" | "estado" | "recepcion" | "clausulas" | "firmas" }[] = [
+    { id: "cliente",   label: "Cliente",   done: !!(cliNombre.trim() || cliDatosFiscales.trim()), card: "cliente" },
+    { id: "equipo",    label: "Equipo",    done: !!(eqTipo && eqSerie.trim()),                    card: "equipo" },
+    { id: "falla",     label: "Falla",     done: !!fallaReportada.trim(),                          card: "estado" },
+    { id: "evidencia", label: "Fotos",     done: evidencias.length > 0,                            card: "recepcion" },
+    { id: "fechas",    label: "Fechas",    done: !!(fechaIngreso && fechaCompromiso),              card: "firmas" },
+    { id: "firmas",    label: "Firmas",    done: !!(firmas.entrega && firmas.recibe),              card: "firmas" },
+  ];
+  const fillPct = Math.round((fillChecklist.filter(c => c.done).length / fillChecklist.length) * 100);
+
+  const scrollToPage = (ref: React.RefObject<HTMLDivElement | null>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
@@ -1795,11 +1841,65 @@ function RecepcionPage() {
               )}
             </div>
 
-            <button onClick={generarPDF} disabled={generating} 
-              style={{ padding: "8px 14px", display: "flex", alignItems: "center", gap: "6px", borderRadius: "8px", border: "none", background: generating ? "#3B4DA0" : "#4E60A9", color: "#fff", cursor: generating ? "not-allowed" : "pointer", transition: "all 0.2s", fontSize: "11px", fontWeight: 700, boxShadow: "0 4px 10px rgba(78,96,169,0.2)" }} 
+            <button onClick={generarPDF} disabled={generating}
+              style={{ padding: "8px 14px", display: "flex", alignItems: "center", gap: "6px", borderRadius: "8px", border: "none", background: generating ? "#3B4DA0" : "#4E60A9", color: "#fff", cursor: generating ? "not-allowed" : "pointer", transition: "all 0.2s", fontSize: "11px", fontWeight: 700, boxShadow: "0 4px 10px rgba(78,96,169,0.2)" }}
             >
               {generating ? <Loader2 size={14} className="animate-spin" /> : <Printer size={14} />}
               Imprimir / PDF
+            </button>
+          </div>
+        </div>
+
+        {/* Sub-barra: progreso de llenado + navegación de páginas */}
+        <div style={{
+          background: "#FFFFFF",
+          borderBottom: "1px solid #E2E8F0",
+          padding: "6px 24px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "12px",
+          flexWrap: "wrap",
+          flexShrink: 0,
+          zIndex: 99
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+            <span style={{ fontSize: "9px", fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.5px" }}>Llenado</span>
+            {/* Barra de progreso */}
+            <div style={{ width: "70px", height: "5px", background: "#F1F5F9", borderRadius: "99px", overflow: "hidden" }}>
+              <div style={{ width: `${fillPct}%`, height: "100%", background: fillPct === 100 ? "#10B981" : "#4E60A9", borderRadius: "99px", transition: "width 0.3s ease" }} />
+            </div>
+            <span style={{ fontSize: "10px", fontWeight: 800, color: fillPct === 100 ? "#10B981" : "#4E60A9", minWidth: "32px" }}>{fillPct}%</span>
+            {fillChecklist.map(item => (
+              <button
+                key={item.id}
+                onClick={() => { setSidebarCollapsed(false); expandCardOnly(item.card); }}
+                title={item.done ? `${item.label}: completo` : `${item.label}: pendiente — click para abrir su sección`}
+                style={{
+                  display: "flex", alignItems: "center", gap: "4px",
+                  fontSize: "9.5px", fontWeight: 700,
+                  padding: "3px 8px", borderRadius: "99px", border: "1px solid",
+                  cursor: "pointer", transition: "all 0.15s ease",
+                  background: item.done ? "#ECFDF5" : "#FFFFFF",
+                  borderColor: item.done ? "#A7F3D0" : "#E2E8F0",
+                  color: item.done ? "#065F46" : "#94A3B8"
+                }}>
+                {item.done ? <CheckCircle2 size={10} /> : <AlertCircle size={10} />}
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Navegación de páginas */}
+          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <span style={{ fontSize: "9px", fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.5px", marginRight: "2px" }}>Ir a</span>
+            <button onClick={() => scrollToPage(page1Ref)}
+              style={{ fontSize: "10px", fontWeight: 700, padding: "3px 10px", borderRadius: "99px", border: "1px solid #E2E8F0", background: "#FFFFFF", color: "#4E60A9", cursor: "pointer" }}>
+              Página 1
+            </button>
+            <button onClick={() => scrollToPage(page2Ref)}
+              style={{ fontSize: "10px", fontWeight: 700, padding: "3px 10px", borderRadius: "99px", border: "1px solid #E2E8F0", background: "#FFFFFF", color: "#4E60A9", cursor: "pointer" }}>
+              Página 2
             </button>
           </div>
         </div>
@@ -1816,12 +1916,12 @@ function RecepcionPage() {
             <div style={{ width: "816px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "12px" }}>
               
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 4px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 700, color: "#4E60A9", letterSpacing: "0.5px" }}>VISTA PREVIA INTERACTIVA (HOJA DE INGRESO)</span>
+                <span style={{ fontSize: "11px", fontWeight: 800, color: "#4E60A9", letterSpacing: "0.5px" }}>PÁGINA 1 DE 2 · DATOS Y RECEPCIÓN</span>
                 <span style={{ fontSize: "10px", fontWeight: 600, color: "#94A3B8" }}>Carta 8.5" x 11" · Edición inline directa</span>
               </div>
 
-              {/* ───── HOJA CARTA (Dinámica y auto-expandible) ───── */}
-              <div style={{
+              {/* ───── PÁGINA 1: DATOS Y RECEPCIÓN ───── */}
+              <div ref={page1Ref} style={{
                 background: "#fff",
                 boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
                 borderRadius: "4px",
@@ -1836,7 +1936,8 @@ function RecepcionPage() {
                 boxSizing: "border-box",
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "flex-start"
+                justifyContent: "flex-start",
+                scrollMarginTop: "16px"
               }}>
                 
                 {/* Header */}
@@ -1849,11 +1950,13 @@ function RecepcionPage() {
                       <div style={{ color: "#1E293B", fontWeight: 700 }}>{folio}</div>
                       <div style={{ fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.5px" }}>Ingreso</div>
                       <div style={{ color: "#1E293B", fontWeight: 500 }}>
-                        <F value={fechaIngreso} onChange={setFechaIngreso} placeholder="YYYY-MM-DD" style={{ fontSize: "10px", fontWeight: 600, borderBottom: "none" }} />
+                        <input type="date" value={fechaIngreso} onChange={e => setFechaIngreso(e.target.value)} onClick={e => e.stopPropagation()}
+                          style={{ fontSize: "10px", fontWeight: 600, border: "none", borderBottom: "1px dashed rgba(78,96,169,0.25)", outline: "none", background: "transparent", color: "#1E293B", fontFamily: "inherit", padding: "0 2px", cursor: "pointer" }} />
                       </div>
                       <div style={{ fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.5px" }}>Entrega Est.</div>
                       <div style={{ color: "#1E293B", fontWeight: 500 }}>
-                        <F value={fechaCompromiso} onChange={setFechaCompromiso} placeholder="Seleccionar fecha" style={{ fontSize: "10px", fontWeight: 600, borderBottom: "none" }} />
+                        <input type="date" value={fechaCompromiso} onChange={e => setFechaCompromiso(e.target.value)} onClick={e => e.stopPropagation()}
+                          style={{ fontSize: "10px", fontWeight: 600, border: "none", borderBottom: "1px dashed rgba(78,96,169,0.25)", outline: "none", background: "transparent", color: "#1E293B", fontFamily: "inherit", padding: "0 2px", cursor: "pointer" }} />
                       </div>
                     </div>
                   </div>
@@ -1930,7 +2033,7 @@ function RecepcionPage() {
                     </div>
 
                     <div style={{ display: "flex", marginBottom: "3px", fontSize: "10px" }}>
-                      <div style={{ width: "75px", color: "#64748B", fontWeight: 700 }}>Estatus</div>
+                      <div style={{ width: "75px", color: "#64748B", fontWeight: 700 }}>Estatus Inicial</div>
                       <div style={{ flex: 1, fontWeight: 700, color: "#5A85F1", textTransform: "uppercase" }}>EQUIPO RECIBIDO</div>
                     </div>
                   </div>
@@ -2550,7 +2653,7 @@ function RecepcionPage() {
                       Alcance Técnico y Diagnóstico Integral{eqMarca || eqModelo ? ` — ${[eqMarca, eqModelo].filter(Boolean).join(" ")}` : ""}
                     </div>
                     <p style={{ fontSize: "10px", color: "#475569", lineHeight: "1.4", marginBottom: "8px" }}>
-                      Todo transductor ingresado es diagnosticado en lente, carcasa, cableado y conector para garantizar la integridad acústica y seguridad eléctrica.
+                      Todo equipo ingresado a laboratorio es sometido a un <strong>diagnóstico técnico automatizado</strong>. Realizamos pruebas de pulso-eco, medición de capacitancia, análisis de cristales piezoeléctricos y revisión de fugas eléctricas para garantizar la seguridad del paciente y la resolución óptima de imagen.
                     </p>
                     <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
                       <div style={{ flex: "0 0 auto", width: "150px", height: "130px", border: "1px solid #CBD5E1", borderRadius: "8px", background: "#fff", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -2600,15 +2703,63 @@ function RecepcionPage() {
                   </div>
                 </div>
 
+                {/* Marcador de límite de Página 1 */}
+                {page1Overflow && (
+                  <>
+                    <div style={{ position: "absolute", top: `${PAGE_H - 1}px`, left: 0, right: 0, borderTop: "2px dashed #F59E0B", pointerEvents: "none", zIndex: 5 }} />
+                    <div style={{ position: "absolute", top: `${PAGE_H + 6}px`, right: "10px", background: "#FFFBEB", border: "1px solid #FDE68A", color: "#92400E", fontSize: "9px", fontWeight: 700, padding: "3px 8px", borderRadius: "6px", pointerEvents: "none", zIndex: 5 }}>
+                      ⚠ Aquí termina la Página 1 — el contenido extra pasará a una hoja adicional en el PDF
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* ───── PÁGINA 2: TÉRMINOS Y FIRMAS ───── */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 4px", marginTop: "12px" }}>
+                <span style={{ fontSize: "11px", fontWeight: 800, color: "#4E60A9", letterSpacing: "0.5px" }}>PÁGINA 2 DE 2 · TÉRMINOS Y FIRMAS</span>
+                <span style={{ fontSize: "10px", fontWeight: 600, color: "#94A3B8" }}>Igual al PDF final</span>
+              </div>
+
+              <div ref={page2Ref} style={{
+                background: "#fff",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+                borderRadius: "4px",
+                paddingTop: "30px",
+                paddingRight: "65px",
+                paddingBottom: "50px",
+                paddingLeft: "65px",
+                position: "relative",
+                width: "816px",
+                minHeight: "1056px",
+                height: "auto",
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-start",
+                scrollMarginTop: "16px"
+              }}>
+                {/* Mini header de página 2 (igual al PDF) */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "4px" }}>
+                  <div><img src="/LOGO_PRINCIPAL.png" alt="Bionordi" style={{ height: "32px", width: "auto", display: "block" }} /></div>
+                  <div style={{ textAlign: "right", fontSize: "9px", color: "#64748B" }}>
+                    <div>Hoja de Recepción | Folio: <strong>{folio}</strong></div>
+                    <div>Términos y Condiciones del Servicio</div>
+                  </div>
+                </div>
+                <div style={{ height: "3px", background: "linear-gradient(90deg, #4E60A9, #38AD64, #E2E8F0)", borderRadius: "3px", marginBottom: "6px" }} />
+
                 {/* Clausulas */}
-                <div 
+                <div
                   onClick={() => expandCardOnly("clausulas")}
-                  style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "8px 12px", marginBottom: "8px", flexGrow: 1, display: "flex", flexDirection: "column", cursor: "pointer" }}
+                  style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "10px 14px", marginBottom: "10px", flexGrow: 1, display: "flex", flexDirection: "column", cursor: "pointer" }}
                 >
-                  <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Términos y Condiciones del Servicio de Recepción</div>
-                  <ul style={{ listStyle: "none", padding: 0, fontSize: "8px", color: "#475569", display: "flex", flexDirection: "column", gap: "3px" }}>
+                  <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "8px", borderBottom: "2px solid #C7D6F5", paddingBottom: "4px" }}>Términos y Condiciones del Servicio de Reparación y Mantenimiento</div>
+                  <p style={{ fontSize: "8px", color: "#475569", marginBottom: "8px", fontStyle: "italic", lineHeight: "1.35" }}>
+                    Al firmar el presente documento, el cliente declara haber leído, comprendido y aceptado en su totalidad los siguientes términos y condiciones, los cuales regulan la relación de servicio entre el cliente y Bionordi S.A. de C.V.
+                  </p>
+                  <ul style={{ listStyle: "none", padding: 0, fontSize: "7.8px", color: "#475569", display: "flex", flexDirection: "column", gap: "4px" }}>
                     {clausulas.split('\n').filter(l => l.trim() !== '').map((line, idx) => (
-                      <li key={idx} style={{ position: "relative", paddingLeft: "12px", lineHeight: "1.3" }}>
+                      <li key={idx} style={{ position: "relative", paddingLeft: "12px", lineHeight: "1.35" }}>
                         <span style={{ position: "absolute", left: 0, color: "#38AD64", fontWeight: "bold" }}>•</span>
                         {line}
                       </li>
@@ -2617,10 +2768,13 @@ function RecepcionPage() {
                 </div>
 
                 {/* Firmas */}
-                <div 
+                <div
                   onClick={() => expandCardOnly("firmas")}
-                  style={{ marginTop: "auto", paddingTop: "5px", cursor: "pointer" }}
+                  style={{ marginTop: "auto", paddingTop: "8px", borderTop: "1px dashed #CBD5E1", cursor: "pointer" }}
                 >
+                  <p style={{ fontSize: "8.2px", color: "#475569", textAlign: "center", marginBottom: "8px", lineHeight: "1.3" }}>
+                    <strong>FIRMAS DE CONFORMIDAD:</strong> El cliente declara haber leído y aceptado los términos anteriores, y confirma que el estado físico descrito corresponde al equipo entregado en esta fecha.
+                  </p>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: "40px", marginBottom: "6px" }}>
                     <div style={{ alignSelf: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
                       <div style={{ height: "50px", display: "flex", alignItems: "flex-end", justifyContent: "center", width: "100%" }}>
@@ -2644,11 +2798,20 @@ function RecepcionPage() {
                   </div>
 
                   <div style={{ textAlign: "center", borderTop: "1px solid #E2E8F0", paddingTop: "6px", fontSize: "8px", color: "#94A3B8", lineHeight: "1.4" }}>
-                    <strong>Bionordi S.A. de C.V.</strong> | Reparación y Mantenimiento de Equipos de Ultrasonido y Transductores<br/>
-                    Este documento certifica el recibo del equipo en las condiciones estéticas y físicas detalladas. CDMX
+                    <strong>Bionordi S.A. de C.V.</strong> | CDMX · contacto@bionordi.mx · www.bionordi.com<br/>
+                    Este documento de dos páginas certifica de conformidad la recepción y los términos del servicio técnico.
                   </div>
                 </div>
 
+                {/* Marcador de límite de Página 2 */}
+                {page2Overflow && (
+                  <>
+                    <div style={{ position: "absolute", top: `${PAGE_H - 1}px`, left: 0, right: 0, borderTop: "2px dashed #F59E0B", pointerEvents: "none", zIndex: 5 }} />
+                    <div style={{ position: "absolute", top: `${PAGE_H + 6}px`, right: "10px", background: "#FFFBEB", border: "1px solid #FDE68A", color: "#92400E", fontSize: "9px", fontWeight: 700, padding: "3px 8px", borderRadius: "6px", pointerEvents: "none", zIndex: 5 }}>
+                      ⚠ Aquí termina la Página 2 — reduce las cláusulas para mantener el PDF en 2 hojas
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}

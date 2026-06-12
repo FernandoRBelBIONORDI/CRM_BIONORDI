@@ -265,6 +265,9 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
   // OT
   const [creatingOT, setCreatingOT] = useState<number | null>(null);
 
+  // Editar Perfil
+  const [showEditPerfil, setShowEditPerfil] = useState(false);
+
   const patchLead = async (upd: Record<string, any>) => {
     await fetch("/api/leads", {
       method: "PATCH",
@@ -685,6 +688,10 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                     data-tour="profile-new-ot-btn"
                     className="flex items-center gap-1.5 text-[12px] font-bold text-[#7C3AED] bg-[#F5F3FF] hover:bg-[#7C3AED] hover:text-white px-3 py-2 rounded-full transition-colors shadow-sm">
                     <ClipboardList size={13} /> Nueva OT
+                  </button>
+                  <button onClick={() => setShowEditPerfil(true)}
+                    className="flex items-center gap-1.5 text-[12px] font-bold text-gray-600 bg-gray-50 hover:bg-gray-100 hover:text-[#4E60A9] px-3 py-2 rounded-full transition-colors shadow-sm">
+                    <Edit2 size={13} /> Editar datos
                   </button>
                 </div>
               </div>
@@ -1334,7 +1341,197 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
           />
         )}
 
+        {showEditPerfil && (
+          <EditarPerfilModal
+            lead={lead}
+            onClose={() => setShowEditPerfil(false)}
+            onSave={async (upd) => {
+              await patchLead(upd);
+              reload();
+            }}
+          />
+        )}
+
       </div>
     </>
+  );
+}
+
+interface EditarPerfilModalProps {
+  lead: Lead;
+  onClose: () => void;
+  onSave: (updates: Record<string, any>) => Promise<void>;
+}
+
+function EditarPerfilModal({ lead, onClose, onSave }: EditarPerfilModalProps) {
+  const [nombre, setNombre] = useState(lead.nombre || "");
+  const [telefono, setTelefono] = useState(lead.telefono || "");
+  const [correo, setCorreo] = useState(lead.correo || "");
+  const [sitioWeb, setSitioWeb] = useState(lead.sitio_web || "");
+  const [direccion, setDireccion] = useState(lead.direccion || "");
+  const [ciudad, setCiudad] = useState(lead.ciudad || "");
+  const [estadoRepublica, setEstadoRepublica] = useState(lead.estado_republica || "");
+  const [nicho, setNicho] = useState(lead.nicho || "");
+  const [tamanoEstimado, setTamanoEstimado] = useState(lead.tamano_estimado || "");
+  const [nivelSocioeconomico, setNivelSocioeconomico] = useState(lead.nivel_socioeconomico || "");
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nombre.trim()) return;
+    setSaving(true);
+    try {
+      await onSave({
+        nombre: nombre.trim(),
+        telefono: telefono.trim() || null,
+        correo: correo.trim() || null,
+        sitio_web: sitioWeb.trim() || null,
+        direccion: direccion.trim() || null,
+        ciudad: ciudad.trim() || null,
+        estado_republica: estadoRepublica.trim() || null,
+        nicho: nicho.trim() || null,
+        tamano_estimado: tamanoEstimado || null,
+        nivel_socioeconomico: nivelSocioeconomico || null,
+      });
+      onClose();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const inpClass = "w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white shadow-sm transition-all";
+  const selClass = "w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white h-[38px] cursor-pointer shadow-sm transition-all";
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-[580px] max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#EEF3FC] flex items-center justify-center">
+              <Edit3 size={15} className="text-[#4E60A9]" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-[15px] text-[#1E293B]">Editar Datos del Lead</h3>
+              <p className="text-[11px] text-gray-400">Modifica la información básica y de contacto</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors">
+            <X size={15} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <form onSubmit={handleSubmit} className="flex-grow overflow-y-auto p-6 space-y-4 bg-gray-50/20">
+          
+          {/* Sección: Información básica */}
+          <div className="space-y-3">
+            <div className="text-[10px] font-extrabold text-[#4E60A9] uppercase tracking-wider">Información Básica</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <label className="text-[10px] font-bold text-gray-500 block mb-1">Nombre Comercial *</label>
+                <input required type="text" value={nombre} onChange={e => setNombre(e.target.value)}
+                  className={inpClass} placeholder="Ej. Clinica Médica Central" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 block mb-1">Nicho / Especialidad</label>
+                <input type="text" value={nicho} onChange={e => setNicho(e.target.value)}
+                  className={inpClass} placeholder="Ej. Radiología, Cardiología" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 block mb-1">Sitio Web</label>
+                <input type="text" value={sitioWeb} onChange={e => setSitioWeb(e.target.value)}
+                  className={inpClass} placeholder="Ej. www.ejemplo.com" />
+              </div>
+            </div>
+          </div>
+
+          {/* Sección: Contacto */}
+          <div className="space-y-3 pt-2">
+            <div className="text-[10px] font-extrabold text-[#4E60A9] uppercase tracking-wider">Contacto</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 block mb-1">Teléfono</label>
+                <input type="text" value={telefono} onChange={e => setTelefono(e.target.value)}
+                  className={inpClass} placeholder="Ej. 5512345678" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 block mb-1">Correo Electrónico</label>
+                <input type="email" value={correo} onChange={e => setCorreo(e.target.value)}
+                  className={inpClass} placeholder="Ej. contacto@clinica.com" />
+              </div>
+            </div>
+          </div>
+
+          {/* Sección: Ubicación */}
+          <div className="space-y-3 pt-2">
+            <div className="text-[10px] font-extrabold text-[#4E60A9] uppercase tracking-wider">Ubicación</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <label className="text-[10px] font-bold text-gray-500 block mb-1">Dirección Física</label>
+                <input type="text" value={direccion} onChange={e => setDireccion(e.target.value)}
+                  className={inpClass} placeholder="Calle, número, colonia" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 block mb-1">Ciudad</label>
+                <input type="text" value={ciudad} onChange={e => setCiudad(e.target.value)}
+                  className={inpClass} placeholder="Ej. Monterrey" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 block mb-1">Estado</label>
+                <input type="text" value={estadoRepublica} onChange={e => setEstadoRepublica(e.target.value)}
+                  className={inpClass} placeholder="Ej. Nuevo León" />
+              </div>
+            </div>
+          </div>
+
+          {/* Sección: Clasificación */}
+          <div className="space-y-3 pt-2">
+            <div className="text-[10px] font-extrabold text-[#4E60A9] uppercase tracking-wider">Clasificación</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 block mb-1">Tamaño Estimado</label>
+                <select value={tamanoEstimado} onChange={e => setTamanoEstimado(e.target.value)}
+                  className={selClass}>
+                  <option value="">Sin registrar</option>
+                  <option value="consultorio">Consultorio</option>
+                  <option value="clinica_p">Clínica Pequeña</option>
+                  <option value="clinica_m">Clínica Mediana</option>
+                  <option value="hospital">Hospital</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 block mb-1">Nivel Socioeconómico</label>
+                <select value={nivelSocioeconomico} onChange={e => setNivelSocioeconomico(e.target.value)}
+                  className={selClass}>
+                  <option value="">Sin registrar</option>
+                  <option value="AB">AB (Alto)</option>
+                  <option value="C+">C+ (Medio Alto)</option>
+                  <option value="C">C (Medio)</option>
+                  <option value="D+">D+ (Medio Bajo)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-2.5 shrink-0 bg-white">
+          <button type="button" onClick={onClose} disabled={saving}
+            className="text-[12px] font-bold text-gray-400 hover:text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-xl transition-colors">
+            Cancelar
+          </button>
+          <button type="button" onClick={handleSubmit} disabled={saving || !nombre.trim()}
+            className="flex items-center gap-1.5 text-[12px] font-bold text-white bg-[#4E60A9] hover:bg-[#2B5FD9] px-5 py-2.5 rounded-xl transition-colors disabled:opacity-40 shadow-sm">
+            {saving ? <Activity size={12} className="animate-spin" /> : <Save size={12} />}
+            {saving ? "Guardando..." : "Guardar Cambios"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
