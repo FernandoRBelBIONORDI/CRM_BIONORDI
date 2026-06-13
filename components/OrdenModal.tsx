@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { X, CheckCircle, Clock, FileText, ChevronRight, Trash2, Check, AlertTriangle, Activity, Mail, Camera, Download, Printer } from "lucide-react";
+import { X, CheckCircle, Clock, FileText, ChevronRight, Trash2, Check, AlertTriangle, Activity, Mail, Camera, Download, Printer, Edit } from "lucide-react";
 import DocumentViewerModal from "@/components/DocumentViewerModal";
 import { ORDEN_STATUS, ORDEN_KANBAN_COLS, ordenStatusList } from "@/lib/estados";
 
@@ -478,6 +478,10 @@ ${falla || techNote ? `<!-- Notes -->
                 </h2>
               </div>
               <div className="flex items-center gap-2">
+                <button onClick={() => { router.push(`/taller/recepcion?id=${orden.id}`); onClose(); }}
+                  className="w-8 h-8 flex items-center justify-center rounded-full text-blue-500 bg-blue-50 hover:bg-blue-100 transition-colors shrink-0" title="Editar y Re-enviar Hoja de Recepción">
+                  <Edit size={15} />
+                </button>
                 <button onClick={() => setShowRecepcionPdfPreview(true)}
                   className="w-8 h-8 flex items-center justify-center rounded-full text-indigo-500 bg-indigo-50 hover:bg-indigo-100 transition-colors shrink-0" title="Ver Hoja de Recepción">
                   <Printer size={15} />
@@ -564,8 +568,8 @@ ${falla || techNote ? `<!-- Notes -->
                       }}
                       className="flex items-center gap-1.5 text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#D7E2F8] px-4 py-2.5 rounded-xl transition-all shadow-sm"
                     >
-                      <Printer size={13} />
-                      Personalizar Recepción (Firmas y Cláusulas)
+                      <Edit size={13} />
+                      Editar, Guardar y Enviar Hoja de Recepción
                     </button>
                   </div>
                 </div>
