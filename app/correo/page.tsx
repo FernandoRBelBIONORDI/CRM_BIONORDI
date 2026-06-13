@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Mail, Send, Search, Check, AlertCircle, Activity,
-  Info, X, User, RefreshCw, Bold, Italic,
-  List, Link2, Trash2, Code, Eye, Inbox, CornerUpLeft
+  Info, X, RefreshCw, Bold, Italic,
+  List, Link2, Trash2, Code, Eye, Inbox, CornerUpLeft,
+  PenSquare, ChevronLeft
 } from "lucide-react";
 
 // ── Variables del template ────────────────────────────────────────────────────
@@ -591,7 +592,7 @@ export default function CorreoPage() {
   const [selectedLog, setSelectedLog] = useState<EmailLog | null>(null);
 
   // Bandeja de entrada (IMAP)
-  const [vista, setVista] = useState<"redactar" | "recibidos">("redactar");
+  const [vista, setVista] = useState<"redactar" | "recibidos" | "enviados">("redactar");
   const [inbox, setInbox] = useState<EmailRecibido[]>([]);
   const [selectedInbox, setSelectedInbox] = useState<EmailRecibido | null>(null);
   const [syncing, setSyncing] = useState(false);
@@ -806,37 +807,111 @@ export default function CorreoPage() {
     }
   };
 
+  // Búsqueda global (filtra bandeja y enviados, estilo Gmail)
+  const [search, setSearch] = useState("");
+  const q = search.trim().toLowerCase();
+  const filteredInbox = q
+    ? inbox.filter(m => [m.asunto, m.remitente, m.remitente_nombre, m.lead_nombre, m.cuerpo_texto]
+        .some(f => (f || "").toLowerCase().includes(q)))
+    : inbox;
+  const filteredLogs = q
+    ? emailLogs.filter(l => [l.asunto, l.destinatario, l.lead_nombre, l.remitente]
+        .some(f => (f || "").toLowerCase().includes(q)))
+    : emailLogs;
+
+  // Avatares de color determinístico por nombre (como Gmail/Outlook)
+  const AV_PALETTE = ["#4E60A9", "#38AD64", "#D97706", "#7C3AED", "#0EA5E9", "#DC2626", "#0891B2", "#DB2777", "#65A30D"];
+  const avatarFor = (raw: string) => {
+    const s = (raw || "?").trim();
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = s.charCodeAt(i) + ((h << 5) - h);
+    const color = AV_PALETTE[Math.abs(h) % AV_PALETTE.length];
+    const init = s.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase() || "?";
+    return { color, init };
+  };
+
+  // Carpetas de la barra lateral
+  const folders = [
+    { key: "recibidos" as const, label: "Bandeja de entrada", icon: Inbox, count: noLeidos },
+    { key: "enviados" as const,  label: "Enviados",            icon: Send,  count: 0 },
+  ];
+
   const inp = "w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4E60A9]/40 bg-white";
 
   return (
     <div className="h-full flex flex-col bg-[#F4F7FB] font-sans overflow-hidden">
 
-      {/* Header */}
-      <div className="px-4 md:px-8 py-4 bg-white border-b border-[#E8EFF8] shrink-0 flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-[22px] font-extrabold text-[#1E293B] tracking-tight">Correo Electrónico</h1>
-          <p className="text-[12px] text-[#94A3B8] font-medium mt-0.5">Redacta, envía, recibe y audita los correos oficiales del sistema</p>
+      {/* Header: barra superior con búsqueda (estilo Gmail/Outlook) */}
+      <div className="px-3 md:px-6 py-2.5 bg-white border-b border-[#E8EFF8] shrink-0 flex items-center gap-3 md:gap-4">
+        <div className="flex items-center gap-2.5 shrink-0">
+          <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#4E60A9] to-[#38AD64] flex items-center justify-center text-white shrink-0">
+            <Mail size={17} />
+          </span>
+          <h1 className="hidden sm:block text-[18px] font-extrabold text-[#1E293B] tracking-tight leading-none">Correo</h1>
         </div>
-        <div className="flex items-center bg-gray-100 rounded-xl p-1 gap-1">
-          <button onClick={() => setVista("redactar")}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-bold transition-all ${
-              vista === "redactar" ? "bg-white text-[#4E60A9] shadow-sm" : "text-gray-400 hover:text-gray-600"
-            }`}>
-            <Send size={13} /> Redactar
-          </button>
-          <button onClick={() => { setVista("recibidos"); if (inbox.length === 0 && !syncing) fetchInbox(true); }}
-            className={`relative flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-bold transition-all ${
-              vista === "recibidos" ? "bg-white text-[#4E60A9] shadow-sm" : "text-gray-400 hover:text-gray-600"
-            }`}>
-            <Inbox size={13} /> Recibidos
-            {noLeidos > 0 && (
-              <span className="min-w-[16px] h-4 rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center px-1">
-                {noLeidos > 9 ? "9+" : noLeidos}
-              </span>
-            )}
-          </button>
+        <div className="flex-1 max-w-[680px] mx-auto relative">
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar correos"
+            className="w-full text-[13px] bg-[#EEF1F6] focus:bg-white border border-transparent focus:border-[#4E60A9]/30 rounded-full pl-10 pr-9 py-2.5 outline-none transition-colors"
+          />
+          {search && (
+            <button onClick={() => setSearch("")} title="Limpiar búsqueda"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <X size={14} />
+            </button>
+          )}
         </div>
+        <div className="hidden md:block w-[100px] shrink-0" />
       </div>
+
+      {/* Shell de 3 paneles estilo cliente de correo */}
+      <div className="flex-1 flex overflow-hidden min-h-0">
+
+        {/* Barra lateral de carpetas */}
+        <aside className="w-[68px] md:w-60 shrink-0 bg-white border-r border-[#E8EFF8] flex flex-col py-4 px-2 md:px-3 gap-1 overflow-y-auto">
+          <button
+            onClick={() => setVista("redactar")}
+            title="Redactar"
+            className="flex items-center justify-center md:justify-start gap-3 h-12 md:px-5 rounded-2xl bg-[#4E60A9] hover:bg-[#3d4e8a] text-white shadow-sm shadow-[#4E60A9]/30 transition-colors mb-3">
+            <PenSquare size={18} />
+            <span className="hidden md:inline text-[13.5px] font-bold">Redactar</span>
+          </button>
+
+          <nav className="flex flex-col gap-0.5">
+            {folders.map(f => {
+              const active = vista === f.key;
+              const Icon = f.icon;
+              return (
+                <button
+                  key={f.key}
+                  onClick={() => {
+                    setVista(f.key);
+                    if (f.key === "recibidos" && inbox.length === 0 && !syncing) fetchInbox(true);
+                  }}
+                  title={f.label}
+                  className={`group flex items-center justify-center md:justify-start gap-3 h-10 md:px-4 rounded-2xl md:rounded-full transition-colors ${
+                    active ? "bg-[#EEF3FC] text-[#4E60A9]" : "text-slate-500 hover:bg-slate-100"
+                  }`}>
+                  <Icon size={17} className={active ? "text-[#4E60A9]" : "text-slate-400 group-hover:text-slate-600"} />
+                  <span className={`hidden md:inline flex-1 text-left text-[13px] ${active ? "font-bold" : "font-semibold"}`}>{f.label}</span>
+                  {f.count > 0 && (
+                    <span className={`min-w-[18px] h-[18px] rounded-full text-[10px] font-bold flex items-center justify-center px-1 ${
+                      active ? "bg-[#4E60A9] text-white" : "bg-[#EF4444] text-white"
+                    }`}>
+                      {f.count > 99 ? "99+" : f.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </aside>
+
+        {/* Columna principal */}
+        <div className="flex-1 flex flex-col overflow-hidden min-h-0 bg-[#F4F7FB]">
 
       {/* Anti-spam tip */}
       {vista === "redactar" && !tipDismissed && (
@@ -1112,64 +1187,6 @@ export default function CorreoPage() {
 
                 </div>
 
-                {/* Tabla de Historial de Correos Enviados */}
-                <div className="max-w-[650px] w-full bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden p-5 space-y-4">
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <div>
-                      <h3 className="text-[13px] font-bold text-slate-800">Control de Correos Enviados</h3>
-                      <p className="text-[11px] text-slate-400 font-medium">Historial general de envíos y destinatarios</p>
-                    </div>
-                    <button onClick={fetchLogs} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors" title="Actualizar historial">
-                      <RefreshCw size={13} />
-                    </button>
-                  </div>
-                  
-                  {emailLogs.length === 0 ? (
-                    <p className="text-[11px] text-slate-400 italic text-center py-6">No hay registros de correos enviados recientemente.</p>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse text-[11px]">
-                        <thead>
-                          <tr className="border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[9px]">
-                            <th className="py-2 px-2">Fecha</th>
-                            <th className="py-2 px-2">Destinatario</th>
-                            <th className="py-2 px-2">Asunto</th>
-                            <th className="py-2 px-2">Remitente</th>
-                            <th className="py-2 px-2 text-right">Detalle</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {emailLogs.map(log => (
-                            <tr key={log.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors text-slate-600">
-                              <td className="py-2 px-2 whitespace-nowrap text-slate-400 font-medium">
-                                {new Date(log.fecha).toLocaleString('es-MX', { hour12: false, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                              </td>
-                              <td className="py-2 px-2 max-w-[140px] truncate">
-                                <span className="font-semibold text-slate-700 block truncate">{log.lead_nombre || "Externo"}</span>
-                                <span className="text-[10px] text-slate-400 block truncate">{log.destinatario}</span>
-                              </td>
-                              <td className="py-2 px-2 max-w-[180px] truncate" title={log.asunto}>
-                                {log.asunto}
-                              </td>
-                              <td className="py-2 px-2 font-medium text-slate-500">
-                                {log.remitente}
-                              </td>
-                              <td className="py-2 px-2 text-right">
-                                <button 
-                                  onClick={() => setSelectedLog(log)} 
-                                  className="px-2 py-1 rounded bg-[#E8EFF8] hover:bg-[#4E60A9]/10 text-[#4E60A9] font-bold text-[9.5px] transition-colors"
-                                >
-                                  Ver
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-
               </div>
 
             </div>
@@ -1212,160 +1229,209 @@ export default function CorreoPage() {
 
       {/* ── Bandeja de entrada ─────────────────────────────────────────────── */}
       {vista === "recibidos" && (
-        <div className="flex-1 flex flex-col md:flex-row gap-4 overflow-hidden p-4 md:p-5">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-h-0">
 
           {/* Lista de mensajes */}
-          <div className={`w-full md:w-[340px] shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm flex-col overflow-hidden ${selectedInbox ? "hidden md:flex" : "flex"}`}>
-            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between shrink-0">
-              <div className="min-w-0">
-                <p className="text-[12px] font-bold text-slate-800">Bandeja de entrada</p>
-                {syncMsg && <p className="text-[10px] text-slate-400 truncate" title={syncMsg}>{syncMsg}</p>}
-              </div>
+          <div className={`w-full md:w-[380px] shrink-0 bg-white md:border-r border-[#E8EFF8] flex-col overflow-hidden ${selectedInbox ? "hidden md:flex" : "flex"}`}>
+            <div className="px-4 py-2.5 border-b border-[#EEF1F6] flex items-center justify-between shrink-0">
+              <p className="text-[13px] font-extrabold text-slate-800">Bandeja de entrada</p>
               <button onClick={() => fetchInbox(true)} disabled={syncing} title="Descargar correos nuevos del servidor"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#EEF3FC] text-[#4E60A9] text-[10.5px] font-bold hover:bg-[#4E60A9] hover:text-white transition-colors disabled:opacity-50 shrink-0">
-                <RefreshCw size={12} className={syncing ? "animate-spin" : ""} />
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10.5px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] transition-colors disabled:opacity-50 shrink-0">
+                <RefreshCw size={13} className={syncing ? "animate-spin" : ""} />
                 {syncing ? "Sincronizando…" : "Sincronizar"}
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto divide-y divide-gray-50">
-              {inbox.length === 0 ? (
-                <div className="p-6 text-center text-[11px] text-slate-400 leading-relaxed">
-                  {syncing
-                    ? "Descargando correos…"
+            {syncMsg && <p className="px-4 py-1 text-[10px] text-slate-400 truncate border-b border-[#EEF1F6]" title={syncMsg}>{syncMsg}</p>}
+            <div className="flex-1 overflow-y-auto">
+              {filteredInbox.length === 0 ? (
+                <div className="p-8 text-center text-[11.5px] text-slate-400 leading-relaxed">
+                  {syncing ? "Descargando correos…"
+                    : q ? "Ningún correo coincide con la búsqueda."
                     : "Sin correos descargados. Configura el buzón IMAP en Configuración → Correo y presiona Sincronizar."}
                 </div>
-              ) : inbox.map(m => (
-                <button key={m.id} onClick={() => abrirMensaje(m)}
-                  className={`w-full text-left px-4 py-3 transition-colors ${selectedInbox?.id === m.id ? "bg-[#EEF3FC]" : "hover:bg-slate-50"}`}>
-                  <div className="flex items-center gap-2">
-                    {!m.leido && <span className="w-2 h-2 rounded-full bg-[#4E60A9] shrink-0" />}
-                    <span className={`text-[12px] truncate flex-1 ${m.leido ? "font-medium text-slate-600" : "font-extrabold text-slate-800"}`}>
-                      {m.lead_nombre || m.remitente_nombre || m.remitente}
+              ) : filteredInbox.map(m => {
+                const nombre = m.lead_nombre || m.remitente_nombre || m.remitente;
+                const av = avatarFor(nombre);
+                const sel = selectedInbox?.id === m.id;
+                return (
+                  <button key={m.id} onClick={() => abrirMensaje(m)}
+                    className={`w-full text-left px-3 py-3 flex gap-3 items-start border-b border-[#F1F4F9] transition-colors ${
+                      sel ? "bg-[#EEF3FC]" : m.leido ? "hover:bg-slate-50" : "bg-[#F7FAFF] hover:bg-[#EEF3FC]"
+                    }`}>
+                    <span className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[12px] font-bold shrink-0 mt-0.5"
+                      style={{ background: av.color }}>{av.init}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-2">
+                        <span className={`text-[12.5px] truncate flex-1 ${m.leido ? "font-semibold text-slate-600" : "font-extrabold text-slate-900"}`}>{nombre}</span>
+                        <span className={`text-[10.5px] shrink-0 ${m.leido ? "text-slate-400" : "text-[#4E60A9] font-bold"}`}>
+                          {new Date(m.fecha).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
+                        </span>
+                      </span>
+                      <span className={`block text-[12px] truncate mt-0.5 ${m.leido ? "text-slate-500" : "text-slate-800 font-bold"}`}>{m.asunto || "(Sin asunto)"}</span>
+                      <span className="block text-[11px] text-slate-400 truncate mt-0.5">
+                        {(m.cuerpo_texto || "").replace(/\s+/g, " ").trim() || "—"}
+                      </span>
+                      {m.lead_nombre && (
+                        <span className="inline-block mt-1.5 text-[9px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-1.5 py-0.5 rounded">CRM: {m.lead_nombre}</span>
+                      )}
                     </span>
-                    <span className="text-[10px] text-slate-400 shrink-0">
-                      {new Date(m.fecha).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
-                    </span>
-                  </div>
-                  <p className={`text-[11.5px] truncate mt-0.5 ${m.leido ? "text-slate-500" : "text-slate-700 font-bold"}`}>{m.asunto}</p>
-                  {m.lead_nombre && (
-                    <span className="inline-block mt-1 text-[9px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-1.5 py-0.5 rounded">
-                      CRM: {m.lead_nombre}
-                    </span>
-                  )}
-                </button>
-              ))}
+                    {!m.leido && <span className="w-2 h-2 rounded-full bg-[#4E60A9] shrink-0 mt-2" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Visor del mensaje */}
-          <div className={`flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm flex-col overflow-hidden ${selectedInbox ? "flex" : "hidden md:flex"}`}>
+          <div className={`flex-1 bg-white flex-col overflow-hidden min-w-0 ${selectedInbox ? "flex" : "hidden md:flex"}`}>
             {!selectedInbox ? (
-              <div className="flex-1 flex flex-col items-center justify-center gap-2 text-slate-300">
-                <Mail size={36} strokeWidth={1.5} />
-                <p className="text-[12px] font-medium">Selecciona un correo para leerlo</p>
+              <div className="flex-1 flex flex-col items-center justify-center gap-3 text-slate-300">
+                <Mail size={40} strokeWidth={1.25} />
+                <p className="text-[12.5px] font-medium">Selecciona un correo para leerlo</p>
               </div>
-            ) : (
-              <>
-                <div className="px-4 md:px-6 py-4 border-b border-gray-100 shrink-0 flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex items-start gap-2">
-                    {/* Volver a la lista (solo móvil) */}
-                    <button onClick={() => setSelectedInbox(null)}
-                      className="md:hidden mt-0.5 p-1.5 rounded-lg bg-slate-100 text-slate-500 shrink-0">
-                      <X size={14} />
-                    </button>
-                    <div className="min-w-0">
-                      <h3 className="text-[15px] font-extrabold text-slate-800 leading-snug">{selectedInbox.asunto}</h3>
-                      <p className="text-[11.5px] text-slate-500 mt-0.5 truncate">
-                        <strong>{selectedInbox.remitente_nombre || selectedInbox.remitente}</strong>
-                        {selectedInbox.remitente_nombre ? <span className="text-slate-400"> · {selectedInbox.remitente}</span> : null}
-                      </p>
-                      <p className="text-[10.5px] text-slate-400">
-                        {new Date(selectedInbox.fecha).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" })}
-                      </p>
+            ) : (() => {
+              const nombre = selectedInbox.remitente_nombre || selectedInbox.remitente;
+              const av = avatarFor(selectedInbox.lead_nombre || nombre);
+              return (
+                <>
+                  <div className="px-4 md:px-7 pt-4 md:pt-6 pb-4 border-b border-[#EEF1F6] shrink-0">
+                    <div className="flex items-start gap-2 mb-3">
+                      <button onClick={() => setSelectedInbox(null)}
+                        className="md:hidden mt-0.5 p-1.5 -ml-1 rounded-lg hover:bg-slate-100 text-slate-500 shrink-0">
+                        <ChevronLeft size={18} />
+                      </button>
+                      <h3 className="text-[18px] md:text-[20px] font-extrabold text-slate-900 leading-snug flex-1 min-w-0">{selectedInbox.asunto || "(Sin asunto)"}</h3>
                     </div>
+                    <div className="flex items-center gap-3">
+                      <span className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0"
+                        style={{ background: av.color }}>{av.init}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-bold text-slate-800 truncate">
+                          {nombre}
+                          {selectedInbox.remitente_nombre && <span className="font-normal text-slate-400"> &lt;{selectedInbox.remitente}&gt;</span>}
+                        </p>
+                        <p className="text-[11px] text-slate-400">
+                          {new Date(selectedInbox.fecha).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" })}
+                        </p>
+                      </div>
+                      <button onClick={() => responder(selectedInbox)}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[#E2E8F0] text-slate-600 text-[12px] font-bold hover:bg-slate-50 hover:text-[#4E60A9] hover:border-[#4E60A9]/30 transition-colors shrink-0">
+                        <CornerUpLeft size={14} /> <span className="hidden sm:inline">Responder</span>
+                      </button>
+                    </div>
+                    {selectedInbox.lead_nombre && (
+                      <span className="inline-block mt-3 text-[10px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-2 py-0.5 rounded">CRM: {selectedInbox.lead_nombre}</span>
+                    )}
                   </div>
-                  <button onClick={() => responder(selectedInbox)}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#4E60A9] text-white text-[11.5px] font-bold hover:bg-[#3d4e8a] transition-colors shrink-0">
-                    <CornerUpLeft size={13} /> Responder
-                  </button>
-                </div>
-                {/* El HTML del correo se respeta tal cual, aislado en un iframe sandbox */}
-                {selectedInbox.cuerpo_html ? (
-                  <iframe srcDoc={selectedInbox.cuerpo_html} sandbox="" className="flex-1 w-full border-0 bg-white" title="Correo recibido" />
-                ) : (
-                  <pre className="flex-1 overflow-y-auto p-6 text-[12.5px] text-slate-600 whitespace-pre-wrap font-sans leading-relaxed">
-                    {selectedInbox.cuerpo_texto || "(Sin contenido)"}
-                  </pre>
-                )}
-              </>
-            )}
+                  {selectedInbox.cuerpo_html ? (
+                    <iframe srcDoc={selectedInbox.cuerpo_html} sandbox="" className="flex-1 w-full border-0 bg-white" title="Correo recibido" />
+                  ) : (
+                    <pre className="flex-1 overflow-y-auto p-6 md:p-7 text-[13px] text-slate-700 whitespace-pre-wrap font-sans leading-relaxed">
+                      {selectedInbox.cuerpo_texto || "(Sin contenido)"}
+                    </pre>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
       )}
 
-      {/* Modal de Detalle de Correo Log */}
-      {selectedLog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-[600px] w-full flex flex-col max-h-[85vh] overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50 shrink-0">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Detalle del Correo Enviado</span>
-                <h4 className="text-[14px] font-bold text-slate-800 truncate max-w-[400px]">{selectedLog.asunto}</h4>
-              </div>
-              <button onClick={() => setSelectedLog(null)} className="p-1 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-slate-600 transition-colors">
-                <X size={18} />
+      {/* ── Enviados ───────────────────────────────────────────────────────── */}
+      {vista === "enviados" && (
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-h-0">
+
+          {/* Lista de enviados */}
+          <div className={`w-full md:w-[380px] shrink-0 bg-white md:border-r border-[#E8EFF8] flex-col overflow-hidden ${selectedLog ? "hidden md:flex" : "flex"}`}>
+            <div className="px-4 py-2.5 border-b border-[#EEF1F6] flex items-center justify-between shrink-0">
+              <p className="text-[13px] font-extrabold text-slate-800">Enviados</p>
+              <button onClick={fetchLogs} title="Actualizar historial"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10.5px] font-bold text-[#4E60A9] hover:bg-[#EEF3FC] transition-colors shrink-0">
+                <RefreshCw size={13} /> Actualizar
               </button>
             </div>
-            
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-[12px] border-b border-slate-100 pb-4">
-                <div>
-                  <span className="font-semibold text-slate-400 block text-[10px] uppercase">Para:</span>
-                  <span className="text-slate-700 font-bold">{selectedLog.destinatario} {selectedLog.lead_nombre ? `(${selectedLog.lead_nombre})` : ''}</span>
+            <div className="flex-1 overflow-y-auto">
+              {filteredLogs.length === 0 ? (
+                <div className="p-8 text-center text-[11.5px] text-slate-400 leading-relaxed">
+                  {q ? "Ningún correo coincide con la búsqueda." : "Aún no has enviado correos."}
                 </div>
-                <div>
-                  <span className="font-semibold text-slate-400 block text-[10px] uppercase">Enviado por:</span>
-                  <span className="text-slate-700 font-bold">{selectedLog.remitente}</span>
-                </div>
-                <div>
-                  <span className="font-semibold text-slate-400 block text-[10px] uppercase">Fecha de envío:</span>
-                  <span className="text-slate-700 font-bold">{new Date(selectedLog.fecha).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}</span>
-                </div>
-                <div>
-                  <span className="font-semibold text-slate-400 block text-[10px] uppercase">Estatus:</span>
-                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-200">
-                    {selectedLog.status}
-                  </span>
-                </div>
-              </div>
-              
-              <div>
-                <span className="font-semibold text-slate-400 block text-[10px] uppercase mb-2">
-                  {selectedLog.cuerpo_html ? "Correo enviado (HTML real):" : "Contenido (Texto Plano):"}
-                </span>
-                {selectedLog.cuerpo_html ? (
-                  <iframe
-                    srcDoc={selectedLog.cuerpo_html}
-                    sandbox=""
-                    className="w-full h-[420px] border border-slate-100 rounded-xl bg-white"
-                    title="Correo enviado"
-                  />
-                ) : (
-                  <pre className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-mono text-[11px] whitespace-pre-wrap text-slate-600 max-h-[300px] overflow-y-auto leading-relaxed">
-                    {selectedLog.cuerpo}
-                  </pre>
-                )}
-              </div>
+              ) : filteredLogs.map(log => {
+                const nombre = log.lead_nombre || log.destinatario;
+                const av = avatarFor(nombre);
+                const sel = selectedLog?.id === log.id;
+                return (
+                  <button key={log.id} onClick={() => setSelectedLog(log)}
+                    className={`w-full text-left px-3 py-3 flex gap-3 items-start border-b border-[#F1F4F9] transition-colors ${sel ? "bg-[#EEF3FC]" : "hover:bg-slate-50"}`}>
+                    <span className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[12px] font-bold shrink-0 mt-0.5"
+                      style={{ background: av.color }}>{av.init}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-2">
+                        <span className="text-[12.5px] font-semibold text-slate-700 truncate flex-1">
+                          <span className="text-slate-400 font-normal">Para: </span>{nombre}
+                        </span>
+                        <span className="text-[10.5px] text-slate-400 shrink-0">
+                          {new Date(log.fecha).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
+                        </span>
+                      </span>
+                      <span className="block text-[12px] text-slate-800 font-bold truncate mt-0.5">{log.asunto || "(Sin asunto)"}</span>
+                      <span className="block text-[11px] text-slate-400 truncate mt-0.5">{log.destinatario}</span>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-            
-            <div className="px-6 py-3 border-t border-slate-100 bg-slate-50 text-right shrink-0">
-              <button onClick={() => setSelectedLog(null)} className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-[12px] transition-colors">
-                Cerrar
-              </button>
-            </div>
+          </div>
+
+          {/* Visor del enviado */}
+          <div className={`flex-1 bg-white flex-col overflow-hidden min-w-0 ${selectedLog ? "flex" : "hidden md:flex"}`}>
+            {!selectedLog ? (
+              <div className="flex-1 flex flex-col items-center justify-center gap-3 text-slate-300">
+                <Send size={38} strokeWidth={1.25} />
+                <p className="text-[12.5px] font-medium">Selecciona un correo enviado</p>
+              </div>
+            ) : (() => {
+              const av = avatarFor(selectedLog.lead_nombre || selectedLog.destinatario);
+              return (
+                <>
+                  <div className="px-4 md:px-7 pt-4 md:pt-6 pb-4 border-b border-[#EEF1F6] shrink-0">
+                    <div className="flex items-start gap-2 mb-3">
+                      <button onClick={() => setSelectedLog(null)}
+                        className="md:hidden mt-0.5 p-1.5 -ml-1 rounded-lg hover:bg-slate-100 text-slate-500 shrink-0">
+                        <ChevronLeft size={18} />
+                      </button>
+                      <h3 className="text-[18px] md:text-[20px] font-extrabold text-slate-900 leading-snug flex-1 min-w-0">{selectedLog.asunto || "(Sin asunto)"}</h3>
+                      <span className="text-[10px] font-bold uppercase tracking-wide bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full shrink-0 mt-1">{selectedLog.status}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0"
+                        style={{ background: av.color }}>{av.init}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-bold text-slate-800 truncate">
+                          Para: {selectedLog.lead_nombre || selectedLog.destinatario}
+                          {selectedLog.lead_nombre && <span className="font-normal text-slate-400"> &lt;{selectedLog.destinatario}&gt;</span>}
+                        </p>
+                        <p className="text-[11px] text-slate-400">
+                          Enviado por {selectedLog.remitente} · {new Date(selectedLog.fecha).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  {selectedLog.cuerpo_html ? (
+                    <iframe srcDoc={selectedLog.cuerpo_html} sandbox="" className="flex-1 w-full border-0 bg-white" title="Correo enviado" />
+                  ) : (
+                    <pre className="flex-1 overflow-y-auto p-6 md:p-7 text-[13px] text-slate-700 whitespace-pre-wrap font-sans leading-relaxed">
+                      {selectedLog.cuerpo || "(Sin contenido)"}
+                    </pre>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
       )}
+
+        </div>{/* fin columna principal */}
+      </div>{/* fin shell de 3 paneles */}
 
     </div>
   );
