@@ -584,6 +584,18 @@ function RecepcionPage() {
       .map((line: string) => `<li>${line}</li>`)
       .join('');
 
+    const instVal = cliDatosFiscales || cliNombre;
+    const contVal = cliContacto || cliNombre;
+    let clientInfoHTML = "";
+    if (instVal === contVal) {
+      clientInfoHTML = `<div class="i-row"><div class="i-lbl">Cliente</div><div class="i-val">${instVal}</div></div>`;
+    } else {
+      clientInfoHTML = `
+        <div class="i-row"><div class="i-lbl">Institución</div><div class="i-val">${instVal}</div></div>
+        <div class="i-row"><div class="i-lbl">Atención a</div><div class="i-val">${contVal}</div></div>
+      `;
+    }
+
     // Cargar evidencias fotográficas en base64 para Puppeteer
     let fotosRecepcionHTML = "";
     if (evidencias.length > 0) {
@@ -1027,8 +1039,7 @@ function RecepcionPage() {
           <div class="info-section avoid-break">
             <div class="info-card">
               <div class="card-title">Datos del Cliente</div>
-              <div class="i-row"><div class="i-lbl">Institución</div><div class="i-val">${cliDatosFiscales || cliNombre}</div></div>
-              <div class="i-row"><div class="i-lbl">Atención a</div><div class="i-val">${cliContacto || cliNombre}</div></div>
+              ${clientInfoHTML}
               <div class="i-row"><div class="i-lbl">Teléfono</div><div class="i-val">${cliTel}</div></div>
               <div class="i-row"><div class="i-lbl">Correo</div><div class="i-val">${cliCorreo}</div></div>
               <div class="i-row"><div class="i-lbl">Dirección</div><div class="i-val">${cliDireccion}</div></div>
@@ -1053,10 +1064,6 @@ function RecepcionPage() {
               <div class="eq-item"><div class="eq-lbl">Año Fab.</div><div class="eq-val">${eqAno || '—'}</div></div>
               <div class="eq-item"><div class="eq-lbl">Área Médica</div><div class="eq-val">${eqArea || '—'}</div></div>
               <div class="eq-item"><div class="eq-lbl">Técnico Resp.</div><div class="eq-val">${eqTecnico || '—'}</div></div>
-              <div class="eq-full">
-                <div class="eq-lbl">Accesorios Recibidos / Checklist</div>
-                <div class="eq-val">${getAccesoriosString() || '—'}</div>
-              </div>
             </div>
           </div>
 

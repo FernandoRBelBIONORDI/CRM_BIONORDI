@@ -191,6 +191,18 @@ export async function GET(req: Request) {
       .map((line: string) => `<li>${line}</li>`)
       .join('');
 
+    const instVal = orden.datos_hospital || orden.datos_fiscales || clienteNombre;
+    const contVal = orden.lead_nombre || clienteNombre;
+    let clientInfoHTML = "";
+    if (instVal === contVal) {
+      clientInfoHTML = `<div class="i-row"><div class="i-lbl">Cliente</div><div class="i-val">${instVal}</div></div>`;
+    } else {
+      clientInfoHTML = `
+        <div class="i-row"><div class="i-lbl">Institución</div><div class="i-val">${instVal}</div></div>
+        <div class="i-row"><div class="i-lbl">Atención a</div><div class="i-val">${contVal}</div></div>
+      `;
+    }
+
     const eqTipoNormalizado = (orden.equipo_tipo || "").toLowerCase();
     const esTransductor = ["lineal", "convex", "sectorial", "intracavitario", "tee", "3d", "4d", "microconvex", "transductor"].some(t => eqTipoNormalizado.includes(t));
 
@@ -623,8 +635,7 @@ export async function GET(req: Request) {
           <div class="info-section avoid-break">
             <div class="info-card">
               <div class="card-title">Datos del Cliente</div>
-              <div class="i-row"><div class="i-lbl">Institución</div><div class="i-val">${orden.datos_hospital || orden.datos_fiscales || clienteNombre}</div></div>
-              <div class="i-row"><div class="i-lbl">Atención a</div><div class="i-val">${orden.lead_nombre || clienteNombre}</div></div>
+              ${clientInfoHTML}
               <div class="i-row"><div class="i-lbl">Teléfono</div><div class="i-val">${telefono}</div></div>
               <div class="i-row"><div class="i-lbl">Correo</div><div class="i-val">${correo}</div></div>
               <div class="i-row"><div class="i-lbl">Dirección</div><div class="i-val">${direccion}</div></div>
