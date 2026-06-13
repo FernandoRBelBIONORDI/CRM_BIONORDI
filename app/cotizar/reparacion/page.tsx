@@ -592,8 +592,20 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
     setSaveStatus("saving");
     try {
       pdfB64Ref.current = null;
-      const { folio: f } = await buildPDFHtml();
+      const { html, folio: f } = await buildPDFHtml();
       await persistToDB(f);
+      if (savedCotRef.current?.id) {
+        try {
+          const b64 = await generarPDFBase64(html);
+          await fetch("/api/expediente", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ leadId, folio: f, pdfBase64: b64, cotizacionId: savedCotRef.current.id }),
+          });
+        } catch (pdfErr) {
+          console.warn("[cotizacion] No se pudo guardar en el expediente:", pdfErr);
+        }
+      }
       setSaveStatus("ok");
       setTimeout(() => setSaveStatus("idle"), 3000);
     } catch { setSaveStatus("error"); setTimeout(() => setSaveStatus("idle"), 3000); }
@@ -607,6 +619,17 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
       const { html, folio: f } = await buildPDFHtml();
       let b64 = await generarPDFBase64(html);
       await persistToDB(f);
+      if (savedCotRef.current?.id) {
+        try {
+          await fetch("/api/expediente", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ leadId, folio: f, pdfBase64: b64, cotizacionId: savedCotRef.current.id }),
+          });
+        } catch (pdfErr) {
+          console.warn("[cotizacion] No se pudo guardar en el expediente:", pdfErr);
+        }
+      }
       const res = await fetch("/api/email/cotizacion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -480,6 +480,20 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
     });
   };
 
+  const deleteOrden = async (oid: number) => {
+    confirm({
+      message: "¿Eliminar este registro de orden de trabajo y recepción de equipo?",
+      onConfirm: async () => {
+        await fetch("/api/ordenes", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: oid }),
+        });
+        setOrdenes(p => p.filter(o => o.id !== oid));
+      }
+    });
+  };
+
   const addEquipo = async () => {
     if (!newEquipo.tipo.trim()) return;
     setSavingEq(true);
@@ -1232,6 +1246,9 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                               className="text-gray-400 hover:text-[#4E60A9] transition-colors" title="Editar recepción/orden">
                               <Edit3 size={13} />
                             </button>
+                            <button onClick={() => deleteOrden(o.id)} className="text-gray-300 hover:text-red-400 transition-colors" title="Eliminar orden y recepción">
+                              <Trash2 size={13} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -1283,6 +1300,9 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                           <button onClick={() => { router.push(`/taller/recepcion?id=${o.id}`); }}
                             className="text-gray-400 hover:text-[#4E60A9] transition-colors" title="Editar recepción">
                             <Edit3 size={13} />
+                          </button>
+                          <button onClick={() => deleteOrden(o.id)} className="text-gray-300 hover:text-red-400 transition-colors" title="Eliminar recepción y orden">
+                            <Trash2 size={13} />
                           </button>
                         </div>
                       </td>
