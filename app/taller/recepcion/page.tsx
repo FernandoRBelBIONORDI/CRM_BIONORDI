@@ -79,6 +79,40 @@ async function fetchBase64(path: string): Promise<string> {
   } catch { return path; }
 }
 
+// Comprime la foto en el navegador antes de subirla: máx 1600px por lado y
+// JPEG 80%. Una foto de cámara de iPad/iPhone (3–12 MB, a veces HEIC) queda
+// en ~150–400 KB y en un formato que el PDF y todos los navegadores entienden.
+async function comprimirImagen(file: File, maxDim = 1600, quality = 0.8): Promise<File> {
+  try {
+    const url = URL.createObjectURL(file);
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = reject;
+      i.src = url;
+    });
+    const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+    const w = Math.max(1, Math.round(img.naturalWidth * scale));
+    const h = Math.max(1, Math.round(img.naturalHeight * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas no disponible");
+    ctx.drawImage(img, 0, 0, w, h);
+    URL.revokeObjectURL(url);
+    const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/jpeg", quality));
+    if (!blob) throw new Error("No se pudo codificar JPEG");
+    // Si la recomprimida no ahorra nada y ya era JPEG, conservar la original
+    if (blob.size >= file.size && file.type === "image/jpeg") return file;
+    const nombre = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+    return new File([blob], nombre, { type: "image/jpeg" });
+  } catch {
+    // Si el navegador no puede decodificar el formato, subir el original
+    return file;
+  }
+}
+
 async function generarPDFBase64(htmlString: string): Promise<string> {
   const res = await fetch("/api/pdf", {
     method: "POST",
@@ -436,12 +470,13 @@ function RecepcionPage() {
     input.onchange = async e => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
-      
+
       setSaving(true);
       try {
+        const comprimido = await comprimirImagen(file);
         const fd = new FormData();
-        fd.append("file", file);
-        const res = await fetch(`/api/upload?subfolder=ordenes&filename=${encodeURIComponent(file.name)}`, {
+        fd.append("file", comprimido);
+        const res = await fetch(`/api/upload?subfolder=ordenes&filename=${encodeURIComponent(comprimido.name)}`, {
           method: "POST",
           body: fd
         }).then(r => r.json());

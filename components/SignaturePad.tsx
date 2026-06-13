@@ -17,31 +17,37 @@ export default function SignaturePad({
   onClear,
 }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
+  const drawingRef = useRef(false);
   const [isEmpty, setIsEmpty] = useState(true);
+
+  // Configura el contexto en coordenadas CSS con respaldo retina (devicePixelRatio)
+  const setupCanvas = (canvas: HTMLCanvasElement) => {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    ctx.scale(dpr, dpr);
+    ctx.strokeStyle = "#202538";
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    return ctx;
+  };
 
   // Inicializar canvas y dibujar firma por defecto si existe
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
+    const ctx = setupCanvas(canvas);
     if (!ctx) return;
-
-    // Ajustar resolución de canvas para pantallas retina
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-
-    ctx.strokeStyle = "#202538"; // Color de trazo oscuro
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
 
     if (defaultValue) {
       const img = new Image();
       img.onload = () => {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const rect = canvas.getBoundingClientRect();
+        ctx.drawImage(img, 0, 0, rect.width, rect.height);
         setIsEmpty(false);
       };
       img.src = defaultValue;
@@ -53,12 +59,7 @@ export default function SignaturePad({
     const handleResize = () => {
       const canvas = canvasRef.current;
       if (!canvas || defaultValue) return; // Si hay firma cargada, no redimensionar para evitar borrarla
-      
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
 
-      const rect = canvas.getBoundingClientRect();
-      
       // Respaldar lo dibujado
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = canvas.width;
@@ -66,89 +67,89 @@ export default function SignaturePad({
       const tempCtx = tempCanvas.getContext("2d");
       if (tempCtx) tempCtx.drawImage(canvas, 0, 0);
 
-      // Redimensionar
-      canvas.width = rect.width;
-      canvas.height = rect.height;
+      const ctx = setupCanvas(canvas);
+      if (!ctx) return;
 
-      // Restaurar propiedades de dibujo
-      ctx.strokeStyle = "#202538";
-      ctx.lineWidth = 2.5;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-
-      // Dibujar de nuevo
-      ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
+      const rect = canvas.getBoundingClientRect();
+      ctx.drawImage(tempCanvas, 0, 0, rect.width, rect.height);
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [defaultValue]);
 
-  const getCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
+  const getCoords = (e: PointerEvent | React.PointerEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
-
     const rect = canvas.getBoundingClientRect();
-    
-    // Si es evento touch
-    if ("touches" in e) {
-      if (e.touches.length === 0) return { x: 0, y: 0 };
-      return {
-        x: e.touches[0].clientX - rect.left,
-        y: e.touches[0].clientY - rect.top,
-      };
-    }
-    
-    // Si es evento de mouse
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    };
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   };
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    const coords = getCoordinates(e);
+  // Grosor según presión: Apple Pencil reporta presión real (0–1); dedo/mouse usan el grosor base
+  const widthFor = (e: PointerEvent | React.PointerEvent) =>
+    e.pointerType === "pen" && e.pressure > 0
+      ? Math.max(1.2, Math.min(4.5, 1.2 + e.pressure * 3))
+      : 2.5;
+
+  // Pointer Events: unifican mouse, dedo y Apple Pencil. setPointerCapture
+  // evita que iPadOS robe el trazo (Scribble / scroll) a mitad de la firma.
+  const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    canvas.setPointerCapture(e.pointerId);
+    const { x, y } = getCoords(e);
+    ctx.lineWidth = widthFor(e);
     ctx.beginPath();
-    ctx.moveTo(coords.x, coords.y);
-    setIsDrawing(true);
+    ctx.moveTo(x, y);
+    // Punto inicial visible aunque sea un toque sin arrastre
+    ctx.lineTo(x + 0.1, y + 0.1);
+    ctx.stroke();
+    drawingRef.current = true;
     setIsEmpty(false);
-
-    // Evitar scroll en móviles
-    if (e.cancelable) e.preventDefault();
+    e.preventDefault();
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-
-    const coords = getCoordinates(e);
+  const draw = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!drawingRef.current) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    ctx.lineTo(coords.x, coords.y);
-    ctx.stroke();
+    // getCoalescedEvents entrega las muestras intermedias del Apple Pencil
+    // (120Hz) para trazos suaves; si no existe, se usa el evento normal.
+    const native = e.nativeEvent as PointerEvent;
+    const events: PointerEvent[] =
+      typeof native.getCoalescedEvents === "function" && native.getCoalescedEvents().length > 0
+        ? native.getCoalescedEvents()
+        : [native];
 
-    if (e.cancelable) e.preventDefault();
+    for (const ev of events) {
+      const { x, y } = getCoords(ev);
+      ctx.lineWidth = widthFor(ev);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
+    e.preventDefault();
   };
 
-  const stopDrawing = () => {
-    if (!isDrawing) return;
-    setIsDrawing(false);
+  const stopDrawing = (e?: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!drawingRef.current) return;
+    drawingRef.current = false;
+    if (e) {
+      try { canvasRef.current?.releasePointerCapture(e.pointerId); } catch {}
+    }
     saveSignature();
   };
 
   const saveSignature = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const b64 = canvas.toDataURL("image/png");
     onSave(b64);
   };
@@ -156,10 +157,8 @@ export default function SignaturePad({
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     setIsEmpty(true);
     onClear();
@@ -174,15 +173,20 @@ export default function SignaturePad({
         <canvas
           ref={canvasRef}
           className="w-full h-[140px] cursor-crosshair touch-none bg-slate-50/20"
-          onMouseDown={startDrawing}
-          onMouseMove={draw}
-          onMouseUp={stopDrawing}
-          onMouseLeave={stopDrawing}
-          onTouchStart={startDrawing}
-          onTouchMove={draw}
-          onTouchEnd={stopDrawing}
+          style={{
+            touchAction: "none",
+            userSelect: "none",
+            WebkitUserSelect: "none",
+            // Evita que iPadOS active Scribble (escritura a texto) sobre el lienzo
+            WebkitTouchCallout: "none",
+          }}
+          onPointerDown={startDrawing}
+          onPointerMove={draw}
+          onPointerUp={stopDrawing}
+          onPointerCancel={stopDrawing}
+          onPointerLeave={() => { if (drawingRef.current) stopDrawing(); }}
         />
-        
+
         {/* Guía visual */}
         {isEmpty && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
