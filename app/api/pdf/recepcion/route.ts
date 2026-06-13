@@ -105,6 +105,11 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Orden no encontrada' }, { status: 404 });
     }
 
+    // Folio propio de la Hoja de Recepción. Las órdenes creadas antes de existir
+    // esta serie no lo tienen: caen al folio de la orden para no alterar
+    // documentos ya emitidos.
+    const folioRecepcion = orden.folio_recepcion || orden.folio;
+
     const clienteNombre = orden.lead_nombre || "Sin nombre";
     const direccion = orden.direccion || orden.lead_direccion || "—";
     const telefono = orden.telefono || orden.lead_telefono || "—";
@@ -212,7 +217,7 @@ export async function GET(req: Request) {
       <html lang="es">
       <head>
         <meta charset="UTF-8" />
-        <title>Hoja de Recepción ${orden.folio}</title>
+        <title>Hoja de Recepción ${folioRecepcion}</title>
         <style>
           @page { margin: 15mm 0 10mm 0; }
           * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -552,15 +557,15 @@ export async function GET(req: Request) {
             page-break-inside: avoid;
           }
           .sig-img-container {
-            height: 50px;
+            height: 80px;
             display: flex;
             align-items: flex-end;
             justify-content: center;
             width: 100%;
           }
           .sig-img {
-            max-height: 48px;
-            max-width: 180px;
+            max-height: 78px;
+            max-width: 220px;
             object-fit: contain;
             display: block;
           }
@@ -604,7 +609,7 @@ export async function GET(req: Request) {
             <div class="doc-title-container">
               <div class="doc-title">HOJA DE RECEPCIÓN</div>
               <div class="meta-grid">
-                <div class="meta-lbl">Folio</div><div class="meta-val">${orden.folio}</div>
+                <div class="meta-lbl">Folio</div><div class="meta-val">${folioRecepcion}</div>
                 <div class="meta-lbl">Ingreso</div><div class="meta-val">${fechaIngreso}</div>
               </div>
             </div>
@@ -766,7 +771,7 @@ export async function GET(req: Request) {
               <img src="${logoB64}" alt="Bionordi Medical Technology" style="height:32px; width:auto; display:block;" />
             </div>
             <div style="text-align: right; font-size: 9px; color: #64748B;">
-              <div>Hoja de Recepción | Folio: <strong>${orden.folio}</strong></div>
+              <div>Hoja de Recepción | Folio: <strong>${folioRecepcion}</strong></div>
               <div>Términos y Condiciones del Servicio</div>
             </div>
           </div>
@@ -842,7 +847,7 @@ export async function GET(req: Request) {
       return new NextResponse(pdfBuffer as any, {
         headers: {
           'Content-Type': 'application/pdf',
-          'Content-Disposition': `inline; filename="Hoja_Recepcion_${orden.folio}.pdf"`,
+          'Content-Disposition': `inline; filename="Hoja_Recepcion_${folioRecepcion}.pdf"`,
         },
       });
     } finally {

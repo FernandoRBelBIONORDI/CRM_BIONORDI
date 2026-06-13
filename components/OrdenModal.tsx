@@ -7,7 +7,7 @@ import DocumentViewerModal from "@/components/DocumentViewerModal";
 import { ORDEN_STATUS, ORDEN_KANBAN_COLS, ordenStatusList } from "@/lib/estados";
 
 export interface Orden {
-  id: number; folio: string; tipo_orden?: string; lead_id?: number;
+  id: number; folio: string; folio_recepcion?: string; tipo_orden?: string; lead_id?: number;
   lead_nombre?: string; lead_telefono?: string; lead_ciudad?: string;
   cotizacion_id?: number; cotizacion_folio?: string; cotizacion_monto?: number; cotizacion_tipo?: string;
 
@@ -733,9 +733,9 @@ ${falla || techNote ? `<!-- Notes -->
 
       {showRecepcionPdfPreview && (
         <DocumentViewerModal
-          title={`Hoja de Recepción — ${orden.folio}`}
+          title={`Hoja de Recepción — ${orden.folio_recepcion || orden.folio}`}
           url={`/api/pdf/recepcion?id=${orden.id}`}
-          downloadName={`Recepcion_${orden.folio}.pdf`}
+          downloadName={`Recepcion_${orden.folio_recepcion || orden.folio}.pdf`}
           onClose={() => setShowRecepcionPdfPreview(false)}
         />
       )}

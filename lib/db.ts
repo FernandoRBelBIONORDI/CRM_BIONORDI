@@ -134,6 +134,7 @@ function initDb(): Database.Database {
     `ALTER TABLE ordenes_trabajo ADD COLUMN entregado_por TEXT`,
     `ALTER TABLE ordenes_trabajo ADD COLUMN recibido_por TEXT`,
     `ALTER TABLE ordenes_trabajo ADD COLUMN clausulas_recepcion TEXT`,
+    `ALTER TABLE ordenes_trabajo ADD COLUMN folio_recepcion TEXT`,
   ]) { try { _db.exec(sql); } catch { /* column already exists */ } }
 
   _db.exec(`

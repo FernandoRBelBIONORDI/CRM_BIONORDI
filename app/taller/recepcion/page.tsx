@@ -332,17 +332,11 @@ function RecepcionPage() {
   useEffect(() => {
     const idParam = searchParams.get("id");
     if (!idParam) {
-      // Generar nuevo folio temporal
-      fetch("/api/ordenes")
+      // Previsualizar el próximo folio propio de Hoja de Recepción (serie BHR).
+      // Es solo una estimación: el folio definitivo lo asigna el POST al guardar.
+      fetch("/api/ordenes?nextfolio=1")
         .then(r => r.json())
-        .then(d => {
-          // Asumir secuencia simple para previsualización
-          const nextIndex = (d.ordenes?.length || 0) + 1;
-          const yy = new Date().getFullYear().toString().slice(-2);
-          const mm = String(new Date().getMonth() + 1).padStart(2, '0');
-          const dd = String(new Date().getDate()).padStart(2, '0');
-          setFolio(`BRT-${mm}${dd}${yy}-${String(nextIndex).padStart(3, "0")}`);
-        })
+        .then(d => { if (d.folio) setFolio(d.folio); })
         .catch(() => {});
       return;
     }
@@ -354,7 +348,7 @@ function RecepcionPage() {
         const o = d.orden;
         if (o) {
           setOrderId(o.id);
-          setFolio(o.folio);
+          setFolio(o.folio_recepcion || o.folio);
 
           // Datos del cliente
           setLeadId(o.lead_id || null);
@@ -883,15 +877,15 @@ function RecepcionPage() {
             page-break-inside: avoid;
           }
           .sig-img-container {
-            height: 50px;
+            height: 80px;
             display: flex;
             align-items: flex-end;
             justify-content: center;
             width: 100%;
           }
           .sig-img {
-            max-height: 48px;
-            max-width: 180px;
+            max-height: 78px;
+            max-width: 220px;
             object-fit: contain;
             display: block;
           }
@@ -1355,7 +1349,7 @@ function RecepcionPage() {
       const d = await res.json();
       if (d.orden) {
         setOrderId(d.orden.id);
-        setFolio(d.orden.folio);
+        setFolio(d.orden.folio_recepcion || d.orden.folio);
         router.replace(`/taller/recepcion?id=${d.orden.id}`, { scroll: false });
       }
     }
@@ -2910,8 +2904,8 @@ function RecepcionPage() {
                   </p>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: "40px", marginBottom: "6px" }}>
                     <div style={{ alignSelf: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      <div style={{ height: "50px", display: "flex", alignItems: "flex-end", justifyContent: "center", width: "100%" }}>
-                        {firmas.entrega && <img src={firmas.entrega} alt="Firma entrega" style={{ maxHeight: "48px", maxWidth: "180px", objectFit: "contain" }} />}
+                      <div style={{ height: "80px", display: "flex", alignItems: "flex-end", justifyContent: "center", width: "100%" }}>
+                        {firmas.entrega && <img src={firmas.entrega} alt="Firma entrega" style={{ maxHeight: "78px", maxWidth: "220px", objectFit: "contain" }} />}
                       </div>
                       <div style={{ width: "100%", borderTop: "1.5px solid #CBD5E1", marginTop: "4px", paddingTop: "4px", textAlign: "center" }}>
                         <div style={{ fontSize: "10px", fontWeight: 800, color: "#4E60A9" }}>{entregadoPor || "—"}</div>
@@ -2920,8 +2914,8 @@ function RecepcionPage() {
                     </div>
 
                     <div style={{ alignSelf: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      <div style={{ height: "50px", display: "flex", alignItems: "flex-end", justifyContent: "center", width: "100%" }}>
-                        {firmas.recibe && <img src={firmas.recibe} alt="Firma recibe" style={{ maxHeight: "48px", maxWidth: "180px", objectFit: "contain" }} />}
+                      <div style={{ height: "80px", display: "flex", alignItems: "flex-end", justifyContent: "center", width: "100%" }}>
+                        {firmas.recibe && <img src={firmas.recibe} alt="Firma recibe" style={{ maxHeight: "78px", maxWidth: "220px", objectFit: "contain" }} />}
                       </div>
                       <div style={{ width: "100%", borderTop: "1.5px solid #CBD5E1", marginTop: "4px", paddingTop: "4px", textAlign: "center" }}>
                         <div style={{ fontSize: "10px", fontWeight: 800, color: "#4E60A9" }}>{recibidoPor || "—"}</div>

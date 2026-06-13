@@ -26,6 +26,19 @@ function generarFolio(tipo?: string): string {
   return `${prefix}-${date}-${String(seq).padStart(3, '0')}`;
 }
 
+// Folio propio de la Hoja de Recepción, independiente del folio de la orden.
+// Serie 'BHR-MMDDYY-NNN' que reinicia por día. Se asigna una sola vez al crear
+// la orden y nunca cambia (no está en el whitelist del PATCH).
+function generarFolioRecepcion(): string {
+  const date = mmddyy();
+  const prefix = 'BHR';
+  const last = db.prepare(
+    `SELECT folio_recepcion FROM ordenes_trabajo WHERE folio_recepcion LIKE ? ORDER BY id DESC LIMIT 1`
+  ).get(`${prefix}-${date}-%`) as any;
+  const seq = last ? parseInt(last.folio_recepcion.split('-')[2]) + 1 : 1;
+  return `${prefix}-${date}-${String(seq).padStart(3, '0')}`;
+}
+
 // ── Sincronización taller → CRM ───────────────────────────────────────────────
 // Cuando una orden avanza en el Kanban del taller, el lead vinculado avanza en el
 // pipeline del CRM. Solo promueve (nunca degrada): una orden activa implica que el
@@ -83,6 +96,11 @@ export async function GET(req: Request) {
   const status  = searchParams.get('status');
   const id      = searchParams.get('id');
 
+  // Previsualización del próximo folio de Hoja de Recepción (no reserva nada).
+  if (searchParams.get('nextfolio')) {
+    return NextResponse.json({ folio: generarFolioRecepcion() });
+  }
+
   if (id) {
     const row = db.prepare(`${SELECT_BASE} WHERE o.id = ?`).get(Number(id));
     return NextResponse.json({ orden: row });
@@ -108,6 +126,7 @@ export async function POST(req: Request) {
     const data = await req.json();
     const now = new Date().toISOString();
     const folio = generarFolio(data.tipo_orden);
+    const folioRecepcion = generarFolioRecepcion();
 
     let fallbackData: any = {};
     if (data.lead_id) {
@@ -124,7 +143,7 @@ export async function POST(req: Request) {
 
     const { lastInsertRowid } = db.prepare(`
       INSERT INTO ordenes_trabajo (
-        folio, tipo_orden, lead_id, cotizacion_id,
+        folio, folio_recepcion, tipo_orden, lead_id, cotizacion_id,
         datos_fiscales, datos_hospital, direccion, correo, telefono,
         equipo_tipo, equipo_marca, equipo_modelo, equipo_num_serie, equipo_version, equipo_ano, equipo_area_medica, accesorios_recibidos,
         falla_reportada, diagnostico, actividades_realizadas, mantenimiento_realizado, refacciones_utilizadas, pruebas_realizadas, notas_tecnicas, observaciones, recomendaciones, garantia, fotografias_json, firmas_json, tiempos_servicio_json, reporte_tecnico_final, tecnico,
@@ -132,7 +151,7 @@ export async function POST(req: Request) {
         status, fecha_ingreso, fecha_compromiso, fecha_entrega, fecha_creacion,
         condicion_recepcion, costo_diagnostico, entregado_por, recibido_por, clausulas_recepcion
       ) VALUES (
-        @folio, @tipo_orden, @lead_id, @cotizacion_id,
+        @folio, @folio_recepcion, @tipo_orden, @lead_id, @cotizacion_id,
         @datos_fiscales, @datos_hospital, @direccion, @correo, @telefono,
         @equipo_tipo, @equipo_marca, @equipo_modelo, @equipo_num_serie, @equipo_version, @equipo_ano, @equipo_area_medica, @accesorios_recibidos,
         @falla_reportada, @diagnostico, @actividades_realizadas, @mantenimiento_realizado, @refacciones_utilizadas, @pruebas_realizadas, @notas_tecnicas, @observaciones, @recomendaciones, @garantia, @fotografias_json, @firmas_json, @tiempos_servicio_json, @reporte_tecnico_final, @tecnico,
@@ -142,6 +161,7 @@ export async function POST(req: Request) {
       )
     `).run({
       folio,
+      folio_recepcion:      folioRecepcion,
       tipo_orden:           data.tipo_orden     || 'reparacion',
       lead_id:              data.lead_id        || null,
       cotizacion_id:        data.cotizacion_id  || null,
