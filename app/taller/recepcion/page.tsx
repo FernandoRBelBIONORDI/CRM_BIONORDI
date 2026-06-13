@@ -225,7 +225,7 @@ function RecepcionPage() {
   const [observacionesAdicionales, setObservacionesAdicionales] = useState("");
 
   // Motivo de ingreso
-  const [motivoIngreso, setMotivoIngreso] = useState<"diagnostico" | "reparacion" | "mantenimiento" | "otro">("diagnostico");
+  const [motivoIngreso, setMotivoIngreso] = useState<"diagnostico" | "reparacion" | "mantenimiento" | "otro" | "">("");
   const [motivoOtro, setMotivoOtro] = useState("");
 
   // Accesorios y elementos entregados
@@ -834,7 +834,6 @@ function RecepcionPage() {
             border-radius: 10px;
             padding: 8px 12px;
             margin-bottom: 8px;
-            flex-grow: 1;
           }
           .cond-list {
             list-style: none;
@@ -1217,7 +1216,7 @@ function RecepcionPage() {
           </div>
           <div class="divider" style="margin-bottom: 6px;"></div>
 
-          <div class="cond-section avoid-break" style="flex-grow: 1; padding: 10px 14px; margin-bottom: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px;">
+          <div class="cond-section avoid-break" style="padding: 10px 14px; margin-bottom: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px;">
             <div class="card-title" style="color: #4E60A9; border-bottom: 2px solid #C7D6F5; padding-bottom: 4px; margin-bottom: 8px;">Términos y Condiciones del Servicio de Reparación y Mantenimiento</div>
             <p style="font-size: 8px; color: #475569; margin-bottom: 8px; font-style: italic; line-height: 1.35;">
               Al firmar el presente documento, el cliente declara haber leído, comprendido y aceptado en su totalidad los siguientes términos y condiciones, los cuales regulan la relación de servicio entre el cliente y Bionordi S.A. de C.V.
@@ -1720,6 +1719,7 @@ function RecepcionPage() {
                   <label style={{ fontSize: "9px", color: "#64748B", fontWeight: 700, display: "block", marginBottom: "4px" }}>MOTIVO DE INGRESO</label>
                   <select value={motivoIngreso} onChange={e => setMotivoIngreso(e.target.value as any)}
                     style={{ background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "6px", outline: "none", fontSize: "11px", color: "#1E293B", width: "100%", padding: "6px 10px", fontFamily: "inherit", cursor: "pointer" }}>
+                    <option value="">— Seleccionar —</option>
                     <option value="diagnostico">Diagnóstico</option>
                     <option value="reparacion">Reparación</option>
                     <option value="mantenimiento">Mantenimiento preventivo</option>
@@ -2243,7 +2243,7 @@ function RecepcionPage() {
                             {marcasUnicas.map(m => <option key={m} value={m}>{m}</option>)}
                           </select>
                         ) : (
-                          <F value={eqMarca} onChange={setEqMarca} placeholder="GE, Philips..." />
+                          <F value={eqMarca} onChange={setEqMarca} placeholder="GE, Philips..." style={{ fontSize: "10px", fontWeight: 600, color: "#0F172A", borderBottom: "1.5px dashed rgba(78,96,169,0.25)" }} />
                         )}
                       </div>
                     </div>
@@ -2260,29 +2260,29 @@ function RecepcionPage() {
                             {modelosPorMarca.map(e => <option key={e.id} value={e.modelo}>{e.modelo}</option>)}
                           </select>
                         ) : (
-                          <F value={eqModelo} onChange={setEqModelo} placeholder="Modelo" />
+                          <F value={eqModelo} onChange={setEqModelo} placeholder="Modelo" style={{ fontSize: "10px", fontWeight: 600, color: "#0F172A", borderBottom: "1.5px dashed rgba(78,96,169,0.25)" }} />
                         )}
                       </div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                       <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase" }}>No. Serie</div>
-                      <div><F value={eqSerie} onChange={setEqSerie} placeholder="No. de Serie" style={{ fontSize: "10px", fontWeight: 600, borderBottom: "1px dashed rgba(0,0,0,0.1)", fontFamily: "monospace" }} /></div>
+                      <div><F value={eqSerie} onChange={setEqSerie} placeholder="No. de Serie" style={{ fontSize: "10px", fontWeight: 600, color: "#0F172A", borderBottom: "1.5px dashed rgba(78,96,169,0.25)", fontFamily: "monospace" }} /></div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                       <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase" }}>Versión / SW</div>
-                      <div><F value={eqVersion} onChange={setEqVersion} placeholder="Ej. v1.2" style={{ fontSize: "10px", fontWeight: 600, borderBottom: "1px dashed rgba(0,0,0,0.1)" }} /></div>
+                      <div><F value={eqVersion} onChange={setEqVersion} placeholder="Ej. v1.2" style={{ fontSize: "10px", fontWeight: 600, color: "#0F172A", borderBottom: "1.5px dashed rgba(78,96,169,0.25)" }} /></div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                       <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase" }}>Año Fab.</div>
-                      <div><F value={eqAno} onChange={setEqAno} placeholder="Año de Fab." style={{ fontSize: "10px", fontWeight: 600, borderBottom: "1px dashed rgba(0,0,0,0.1)" }} /></div>
+                      <div><F value={eqAno} onChange={setEqAno} placeholder="Año de Fab." style={{ fontSize: "10px", fontWeight: 600, color: "#0F172A", borderBottom: "1.5px dashed rgba(78,96,169,0.25)" }} /></div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                       <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase" }}>Área Médica</div>
-                      <div><F value={eqArea} onChange={setEqArea} placeholder="Ej. Cardiología" style={{ fontSize: "10px", fontWeight: 600, borderBottom: "1px dashed rgba(0,0,0,0.1)" }} /></div>
+                      <div><F value={eqArea} onChange={setEqArea} placeholder="Ej. Cardiología" style={{ fontSize: "10px", fontWeight: 600, color: "#0F172A", borderBottom: "1.5px dashed rgba(78,96,169,0.25)" }} /></div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                       <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase" }}>Técnico Resp.</div>
-                      <div><F value={eqTecnico} onChange={setEqTecnico} placeholder="Técnico" style={{ fontSize: "10px", fontWeight: 600, borderBottom: "1px dashed rgba(0,0,0,0.1)" }} /></div>
+                      <div><F value={eqTecnico} onChange={setEqTecnico} placeholder="Técnico" style={{ fontSize: "10px", fontWeight: 600, color: "#0F172A", borderBottom: "1.5px dashed rgba(78,96,169,0.25)" }} /></div>
                     </div>
                     
                     <div style={{ gridColumn: "span 4", background: "#F8FAFC", padding: "6px 10px", borderRadius: "6px", borderLeft: "2px solid #64748B", marginTop: "3px" }}>
@@ -2884,7 +2884,7 @@ function RecepcionPage() {
                 {/* Clausulas */}
                 <div
                   onClick={() => expandCardOnly("clausulas")}
-                  style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "10px 14px", marginBottom: "10px", flexGrow: 1, display: "flex", flexDirection: "column", cursor: "pointer" }}
+                  style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "10px 14px", marginBottom: "10px", display: "flex", flexDirection: "column", cursor: "pointer" }}
                 >
                   <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "8px", borderBottom: "2px solid #C7D6F5", paddingBottom: "4px" }}>Términos y Condiciones del Servicio de Reparación y Mantenimiento</div>
                   <p style={{ fontSize: "8px", color: "#475569", marginBottom: "8px", fontStyle: "italic", lineHeight: "1.35" }}>

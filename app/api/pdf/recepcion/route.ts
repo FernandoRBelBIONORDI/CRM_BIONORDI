@@ -133,7 +133,7 @@ export async function GET(req: Request) {
     let cableState: string[] = [];
     let cristalesState: string[] = [];
     let observacionesAdicionales = '';
-    let motivoIngreso = 'diagnostico';
+    let motivoIngreso = '';
     let motivoOtro = '';
     let accesoriosEntregados: string[] = [];
     let accesoriosOtro = '';
@@ -152,7 +152,7 @@ export async function GET(req: Request) {
         if (parsed.cable) cableState = parseState(parsed.cable);
         if (parsed.cristales) cristalesState = parseState(parsed.cristales);
         if (parsed.observacionesAdicionales !== undefined) observacionesAdicionales = parsed.observacionesAdicionales;
-        if (parsed.motivoIngreso) motivoIngreso = parsed.motivoIngreso;
+        if (parsed.motivoIngreso !== undefined) motivoIngreso = parsed.motivoIngreso;
         if (parsed.motivoOtro !== undefined) motivoOtro = parsed.motivoOtro;
         if (parsed.accesoriosEntregados) accesoriosEntregados = parsed.accesoriosEntregados;
         if (parsed.accesoriosOtro !== undefined) accesoriosOtro = parsed.accesoriosOtro;
@@ -397,7 +397,6 @@ export async function GET(req: Request) {
             border-radius: 10px;
             padding: 8px 12px;
             margin-bottom: 8px;
-            flex-grow: 1;
           }
           .cond-list {
             list-style: none;
@@ -773,7 +772,7 @@ export async function GET(req: Request) {
           </div>
           <div class="divider" style="margin-bottom: 6px;"></div>
 
-          <div class="cond-section avoid-break" style="flex-grow: 1; padding: 10px 14px; margin-bottom: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px;">
+          <div class="cond-section avoid-break" style="padding: 10px 14px; margin-bottom: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px;">
             <div class="card-title" style="color: #4E60A9; border-bottom: 2px solid #C7D6F5; padding-bottom: 4px; margin-bottom: 8px;">Términos y Condiciones del Servicio de Reparación y Mantenimiento</div>
             <p style="font-size: 8px; color: #475569; margin-bottom: 8px; font-style: italic; line-height: 1.35;">
               Al firmar el presente documento, el cliente declara haber leído, comprendido y aceptado en su totalidad los siguientes términos y condiciones, los cuales regulan la relación de servicio entre el cliente y Bionordi S.A. de C.V.
