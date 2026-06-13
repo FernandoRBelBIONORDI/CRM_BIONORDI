@@ -17,6 +17,7 @@ interface CatalogoItem {
   id: number; tipo: string; marca: string; modelo: string;
   imagen_path: string; fotos_json: string | null;
   brochure_path: string | null; descripcion: string | null;
+  tipo_transductor?: string | null;
 }
 interface Lead {
   id: number; nombre: string; telefono?: string; correo?: string;
@@ -323,6 +324,17 @@ function CotizarReparacionPage() {
   const seleccionarDelCatalogo = async (eq: CatalogoItem) => {
     setEqMarca(eq.marca || "");
     setEqModelo(eq.modelo || "");
+    if (eq.tipo === "transductor") {
+      const sub = (eq.tipo_transductor || "").toLowerCase();
+      if (sub === "lineal") setEqTipo("Lineal");
+      else if (sub === "convex") setEqTipo("Convex / Curvilíneo");
+      else if (sub === "sectorial") setEqTipo("Sectorial / Phased Array");
+      else if (sub === "intracavitario" || sub === "endocavitario") setEqTipo("Intracavitario / Endovaginal");
+      else if (sub === "tee") setEqTipo("TEE (Transesofágico)");
+      else if (sub === "3d" || sub === "4d" || sub === "3d_4d" || sub === "3d/4d") setEqTipo("3D/4D");
+      else if (sub === "microconvex") setEqTipo("Microconvex");
+      else setEqTipo("Otro");
+    }
     if (eq.imagen_path) {
       setImgTransductor(await fetchBase64(eq.imagen_path));
     } else {
@@ -511,15 +523,6 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 </div>
 <div class="page-spacer"></div>
 <div class="signatures-wrapper">
-  <div class="signatures">
-    <div class="sig-box">
-      <div class="sig-line">
-        <div class="sig-name">${sigName}</div>
-        <div class="sig-role">${sigRole}</div>
-        <div class="sig-role" style="color:#4E60A9;font-weight:800;margin-top:4px;">${bn.razonSocial}</div>
-      </div>
-    </div>
-  </div>
   <div class="footer"><strong>${bn.razonSocial}</strong> · ${bn.direccionFiscal} · ${bn.correo}<br/>Documento generado digitalmente por el sistema de Gestión Bionordi.</div>
 </div>
 </div>
@@ -1392,20 +1395,6 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
               </div>
 
               <div style={{ flex: 1 }} />
-
-              {/* Firma */}
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <div 
-                  onClick={() => expandCardOnly("firma")}
-                  style={{ text_align: "center", width: "240px", cursor: "pointer" } as any}
-                >
-                  <div style={{ borderTop: "2px solid #CBD5E1", paddingTop: "10px" }}>
-                    <div style={{ fontSize: "13px", fontWeight: 800, color: "#4E60A9" }}>{sigName}</div>
-                    <div style={{ fontSize: "10px", fontWeight: 600, color: "#64748B", textTransform: "uppercase", marginTop: "2px" }}>{sigRole}</div>
-                    <div style={{ fontSize: "10px", fontWeight: 800, color: "#4E60A9", marginTop: "4px" }}>{bn.razonSocial}</div>
-                  </div>
-                </div>
-              </div>
 
               {/* Footer */}
               <div style={{ textAlign: "center", borderTop: "1px solid #E2E8F0", paddingTop: "10px", marginTop: "10px", fontSize: "10px", color: "#94A3B8", lineHeight: "1.6" }}>

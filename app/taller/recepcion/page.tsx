@@ -45,6 +45,7 @@ interface CatalogoItem {
   marca: string;
   modelo: string;
   descripcion: string | null;
+  tipo_transductor?: string | null;
 }
 
 const ACCESORIOS_PRESET = [
@@ -217,10 +218,10 @@ function RecepcionPage() {
   const [firmaUserId, setFirmaUserId] = useState<number | "bionordi">("bionordi");
 
   // Estado físico al momento de recepción
-  const [conectorState, setConectorState] = useState<"sin_danio" | "danio_fisico" | "cables_expuestos">("sin_danio");
-  const [carcasaState, setCarcasaState] = useState<"sin_danio" | "grietas" | "golpes" | "desgaste">("sin_danio");
-  const [cableState, setCableState] = useState<"sin_danio" | "doblado_torcido" | "pelado">("sin_danio");
-  const [cristalesState, setCristalesState] = useState<"sin_danio" | "burbujas" | "astillado" | "no_evaluable">("sin_danio");
+  const [conectorState, setConectorState] = useState<string[]>([]);
+  const [carcasaState, setCarcasaState] = useState<string[]>([]);
+  const [cableState, setCableState] = useState<string[]>([]);
+  const [cristalesState, setCristalesState] = useState<string[]>([]);
   const [observacionesAdicionales, setObservacionesAdicionales] = useState("");
 
   // Motivo de ingreso
@@ -228,7 +229,7 @@ function RecepcionPage() {
   const [motivoOtro, setMotivoOtro] = useState("");
 
   // Accesorios y elementos entregados
-  const [accesoriosEntregados, setAccesoriosEntregados] = useState<string[]>(["transductor"]);
+  const [accesoriosEntregados, setAccesoriosEntregados] = useState<string[]>([]);
   const [accesoriosOtro, setAccesoriosOtro] = useState("");
 
   // UI state
@@ -423,10 +424,10 @@ function RecepcionPage() {
               if (parsed.firmaUserId) {
                 setFirmaUserId(parsed.firmaUserId);
               }
-              if (parsed.conector) setConectorState(parsed.conector);
-              if (parsed.carcasa) setCarcasaState(parsed.carcasa);
-              if (parsed.cable) setCableState(parsed.cable);
-              if (parsed.cristales) setCristalesState(parsed.cristales);
+              if (parsed.conector) setConectorState(Array.isArray(parsed.conector) ? parsed.conector : [parsed.conector]);
+              if (parsed.carcasa) setCarcasaState(Array.isArray(parsed.carcasa) ? parsed.carcasa : [parsed.carcasa]);
+              if (parsed.cable) setCableState(Array.isArray(parsed.cable) ? parsed.cable : [parsed.cable]);
+              if (parsed.cristales) setCristalesState(Array.isArray(parsed.cristales) ? parsed.cristales : [parsed.cristales]);
               if (parsed.observacionesAdicionales !== undefined) setObservacionesAdicionales(parsed.observacionesAdicionales);
               if (parsed.motivoIngreso) setMotivoIngreso(parsed.motivoIngreso);
               if (parsed.motivoOtro !== undefined) setMotivoOtro(parsed.motivoOtro);
@@ -456,7 +457,21 @@ function RecepcionPage() {
 
   // Seleccionar del catálogo de Bionordi
   const seleccionarDelCatalogo = (eq: CatalogoItem) => {
-    setEqTipo(eq.tipo === "transductor" ? "Transductor" : eq.tipo === "ultrasonido" ? "Sistema de Ultrasonido" : eq.tipo);
+    if (eq.tipo === "transductor") {
+      const sub = (eq.tipo_transductor || "").toLowerCase();
+      if (sub === "lineal") setEqTipo("Transductor Lineal");
+      else if (sub === "convex") setEqTipo("Transductor Convex");
+      else if (sub === "sectorial") setEqTipo("Transductor Sectorial");
+      else if (sub === "intracavitario" || sub === "endocavitario") setEqTipo("Transductor Intracavitario");
+      else if (sub === "tee") setEqTipo("Transductor TEE");
+      else if (sub === "3d" || sub === "4d" || sub === "3d_4d" || sub === "3d/4d") setEqTipo("Transductor 3D/4D");
+      else if (sub === "microconvex") setEqTipo("Transductor Microconvex");
+      else setEqTipo("Transductor Lineal");
+    } else if (eq.tipo === "ultrasonido") {
+      setEqTipo("Sistema de Ultrasonido");
+    } else {
+      setEqTipo(eq.tipo || "");
+    }
     setEqMarca(eq.marca || "");
     setEqModelo(eq.modelo);
     setCatalogoSearch("");
@@ -525,6 +540,54 @@ function RecepcionPage() {
       list.push(eqAccesoriosManual.trim());
     }
     return list.join(", ");
+  };
+
+  // Manejar conector checklist
+  const toggleConector = (val: string) => {
+    setConectorState(prev => {
+      if (val === "sin_danio") {
+        return prev.includes("sin_danio") ? [] : ["sin_danio"];
+      } else {
+        const next = prev.filter(x => x !== "sin_danio");
+        return next.includes(val) ? next.filter(x => x !== val) : [...next, val];
+      }
+    });
+  };
+
+  // Manejar carcasa checklist
+  const toggleCarcasa = (val: string) => {
+    setCarcasaState(prev => {
+      if (val === "sin_danio") {
+        return prev.includes("sin_danio") ? [] : ["sin_danio"];
+      } else {
+        const next = prev.filter(x => x !== "sin_danio");
+        return next.includes(val) ? next.filter(x => x !== val) : [...next, val];
+      }
+    });
+  };
+
+  // Manejar cable checklist
+  const toggleCable = (val: string) => {
+    setCableState(prev => {
+      if (val === "sin_danio") {
+        return prev.includes("sin_danio") ? [] : ["sin_danio"];
+      } else {
+        const next = prev.filter(x => x !== "sin_danio");
+        return next.includes(val) ? next.filter(x => x !== val) : [...next, val];
+      }
+    });
+  };
+
+  // Manejar cristales checklist
+  const toggleCristales = (val: string) => {
+    setCristalesState(prev => {
+      if (val === "sin_danio") {
+        return prev.includes("sin_danio") ? [] : ["sin_danio"];
+      } else {
+        const next = prev.filter(x => x !== "sin_danio");
+        return next.includes(val) ? next.filter(x => x !== val) : [...next, val];
+      }
+    });
   };
 
   // Generar HTML para Puppeteer
@@ -984,7 +1047,6 @@ function RecepcionPage() {
               <div class="meta-grid">
                 <div class="meta-lbl">Folio</div><div class="meta-val">${folio}</div>
                 <div class="meta-lbl">Ingreso</div><div class="meta-val">${formatLongFecha(fechaIngreso)}</div>
-                <div class="meta-lbl">Entrega Est.</div><div class="meta-val">${formatLongFecha(fechaCompromiso)}</div>
               </div>
             </div>
           </div>
@@ -1005,12 +1067,6 @@ function RecepcionPage() {
               <div class="card-title">Información de Recepción</div>
               <div class="i-row"><div class="i-lbl">Recepción</div><div class="i-val">${recibidoPor || "—"}</div></div>
               <div class="i-row"><div class="i-lbl">Entregado por</div><div class="i-val">${entregadoPor || "—"}</div></div>
-              <div class="i-row">
-                <div class="i-lbl">Costo Diag.</div>
-                <div class="i-val b" style="color: #4E60A9;">
-                  $${costoDiagnostico.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
-                </div>
-              </div>
               <div class="i-row"><div class="i-lbl">Estatus Inicial</div><div class="i-val"><span style="font-weight: 700; color: #5A85F1; text-transform: uppercase;">EQUIPO RECIBIDO</span></div></div>
             </div>
           </div>
@@ -1044,13 +1100,13 @@ function RecepcionPage() {
               <div class="inspect-card">
                 <div class="inspect-title">Conector</div>
                 <div class="pill-group">
-                  <div class="pill ${conectorState === 'sin_danio' ? 'active green' : ''}">
+                  <div class="pill ${conectorState.includes('sin_danio') ? 'active green' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${conectorState === 'danio_fisico' ? 'active red' : ''}">
+                  <div class="pill ${conectorState.includes('danio_fisico') ? 'active red' : ''}">
                     <span class="chk-box"></span> Daño físico
                   </div>
-                  <div class="pill ${conectorState === 'cables_expuestos' ? 'active red' : ''}">
+                  <div class="pill ${conectorState.includes('cables_expuestos') ? 'active red' : ''}">
                     <span class="chk-box"></span> Cables expuestos
                   </div>
                 </div>
@@ -1060,16 +1116,16 @@ function RecepcionPage() {
               <div class="inspect-card">
                 <div class="inspect-title">Carcasa</div>
                 <div class="pill-group">
-                  <div class="pill ${carcasaState === 'sin_danio' ? 'active green' : ''}">
+                  <div class="pill ${carcasaState.includes('sin_danio') ? 'active green' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${carcasaState === 'grietas' ? 'active red' : ''}">
+                  <div class="pill ${carcasaState.includes('grietas') ? 'active red' : ''}">
                     <span class="chk-box"></span> Grietas
                   </div>
-                  <div class="pill ${carcasaState === 'golpes' ? 'active red' : ''}">
+                  <div class="pill ${carcasaState.includes('golpes') ? 'active red' : ''}">
                     <span class="chk-box"></span> Golpes
                   </div>
-                  <div class="pill ${carcasaState === 'desgaste' ? 'active amber' : ''}">
+                  <div class="pill ${carcasaState.includes('desgaste') ? 'active amber' : ''}">
                     <span class="chk-box"></span> Desgaste
                   </div>
                 </div>
@@ -1079,13 +1135,13 @@ function RecepcionPage() {
               <div class="inspect-card">
                 <div class="inspect-title">Cable de transductor</div>
                 <div class="pill-group">
-                  <div class="pill ${cableState === 'sin_danio' ? 'active green' : ''}">
+                  <div class="pill ${cableState.includes('sin_danio') ? 'active green' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${cableState === 'doblado_torcido' ? 'active amber' : ''}">
+                  <div class="pill ${cableState.includes('doblado_torcido') ? 'active amber' : ''}">
                     <span class="chk-box"></span> Doblado/torcido
                   </div>
-                  <div class="pill ${cableState === 'pelado' ? 'active red' : ''}">
+                  <div class="pill ${cableState.includes('pelado') ? 'active red' : ''}">
                     <span class="chk-box"></span> Pelado
                   </div>
                 </div>
@@ -1095,16 +1151,16 @@ function RecepcionPage() {
               <div class="inspect-card">
                 <div class="inspect-title">Cristales / Face</div>
                 <div class="pill-group">
-                  <div class="pill ${cristalesState === 'sin_danio' ? 'active green' : ''}">
+                  <div class="pill ${cristalesState.includes('sin_danio') ? 'active green' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${cristalesState === 'burbujas' ? 'active red' : ''}">
+                  <div class="pill ${cristalesState.includes('burbujas') ? 'active red' : ''}">
                     <span class="chk-box"></span> Burbujas
                   </div>
-                  <div class="pill ${cristalesState === 'astillado' ? 'active red' : ''}">
+                  <div class="pill ${cristalesState.includes('astillado') ? 'active red' : ''}">
                     <span class="chk-box"></span> Astillado
                   </div>
-                  <div class="pill ${cristalesState === 'no_evaluable' ? 'active slate' : ''}">
+                  <div class="pill ${cristalesState.includes('no_evaluable') ? 'active slate' : ''}">
                     <span class="chk-box"></span> No evaluable
                   </div>
                 </div>
@@ -1217,10 +1273,15 @@ function RecepcionPage() {
       const cabLabels: Record<string, string> = { sin_danio: "Sin daño visible", doblado_torcido: "Doblado/torcido", pelado: "Pelado" };
       const criLabels: Record<string, string> = { sin_danio: "Sin daño visible", burbujas: "Burbujas", astillado: "Astillado", no_evaluable: "No evaluable" };
 
-      parts.push(`Conector: ${conLabels[conectorState] || conectorState}`);
-      parts.push(`Carcasa: ${carLabels[carcasaState] || carcasaState}`);
-      parts.push(`Cable: ${cabLabels[cableState] || cableState}`);
-      parts.push(`Cristales: ${criLabels[cristalesState] || cristalesState}`);
+      const conVal = conectorState.map(x => conLabels[x] || x).join(", ") || "—";
+      const carVal = carcasaState.map(x => carLabels[x] || x).join(", ") || "—";
+      const cabVal = cableState.map(x => cabLabels[x] || x).join(", ") || "—";
+      const criVal = cristalesState.map(x => criLabels[x] || x).join(", ") || "—";
+
+      parts.push(`Conector: ${conVal}`);
+      parts.push(`Carcasa: ${carVal}`);
+      parts.push(`Cable: ${cabVal}`);
+      parts.push(`Cristales: ${criVal}`);
       if (observacionesAdicionales.trim()) {
         parts.push(`Obs: ${observacionesAdicionales.trim()}`);
       }
@@ -1248,7 +1309,7 @@ function RecepcionPage() {
 
       falla_reportada: fallaReportada || null,
       condicion_recepcion: buildCondicionRecepcionString(),
-      costo_diagnostico: Number(costoDiagnostico) || 0,
+      costo_diagnostico: 0,
       entregado_por: entregadoPor || null,
       recibido_por: recibidoPor || null,
       fecha_ingreso: fechaIngreso || null,
@@ -1368,7 +1429,7 @@ function RecepcionPage() {
   <tr><td style="padding:20px 36px 18px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;">
     <p style="margin:0;font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Hoja de Recepci&#243;n de Equipo</p>
     <p style="margin:5px 0 0;font-size:22px;font-weight:900;color:#1E293B;letter-spacing:-0.5px;">${f}</p>
-    <p style="margin:4px 0 0;font-size:11px;color:#94A3B8;">Ingreso: ${fmtLarga(fechaIngreso)}${fechaCompromiso ? ` &middot; Entrega estimada: ${fmtLarga(fechaCompromiso)}` : ""}</p>
+    <p style="margin:4px 0 0;font-size:11px;color:#94A3B8;">Ingreso: ${fmtLarga(fechaIngreso)}</p>
   </td></tr>
 
   <tr><td style="padding:20px 36px;border-bottom:1px solid #E2E8F0;">
@@ -1396,9 +1457,6 @@ function RecepcionPage() {
           <p style="margin:0 0 6px;font-size:9px;font-weight:800;color:#4E60A9;text-transform:uppercase;letter-spacing:1px;">Estatus del equipo</p>
           <p style="margin:0;font-size:24px;font-weight:900;color:#4E60A9;letter-spacing:-0.5px;">EQUIPO RECIBIDO</p>
           <p style="margin:4px 0 0;font-size:11px;color:#64748B;">Nuestros ingenieros biom&#233;dicos realizar&#225;n la evaluaci&#243;n t&#233;cnica y le enviaremos su presupuesto a la brevedad.</p>
-        </td>
-        <td align="right" valign="bottom">
-          <p style="margin:0;font-size:12px;color:#64748B;">Costo de diagn&#243;stico:<br><strong style="color:#1E293B;font-size:15px;">$${Number(costoDiagnostico || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN</strong></p>
         </td>
       </tr>
     </table>
@@ -1481,7 +1539,7 @@ function RecepcionPage() {
     { id: "equipo",    label: "Equipo",    done: !!(eqTipo && eqSerie.trim()),                    card: "equipo" },
     { id: "falla",     label: "Falla",     done: !!fallaReportada.trim(),                          card: "estado" },
     { id: "evidencia", label: "Fotos",     done: evidencias.length > 0,                            card: "recepcion" },
-    { id: "fechas",    label: "Fechas",    done: !!(fechaIngreso && fechaCompromiso),              card: "firmas" },
+    { id: "fechas",    label: "Ingreso",    done: !!fechaIngreso,              card: "firmas" },
     { id: "firmas",    label: "Firmas",    done: !!(firmas.entrega && firmas.recibe),              card: "firmas" },
   ];
   const fillPct = Math.round((fillChecklist.filter(c => c.done).length / fillChecklist.length) * 100);
@@ -1721,47 +1779,71 @@ function RecepcionPage() {
                   {/* Conector */}
                   <div>
                     <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Conector:</span>
-                    <select value={conectorState} onChange={e => setConectorState(e.target.value as any)}
-                      style={{ background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "6px", outline: "none", fontSize: "10.5px", color: "#1E293B", width: "100%", padding: "5px 8px", fontFamily: "inherit", cursor: "pointer" }}>
-                      <option value="sin_danio">Sin daño visible</option>
-                      <option value="danio_fisico">Daño físico</option>
-                      <option value="cables_expuestos">Cables expuestos</option>
-                    </select>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      {[
+                        { id: "sin_danio", label: "Sin daño visible" },
+                        { id: "danio_fisico", label: "Daño físico" },
+                        { id: "cables_expuestos", label: "Cables expuestos" }
+                      ].map(opt => (
+                        <label key={opt.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10.5px", color: "#1E293B", cursor: "pointer" }}>
+                          <input type="checkbox" checked={conectorState.includes(opt.id)} onChange={() => toggleConector(opt.id)} style={{ cursor: "pointer" }} />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Carcasa */}
                   <div>
                     <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Carcasa:</span>
-                    <select value={carcasaState} onChange={e => setCarcasaState(e.target.value as any)}
-                      style={{ background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "6px", outline: "none", fontSize: "10.5px", color: "#1E293B", width: "100%", padding: "5px 8px", fontFamily: "inherit", cursor: "pointer" }}>
-                      <option value="sin_danio">Sin daño visible</option>
-                      <option value="grietas">Grietas</option>
-                      <option value="golpes">Golpes</option>
-                      <option value="desgaste">Desgaste</option>
-                    </select>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      {[
+                        { id: "sin_danio", label: "Sin daño visible" },
+                        { id: "grietas", label: "Grietas" },
+                        { id: "golpes", label: "Golpes" },
+                        { id: "desgaste", label: "Desgaste" }
+                      ].map(opt => (
+                        <label key={opt.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10.5px", color: "#1E293B", cursor: "pointer" }}>
+                          <input type="checkbox" checked={carcasaState.includes(opt.id)} onChange={() => toggleCarcasa(opt.id)} style={{ cursor: "pointer" }} />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Cable */}
                   <div>
                     <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Cable de Transductor:</span>
-                    <select value={cableState} onChange={e => setCableState(e.target.value as any)}
-                      style={{ background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "6px", outline: "none", fontSize: "10.5px", color: "#1E293B", width: "100%", padding: "5px 8px", fontFamily: "inherit", cursor: "pointer" }}>
-                      <option value="sin_danio">Sin daño visible</option>
-                      <option value="doblado_torcido">Doblado / torcido</option>
-                      <option value="pelado">Pelado</option>
-                    </select>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      {[
+                        { id: "sin_danio", label: "Sin daño visible" },
+                        { id: "doblado_torcido", label: "Doblado / torcido" },
+                        { id: "pelado", label: "Pelado" }
+                      ].map(opt => (
+                        <label key={opt.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10.5px", color: "#1E293B", cursor: "pointer" }}>
+                          <input type="checkbox" checked={cableState.includes(opt.id)} onChange={() => toggleCable(opt.id)} style={{ cursor: "pointer" }} />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Cristales */}
                   <div>
                     <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Cristales / Face:</span>
-                    <select value={cristalesState} onChange={e => setCristalesState(e.target.value as any)}
-                      style={{ background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "6px", outline: "none", fontSize: "10.5px", color: "#1E293B", width: "100%", padding: "5px 8px", fontFamily: "inherit", cursor: "pointer" }}>
-                      <option value="sin_danio">Sin daño visible</option>
-                      <option value="burbujas">Burbujas</option>
-                      <option value="astillado">Astillado</option>
-                      <option value="no_evaluable">No evaluable</option>
-                    </select>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      {[
+                        { id: "sin_danio", label: "Sin daño visible" },
+                        { id: "burbujas", label: "Burbujas" },
+                        { id: "astillado", label: "Astillado" },
+                        { id: "no_evaluable", label: "No evaluable" }
+                      ].map(opt => (
+                        <label key={opt.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10.5px", color: "#1E293B", cursor: "pointer" }}>
+                          <input type="checkbox" checked={cristalesState.includes(opt.id)} onChange={() => toggleCristales(opt.id)} style={{ cursor: "pointer" }} />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Observaciones adicionales */}
@@ -2055,11 +2137,6 @@ function RecepcionPage() {
                         <input type="date" value={fechaIngreso} onChange={e => setFechaIngreso(e.target.value)} onClick={e => e.stopPropagation()}
                           style={{ fontSize: "10px", fontWeight: 600, border: "none", borderBottom: "1px dashed rgba(78,96,169,0.25)", outline: "none", background: "transparent", color: "#1E293B", fontFamily: "inherit", padding: "0 2px", cursor: "pointer" }} />
                       </div>
-                      <div style={{ fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.5px" }}>Entrega Est.</div>
-                      <div style={{ color: "#1E293B", fontWeight: 500 }}>
-                        <input type="date" value={fechaCompromiso} onChange={e => setFechaCompromiso(e.target.value)} onClick={e => e.stopPropagation()}
-                          style={{ fontSize: "10px", fontWeight: 600, border: "none", borderBottom: "1px dashed rgba(78,96,169,0.25)", outline: "none", background: "transparent", color: "#1E293B", fontFamily: "inherit", padding: "0 2px", cursor: "pointer" }} />
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -2120,21 +2197,6 @@ function RecepcionPage() {
                     </div>
 
                     <div style={{ display: "flex", marginBottom: "3px", fontSize: "10px" }}>
-                      <div style={{ width: "75px", color: "#64748B", fontWeight: 700 }}>Costo Diag.</div>
-                      <div style={{ flex: 1, color: "#4E60A9", fontWeight: 700, display: "flex", gap: "2px" }}>
-                        <span>$</span>
-                        <input
-                          type="number"
-                          value={costoDiagnostico}
-                          onChange={e => setCostoDiagnostico(Number(e.target.value) || 0)}
-                          onClick={e => e.stopPropagation()}
-                          style={{ border: "none", outline: "none", fontSize: "10px", fontWeight: 700, background: "transparent", color: "inherit", width: "80px", borderBottom: "1px dashed rgba(78,96,169,0.15)" }}
-                        />
-                        <span>MXN</span>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", marginBottom: "3px", fontSize: "10px" }}>
                       <div style={{ width: "75px", color: "#64748B", fontWeight: 700 }}>Estatus Inicial</div>
                       <div style={{ flex: 1, fontWeight: 700, color: "#5A85F1", textTransform: "uppercase" }}>EQUIPO RECIBIDO</div>
                     </div>
@@ -2166,7 +2228,7 @@ function RecepcionPage() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "2px" }} onClick={e => e.stopPropagation()}>
                       <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase" }}>Equipo / Sonda</div>
                       <div>
-                        <select value={eqTipo} onChange={e => { setEqTipo(e.target.value); setEqMarca(""); setEqModelo(""); }} style={{ background: "transparent", border: "none", borderBottom: "1.5px dashed rgba(78,96,169,0.25)", outline: "none", fontSize: "10px", fontWeight: 600, color: "#0F172A", width: "100%", cursor: "pointer", fontFamily: "inherit" }}>
+                        <select value={eqTipo} onChange={e => setEqTipo(e.target.value)} style={{ background: "transparent", border: "none", borderBottom: "1.5px dashed rgba(78,96,169,0.25)", outline: "none", fontSize: "10px", fontWeight: 600, color: "#0F172A", width: "100%", cursor: "pointer", fontFamily: "inherit" }}>
                           <option value="">— Seleccionar —</option>
                           {["Transductor Lineal", "Transductor Convex", "Transductor Sectorial", "Transductor Intracavitario", "Transductor TEE", "Transductor 3D/4D", "Transductor Microconvex", "Sistema de Ultrasonido", "Otro"].map(t => <option key={t} value={t}>{t}</option>)}
                         </select>
@@ -2265,11 +2327,11 @@ function RecepcionPage() {
                           { id: "danio_fisico", label: "Daño físico", variant: "red" },
                           { id: "cables_expuestos", label: "Cables expuestos", variant: "red" }
                         ].map(opt => {
-                          const active = conectorState === opt.id;
+                          const active = conectorState.includes(opt.id);
                           return (
                             <div
                               key={opt.id}
-                              onClick={(e) => { e.stopPropagation(); setConectorState(opt.id as any); expandCardOnly("estado"); }}
+                              onClick={(e) => { e.stopPropagation(); toggleConector(opt.id); expandCardOnly("estado"); }}
                               style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -2337,11 +2399,11 @@ function RecepcionPage() {
                           { id: "golpes", label: "Golpes", variant: "red" },
                           { id: "desgaste", label: "Desgaste", variant: "amber" }
                         ].map(opt => {
-                          const active = carcasaState === opt.id;
+                          const active = carcasaState.includes(opt.id);
                           return (
                             <div
                               key={opt.id}
-                              onClick={(e) => { e.stopPropagation(); setCarcasaState(opt.id as any); expandCardOnly("estado"); }}
+                              onClick={(e) => { e.stopPropagation(); toggleCarcasa(opt.id); expandCardOnly("estado"); }}
                               style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -2409,11 +2471,11 @@ function RecepcionPage() {
                           { id: "doblado_torcido", label: "Doblado/torcido", variant: "amber" },
                           { id: "pelado", label: "Pelado", variant: "red" }
                         ].map(opt => {
-                          const active = cableState === opt.id;
+                          const active = cableState.includes(opt.id);
                           return (
                             <div
                               key={opt.id}
-                              onClick={(e) => { e.stopPropagation(); setCableState(opt.id as any); expandCardOnly("estado"); }}
+                              onClick={(e) => { e.stopPropagation(); toggleCable(opt.id); expandCardOnly("estado"); }}
                               style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -2482,11 +2544,11 @@ function RecepcionPage() {
                           { id: "astillado", label: "Astillado", variant: "red" },
                           { id: "no_evaluable", label: "No evaluable", variant: "slate" }
                         ].map(opt => {
-                          const active = cristalesState === opt.id;
+                          const active = cristalesState.includes(opt.id);
                           return (
                             <div
                               key={opt.id}
-                              onClick={(e) => { e.stopPropagation(); setCristalesState(opt.id as any); expandCardOnly("estado"); }}
+                              onClick={(e) => { e.stopPropagation(); toggleCristales(opt.id); expandCardOnly("estado"); }}
                               style={{
                                 display: "flex",
                                 alignItems: "center",

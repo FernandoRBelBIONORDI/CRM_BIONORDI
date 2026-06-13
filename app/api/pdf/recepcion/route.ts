@@ -55,6 +55,20 @@ function formatearFecha(fecha: string) {
   return f.toLocaleDateString("es-MX", { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
+function parseState(val: any): string[] {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'string') {
+    if (val.startsWith('[') && val.endsWith(']')) {
+      try {
+        return JSON.parse(val);
+      } catch { /* ignore */ }
+    }
+    return [val];
+  }
+  return [];
+}
+
 const CLAUSULAS_DEFAULT = CLAUSULAS_RECEPCION_DEFAULT;
 
 export async function GET(req: Request) {
@@ -114,14 +128,14 @@ export async function GET(req: Request) {
     let recibidoPor = orden.recibido_por || orden.tecnico || 'Bionordi';
     const costoDiagnostico = typeof orden.costo_diagnostico === 'number' ? orden.costo_diagnostico : 1500;
 
-    let conectorState = 'sin_danio';
-    let carcasaState = 'sin_danio';
-    let cableState = 'sin_danio';
-    let cristalesState = 'sin_danio';
+    let conectorState: string[] = [];
+    let carcasaState: string[] = [];
+    let cableState: string[] = [];
+    let cristalesState: string[] = [];
     let observacionesAdicionales = '';
     let motivoIngreso = 'diagnostico';
     let motivoOtro = '';
-    let accesoriosEntregados: string[] = ['transductor'];
+    let accesoriosEntregados: string[] = [];
     let accesoriosOtro = '';
     let firmaUserId: string | number = 'bionordi';
 
@@ -133,10 +147,10 @@ export async function GET(req: Request) {
         if (parsed.entregado_por) entregadoPor = parsed.entregado_por;
         if (parsed.recibido_por) recibidoPor = parsed.recibido_por;
         if (parsed.firmaUserId) firmaUserId = parsed.firmaUserId;
-        if (parsed.conector) conectorState = parsed.conector;
-        if (parsed.carcasa) carcasaState = parsed.carcasa;
-        if (parsed.cable) cableState = parsed.cable;
-        if (parsed.cristales) cristalesState = parsed.cristales;
+        if (parsed.conector) conectorState = parseState(parsed.conector);
+        if (parsed.carcasa) carcasaState = parseState(parsed.carcasa);
+        if (parsed.cable) cableState = parseState(parsed.cable);
+        if (parsed.cristales) cristalesState = parseState(parsed.cristales);
         if (parsed.observacionesAdicionales !== undefined) observacionesAdicionales = parsed.observacionesAdicionales;
         if (parsed.motivoIngreso) motivoIngreso = parsed.motivoIngreso;
         if (parsed.motivoOtro !== undefined) motivoOtro = parsed.motivoOtro;
@@ -593,7 +607,6 @@ export async function GET(req: Request) {
               <div class="meta-grid">
                 <div class="meta-lbl">Folio</div><div class="meta-val">${orden.folio}</div>
                 <div class="meta-lbl">Ingreso</div><div class="meta-val">${fechaIngreso}</div>
-                <div class="meta-lbl">Entrega Est.</div><div class="meta-val">${fechaCompromiso}</div>
               </div>
             </div>
           </div>
@@ -614,12 +627,6 @@ export async function GET(req: Request) {
               <div class="card-title">Información de Recepción</div>
               <div class="i-row"><div class="i-lbl">Recepción</div><div class="i-val">${recibidoPor || "—"}</div></div>
               <div class="i-row"><div class="i-lbl">Entregado por</div><div class="i-val">${entregadoPor || "—"}</div></div>
-              <div class="i-row">
-                <div class="i-lbl">Costo Diag.</div>
-                <div class="i-val b" style="color: #4E60A9;">
-                  $${costoDiagnostico.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
-                </div>
-              </div>
               <div class="i-row"><div class="i-lbl">Estatus Inicial</div><div class="i-val"><span style="font-weight: 700; color: #5A85F1; text-transform: uppercase;">EQUIPO RECIBIDO</span></div></div>
             </div>
           </div>
@@ -649,13 +656,13 @@ export async function GET(req: Request) {
               <div class="inspect-card">
                 <div class="inspect-title">Conector</div>
                 <div class="pill-group">
-                  <div class="pill ${conectorState === 'sin_danio' ? 'active green' : ''}">
+                  <div class="pill ${conectorState.includes('sin_danio') ? 'active green' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${conectorState === 'danio_fisico' ? 'active red' : ''}">
+                  <div class="pill ${conectorState.includes('danio_fisico') ? 'active red' : ''}">
                     <span class="chk-box"></span> Daño físico
                   </div>
-                  <div class="pill ${conectorState === 'cables_expuestos' ? 'active red' : ''}">
+                  <div class="pill ${conectorState.includes('cables_expuestos') ? 'active red' : ''}">
                     <span class="chk-box"></span> Cables expuestos
                   </div>
                 </div>
@@ -665,16 +672,16 @@ export async function GET(req: Request) {
               <div class="inspect-card">
                 <div class="inspect-title">Carcasa</div>
                 <div class="pill-group">
-                  <div class="pill ${carcasaState === 'sin_danio' ? 'active green' : ''}">
+                  <div class="pill ${carcasaState.includes('sin_danio') ? 'active green' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${carcasaState === 'grietas' ? 'active red' : ''}">
+                  <div class="pill ${carcasaState.includes('grietas') ? 'active red' : ''}">
                     <span class="chk-box"></span> Grietas
                   </div>
-                  <div class="pill ${carcasaState === 'golpes' ? 'active red' : ''}">
+                  <div class="pill ${carcasaState.includes('golpes') ? 'active red' : ''}">
                     <span class="chk-box"></span> Golpes
                   </div>
-                  <div class="pill ${carcasaState === 'desgaste' ? 'active amber' : ''}">
+                  <div class="pill ${carcasaState.includes('desgaste') ? 'active amber' : ''}">
                     <span class="chk-box"></span> Desgaste
                   </div>
                 </div>
@@ -684,13 +691,13 @@ export async function GET(req: Request) {
               <div class="inspect-card">
                 <div class="inspect-title">Cable de transductor</div>
                 <div class="pill-group">
-                  <div class="pill ${cableState === 'sin_danio' ? 'active green' : ''}">
+                  <div class="pill ${cableState.includes('sin_danio') ? 'active green' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${cableState === 'doblado_torcido' ? 'active amber' : ''}">
+                  <div class="pill ${cableState.includes('doblado_torcido') ? 'active amber' : ''}">
                     <span class="chk-box"></span> Doblado/torcido
                   </div>
-                  <div class="pill ${cableState === 'pelado' ? 'active red' : ''}">
+                  <div class="pill ${cableState.includes('pelado') ? 'active red' : ''}">
                     <span class="chk-box"></span> Pelado
                   </div>
                 </div>
@@ -700,16 +707,16 @@ export async function GET(req: Request) {
               <div class="inspect-card">
                 <div class="inspect-title">Cristales / Face</div>
                 <div class="pill-group">
-                  <div class="pill ${cristalesState === 'sin_danio' ? 'active green' : ''}">
+                  <div class="pill ${cristalesState.includes('sin_danio') ? 'active green' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${cristalesState === 'burbujas' ? 'active red' : ''}">
+                  <div class="pill ${cristalesState.includes('burbujas') ? 'active red' : ''}">
                     <span class="chk-box"></span> Burbujas
                   </div>
-                  <div class="pill ${cristalesState === 'astillado' ? 'active red' : ''}">
+                  <div class="pill ${cristalesState.includes('astillado') ? 'active red' : ''}">
                     <span class="chk-box"></span> Astillado
                   </div>
-                  <div class="pill ${cristalesState === 'no_evaluable' ? 'active slate' : ''}">
+                  <div class="pill ${cristalesState.includes('no_evaluable') ? 'active slate' : ''}">
                     <span class="chk-box"></span> No evaluable
                   </div>
                 </div>

@@ -286,6 +286,7 @@ export default function CotizacionManualModal({
     id: number; tipo: string; marca: string; modelo: string;
     imagen_path: string; fotos_json: string | null;
     brochure_path: string | null; descripcion: string | null; notas: string | null;
+    tipo_transductor?: string | null;
   }[]>([]);
   // Modo de captura del equipo: catálogo (dropdowns) o manual (texto libre)
   const [equipoMode, setEquipoMode] = useState<"catalogo" | "manual">("catalogo");
@@ -1158,15 +1159,6 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
 <div class="page-spacer"></div>
 <div class="signatures-wrapper">
-  <div class="signatures">
-    <div class="sig-box">
-      <div class="sig-line">
-        <div class="sig-name">${sigName}</div>
-        <div class="sig-role">${sigRole}</div>
-        <div class="sig-role" style="color:#4E60A9;font-weight:800;margin-top:4px;">${bn.razonSocial}</div>
-      </div>
-    </div>
-  </div>
 
   <div class="footer">
     <strong>${bn.razonSocial}</strong> · ${bn.direccionFiscal} · ${bn.correo}<br/>

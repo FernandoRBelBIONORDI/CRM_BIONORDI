@@ -490,15 +490,6 @@ ${notas ? `<div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:
 
 <div class="page-spacer"></div>
 <div class="signatures-wrapper">
-<div class="signatures">
-  <div class="sig-box">
-    <div class="sig-line">
-      <div class="sig-name">${sigName}</div>
-      <div class="sig-role">${sigRole}</div>
-      <div class="sig-role" style="color:#4E60A9; font-weight:800; margin-top:4px;">${bn.razonSocial}</div>
-    </div>
-  </div>
-</div>
 
 <div class="footer">
   <strong>${bn.razonSocial}</strong> · ${bn.direccionFiscal} · Contacto: ${bn.correo}<br/>

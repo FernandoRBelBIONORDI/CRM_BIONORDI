@@ -209,7 +209,6 @@ export async function GET(req: Request) {
               <div class="meta-grid">
                 <div class="meta-lbl">Folio</div><div class="meta-val">${orden.folio}</div>
                 <div class="meta-lbl">F. Ingreso</div><div class="meta-val">${fechaIngreso}</div>
-                <div class="meta-lbl">F. Estimada</div><div class="meta-val">${fechaEntrega}</div>
               </div>
             </div>
           </div>
