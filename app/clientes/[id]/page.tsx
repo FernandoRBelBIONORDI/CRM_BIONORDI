@@ -57,6 +57,10 @@ interface Orden {
   diagnostico?: string; presupuesto?: number; precio_final?: number;
   status: string; fecha_ingreso?: string; fecha_entrega?: string;
   fecha_creacion?: string;
+  folio_recepcion?: string;
+  condicion_recepcion?: string;
+  entregado_por?: string;
+  recibido_por?: string;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -221,6 +225,16 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
   const previewCotUrl = useMemo(
     () => previewCot?.pdf_path ? `${previewCot.pdf_path}?t=${Date.now()}` : undefined,
     [previewCot?.id] // intentionally omit pdf_path — id change is the signal a new cot was opened
+  );
+  const [previewOrden,  setPreviewOrden]  = useState<Orden | null>(null);
+  const [previewRecepcion, setPreviewRecepcion] = useState<Orden | null>(null);
+  const previewOrdenUrl = useMemo(
+    () => previewOrden ? `/api/pdf/orden?id=${previewOrden.id}&t=${Date.now()}` : undefined,
+    [previewOrden?.id]
+  );
+  const previewRecepcionUrl = useMemo(
+    () => previewRecepcion ? `/api/pdf/recepcion?id=${previewRecepcion.id}&t=${Date.now()}` : undefined,
+    [previewRecepcion?.id]
   );
   const [usuarios,      setUsuarios]      = useState<{id:number;nombre:string}[]>([]);
 
@@ -1180,7 +1194,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
               <table className="w-full min-w-[720px]">
                 <thead>
                   <tr className="border-b border-gray-100">
-                    {["Folio", "Cotización", "Equipo", "Falla", "Precio final", "Status", "Ingreso", "Entrega"].map(h => (
+                    {["Folio", "Cotización", "Equipo", "Falla", "Precio final", "Status", "Ingreso", "Entrega", ""].map(h => (
                       <th key={h} className="px-5 py-3 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
@@ -1189,7 +1203,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                   {ordenes.map(o => {
                     const so = ordStatus(o.status);
                     return (
-                      <tr key={o.id} className="hover:bg-[#F8FAFC] transition-colors">
+                      <tr key={o.id} onClick={() => setPreviewOrden(o)} className="hover:bg-[#F8FAFC] transition-colors cursor-pointer">
                         <td className="px-5 py-3 text-[12px] font-mono font-bold text-gray-600">{o.folio}</td>
                         <td className="px-5 py-3">
                           {o.cotizacion_folio ? (
@@ -1210,9 +1224,70 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                         </td>
                         <td className="px-5 py-3 text-[11px] text-gray-400">{fmtDate(o.fecha_ingreso)}</td>
                         <td className="px-5 py-3 text-[11px] text-gray-400">{fmtDate(o.fecha_entrega)}</td>
+                        <td className="px-5 py-3" onClick={e => e.stopPropagation()}>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <a href={`/api/pdf/orden?id=${o.id}`} download={`Orden_${o.folio}.pdf`} target="_blank" rel="noopener noreferrer"
+                              className="text-[#4E60A9] hover:text-[#3d4e8a] transition-colors" title="Descargar PDF"><FileDown size={14} /></a>
+                            <button onClick={() => router.push(`/taller/recepcion?id=${o.id}`)}
+                              className="text-gray-400 hover:text-[#4E60A9] transition-colors" title="Editar recepción/orden">
+                              <Edit3 size={13} />
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     );
                   })}
+                </tbody>
+              </table>
+              </div>
+            )}
+          </div>
+
+          {/* ── Recepción de equipos ── */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 className="text-[13px] font-extrabold text-[#1E293B]">Recepción de equipos</h3>
+              <button onClick={() => router.push("/taller/recepcion")}
+                className="flex items-center gap-1.5 text-[11px] font-bold text-[#4E60A9] bg-[#EEF3FC] hover:bg-[#D7E2F8] px-3 py-1.5 rounded-lg transition-colors">
+                <Plus size={12} />Nueva recepción
+              </button>
+            </div>
+            {ordenes.length === 0 ? (
+              <div className="px-6 py-8 text-center text-[12px] text-gray-400">Sin recepciones registradas</div>
+            ) : (
+              <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px]">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    {["Folio Recepción", "Orden", "Equipo", "Condición", "Entregado por", "Recibido por", "Ingreso", ""].map(h => (
+                      <th key={h} className="px-5 py-3 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {ordenes.map(o => (
+                    <tr key={o.id} onClick={() => setPreviewRecepcion(o)} className="hover:bg-[#F8FAFC] transition-colors cursor-pointer">
+                      <td className="px-5 py-3 text-[12px] font-mono font-bold text-[#4E60A9]">{o.folio_recepcion || "—"}</td>
+                      <td className="px-5 py-3 text-[12px] font-mono font-bold text-gray-600">{o.folio}</td>
+                      <td className="px-5 py-3 text-[12px] text-gray-700">
+                        {[o.equipo_tipo, o.equipo_marca, o.equipo_modelo].filter(Boolean).join(" ") || "—"}
+                      </td>
+                      <td className="px-5 py-3 text-[11px] text-gray-500 max-w-[150px] truncate">{o.condicion_recepcion || "—"}</td>
+                      <td className="px-5 py-3 text-[11px] text-gray-700">{o.entregado_por || "—"}</td>
+                      <td className="px-5 py-3 text-[11px] text-gray-700">{o.recibido_por || "—"}</td>
+                      <td className="px-5 py-3 text-[11px] text-gray-400">{fmtDate(o.fecha_ingreso)}</td>
+                      <td className="px-5 py-3" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <a href={`/api/pdf/recepcion?id=${o.id}`} download={`Recepcion_${o.folio_recepcion || o.folio}.pdf`} target="_blank" rel="noopener noreferrer"
+                            className="text-[#4E60A9] hover:text-[#3d4e8a] transition-colors" title="Descargar PDF"><FileDown size={14} /></a>
+                          <button onClick={() => { router.push(`/taller/recepcion?id=${o.id}`); }}
+                            className="text-gray-400 hover:text-[#4E60A9] transition-colors" title="Editar recepción">
+                            <Edit3 size={13} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
               </div>
@@ -1332,6 +1407,38 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
             </div>
           );
         })()}
+
+        {previewOrden && (
+          <DocumentViewerModal
+            title={`Orden de Trabajo — ${previewOrden.folio || `Orden #${previewOrden.id}`}`}
+            url={previewOrdenUrl}
+            downloadName={`Orden_${previewOrden.folio || previewOrden.id}.pdf`}
+            onClose={() => setPreviewOrden(null)}
+            editAction={{
+              label: "Editar",
+              onClick: () => {
+                router.push(`/taller/recepcion?id=${previewOrden.id}`);
+                setPreviewOrden(null);
+              }
+            }}
+          />
+        )}
+
+        {previewRecepcion && (
+          <DocumentViewerModal
+            title={`Recepción de Equipo — ${previewRecepcion.folio_recepcion || `Recepción #${previewRecepcion.id}`}`}
+            url={previewRecepcionUrl}
+            downloadName={`Recepcion_${previewRecepcion.folio_recepcion || previewRecepcion.folio || previewRecepcion.id}.pdf`}
+            onClose={() => setPreviewRecepcion(null)}
+            editAction={{
+              label: "Editar",
+              onClick: () => {
+                router.push(`/taller/recepcion?id=${previewRecepcion.id}`);
+                setPreviewRecepcion(null);
+              }
+            }}
+          />
+        )}
 
         {editingCotizacion && (
           <CotizacionManualModal
