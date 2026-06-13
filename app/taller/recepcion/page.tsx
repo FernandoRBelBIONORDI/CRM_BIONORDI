@@ -541,33 +541,7 @@ function RecepcionPage() {
       `;
     }
 
-    let diagramaHTML = "";
-    if (esTransductor) {
-      const imgTrans = await fetchBase64("/transductor.png");
-      diagramaHTML = `
-        <div class="tech-card avoid-break" style="margin-top:10px;margin-bottom:10px;">
-          <div class="card-title">Alcance Técnico y Diagnóstico Integral${eqMarca || eqModelo ? ` — ${[eqMarca, eqModelo].filter(Boolean).join(" ")}` : ""}</div>
-          <p class="diag-p" style="margin-bottom:8px;">Todo equipo ingresado a laboratorio es sometido a un <strong>diagnóstico técnico automatizado</strong>. Realizamos pruebas de pulso-eco, medición de capacitancia, análisis de cristales piezoeléctricos y revisión de fugas eléctricas para garantizar la seguridad del paciente y la resolución óptima de imagen.</p>
-          <div style="display:flex;gap:20px;align-items:center;">
-            <div style="flex:.8;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;height:148px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
-              <div style="position:relative;display:inline-block;">
-                <img src="${imgTrans}" alt="${[eqMarca, eqModelo].filter(Boolean).join(" ") || "Transductor"}" style="max-width:100%;max-height:140px;width:auto;height:auto;display:block;" />
-                <div style="position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;margin:0;top:25%;left:39%;margin-top:-10px;margin-left:-10px;">1</div>
-                <div style="position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;margin:0;top:20%;left:55%;margin-top:-10px;margin-left:-10px;">2</div>
-                <div style="position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;margin:0;top:68%;left:30%;margin-top:-10px;margin-left:-10px;">3</div>
-                <div style="position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;margin:0;top:88%;left:82%;margin-top:-10px;margin-left:-10px;">4</div>
-              </div>
-            </div>
-            <div style="flex:1.2;display:flex;flex-direction:column;gap:8px;">
-              <div style="display:flex;gap:8px;font-size:10px;color:#334155;line-height:1.4;align-items:flex-start;"><div style="width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;padding:0;">1</div><div><strong>Lente Acústico / Membrana:</strong> Retiro del material desgastado, descontaminación del arreglo de cristales e inyección de nuevo polímero acústico con curado térmico.</div></div>
-              <div style="display:flex;gap:8px;font-size:10px;color:#334155;line-height:1.4;align-items:flex-start;"><div style="width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;padding:0;">2</div><div><strong>Carcasa y Sellado:</strong> Reencapsulado de uniones para evitar filtraciones de gel transmisor y proteger los componentes electrónicos internos.</div></div>
-              <div style="display:flex;gap:8px;font-size:10px;color:#334155;line-height:1.4;align-items:flex-start;"><div style="width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;padding:0;">3</div><div><strong>Cableado:</strong> Revisión de micro-coaxiales, verificación de continuidad eléctrica y refuerzo estructural en zonas de flexión y estrés mecánico.</div></div>
-              <div style="display:flex;gap:8px;font-size:10px;color:#334155;line-height:1.4;align-items:flex-start;"><div style="width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;padding:0;">4</div><div><strong>Conector:</strong> Limpieza profunda de pines de contacto y prueba de impedancia de señal.</div></div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
+
 
     const html = `
       <!DOCTYPE html>
@@ -1136,7 +1110,6 @@ function RecepcionPage() {
             </div>
           </div>
 
-          ${diagramaHTML}
           ${fotosRecepcionHTML}
         </div>
 
@@ -2740,38 +2713,7 @@ function RecepcionPage() {
                   </div>
                 </div>
 
-                {/* Diagrama Técnico (Si es Transductor) */}
-                {esTransductor && (
-                  <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "10px 14px", marginBottom: "8px" }}>
-                    <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px", borderBottom: "2px solid #E2E8F0", paddingBottom: "4px" }}>
-                      Alcance Técnico y Diagnóstico Integral{eqMarca || eqModelo ? ` — ${[eqMarca, eqModelo].filter(Boolean).join(" ")}` : ""}
-                    </div>
-                    <p style={{ fontSize: "10px", color: "#475569", lineHeight: "1.4", marginBottom: "8px" }}>
-                      Todo equipo ingresado a laboratorio es sometido a un <strong>diagnóstico técnico automatizado</strong>. Realizamos pruebas de pulso-eco, medición de capacitancia, análisis de cristales piezoeléctricos y revisión de fugas eléctricas para garantizar la seguridad del paciente y la resolución óptima de imagen.
-                    </p>
-                    <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-                      <div style={{ flex: "0 0 auto", width: "150px", height: "130px", border: "1px solid #CBD5E1", borderRadius: "8px", background: "#fff", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <img src="/transductor.png" alt="Diagrama Transductor" style={{ maxWidth: "100%", maxHeight: "120px", objectFit: "contain" }} />
-                        {[{ top: "25%", left: "39%", n: 1 }, { top: "20%", left: "55%", n: 2 }, { top: "68%", left: "30%", n: 3 }, { top: "88%", left: "82%", n: 4 }].map(({ top, left, n }) => (
-                          <div key={n} style={{ position: "absolute", top, left, transform: "translate(-50%,-50%)", width: "16px", height: "16px", background: "#4E60A9", color: "#fff", borderRadius: "50%", fontSize: "9px", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", border: "1.5px solid #fff" }}>{n}</div>
-                        ))}
-                      </div>
-                      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
-                        {[
-                          { n: 1, title: "Lente Acústico:", text: "Protección e integridad del haz piezoeléctrico." },
-                          { n: 2, title: "Carcasa / Sellado:", text: "Evita filtración de gel y aisla corrientes." },
-                          { n: 3, title: "Cable coaxial:", text: "Verificación de continuidad en multiconductores." },
-                          { n: 4, title: "Conector y Pines:", text: "Limpieza y descarte de ruido en canales." },
-                        ].map(({ n, title, text }) => (
-                          <div key={n} style={{ display: "flex", gap: "6px", fontSize: "9.5px", color: "#334155", lineHeight: "1.3", alignItems: "flex-start" }}>
-                            <div style={{ width: "14px", height: "14px", background: "#E5EAF7", color: "#4E60A9", borderRadius: "50%", fontSize: "8px", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: "1px" }}>{n}</div>
-                            <div><strong>{title}</strong> {text}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
+
 
                 {/* Evidencia Fotográfica (Editable inline) */}
                 <div 

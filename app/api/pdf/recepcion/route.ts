@@ -105,11 +105,7 @@ export async function GET(req: Request) {
       logoB64 = 'data:image/png;base64,' + fs.readFileSync(logoPath).toString('base64');
     } catch { /* ignore */ }
 
-    const transductorPath = path.join(process.cwd(), 'public', 'transductor.png');
-    let transductorB64 = '';
-    try {
-      transductorB64 = 'data:image/png;base64,' + fs.readFileSync(transductorPath).toString('base64');
-    } catch { /* ignore */ }
+
 
     // Cargar firmas y estados de checklist
     let firmaCliente = '';
@@ -195,32 +191,7 @@ export async function GET(req: Request) {
       `;
     }
 
-    let diagramaHTML = "";
-    if (esTransductor) {
-      diagramaHTML = `
-        <div class="tech-card avoid-break" style="margin-top:10px;margin-bottom:10px;">
-          <div class="card-title">Alcance Técnico y Diagnóstico Integral${orden.equipo_marca || orden.equipo_modelo ? ` — ${[orden.equipo_marca, orden.equipo_modelo].filter(Boolean).join(" ")}` : ""}</div>
-          <p class="diag-p" style="margin-bottom:8px;">Todo equipo ingresado a laboratorio es sometido a un <strong>diagnóstico técnico automatizado</strong>. Realizamos pruebas de pulso-eco, medición de capacitancia, análisis de cristales piezoeléctricos y revisión de fugas eléctricas para garantizar la seguridad del paciente y la resolución óptima de imagen.</p>
-          <div style="display:flex;gap:20px;align-items:center;">
-            <div style="flex:.8;border:1px solid #CBD5E1;border-radius:8px;background:#fff;padding:4px;height:148px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
-              <div style="position:relative;display:inline-block;">
-                <img src="${transductorB64}" alt="${[orden.equipo_marca, orden.equipo_modelo].filter(Boolean).join(" ") || "Transductor"}" style="max-width:100%;max-height:140px;width:auto;height:auto;display:block;" />
-                <div style="position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;margin:0;top:25%;left:39%;margin-top:-10px;margin-left:-10px;">1</div>
-                <div style="position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;margin:0;top:20%;left:55%;margin-top:-10px;margin-left:-10px;">2</div>
-                <div style="position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;margin:0;top:68%;left:30%;margin-top:-10px;margin-left:-10px;">3</div>
-                <div style="position:absolute;width:20px;height:20px;background:#4E60A9;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box;margin:0;top:88%;left:82%;margin-top:-10px;margin-left:-10px;">4</div>
-              </div>
-            </div>
-            <div style="flex:1.2;display:flex;flex-direction:column;gap:8px;">
-              <div style="display:flex;gap:8px;font-size:10px;color:#334155;line-height:1.4;align-items:flex-start;"><div style="width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;padding:0;">1</div><div><strong>Lente Acústico / Membrana:</strong> Retiro del material desgastado, descontaminación del arreglo de cristales e inyección de nuevo polímero acústico con curado térmico.</div></div>
-              <div style="display:flex;gap:8px;font-size:10px;color:#334155;line-height:1.4;align-items:flex-start;"><div style="width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;padding:0;">2</div><div><strong>Carcasa y Sellado:</strong> Reencapsulado de uniones para evitar filtraciones de gel transmisor y proteger los componentes electrónicos internos.</div></div>
-              <div style="display:flex;gap:8px;font-size:10px;color:#334155;line-height:1.4;align-items:flex-start;"><div style="width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;padding:0;">3</div><div><strong>Cableado:</strong> Revisión de micro-coaxiales, verificación de continuidad eléctrica y refuerzo estructural en zonas de flexión y estrés mecánico.</div></div>
-              <div style="display:flex;gap:8px;font-size:10px;color:#334155;line-height:1.4;align-items:flex-start;"><div style="width:18px;height:18px;background:#E5EAF7;color:#4E60A9;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;box-sizing:border-box;padding:0;">4</div><div><strong>Conector:</strong> Limpieza profunda de pines de contacto y prueba de impedancia de señal.</div></div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
+
 
     const html = `
       <!DOCTYPE html>
@@ -779,7 +750,6 @@ export async function GET(req: Request) {
             </div>
           </div>
 
-          ${diagramaHTML}
           ${fotosRecepcionHTML}
         </div>
 
