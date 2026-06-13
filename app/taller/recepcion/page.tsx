@@ -1071,13 +1071,13 @@ function RecepcionPage() {
               <div class="inspect-card">
                 <div class="inspect-title">Conector</div>
                 <div class="pill-group">
-                  <div class="pill ${conectorState.includes('sin_danio') ? 'active green' : ''}">
+                  <div class="pill ${conectorState.includes('sin_danio') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${conectorState.includes('danio_fisico') ? 'active red' : ''}">
+                  <div class="pill ${conectorState.includes('danio_fisico') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Daño físico
                   </div>
-                  <div class="pill ${conectorState.includes('cables_expuestos') ? 'active red' : ''}">
+                  <div class="pill ${conectorState.includes('cables_expuestos') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Cables expuestos
                   </div>
                 </div>
@@ -1087,16 +1087,16 @@ function RecepcionPage() {
               <div class="inspect-card">
                 <div class="inspect-title">Carcasa</div>
                 <div class="pill-group">
-                  <div class="pill ${carcasaState.includes('sin_danio') ? 'active green' : ''}">
+                  <div class="pill ${carcasaState.includes('sin_danio') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${carcasaState.includes('grietas') ? 'active red' : ''}">
+                  <div class="pill ${carcasaState.includes('grietas') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Grietas
                   </div>
-                  <div class="pill ${carcasaState.includes('golpes') ? 'active red' : ''}">
+                  <div class="pill ${carcasaState.includes('golpes') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Golpes
                   </div>
-                  <div class="pill ${carcasaState.includes('desgaste') ? 'active amber' : ''}">
+                  <div class="pill ${carcasaState.includes('desgaste') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Desgaste
                   </div>
                 </div>
@@ -1106,13 +1106,13 @@ function RecepcionPage() {
               <div class="inspect-card">
                 <div class="inspect-title">Cable de transductor</div>
                 <div class="pill-group">
-                  <div class="pill ${cableState.includes('sin_danio') ? 'active green' : ''}">
+                  <div class="pill ${cableState.includes('sin_danio') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${cableState.includes('doblado_torcido') ? 'active amber' : ''}">
+                  <div class="pill ${cableState.includes('doblado_torcido') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Doblado/torcido
                   </div>
-                  <div class="pill ${cableState.includes('pelado') ? 'active red' : ''}">
+                  <div class="pill ${cableState.includes('pelado') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Pelado
                   </div>
                 </div>
@@ -1122,13 +1122,13 @@ function RecepcionPage() {
               <div class="inspect-card">
                 <div class="inspect-title">Cristales / Face</div>
                 <div class="pill-group">
-                  <div class="pill ${cristalesState.includes('sin_danio') ? 'active green' : ''}">
+                  <div class="pill ${cristalesState.includes('sin_danio') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${cristalesState.includes('burbujas') ? 'active red' : ''}">
+                  <div class="pill ${cristalesState.includes('burbujas') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Burbujas
                   </div>
-                  <div class="pill ${cristalesState.includes('astillado') ? 'active red' : ''}">
+                  <div class="pill ${cristalesState.includes('astillado') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Astillado
                   </div>
                   <div class="pill ${cristalesState.includes('no_evaluable') ? 'active slate' : ''}">
@@ -1992,8 +1992,8 @@ function RecepcionPage() {
                                 cursor: "pointer",
                                 ...(active ? {
                                   fontWeight: 700,
-                                  ...(opt.variant === "green" ? { background: "#ECFDF5", borderColor: "#A7F3D0", color: "#065F46" } : {}),
-                                  ...(opt.variant === "red" ? { background: "#FEF2F2", borderColor: "#FCA5A5", color: "#991B1B" } : {}),
+                                  ...(opt.variant === "green" ? { background: "#F1F5F9", borderColor: "#E2E8F0", color: "#334155" } : {}),
+                                  ...(opt.variant === "red" ? { background: "#F1F5F9", borderColor: "#E2E8F0", color: "#334155" } : {}),
                                 } : {
                                   borderColor: "#F8FAFC",
                                   color: "#94A3B8",
@@ -2064,9 +2064,9 @@ function RecepcionPage() {
                                 cursor: "pointer",
                                 ...(active ? {
                                   fontWeight: 700,
-                                  ...(opt.variant === "green" ? { background: "#ECFDF5", borderColor: "#A7F3D0", color: "#065F46" } : {}),
-                                  ...(opt.variant === "red" ? { background: "#FEF2F2", borderColor: "#FCA5A5", color: "#991B1B" } : {}),
-                                  ...(opt.variant === "amber" ? { background: "#FFFBEB", borderColor: "#FDE68A", color: "#92400E" } : {}),
+                                  ...(opt.variant === "green" ? { background: "#F1F5F9", borderColor: "#E2E8F0", color: "#334155" } : {}),
+                                  ...(opt.variant === "red" ? { background: "#F1F5F9", borderColor: "#E2E8F0", color: "#334155" } : {}),
+                                  ...(opt.variant === "amber" ? { background: "#F1F5F9", borderColor: "#E2E8F0", color: "#334155" } : {}),
                                 } : {
                                   borderColor: "#F8FAFC",
                                   color: "#94A3B8",
@@ -2136,9 +2136,9 @@ function RecepcionPage() {
                                 cursor: "pointer",
                                 ...(active ? {
                                   fontWeight: 700,
-                                  ...(opt.variant === "green" ? { background: "#ECFDF5", borderColor: "#A7F3D0", color: "#065F46" } : {}),
-                                  ...(opt.variant === "red" ? { background: "#FEF2F2", borderColor: "#FCA5A5", color: "#991B1B" } : {}),
-                                  ...(opt.variant === "amber" ? { background: "#FFFBEB", borderColor: "#FDE68A", color: "#92400E" } : {}),
+                                  ...(opt.variant === "green" ? { background: "#F1F5F9", borderColor: "#E2E8F0", color: "#334155" } : {}),
+                                  ...(opt.variant === "red" ? { background: "#F1F5F9", borderColor: "#E2E8F0", color: "#334155" } : {}),
+                                  ...(opt.variant === "amber" ? { background: "#F1F5F9", borderColor: "#E2E8F0", color: "#334155" } : {}),
                                 } : {
                                   borderColor: "#F8FAFC",
                                   color: "#94A3B8",
@@ -2209,8 +2209,8 @@ function RecepcionPage() {
                                 cursor: "pointer",
                                 ...(active ? {
                                   fontWeight: 700,
-                                  ...(opt.variant === "green" ? { background: "#ECFDF5", borderColor: "#A7F3D0", color: "#065F46" } : {}),
-                                  ...(opt.variant === "red" ? { background: "#FEF2F2", borderColor: "#FCA5A5", color: "#991B1B" } : {}),
+                                  ...(opt.variant === "green" ? { background: "#F1F5F9", borderColor: "#E2E8F0", color: "#334155" } : {}),
+                                  ...(opt.variant === "red" ? { background: "#F1F5F9", borderColor: "#E2E8F0", color: "#334155" } : {}),
                                   ...(opt.variant === "slate" ? { background: "#F1F5F9", borderColor: "#E2E8F0", color: "#334155" } : {}),
                                 } : {
                                   borderColor: "#F8FAFC",

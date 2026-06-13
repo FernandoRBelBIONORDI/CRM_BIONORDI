@@ -663,13 +663,13 @@ export async function GET(req: Request) {
               <div class="inspect-card">
                 <div class="inspect-title">Conector</div>
                 <div class="pill-group">
-                  <div class="pill ${conectorState.includes('sin_danio') ? 'active green' : ''}">
+                  <div class="pill ${conectorState.includes('sin_danio') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${conectorState.includes('danio_fisico') ? 'active red' : ''}">
+                  <div class="pill ${conectorState.includes('danio_fisico') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Daño físico
                   </div>
-                  <div class="pill ${conectorState.includes('cables_expuestos') ? 'active red' : ''}">
+                  <div class="pill ${conectorState.includes('cables_expuestos') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Cables expuestos
                   </div>
                 </div>
@@ -679,16 +679,16 @@ export async function GET(req: Request) {
               <div class="inspect-card">
                 <div class="inspect-title">Carcasa</div>
                 <div class="pill-group">
-                  <div class="pill ${carcasaState.includes('sin_danio') ? 'active green' : ''}">
+                  <div class="pill ${carcasaState.includes('sin_danio') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${carcasaState.includes('grietas') ? 'active red' : ''}">
+                  <div class="pill ${carcasaState.includes('grietas') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Grietas
                   </div>
-                  <div class="pill ${carcasaState.includes('golpes') ? 'active red' : ''}">
+                  <div class="pill ${carcasaState.includes('golpes') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Golpes
                   </div>
-                  <div class="pill ${carcasaState.includes('desgaste') ? 'active amber' : ''}">
+                  <div class="pill ${carcasaState.includes('desgaste') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Desgaste
                   </div>
                 </div>
@@ -698,13 +698,13 @@ export async function GET(req: Request) {
               <div class="inspect-card">
                 <div class="inspect-title">Cable de transductor</div>
                 <div class="pill-group">
-                  <div class="pill ${cableState.includes('sin_danio') ? 'active green' : ''}">
+                  <div class="pill ${cableState.includes('sin_danio') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${cableState.includes('doblado_torcido') ? 'active amber' : ''}">
+                  <div class="pill ${cableState.includes('doblado_torcido') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Doblado/torcido
                   </div>
-                  <div class="pill ${cableState.includes('pelado') ? 'active red' : ''}">
+                  <div class="pill ${cableState.includes('pelado') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Pelado
                   </div>
                 </div>
@@ -714,13 +714,13 @@ export async function GET(req: Request) {
               <div class="inspect-card">
                 <div class="inspect-title">Cristales / Face</div>
                 <div class="pill-group">
-                  <div class="pill ${cristalesState.includes('sin_danio') ? 'active green' : ''}">
+                  <div class="pill ${cristalesState.includes('sin_danio') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Sin daño visible
                   </div>
-                  <div class="pill ${cristalesState.includes('burbujas') ? 'active red' : ''}">
+                  <div class="pill ${cristalesState.includes('burbujas') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Burbujas
                   </div>
-                  <div class="pill ${cristalesState.includes('astillado') ? 'active red' : ''}">
+                  <div class="pill ${cristalesState.includes('astillado') ? 'active slate' : ''}">
                     <span class="chk-box"></span> Astillado
                   </div>
                   <div class="pill ${cristalesState.includes('no_evaluable') ? 'active slate' : ''}">
