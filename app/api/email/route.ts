@@ -87,13 +87,14 @@ export async function POST(req: Request) {
     // Insert into email_logs
     try {
       db.prepare(`
-        INSERT INTO email_logs (lead_id, destinatario, asunto, cuerpo, remitente, status)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO email_logs (lead_id, destinatario, asunto, cuerpo, cuerpo_html, remitente, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `).run(
         finalLeadId,
         Array.isArray(to) ? to.join(', ') : to,
         subject,
         plainText,
+        html,
         session.user?.name || session.user?.email || 'Fernando',
         'enviado'
       );

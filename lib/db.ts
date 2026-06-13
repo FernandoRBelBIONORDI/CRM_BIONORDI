@@ -416,6 +416,27 @@ function initDb(): Database.Database {
     )
   `);
 
+  // Bandeja de entrada de correo (mensajes descargados vía IMAP)
+  _db.exec(`
+    CREATE TABLE IF NOT EXISTS emails_recibidos (
+      id               INTEGER PRIMARY KEY AUTOINCREMENT,
+      uid              INTEGER,
+      mensaje_id       TEXT UNIQUE,
+      remitente        TEXT,
+      remitente_nombre TEXT,
+      destinatario     TEXT,
+      asunto           TEXT,
+      cuerpo_html      TEXT,
+      cuerpo_texto     TEXT,
+      fecha            TEXT,
+      leido            INTEGER DEFAULT 0,
+      lead_id          INTEGER REFERENCES leads(id) ON DELETE SET NULL
+    )
+  `);
+  try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_emails_recibidos_fecha ON emails_recibidos(fecha)`); } catch {}
+  // Conservar el HTML real de los correos enviados (antes solo se guardaba texto plano)
+  try { _db.exec(`ALTER TABLE email_logs ADD COLUMN cuerpo_html TEXT`); } catch {}
+
   try { _db.exec(`ALTER TABLE mensajes_wa ADD COLUMN media_type TEXT`); } catch {}
   try { _db.exec(`ALTER TABLE mensajes_wa ADD COLUMN media_url  TEXT`); } catch {}
   try { _db.exec(`CREATE INDEX IF NOT EXISTS idx_mensajes_wa_chat ON mensajes_wa(chat_id)`); } catch {}

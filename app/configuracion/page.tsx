@@ -15,6 +15,8 @@ interface Config {
   // Resend
   resend_api_key:string;
   smtp_from_name:string; smtp_from_email:string;
+  // IMAP (bandeja de entrada)
+  imap_host:string; imap_port:string; imap_user:string; imap_pass:string;
 }
 
 const DEFAULTS:Config = {
@@ -33,6 +35,8 @@ const DEFAULTS:Config = {
   // Resend
   resend_api_key:"",
   smtp_from_name:"Bionordi", smtp_from_email:"",
+  // IMAP (bandeja de entrada)
+  imap_host:"", imap_port:"993", imap_user:"", imap_pass:"",
 };
 
 export default function ConfiguracionPage() {
@@ -261,6 +265,35 @@ export default function ConfiguracionPage() {
                   {testStatus === "ok" ? "✓ " : "✗ "}{testMsg}
                 </span>
               )}
+            </div>
+          </Section>
+
+          {/* IMAP — Bandeja de entrada */}
+          <Section icon={<Mail size={15} className="text-[#7C3AED]"/>} title="Correo — Bandeja de Entrada (IMAP)">
+            <div className="flex items-start gap-3 p-3 bg-[#F5F3FF] rounded-xl border border-[#DDD6FE]">
+              <Mail size={14} className="mt-0.5 text-[#7C3AED] shrink-0"/>
+              <div className="text-xs text-[#5B21B6] leading-relaxed">
+                Para <strong>recibir</strong> correos en el CRM conecta el buzón real de tu dominio por IMAP.
+                Son los mismos datos que usarías en Outlook/Apple Mail. Ejemplos: Zoho Mail <em>imap.zoho.com</em>,
+                Google Workspace <em>imap.gmail.com</em> (requiere contraseña de aplicación), GoDaddy <em>imap.secureserver.net</em>.
+                Puerto típico: <strong>993</strong> (SSL).
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Servidor IMAP">
+                <input value={config.imap_host} onChange={set("imap_host")} placeholder="imap.zoho.com" className="inp"/>
+              </Field>
+              <Field label="Puerto" hint="993 con SSL (recomendado)">
+                <input value={config.imap_port} onChange={set("imap_port")} placeholder="993" className="inp"/>
+              </Field>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Usuario / correo">
+                <input value={config.imap_user} onChange={set("imap_user")} placeholder="contacto@bionordi.mx" className="inp"/>
+              </Field>
+              <Field label="Contraseña" hint="En Gmail/Workspace usa una contraseña de aplicación">
+                <input value={config.imap_pass} onChange={set("imap_pass")} type="password" placeholder="••••••••" className="inp"/>
+              </Field>
             </div>
           </Section>
 

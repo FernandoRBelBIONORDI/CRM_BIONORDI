@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Mail, Send, Search, Check, AlertCircle, Activity,
   Info, X, User, RefreshCw, Bold, Italic,
-  List, Link2, Trash2, Code, Eye
+  List, Link2, Trash2, Code, Eye, Inbox, CornerUpLeft
 } from "lucide-react";
 
 // ── Variables del template ────────────────────────────────────────────────────
@@ -23,9 +23,24 @@ interface EmailLog {
   destinatario: string;
   asunto: string;
   cuerpo: string;
+  cuerpo_html?: string | null;
   fecha: string;
   remitente: string;
   status: string;
+  lead_nombre?: string;
+}
+
+interface EmailRecibido {
+  id: number;
+  remitente: string;
+  remitente_nombre?: string;
+  destinatario?: string;
+  asunto: string;
+  cuerpo_html?: string | null;
+  cuerpo_texto?: string | null;
+  fecha: string;
+  leido: number;
+  lead_id?: number | null;
   lead_nombre?: string;
 }
 
@@ -575,6 +590,13 @@ export default function CorreoPage() {
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
   const [selectedLog, setSelectedLog] = useState<EmailLog | null>(null);
 
+  // Bandeja de entrada (IMAP)
+  const [vista, setVista] = useState<"redactar" | "recibidos">("redactar");
+  const [inbox, setInbox] = useState<EmailRecibido[]>([]);
+  const [selectedInbox, setSelectedInbox] = useState<EmailRecibido | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState("");
+
   // Asunto
   const [subject, setSubject] = useState<string>(TPLS.libre.defaultSubject);
 
@@ -598,6 +620,48 @@ export default function CorreoPage() {
     }
   }, []);
 
+  // Bandeja de entrada: lista local y sincronización IMAP bajo demanda
+  const fetchInbox = useCallback(async (sync = false) => {
+    if (sync) { setSyncing(true); setSyncMsg(""); }
+    try {
+      const res = await fetch(`/api/email/inbox${sync ? "?sync=1" : ""}`);
+      const data = await res.json();
+      if (data.emails) setInbox(data.emails);
+      if (sync && data.sync) {
+        setSyncMsg("error" in data.sync
+          ? data.sync.error
+          : data.sync.nuevos > 0 ? `${data.sync.nuevos} correo${data.sync.nuevos === 1 ? "" : "s"} nuevo${data.sync.nuevos === 1 ? "" : "s"}` : "Bandeja al día");
+      }
+    } catch {
+      if (sync) setSyncMsg("Error al sincronizar");
+    } finally {
+      if (sync) setSyncing(false);
+    }
+  }, []);
+
+  const abrirMensaje = (m: EmailRecibido) => {
+    setSelectedInbox(m);
+    if (!m.leido) {
+      setInbox(p => p.map(x => x.id === m.id ? { ...x, leido: 1 } : x));
+      fetch("/api/email/inbox", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: m.id, leido: 1 }),
+      }).catch(() => {});
+    }
+  };
+
+  const responder = (m: EmailRecibido) => {
+    setVista("redactar");
+    setToInput(m.remitente);
+    setSelectedLeadId(m.lead_id || null);
+    setSubject(m.asunto?.toLowerCase().startsWith("re:") ? m.asunto : `Re: ${m.asunto || ""}`);
+    const nombre = m.lead_nombre || m.remitente_nombre;
+    if (nombre) setVars(p => ({ ...p, nombre_doctor: nombre }));
+  };
+
+  const noLeidos = inbox.filter(m => !m.leido).length;
+
   // Cargar config del remitente y leads iniciales
   useEffect(() => {
     fetch("/api/config").then(r => r.json()).then(d => {
@@ -608,7 +672,8 @@ export default function CorreoPage() {
     });
     fetch("/api/leads").then(r => r.json()).then(d => setLeads(d.leads || []));
     fetchLogs();
-  }, [fetchLogs]);
+    fetchInbox();
+  }, [fetchLogs, fetchInbox]);
 
   // Cambiar template y reiniciar edición manual
   const changeTpl = (key: Mode) => {
@@ -747,15 +812,34 @@ export default function CorreoPage() {
     <div className="h-full flex flex-col bg-[#F4F7FB] font-sans overflow-hidden">
 
       {/* Header */}
-      <div className="px-8 py-4 bg-white border-b border-[#E8EFF8] shrink-0 flex items-center justify-between">
+      <div className="px-4 md:px-8 py-4 bg-white border-b border-[#E8EFF8] shrink-0 flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-[22px] font-extrabold text-[#1E293B] tracking-tight">Correo Electrónico</h1>
-          <p className="text-[12px] text-[#94A3B8] font-medium mt-0.5">Redacta, envía y audita los correos electrónicos oficiales del sistema</p>
+          <p className="text-[12px] text-[#94A3B8] font-medium mt-0.5">Redacta, envía, recibe y audita los correos oficiales del sistema</p>
+        </div>
+        <div className="flex items-center bg-gray-100 rounded-xl p-1 gap-1">
+          <button onClick={() => setVista("redactar")}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-bold transition-all ${
+              vista === "redactar" ? "bg-white text-[#4E60A9] shadow-sm" : "text-gray-400 hover:text-gray-600"
+            }`}>
+            <Send size={13} /> Redactar
+          </button>
+          <button onClick={() => { setVista("recibidos"); if (inbox.length === 0 && !syncing) fetchInbox(true); }}
+            className={`relative flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-bold transition-all ${
+              vista === "recibidos" ? "bg-white text-[#4E60A9] shadow-sm" : "text-gray-400 hover:text-gray-600"
+            }`}>
+            <Inbox size={13} /> Recibidos
+            {noLeidos > 0 && (
+              <span className="min-w-[16px] h-4 rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center px-1">
+                {noLeidos > 9 ? "9+" : noLeidos}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
       {/* Anti-spam tip */}
-      {!tipDismissed && (
+      {vista === "redactar" && !tipDismissed && (
         <div className="mx-6 mt-4 shrink-0 flex items-start gap-3 px-4 py-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-xl text-[11px] text-[#92400E]">
           <Info size={14} className="text-[#F59E0B] shrink-0 mt-0.5" />
           <p className="flex-1 leading-relaxed">
@@ -768,6 +852,7 @@ export default function CorreoPage() {
       )}
 
       {/* Body: compose + preview */}
+      {vista === "redactar" && (
       <div className="flex-1 flex gap-0 overflow-hidden p-5 gap-4">
 
         {/* ── Panel izquierdo: Redacción y Parámetros ─────────────────────── */}
