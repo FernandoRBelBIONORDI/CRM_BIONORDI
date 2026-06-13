@@ -14,6 +14,7 @@ interface Equipo {
   fotos_json: string | null;
   brochure_path: string | null;
   notas: string;
+  tipo_transductor?: string | null;
 }
 
 function parseFotos(raw: string | null): string[] {
@@ -28,6 +29,17 @@ const TIPO_LABELS: Record<string, string> = {
   equipo_movil: "Equipo Móvil",
   monitor: "Monitor",
   otro: "Otro",
+};
+
+const TIPO_TRANSDUCTOR_OPTIONS = ["lineal", "convex", "sectorial", "endocavitario", "tee", "volumetrico", "microconvex"];
+const TIPO_TRANSDUCTOR_LABELS: Record<string, string> = {
+  lineal: "Lineal",
+  convex: "Convexo",
+  sectorial: "Sectorial / Phased Array",
+  endocavitario: "Endocavitario",
+  tee: "Transesofágico (TEE)",
+  volumetrico: "Volumétrico (3D/4D)",
+  microconvex: "Microconvexo",
 };
 const TIPO_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
   transductor: { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-400" },
@@ -67,6 +79,7 @@ function EquipoModal({ equipo, onSave, onClose }: {
   onClose: () => void;
 }) {
   const [tipo, setTipo] = useState(equipo?.tipo || "transductor");
+  const [tipoTransductor, setTipoTransductor] = useState(equipo?.tipo_transductor || "");
   const [marca, setMarca] = useState(equipo?.marca || "");
   const [modelo, setModelo] = useState(equipo?.modelo || "");
   const [descripcion, setDescripcion] = useState(equipo?.descripcion || "");
@@ -120,10 +133,24 @@ function EquipoModal({ equipo, onSave, onClose }: {
 
   const handleSave = async () => {
     if (!modelo.trim()) return;
+    if (tipo === "transductor" && !tipoTransductor) {
+      setSaveErr("Debe seleccionar el tipo de transductor");
+      return;
+    }
     setSaveErr("");
     setSaving(true);
     try {
-      const body = { tipo, marca, modelo, descripcion, imagen_path: imgPath, fotos_json: fotos, brochure_path: brochure, notas };
+      const body = {
+        tipo,
+        marca,
+        modelo,
+        descripcion,
+        imagen_path: imgPath,
+        fotos_json: fotos,
+        brochure_path: brochure,
+        notas,
+        tipo_transductor: tipo === "transductor" ? tipoTransductor : null
+      };
       const res = equipo
         ? await fetch(`/api/catalogo/${equipo.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         : await fetch("/api/catalogo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -156,22 +183,57 @@ function EquipoModal({ equipo, onSave, onClose }: {
           {/* Básicos */}
           <div className="grid grid-cols-2 gap-3">
             <Field label="Tipo *">
-              <select value={tipo} onChange={e => setTipo(e.target.value)} className={sel}>
+              <select value={tipo} onChange={e => {
+                const newTipo = e.target.value;
+                setTipo(newTipo);
+                if (newTipo !== "transductor") {
+                  setTipoTransductor("");
+                }
+              }} className={sel}>
                 {TIPOS.map(t => <option key={t} value={t}>{TIPO_LABELS[t]}</option>)}
               </select>
             </Field>
-            <Field label="Marca">
-              <input value={marca} onChange={e => setMarca(e.target.value)} placeholder="GE, Philips, Mindray…" className={inp} />
-            </Field>
+            {tipo === "transductor" ? (
+              <Field label="Tipo de Transductor *">
+                <select value={tipoTransductor} onChange={e => setTipoTransductor(e.target.value)} className={sel}>
+                  <option value="">-- Seleccionar tipo --</option>
+                  {TIPO_TRANSDUCTOR_OPTIONS.map(opt => <option key={opt} value={opt}>{TIPO_TRANSDUCTOR_LABELS[opt]}</option>)}
+                </select>
+              </Field>
+            ) : (
+              <Field label="Marca">
+                <input value={marca} onChange={e => setMarca(e.target.value)} placeholder="GE, Philips, Mindray…" className={inp} />
+              </Field>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Modelo *">
-              <input value={modelo} onChange={e => setModelo(e.target.value)} placeholder="C1-6, L12-4, S5-1…" className={inp} />
-            </Field>
-            <Field label="Descripción breve">
-              <input value={descripcion} onChange={e => setDescripcion(e.target.value)} placeholder="Ej: Transductor convex abdominal" className={inp} />
-            </Field>
+            {tipo === "transductor" ? (
+              <>
+                <Field label="Marca">
+                  <input value={marca} onChange={e => setMarca(e.target.value)} placeholder="GE, Philips, Mindray…" className={inp} />
+                </Field>
+                <Field label="Modelo *">
+                  <input value={modelo} onChange={e => setModelo(e.target.value)} placeholder="C1-6, L12-4, S5-1…" className={inp} />
+                </Field>
+              </>
+            ) : (
+              <Field label="Modelo *">
+                <input value={modelo} onChange={e => setModelo(e.target.value)} placeholder="C1-6, L12-4, S5-1…" className={inp} />
+              </Field>
+            )}
+            {tipo !== "transductor" && (
+              <Field label="Descripción breve">
+                <input value={descripcion} onChange={e => setDescripcion(e.target.value)} placeholder="Ej: Transductor convex abdominal" className={inp} />
+              </Field>
+            )}
           </div>
+          {tipo === "transductor" && (
+            <div className="grid grid-cols-1">
+              <Field label="Descripción breve">
+                <input value={descripcion} onChange={e => setDescripcion(e.target.value)} placeholder="Ej: Transductor convex abdominal" className={inp} />
+              </Field>
+            </div>
+          )}
 
           {/* Diagrama técnico */}
           <div>
@@ -553,7 +615,9 @@ export default function CatalogoPage() {
 
                     {/* Badge tipo */}
                     <div className={`absolute top-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md ${tc.bg} ${tc.text}`}>
-                      {TIPO_LABELS[eq.tipo] || eq.tipo}
+                      {eq.tipo === "transductor" && eq.tipo_transductor
+                        ? `Transductor (${TIPO_TRANSDUCTOR_LABELS[eq.tipo_transductor] || eq.tipo_transductor})`
+                        : (TIPO_LABELS[eq.tipo] || eq.tipo)}
                     </div>
 
                     {/* Indicador diagrama disponible */}

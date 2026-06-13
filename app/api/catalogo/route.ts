@@ -13,12 +13,12 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { tipo, marca, modelo, descripcion, imagen_path, fotos_json, brochure_path, notas } = await req.json();
+  const { tipo, marca, modelo, descripcion, imagen_path, fotos_json, brochure_path, notas, tipo_transductor } = await req.json();
   if (!modelo?.trim()) return NextResponse.json({ error: 'El modelo es requerido' }, { status: 400 });
 
   const result = db.prepare(`
-    INSERT INTO catalogo_equipos (tipo, marca, modelo, descripcion, imagen_path, fotos_json, brochure_path, notas, fecha_alta)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO catalogo_equipos (tipo, marca, modelo, descripcion, imagen_path, fotos_json, brochure_path, notas, tipo_transductor, fecha_alta)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     tipo || 'transductor',
     marca || null,
@@ -28,6 +28,7 @@ export async function POST(req: Request) {
     fotos_json ? JSON.stringify(fotos_json) : null,
     brochure_path || null,
     notas || null,
+    tipo_transductor || null,
     new Date().toISOString(),
   );
 

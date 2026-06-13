@@ -44,6 +44,38 @@ function normalizarModelo(raw: string): string {
   return raw.split('/')[0].trim();
 }
 
+function inferirTipoTransductor(modelo: string, descripcion: string): string | null {
+  const mod = (modelo || "").toLowerCase();
+  const desc = (descripcion || "").toLowerCase();
+  
+  if (mod.includes("ec3-10") || mod.includes("e8c") || mod.includes("ec9") || desc.includes("endocavitario") || desc.includes("intracavitario") || desc.includes("endocavity") || desc.includes("ginecolog")) {
+    return "endocavitario";
+  }
+  if (mod.includes("tee") || desc.includes("transesofagico") || desc.includes("transesophageal")) {
+    return "tee";
+  }
+  if (mod.startsWith("l") || mod.includes("linear") || desc.includes("lineal") || desc.includes("linear") || mod.endsWith("l")) {
+    if (mod.startsWith("p") || mod.startsWith("s") || desc.includes("phased") || desc.includes("sectorial")) {
+      return "sectorial";
+    }
+    return "lineal";
+  }
+  if (mod.startsWith("c") || mod.includes("convex") || desc.includes("convex") || desc.includes("abdominal")) {
+    return "convex";
+  }
+  if (mod.startsWith("p") || mod.startsWith("s") || mod.includes("sector") || mod.includes("phased") || desc.includes("phased") || desc.includes("sectorial") || desc.includes("cardio")) {
+    return "sectorial";
+  }
+  if (mod.includes("v") || desc.includes("volumetrico") || desc.includes("3d") || desc.includes("4d")) {
+    return "volumetrico";
+  }
+  if (desc.includes("microconvex") || desc.includes("micro-convex") || desc.includes("pediatri")) {
+    return "microconvex";
+  }
+  
+  return null;
+}
+
 function extraerPrecio(texto: string): string {
   const m = texto.match(/\$\s*[\d,]+(?:\.\d+)?\s*MXN/i);
   return m ? m[0].replace(/\s+/g, '') : '';
@@ -259,21 +291,22 @@ export async function POST() {
         d => d.marca?.toLowerCase() === pw.marca.toLowerCase() &&
              d.modelo.toLowerCase() === pw.modelo.toLowerCase()
       );
+      const subType = pw.tipo === 'transductor' ? inferirTipoTransductor(pw.modelo, pw.descripcion) : null;
       if (existing) {
         const changes = db.prepare(`
           UPDATE catalogo_equipos
-          SET activo = 1, notas = ?, tipo = ?
+          SET activo = 1, notas = ?, tipo = ?, tipo_transductor = COALESCE(tipo_transductor, ?)
           WHERE id = ?
-        `).run(pw.notas, pw.tipo, existing.id).changes;
+        `).run(pw.notas, pw.tipo, subType, existing.id).changes;
         if (changes > 0) {
           if (existing.activo === 0) activados++;
           else actualizados++;
         }
       } else {
         db.prepare(`
-          INSERT INTO catalogo_equipos (tipo, marca, modelo, descripcion, notas, activo, fecha_alta)
-          VALUES (?, ?, ?, ?, ?, 1, date('now'))
-        `).run(pw.tipo, pw.marca, pw.modelo, pw.descripcion, pw.notas);
+          INSERT INTO catalogo_equipos (tipo, marca, modelo, descripcion, notas, tipo_transductor, activo, fecha_alta)
+          VALUES (?, ?, ?, ?, ?, ?, 1, date('now'))
+        `).run(pw.tipo, pw.marca, pw.modelo, pw.descripcion, pw.notas, subType);
         insertados++;
       }
     }

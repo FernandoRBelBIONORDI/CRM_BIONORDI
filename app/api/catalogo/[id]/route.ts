@@ -26,12 +26,12 @@ function deleteUploadedFile(storedPath: string) {
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: rawId } = await params;
   const id = Number(rawId);
-  const { tipo, marca, modelo, descripcion, imagen_path, fotos_json, brochure_path, notas } = await req.json();
+  const { tipo, marca, modelo, descripcion, imagen_path, fotos_json, brochure_path, notas, tipo_transductor } = await req.json();
   if (!modelo?.trim()) return NextResponse.json({ error: 'El modelo es requerido' }, { status: 400 });
 
   db.prepare(`
     UPDATE catalogo_equipos
-    SET tipo=?, marca=?, modelo=?, descripcion=?, imagen_path=?, fotos_json=?, brochure_path=?, notas=?
+    SET tipo=?, marca=?, modelo=?, descripcion=?, imagen_path=?, fotos_json=?, brochure_path=?, notas=?, tipo_transductor=?
     WHERE id=?
   `).run(
     tipo || 'transductor',
@@ -42,6 +42,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     fotos_json ? JSON.stringify(fotos_json) : null,
     brochure_path || null,
     notas || null,
+    tipo_transductor || null,
     id,
   );
 

@@ -1208,6 +1208,100 @@ export default function CorreoPage() {
         </div>
 
       </div>
+      )}
+
+      {/* ── Bandeja de entrada ─────────────────────────────────────────────── */}
+      {vista === "recibidos" && (
+        <div className="flex-1 flex flex-col md:flex-row gap-4 overflow-hidden p-4 md:p-5">
+
+          {/* Lista de mensajes */}
+          <div className={`w-full md:w-[340px] shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm flex-col overflow-hidden ${selectedInbox ? "hidden md:flex" : "flex"}`}>
+            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between shrink-0">
+              <div className="min-w-0">
+                <p className="text-[12px] font-bold text-slate-800">Bandeja de entrada</p>
+                {syncMsg && <p className="text-[10px] text-slate-400 truncate" title={syncMsg}>{syncMsg}</p>}
+              </div>
+              <button onClick={() => fetchInbox(true)} disabled={syncing} title="Descargar correos nuevos del servidor"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#EEF3FC] text-[#4E60A9] text-[10.5px] font-bold hover:bg-[#4E60A9] hover:text-white transition-colors disabled:opacity-50 shrink-0">
+                <RefreshCw size={12} className={syncing ? "animate-spin" : ""} />
+                {syncing ? "Sincronizando…" : "Sincronizar"}
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto divide-y divide-gray-50">
+              {inbox.length === 0 ? (
+                <div className="p-6 text-center text-[11px] text-slate-400 leading-relaxed">
+                  {syncing
+                    ? "Descargando correos…"
+                    : "Sin correos descargados. Configura el buzón IMAP en Configuración → Correo y presiona Sincronizar."}
+                </div>
+              ) : inbox.map(m => (
+                <button key={m.id} onClick={() => abrirMensaje(m)}
+                  className={`w-full text-left px-4 py-3 transition-colors ${selectedInbox?.id === m.id ? "bg-[#EEF3FC]" : "hover:bg-slate-50"}`}>
+                  <div className="flex items-center gap-2">
+                    {!m.leido && <span className="w-2 h-2 rounded-full bg-[#4E60A9] shrink-0" />}
+                    <span className={`text-[12px] truncate flex-1 ${m.leido ? "font-medium text-slate-600" : "font-extrabold text-slate-800"}`}>
+                      {m.lead_nombre || m.remitente_nombre || m.remitente}
+                    </span>
+                    <span className="text-[10px] text-slate-400 shrink-0">
+                      {new Date(m.fecha).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
+                    </span>
+                  </div>
+                  <p className={`text-[11.5px] truncate mt-0.5 ${m.leido ? "text-slate-500" : "text-slate-700 font-bold"}`}>{m.asunto}</p>
+                  {m.lead_nombre && (
+                    <span className="inline-block mt-1 text-[9px] font-bold text-[#4E60A9] bg-[#EEF3FC] px-1.5 py-0.5 rounded">
+                      CRM: {m.lead_nombre}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Visor del mensaje */}
+          <div className={`flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm flex-col overflow-hidden ${selectedInbox ? "flex" : "hidden md:flex"}`}>
+            {!selectedInbox ? (
+              <div className="flex-1 flex flex-col items-center justify-center gap-2 text-slate-300">
+                <Mail size={36} strokeWidth={1.5} />
+                <p className="text-[12px] font-medium">Selecciona un correo para leerlo</p>
+              </div>
+            ) : (
+              <>
+                <div className="px-4 md:px-6 py-4 border-b border-gray-100 shrink-0 flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex items-start gap-2">
+                    {/* Volver a la lista (solo móvil) */}
+                    <button onClick={() => setSelectedInbox(null)}
+                      className="md:hidden mt-0.5 p-1.5 rounded-lg bg-slate-100 text-slate-500 shrink-0">
+                      <X size={14} />
+                    </button>
+                    <div className="min-w-0">
+                      <h3 className="text-[15px] font-extrabold text-slate-800 leading-snug">{selectedInbox.asunto}</h3>
+                      <p className="text-[11.5px] text-slate-500 mt-0.5 truncate">
+                        <strong>{selectedInbox.remitente_nombre || selectedInbox.remitente}</strong>
+                        {selectedInbox.remitente_nombre ? <span className="text-slate-400"> · {selectedInbox.remitente}</span> : null}
+                      </p>
+                      <p className="text-[10.5px] text-slate-400">
+                        {new Date(selectedInbox.fecha).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" })}
+                      </p>
+                    </div>
+                  </div>
+                  <button onClick={() => responder(selectedInbox)}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#4E60A9] text-white text-[11.5px] font-bold hover:bg-[#3d4e8a] transition-colors shrink-0">
+                    <CornerUpLeft size={13} /> Responder
+                  </button>
+                </div>
+                {/* El HTML del correo se respeta tal cual, aislado en un iframe sandbox */}
+                {selectedInbox.cuerpo_html ? (
+                  <iframe srcDoc={selectedInbox.cuerpo_html} sandbox="" className="flex-1 w-full border-0 bg-white" title="Correo recibido" />
+                ) : (
+                  <pre className="flex-1 overflow-y-auto p-6 text-[12.5px] text-slate-600 whitespace-pre-wrap font-sans leading-relaxed">
+                    {selectedInbox.cuerpo_texto || "(Sin contenido)"}
+                  </pre>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Modal de Detalle de Correo Log */}
       {selectedLog && (
@@ -1246,10 +1340,21 @@ export default function CorreoPage() {
               </div>
               
               <div>
-                <span className="font-semibold text-slate-400 block text-[10px] uppercase mb-2">Contenido (Texto Plano):</span>
-                <pre className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-mono text-[11px] whitespace-pre-wrap text-slate-600 max-h-[300px] overflow-y-auto leading-relaxed">
-                  {selectedLog.cuerpo}
-                </pre>
+                <span className="font-semibold text-slate-400 block text-[10px] uppercase mb-2">
+                  {selectedLog.cuerpo_html ? "Correo enviado (HTML real):" : "Contenido (Texto Plano):"}
+                </span>
+                {selectedLog.cuerpo_html ? (
+                  <iframe
+                    srcDoc={selectedLog.cuerpo_html}
+                    sandbox=""
+                    className="w-full h-[420px] border border-slate-100 rounded-xl bg-white"
+                    title="Correo enviado"
+                  />
+                ) : (
+                  <pre className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-mono text-[11px] whitespace-pre-wrap text-slate-600 max-h-[300px] overflow-y-auto leading-relaxed">
+                    {selectedLog.cuerpo}
+                  </pre>
+                )}
               </div>
             </div>
             
