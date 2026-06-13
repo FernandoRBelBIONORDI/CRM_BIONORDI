@@ -346,6 +346,7 @@ export async function GET(req: Request) {
 
             <div class="footer">
               <strong>Bionordi Medical Technology</strong> | Servicio Técnico Especializado<br/>
+              Mariano Matamoros 59, San Mateo, 52140 Metepec, México · contacto@bionordi.mx<br/>
               Este documento certifica el servicio realizado al equipo médico especificado.<br/>
               Para cualquier consulta, comuníquese directamente con su asesor Bionordi o con el ingeniero a cargo.
             </div>

@@ -1245,7 +1245,7 @@ function RecepcionPage() {
             </div>
 
             <div class="footer" style="margin-top: 5px;">
-              <strong>Bionordi S.A. de C.V.</strong> | CDMX · contacto@bionordi.mx · www.bionordi.com<br/>
+              <strong>Bionordi S.A. de C.V.</strong> · Mariano Matamoros 59, San Mateo, 52140 Metepec, México · contacto@bionordi.mx · www.bionordi.com<br/>
               Este documento de dos páginas certifica de conformidad la recepción y los términos del servicio técnico.
             </div>
           </div>
@@ -1462,6 +1462,7 @@ function RecepcionPage() {
   <tr><td style="padding:20px 36px;background:#1E293B;">
     <p style="margin:0;font-size:11px;color:#94A3B8;text-align:center;line-height:1.8;">
       Bionordi S.A. de C.V. &middot; <a href="mailto:contacto@bionordi.mx" style="color:#60A5FA;text-decoration:none;">contacto@bionordi.mx</a><br>
+      <span style="color:#475569;">Mariano Matamoros 59, San Mateo, 52140 Metepec, México</span><br>
       <span style="color:#475569;">Conserve este documento como comprobante de ingreso de su equipo a nuestro laboratorio.</span>
     </p>
   </td></tr>
@@ -2925,7 +2926,7 @@ function RecepcionPage() {
                   </div>
 
                   <div style={{ textAlign: "center", borderTop: "1px solid #E2E8F0", paddingTop: "6px", fontSize: "8px", color: "#94A3B8", lineHeight: "1.4" }}>
-                    <strong>Bionordi S.A. de C.V.</strong> | CDMX · contacto@bionordi.mx · www.bionordi.com<br/>
+                    <strong>Bionordi S.A. de C.V.</strong> · Mariano Matamoros 59, San Mateo, 52140 Metepec, México · contacto@bionordi.mx · www.bionordi.com<br/>
                     Este documento de dos páginas certifica de conformidad la recepción y los términos del servicio técnico.
                   </div>
                 </div>

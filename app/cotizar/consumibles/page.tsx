@@ -53,7 +53,7 @@ function CotizarConsumiblesPage() {
   // ── Config Bionordi ──────────────────────────────────────────────────────
   const [bn, setBn] = useState<BionordiCfg>({
     razonSocial: "Bionordi S.A. de C.V.", rfc: "—", banco: "—", cuenta: "—",
-    clabe: "—", direccionFiscal: "Ciudad de México, CDMX",
+    clabe: "—", direccionFiscal: "Mariano Matamoros 59, San Mateo, 52140 Metepec, México",
     correo: "contacto@bionordi.mx", representante: "", cargo: "",
   });
 
@@ -167,7 +167,7 @@ function CotizarConsumiblesPage() {
         razonSocial: c.fact_razon_social || "Bionordi S.A. de C.V.",
         rfc: c.fact_rfc || "—", banco: c.fact_banco || "—",
         cuenta: c.fact_cuenta || "—", clabe: c.fact_clabe || "—",
-        direccionFiscal: c.fact_direccion_fiscal || "Ciudad de México, CDMX",
+        direccionFiscal: c.fact_direccion_fiscal || "Mariano Matamoros 59, San Mateo, 52140 Metepec, México",
         correo: c.fact_correo_facturacion || "contacto@bionordi.mx",
         representante: c.nombre_representante || "",
         cargo: c.fact_cargo_representante || "",

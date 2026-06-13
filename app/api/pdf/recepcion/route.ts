@@ -236,7 +236,11 @@ export async function GET(req: Request) {
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            min-height: 255mm;
+            /* Carta = 279.4mm − márgenes @page (15+10mm) = 254.4mm útiles.
+               Debe quedar POR DEBAJO de ese límite: con 255mm cada página se
+               derramaba 0.6mm y generaba hojas fantasma / cortes corridos.
+               Debe coincidir con el preview del editor en app/taller/recepcion/page.tsx. */
+            min-height: 250mm;
             box-sizing: border-box;
           }
           .page-break {
@@ -812,7 +816,7 @@ export async function GET(req: Request) {
             </div>
 
             <div class="footer" style="margin-top: 5px;">
-              <strong>Bionordi S.A. de C.V.</strong> | CDMX · contacto@bionordi.mx · www.bionordi.com<br/>
+              <strong>Bionordi S.A. de C.V.</strong> · Mariano Matamoros 59, San Mateo, 52140 Metepec, México · contacto@bionordi.mx · www.bionordi.com<br/>
               Este documento de dos páginas certifica de conformidad la recepción y los términos del servicio técnico.
             </div>
           </div>

@@ -348,6 +348,7 @@ ${falla || techNote ? `<!-- Notes -->
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;"><tr><td height="1" bgcolor="#E8EDF4" style="font-size:1px;line-height:1px;">&nbsp;</td></tr></table>
   <p style="font-size:11px;color:#94A3B8;line-height:1.7;margin:0;font-family:Arial,Helvetica,sans-serif;">
     <strong style="color:#64748B;">Bionordi S.A. de C.V.</strong><br/>
+    Mariano Matamoros 59, San Mateo, 52140 Metepec, México · contacto@bionordi.mx<br/>
     Laboratorio especializado en reparación y mantenimiento de transductores de ultrasonido.<br/>
     Para cualquier consulta responda a este correo o comuníquese con su asesor Bionordi.
   </p>

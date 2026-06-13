@@ -539,6 +539,12 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
   const eventos = computeEventos(cotizaciones, ordenes, lead);
   const totalCot = cotizaciones.reduce((a, c) => a + (c.monto_total || 0), 0);
   const totalOrd = ordenes.filter(o => o.precio_final).reduce((a, o) => a + (o.precio_final || 0), 0);
+  // Una orden y su recepción comparten el mismo registro. Para no listar lo mismo
+  // dos veces, cada tabla muestra su propia etapa: "Recepción de equipos" muestra
+  // el equipo aún en recepción ("recibido") y "Órdenes de trabajo" las que ya
+  // entraron a servicio. La Hoja de Recepción sigue accesible desde el modal de la orden.
+  const ordenesEnRecepcion = ordenes.filter(o => o.status === "recibido");
+  const ordenesDeTrabajo = ordenes.filter(o => o.status !== "recibido");
   const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
   const proxFecha = proxDate ? new Date(proxDate + "T00:00:00") : null;
   const proxVencida = proxFecha && proxFecha < hoy;
@@ -995,7 +1001,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
 
             {/* Right col: Historial */}
             <div className="col-span-1 lg:col-span-3">
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col" style={{ minHeight: 480 }}>
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col lg:sticky lg:top-4 lg:self-start" style={{ minHeight: 480, maxHeight: "calc(100vh - 120px)" }}>
                 <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
                   <h3 className="text-[13px] font-extrabold text-[#1E293B]">Historial de contacto</h3>
                   <button onClick={() => setShowAddInt(p => !p)}
@@ -1042,7 +1048,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                   </div>
                 )}
 
-                <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+                <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-3">
                   {interacciones.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 gap-2">
                       <MessageCircle size={28} className="text-gray-200" />
@@ -1201,7 +1207,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                 <Plus size={12} />Nueva orden
               </button>
             </div>
-            {ordenes.length === 0 ? (
+            {ordenesDeTrabajo.length === 0 ? (
               <div className="px-6 py-8 text-center text-[12px] text-gray-400">Sin órdenes de trabajo registradas</div>
             ) : (
               <div className="overflow-x-auto">
@@ -1214,7 +1220,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {ordenes.map(o => {
+                  {ordenesDeTrabajo.map(o => {
                     const so = ordStatus(o.status);
                     return (
                       <tr key={o.id} onClick={() => setPreviewOrden(o)} className="hover:bg-[#F8FAFC] transition-colors cursor-pointer">
@@ -1269,7 +1275,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                 <Plus size={12} />Nueva recepción
               </button>
             </div>
-            {ordenes.length === 0 ? (
+            {ordenesEnRecepcion.length === 0 ? (
               <div className="px-6 py-8 text-center text-[12px] text-gray-400">Sin recepciones registradas</div>
             ) : (
               <div className="overflow-x-auto">
@@ -1282,7 +1288,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {ordenes.map(o => (
+                  {ordenesEnRecepcion.map(o => (
                     <tr key={o.id} onClick={() => setPreviewRecepcion(o)} className="hover:bg-[#F8FAFC] transition-colors cursor-pointer">
                       <td className="px-5 py-3 text-[12px] font-mono font-bold text-[#4E60A9]">{o.folio_recepcion || "—"}</td>
                       <td className="px-5 py-3 text-[12px] font-mono font-bold text-gray-600">{o.folio}</td>
