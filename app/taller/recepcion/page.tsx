@@ -738,7 +738,7 @@ function RecepcionPage() {
             text-transform: uppercase;
             letter-spacing: .8px;
             margin-bottom: 6px;
-            border-bottom: 1.5px solid #E2E8F0;
+            border-bottom: 1px solid #C7D6F5;
             padding-bottom: 3px;
           }
           .i-row {
@@ -759,11 +759,10 @@ function RecepcionPage() {
           
           .eq-card {
             background: #fff;
-            border: 1px solid #CBD5E1;
+            border: 1px solid #D5DBEA;
             border-radius: 10px;
             padding: 8px 12px;
             margin-bottom: 8px;
-            border-left: 3.5px solid #4E60A9;
           }
           .eq-grid {
             display: grid;
@@ -792,7 +791,7 @@ function RecepcionPage() {
             background: #F8FAFC;
             padding: 6px 10px;
             border-radius: 6px;
-            border-left: 2px solid #64748B;
+            border: 1px solid #E4E7F1;
             margin-top: 3px;
           }
           
@@ -959,7 +958,7 @@ function RecepcionPage() {
             font-size: 8px;
             padding: 3px 6px;
             border-radius: 4px;
-            border: 1px solid #F8FAFC;
+            border: 1px solid #E8EAF2;
             color: #94A3B8;
             font-weight: 500;
           }
@@ -1060,7 +1059,7 @@ function RecepcionPage() {
               <div class="card-title">Información de Recepción</div>
               <div class="i-row"><div class="i-lbl">Recepción</div><div class="i-val">${recibidoPor || "—"}</div></div>
               <div class="i-row"><div class="i-lbl">Entregado por</div><div class="i-val">${entregadoPor || "—"}</div></div>
-              <div class="i-row"><div class="i-lbl">Estatus Inicial</div><div class="i-val"><span style="font-weight: 700; color: #5A85F1; text-transform: uppercase;">EQUIPO RECIBIDO</span></div></div>
+              <div class="i-row"><div class="i-lbl">Estatus Inicial</div><div class="i-val"><span style="display:inline-block; font-weight:700; font-size:8px; color:#4E60A9; background:#EEF3FC; border:1px solid #C7D6F5; padding:1px 8px; border-radius:10px; text-transform:uppercase; letter-spacing:.4px;">Equipo recibido</span></div></div>
             </div>
           </div>
 
@@ -1160,7 +1159,7 @@ function RecepcionPage() {
               </div>
             </div>
             
-            <div style="margin-top: 8px; border-top: 1px dashed #E2E8F0; padding-top: 6px;">
+            <div style="margin-top: 8px; border-top: 1px solid #ECEEF4; padding-top: 6px;">
               <div style="font-size: 8.5px; font-weight: 700; color: #4E60A9; text-transform: uppercase;">Observaciones adicionales:</div>
               <div style="font-size: 9px; color: #334155; line-height: 1.35; margin-top: 2px;">${observacionesAdicionales || 'Sin observaciones adicionales.'}</div>
             </div>
@@ -1180,7 +1179,7 @@ function RecepcionPage() {
                 <div style="font-size: 8px; color: #64748B; font-weight: 800; text-transform: uppercase; margin-top: 8px;">Descripción del problema reportado:</div>
                 <div class="recep-p" style="margin-top: 3px;">${(fallaReportada || 'Sin falla especificada').replace(/\n/g, '<br/>')}</div>
               </div>
-              <div style="flex: 1; border-left: 1px dashed #E2E8F0; padding-left: 20px;">
+              <div style="flex: 1; border-left: 1px solid #ECEEF4; padding-left: 20px;">
                 <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 4px;">Accesorios y Elementos Entregados</div>
                 <div class="accesorios-list">
                   <div class="pill ${accesoriosEntregados.includes('transductor') ? 'active slate' : ''}"><span class="chk-box"></span> Transductor</div>
@@ -1220,7 +1219,7 @@ function RecepcionPage() {
             </ul>
           </div>
 
-          <div class="signatures-wrapper" style="border-top: 1px dashed #CBD5E1; padding-top: 8px;">
+          <div class="signatures-wrapper" style="border-top: 1px solid #E2E8F0; padding-top: 8px;">
             <p style="font-size: 8.2px; color: #475569; text-align: center; margin-bottom: 8px; line-height: 1.3;">
               <strong>FIRMAS DE CONFORMIDAD:</strong> El cliente declara haber leído y aceptado los términos anteriores, y confirma que el estado físico descrito corresponde al equipo entregado en esta fecha.
             </p>
@@ -2193,7 +2192,7 @@ function RecepcionPage() {
 
                     <div style={{ display: "flex", marginBottom: "3px", fontSize: "10px" }}>
                       <div style={{ width: "75px", color: "#64748B", fontWeight: 700 }}>Estatus Inicial</div>
-                      <div style={{ flex: 1, fontWeight: 700, color: "#5A85F1", textTransform: "uppercase" }}>EQUIPO RECIBIDO</div>
+                      <div style={{ flex: 1 }}><span style={{ display: "inline-block", fontWeight: 700, fontSize: "8px", color: "#4E60A9", background: "#EEF3FC", border: "1px solid #C7D6F5", padding: "1px 8px", borderRadius: "10px", textTransform: "uppercase", letterSpacing: "0.4px" }}>Equipo recibido</span></div>
                     </div>
                   </div>
                 </div>
@@ -2201,7 +2200,7 @@ function RecepcionPage() {
                 {/* Especificaciones Equipo */}
                 <div 
                   onClick={() => expandCardOnly("equipo")}
-                  style={{ background: "#fff", border: "1px solid #CBD5E1", borderRadius: "10px", padding: "8px 12px", marginBottom: "8px", borderLeft: "3.5px solid #4E60A9", cursor: "pointer" }}
+                  style={{ background: "#fff", border: "1px solid #D5DBEA", borderRadius: "10px", padding: "8px 12px", marginBottom: "8px", cursor: "pointer" }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
                     <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px" }}>Especificaciones del Equipo</div>
@@ -2280,7 +2279,7 @@ function RecepcionPage() {
                       <div><F value={eqTecnico} onChange={setEqTecnico} placeholder="Técnico" style={{ fontSize: "10px", fontWeight: 600, color: "#0F172A", borderBottom: "1.5px dashed rgba(78,96,169,0.25)" }} /></div>
                     </div>
                     
-                    <div style={{ gridColumn: "span 4", background: "#F8FAFC", padding: "6px 10px", borderRadius: "6px", borderLeft: "2px solid #64748B", marginTop: "3px" }}>
+                    <div style={{ gridColumn: "span 4", background: "#F8FAFC", padding: "6px 10px", borderRadius: "6px", border: "1px solid #E4E7F1", marginTop: "3px" }}>
                       <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase" }}>Accesorios Recibidos / Checklist</div>
                       <div style={{ fontSize: "10px", fontWeight: 500, color: "#0F172A", marginTop: "1px" }}>
                         {getAccesoriosString() || "— (Ninguno seleccionado. Edítalos en el panel de control o checklist)"}
@@ -2603,7 +2602,7 @@ function RecepcionPage() {
                   </div>
 
                   {/* Observaciones adicionales */}
-                  <div style={{ marginTop: "8px", borderTop: "1px dashed #E2E8F0", paddingTop: "6px" }} onClick={e => e.stopPropagation()}>
+                  <div style={{ marginTop: "8px", borderTop: "1px solid #ECEEF4", paddingTop: "6px" }} onClick={e => e.stopPropagation()}>
                     <div style={{ fontSize: "8.5px", fontWeight: 700, color: "#4E60A9", textTransform: "uppercase" }}>Observaciones adicionales:</div>
                     <F
                       value={observacionesAdicionales}
@@ -2716,7 +2715,7 @@ function RecepcionPage() {
                     </div>
 
                     {/* Accesorios y elementos entregados */}
-                    <div style={{ flex: 1, borderLeft: "1px dashed #E2E8F0", paddingLeft: "20px" }}>
+                    <div style={{ flex: 1, borderLeft: "1px solid #ECEEF4", paddingLeft: "20px" }}>
                       <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "4px", borderBottom: "1.5px solid #E2E8F0", paddingBottom: "2px" }}>
                         Accesorios y Elementos Entregados
                       </div>
@@ -2898,7 +2897,7 @@ function RecepcionPage() {
                 {/* Firmas */}
                 <div
                   onClick={() => expandCardOnly("firmas")}
-                  style={{ marginTop: "auto", paddingTop: "8px", borderTop: "1px dashed #CBD5E1", cursor: "pointer" }}
+                  style={{ marginTop: "auto", paddingTop: "8px", borderTop: "1px solid #E2E8F0", cursor: "pointer" }}
                 >
                   <p style={{ fontSize: "8.2px", color: "#475569", textAlign: "center", marginBottom: "8px", lineHeight: "1.3" }}>
                     <strong>FIRMAS DE CONFORMIDAD:</strong> El cliente declara haber leído y aceptado los términos anteriores, y confirma que el estado físico descrito corresponde al equipo entregado en esta fecha.

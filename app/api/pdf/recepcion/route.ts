@@ -316,7 +316,7 @@ export async function GET(req: Request) {
             text-transform: uppercase;
             letter-spacing: .8px;
             margin-bottom: 6px;
-            border-bottom: 1.5px solid #E2E8F0;
+            border-bottom: 1px solid #C7D6F5;
             padding-bottom: 3px;
           }
           .i-row {
@@ -337,11 +337,10 @@ export async function GET(req: Request) {
           
           .eq-card {
             background: #fff;
-            border: 1px solid #CBD5E1;
+            border: 1px solid #D5DBEA;
             border-radius: 10px;
             padding: 8px 12px;
             margin-bottom: 8px;
-            border-left: 3.5px solid #4E60A9;
           }
           .eq-grid {
             display: grid;
@@ -370,7 +369,7 @@ export async function GET(req: Request) {
             background: #F8FAFC;
             padding: 6px 10px;
             border-radius: 6px;
-            border-left: 2px solid #64748B;
+            border: 1px solid #E4E7F1;
             margin-top: 3px;
           }
           
@@ -475,7 +474,7 @@ export async function GET(req: Request) {
             font-size: 8px;
             padding: 3px 6px;
             border-radius: 4px;
-            border: 1px solid #F8FAFC;
+            border: 1px solid #E8EAF2;
             color: #94A3B8;
             font-weight: 500;
           }
@@ -635,7 +634,7 @@ export async function GET(req: Request) {
               <div class="card-title">Información de Recepción</div>
               <div class="i-row"><div class="i-lbl">Recepción</div><div class="i-val">${recibidoPor || "—"}</div></div>
               <div class="i-row"><div class="i-lbl">Entregado por</div><div class="i-val">${entregadoPor || "—"}</div></div>
-              <div class="i-row"><div class="i-lbl">Estatus Inicial</div><div class="i-val"><span style="font-weight: 700; color: #5A85F1; text-transform: uppercase;">EQUIPO RECIBIDO</span></div></div>
+              <div class="i-row"><div class="i-lbl">Estatus Inicial</div><div class="i-val"><span style="display:inline-block; font-weight:700; font-size:8px; color:#4E60A9; background:#EEF3FC; border:1px solid #C7D6F5; padding:1px 8px; border-radius:10px; text-transform:uppercase; letter-spacing:.4px;">Equipo recibido</span></div></div>
             </div>
           </div>
 
@@ -731,7 +730,7 @@ export async function GET(req: Request) {
               </div>
             </div>
             
-            <div style="margin-top: 8px; border-top: 1px dashed #E2E8F0; padding-top: 6px;">
+            <div style="margin-top: 8px; border-top: 1px solid #ECEEF4; padding-top: 6px;">
               <div style="font-size: 8.5px; font-weight: 700; color: #4E60A9; text-transform: uppercase;">Observaciones adicionales:</div>
               <div style="font-size: 9px; color: #334155; line-height: 1.35; margin-top: 2px;">${observacionesAdicionales || 'Sin observaciones adicionales.'}</div>
             </div>
@@ -751,7 +750,7 @@ export async function GET(req: Request) {
                 <div style="font-size: 8px; color: #64748B; font-weight: 800; text-transform: uppercase; margin-top: 8px;">Descripción del problema reportado:</div>
                 <div class="recep-p" style="margin-top: 3px;">${(orden.falla_reportada || 'Sin falla especificada').replace(/\n/g, '<br/>')}</div>
               </div>
-              <div style="flex: 1; border-left: 1px dashed #E2E8F0; padding-left: 20px;">
+              <div style="flex: 1; border-left: 1px solid #ECEEF4; padding-left: 20px;">
                 <div class="card-title" style="color: #4E60A9; border-bottom-color: #C7D6F5; margin-bottom: 4px;">Accesorios y Elementos Entregados</div>
                 <div class="accesorios-list">
                   <div class="pill ${accesoriosEntregados.includes('transductor') ? 'active slate' : ''}"><span class="chk-box"></span> Transductor</div>
@@ -791,7 +790,7 @@ export async function GET(req: Request) {
             </ul>
           </div>
 
-          <div class="signatures-wrapper" style="border-top: 1px dashed #CBD5E1; padding-top: 8px;">
+          <div class="signatures-wrapper" style="border-top: 1px solid #E2E8F0; padding-top: 8px;">
             <p style="font-size: 8.2px; color: #475569; text-align: center; margin-bottom: 8px; line-height: 1.3;">
               <strong>FIRMAS DE CONFORMIDAD:</strong> El cliente declara haber leído y aceptado los términos anteriores, y confirma que el estado físico descrito corresponde al equipo entregado en esta fecha.
             </p>
