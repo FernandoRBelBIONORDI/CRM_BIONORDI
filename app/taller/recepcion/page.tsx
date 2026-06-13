@@ -248,13 +248,8 @@ function RecepcionPage() {
   const [page1Overflow, setPage1Overflow] = useState(false);
   const [page2Overflow, setPage2Overflow] = useState(false);
 
-  // Secciones colapsables y barra lateral
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  // En móvil el panel de 340px taparía toda la pantalla: arranca colapsado
-  useEffect(() => {
-    if (window.innerWidth < 768) setSidebarCollapsed(true);
-  }, []);
+  // Estado para el editor inline de cláusulas
+  const [editingClausulas, setEditingClausulas] = useState(false);
 
   // Aviso de desborde: si una hoja del preview supera la altura Carta,
   // el contenido extra fluirá a una página adicional en el PDF real.
@@ -269,22 +264,6 @@ function RecepcionPage() {
     if (page2Ref.current) obs.observe(page2Ref.current);
     return () => obs.disconnect();
   }, [loadingQuote]);
-  const [collCliente, setCollCliente] = useState(false);
-  const [collEquipo, setCollEquipo] = useState(false);
-  const [collEstado, setCollEstado] = useState(false);
-  const [collRecepcion, setCollRecepcion] = useState(false);
-  const [collClausulas, setCollClausulas] = useState(true);
-  const [collFirmas, setCollFirmas] = useState(false);
-
-  const expandCardOnly = (cardName: "cliente" | "equipo" | "estado" | "recepcion" | "clausulas" | "firmas") => {
-    setSidebarCollapsed(false);
-    setCollCliente(cardName !== "cliente");
-    setCollEquipo(cardName !== "equipo");
-    setCollEstado(cardName !== "estado");
-    setCollRecepcion(cardName !== "recepcion");
-    setCollClausulas(cardName !== "clausulas");
-    setCollFirmas(cardName !== "firmas");
-  };
 
   const eqTipoNormalizado = (eqTipo || "").toLowerCase();
   const esTransductor = ["lineal", "convex", "sectorial", "intracavitario", "tee", "3d", "4d", "microconvex", "transductor"].some(t => eqTipoNormalizado.includes(t));
@@ -1544,415 +1523,7 @@ function RecepcionPage() {
   return (
     <div className="flex-1 flex flex-row overflow-hidden" style={{ height: "100%", fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif", background: "#F4F7FB" }}>
       
-      {/* ════════════ PANEL DE CONTROL IZQUIERDO ════════════ */}
-      <div style={{
-        width: sidebarCollapsed ? "0px" : "340px",
-        minWidth: sidebarCollapsed ? "0px" : "340px",
-        maxWidth: sidebarCollapsed ? "0px" : "340px",
-        height: "100%",
-        background: "#FFFFFF",
-        borderRight: sidebarCollapsed ? "none" : "1px solid #E2E8F0",
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-        transition: "width 0.3s ease, min-width 0.3s ease, max-width 0.3s ease",
-        zIndex: 110
-      }}>
-        {/* Header control */}
-        <div style={{ flexShrink: 0, padding: "16px", borderBottom: "1px solid #E2E8F0", background: "#F8FAFC" }}>
-          <div style={{ fontSize: "11px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>
-            Panel de Control
-          </div>
-          <div style={{ fontSize: "9px", color: "#64748B", marginTop: "2px" }}>
-            Edita los campos aquí o directamente en el formato de papel.
-          </div>
-        </div>
-
-        {/* Scrollable controls */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "16px", background: "#F4F7FB" }}>
-          
-          {/* 1. Datos del Cliente */}
-          <div style={{ background: "#FFFFFF", padding: "14px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-            <div
-              onClick={() => setCollCliente(p => !p)}
-              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" }}
-            >
-              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>1. Buscador de Clientes</div>
-              <div style={{ color: "#64748B" }}>
-                {collCliente ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
-              </div>
-            </div>
-
-            {!collCliente && (
-              <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
-                <div style={{ position: "relative" }}>
-                  {leadId ? (
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", background: "#EEF3FC", border: "1px solid #C7D6F5", borderRadius: "8px" }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: "11px", fontWeight: 700, color: "#4E60A9", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>{cliNombre}</div>
-                        <div style={{ fontSize: "9px", color: "#64748B", marginTop: "1px" }}>Vinculado al CRM</div>
-                      </div>
-                      <button onClick={() => { setLeadId(null); setLeadSearch(""); }} style={{ fontSize: "9px", color: "#EF4444", fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>Desvincular</button>
-                    </div>
-                  ) : (
-                    <>
-                      <input
-                        value={leadSearch}
-                        onChange={e => setLeadSearch(e.target.value)}
-                        placeholder="🔍 Buscar cliente en CRM..."
-                        style={{ width: "100%", fontSize: "11px", border: "1px dashed #CBD5E1", borderRadius: "8px", padding: "8px 12px", outline: "none", background: "#FFFFFF", color: "#1E293B" }}
-                      />
-                      {leadsMatches.length > 0 && (
-                        <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "8px", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", zIndex: 110, overflow: "hidden", marginTop: "4px" }}>
-                          {leadsMatches.map(l => (
-                            <button key={l.id} onClick={() => seleccionarLead(l)}
-                              style={{ width: "100%", textAlign: "left", padding: "8px 12px", background: "none", border: "none", borderBottom: "1px solid #F1F5F9", cursor: "pointer", fontSize: "11px", color: "#1E293B", display: "block" }}>
-                              <div style={{ fontWeight: 700 }}>{l.nombre}</div>
-                              {l.ciudad && <div style={{ fontSize: "9px", color: "#64748B" }}>{l.ciudad}</div>}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 2. Buscador del Catálogo */}
-          <div style={{ background: "#FFFFFF", padding: "14px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-            <div
-              onClick={() => setCollEquipo(p => !p)}
-              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" }}
-            >
-              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>2. Catálogo de Equipos</div>
-              <div style={{ color: "#64748B", display: "flex", alignItems: "center", gap: "6px" }}>
-                {collEquipo ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
-              </div>
-            </div>
-
-            {!collEquipo && (
-              <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
-                {/* Mode toggle */}
-                <div style={{ display: "flex", gap: "4px", background: "#F1F5F9", padding: "2px", borderRadius: "8px" }}>
-                  {(["catalogo", "manual"] as const).map(mode => (
-                    <button key={mode} onClick={() => {
-                      setEquipoMode(mode);
-                      if (mode === "manual") { setEqMarca(""); setEqModelo(""); }
-                    }}
-                      style={{ flex: 1, padding: "4px 8px", borderRadius: "6px", fontSize: "10px", fontWeight: 700, border: "none", cursor: "pointer", background: equipoMode === mode ? "#FFFFFF" : "transparent", color: equipoMode === mode ? "#4E60A9" : "#94A3B8", boxShadow: equipoMode === mode ? "0 1px 3px rgba(0,0,0,0.1)" : "none" }}>
-                      {mode === "catalogo" ? "Catálogo" : "Manual"}
-                    </button>
-                  ))}
-                </div>
-
-                {equipoMode === "catalogo" && (
-                  <div style={{ position: "relative" }}>
-                    <input
-                      value={catalogoSearch}
-                      onChange={e => setCatalogoSearch(e.target.value)}
-                      placeholder="🔍 Buscar modelo en Catálogo..."
-                      style={{ width: "100%", fontSize: "11px", border: "1px dashed #CBD5E1", borderRadius: "8px", padding: "8px 12px", outline: "none", background: "#FFFFFF", color: "#1E293B" }}
-                    />
-                    {catalogoMatches.length > 0 && (
-                      <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "8px", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", zIndex: 110, overflow: "hidden", marginTop: "4px" }}>
-                        {catalogoMatches.map(c => (
-                          <button key={c.id} onClick={() => seleccionarDelCatalogo(c)}
-                            style={{ width: "100%", textAlign: "left", padding: "8px 12px", background: "none", border: "none", borderBottom: "1px solid #F1F5F9", cursor: "pointer", fontSize: "11px", color: "#1E293B", display: "block" }}>
-                            <div style={{ fontWeight: 700 }}>{c.marca} {c.modelo}</div>
-                            <div style={{ fontSize: "9px", color: "#64748B" }}>{c.tipo}</div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Accesorios predefinidos */}
-                <div style={{ marginTop: "6px" }}>
-                  <label style={{ fontSize: "9px", color: "#64748B", fontWeight: 700, display: "block", marginBottom: "6px" }}>CHECKLIST DE ACCESORIOS</label>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "5px" }}>
-                    {ACCESORIOS_PRESET.map(acc => {
-                      const isSelected = eqAccesorios.includes(acc);
-                      return (
-                        <label key={acc} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10px", color: "#334155", background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "5px 8px", borderRadius: "6px", cursor: "pointer" }}>
-                          <input type="checkbox" checked={isSelected} onChange={() => toggleAccesorio(acc)} className="accent-[#4E60A9]" />
-                          <span>{acc}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                  <input
-                    value={eqAccesoriosManual}
-                    onChange={e => setEqAccesoriosManual(e.target.value)}
-                    placeholder="Otros accesorios (manual)..."
-                    style={{ width: "100%", fontSize: "10.5px", border: "1px solid #CBD5E1", borderRadius: "6px", padding: "6px 8px", marginTop: "8px", outline: "none", color: "#1E293B" }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 3. Diagnóstico y Estado */}
-          <div style={{ background: "#FFFFFF", padding: "14px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-            <div
-              onClick={() => setCollEstado(p => !p)}
-              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" }}
-            >
-              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>3. Diagnóstico y Estado</div>
-              <div style={{ color: "#64748B" }}>
-                {collEstado ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
-              </div>
-            </div>
-
-            {!collEstado && (
-              <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
-                {/* Motivo de Ingreso */}
-                <div>
-                  <label style={{ fontSize: "9px", color: "#64748B", fontWeight: 700, display: "block", marginBottom: "4px" }}>MOTIVO DE INGRESO</label>
-                  <select value={motivoIngreso} onChange={e => setMotivoIngreso(e.target.value as any)}
-                    style={{ background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "6px", outline: "none", fontSize: "11px", color: "#1E293B", width: "100%", padding: "6px 10px", fontFamily: "inherit", cursor: "pointer" }}>
-                    <option value="">— Seleccionar —</option>
-                    <option value="diagnostico">Diagnóstico</option>
-                    <option value="reparacion">Reparación</option>
-                    <option value="mantenimiento">Mantenimiento preventivo</option>
-                    <option value="otro">Otro</option>
-                  </select>
-                  {motivoIngreso === "otro" && (
-                    <input
-                      value={motivoOtro}
-                      onChange={e => setMotivoOtro(e.target.value)}
-                      placeholder="Especificar motivo..."
-                      style={{ width: "100%", fontSize: "11px", border: "1px solid #CBD5E1", borderRadius: "6px", padding: "6px 10px", marginTop: "6px", outline: "none", color: "#1E293B" }}
-                    />
-                  )}
-                </div>
-
-                {/* Accesorios Entregados */}
-                <div>
-                  <label style={{ fontSize: "9px", color: "#64748B", fontWeight: 700, display: "block", marginBottom: "4px" }}>ELEMENTOS ENTREGADOS</label>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    {[
-                      { id: "transductor", label: "Transductor" },
-                      { id: "estuche_funda", label: "Estuche / Funda" },
-                      { id: "cable_extension", label: "Cable de extensión" },
-                      { id: "otro", label: "Otro" }
-                    ].map(acc => {
-                      const checked = accesoriosEntregados.includes(acc.id);
-                      return (
-                        <label key={acc.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10px", color: "#334155", background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "5px 8px", borderRadius: "6px", cursor: "pointer" }}>
-                          <input type="checkbox" checked={checked}
-                            onChange={() => {
-                              const next = checked
-                                ? accesoriosEntregados.filter(x => x !== acc.id)
-                                : [...accesoriosEntregados, acc.id];
-                              setAccesoriosEntregados(next);
-                            }}
-                            className="accent-[#4E60A9]"
-                          />
-                          <span>{acc.label}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                  {accesoriosEntregados.includes("otro") && (
-                    <input
-                      value={accesoriosOtro}
-                      onChange={e => setAccesoriosOtro(e.target.value)}
-                      placeholder="Especificar accesorios..."
-                      style={{ width: "100%", fontSize: "11px", border: "1px solid #CBD5E1", borderRadius: "6px", padding: "6px 10px", marginTop: "6px", outline: "none", color: "#1E293B" }}
-                    />
-                  )}
-                </div>
-
-                {/* Checklist Estado Físico */}
-                <div style={{ borderTop: "1px dashed #E2E8F0", paddingTop: "8px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <label style={{ fontSize: "9px", color: "#64748B", fontWeight: 700, display: "block" }}>ESTADO FÍSICO AL INGRESO</label>
-                  
-                  {/* Conector */}
-                  <div>
-                    <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Conector:</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      {[
-                        { id: "sin_danio", label: "Sin daño visible" },
-                        { id: "danio_fisico", label: "Daño físico" },
-                        { id: "cables_expuestos", label: "Cables expuestos" }
-                      ].map(opt => (
-                        <label key={opt.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10.5px", color: "#1E293B", cursor: "pointer" }}>
-                          <input type="checkbox" checked={conectorState.includes(opt.id)} onChange={() => toggleConector(opt.id)} style={{ cursor: "pointer" }} />
-                          {opt.label}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Carcasa */}
-                  <div>
-                    <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Carcasa:</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      {[
-                        { id: "sin_danio", label: "Sin daño visible" },
-                        { id: "grietas", label: "Grietas" },
-                        { id: "golpes", label: "Golpes" },
-                        { id: "desgaste", label: "Desgaste" }
-                      ].map(opt => (
-                        <label key={opt.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10.5px", color: "#1E293B", cursor: "pointer" }}>
-                          <input type="checkbox" checked={carcasaState.includes(opt.id)} onChange={() => toggleCarcasa(opt.id)} style={{ cursor: "pointer" }} />
-                          {opt.label}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Cable */}
-                  <div>
-                    <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Cable de Transductor:</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      {[
-                        { id: "sin_danio", label: "Sin daño visible" },
-                        { id: "doblado_torcido", label: "Doblado / torcido" },
-                        { id: "pelado", label: "Pelado" }
-                      ].map(opt => (
-                        <label key={opt.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10.5px", color: "#1E293B", cursor: "pointer" }}>
-                          <input type="checkbox" checked={cableState.includes(opt.id)} onChange={() => toggleCable(opt.id)} style={{ cursor: "pointer" }} />
-                          {opt.label}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Cristales */}
-                  <div>
-                    <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Cristales / Face:</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      {[
-                        { id: "sin_danio", label: "Sin daño visible" },
-                        { id: "burbujas", label: "Burbujas" },
-                        { id: "astillado", label: "Astillado" },
-                        { id: "no_evaluable", label: "No evaluable" }
-                      ].map(opt => (
-                        <label key={opt.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10.5px", color: "#1E293B", cursor: "pointer" }}>
-                          <input type="checkbox" checked={cristalesState.includes(opt.id)} onChange={() => toggleCristales(opt.id)} style={{ cursor: "pointer" }} />
-                          {opt.label}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Observaciones adicionales */}
-                  <div>
-                    <span style={{ fontSize: "8.5px", color: "#475569", fontWeight: 700, display: "block", marginBottom: "3px" }}>Observaciones adicionales:</span>
-                    <textarea
-                      value={observacionesAdicionales}
-                      onChange={e => setObservacionesAdicionales(e.target.value)}
-                      placeholder="Observaciones estéticas o físicas..."
-                      rows={2}
-                      style={{ width: "100%", fontSize: "10.5px", border: "1px solid #CBD5E1", borderRadius: "6px", padding: "6px 8px", outline: "none", color: "#1E293B", resize: "none", fontFamily: "inherit" }}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 4. Evidencia Fotográfica */}
-          <div style={{ background: "#FFFFFF", padding: "14px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-            <div
-              onClick={() => setCollRecepcion(p => !p)}
-              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" }}
-            >
-              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>4. Evidencia de Recepción</div>
-              <div style={{ color: "#64748B" }}>
-                {collRecepcion ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
-              </div>
-            </div>
-
-            {!collRecepcion && (
-              <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                  {evidencias.map((ev, i) => (
-                    <div key={i} style={{ position: "relative", width: "70px", height: "70px", border: "1px solid #E2E8F0", borderRadius: "6px", overflow: "hidden" }}>
-                      <img src={ev.b64} alt="ev" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      <button onClick={() => setEvidencias(p => p.filter((_, j) => j !== i))}
-                        style={{ position: "absolute", top: "2px", right: "2px", width: "14px", height: "14px", background: "#EF4444", color: "#fff", border: "none", borderRadius: "50%", cursor: "pointer", fontSize: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>×</button>
-                    </div>
-                  ))}
-                  <button onClick={() => uploadImage(path => setEvidencias(p => [...p, { b64: path, caption: "" }]))}
-                    style={{ width: "70px", height: "70px", border: "2px dashed #CBD5E1", borderRadius: "6px", background: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B" }}>
-                    <Plus size={16} />
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 5. Condiciones y Cláusulas */}
-          <div style={{ background: "#FFFFFF", padding: "14px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-            <div
-              onClick={() => setCollClausulas(p => !p)}
-              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" }}
-            >
-              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>5. Cláusulas del Contrato</div>
-              <div style={{ color: "#64748B" }}>
-                {collClausulas ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
-              </div>
-            </div>
-
-            {!collClausulas && (
-              <div style={{ marginTop: "12px" }}>
-                <textarea
-                  value={clausulas}
-                  onChange={e => setClausulas(e.target.value)}
-                  rows={8}
-                  style={{ width: "100%", fontSize: "10px", lineHeight: "1.4", border: "1px solid #CBD5E1", borderRadius: "8px", padding: "8px", outline: "none", background: "#FFFFFF", color: "#334155", resize: "none", fontFamily: "inherit" }}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* 6. Firmas Digitales */}
-          <div style={{ background: "#FFFFFF", padding: "14px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-            <div
-              onClick={() => setCollFirmas(p => !p)}
-              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" }}
-            >
-              <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "1px" }}>6. Firmas Digitales</div>
-              <div style={{ color: "#64748B" }}>
-                {collFirmas ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
-              </div>
-            </div>
-
-            {!collFirmas && (
-              <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
-                <div style={{ marginBottom: "6px" }}>
-                  <label style={{ fontSize: "9px", color: "#64748B", fontWeight: 700, display: "block", marginBottom: "4px" }}>REPRESENTANTE / EMPLEADO</label>
-                  <select value={String(firmaUserId)} onChange={e => handleFirmaUserChange(e.target.value)}
-                    style={{ background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "6px", outline: "none", fontSize: "11px", fontWeight: 600, color: "#1E293B", width: "100%", cursor: "pointer", fontFamily: "inherit", padding: "6px 10px" }}>
-                    <option value="bionordi">{session?.user?.name || "Representante Bionordi"}</option>
-                    {usuariosList.map(u => <option key={u.id} value={String(u.id)}>{u.nombre} — {u.cargo || "Ejecutivo"}</option>)}
-                  </select>
-                </div>
-                <SignaturePad
-                  label={`Firma Cliente: ${entregadoPor || "Entrega"}`}
-                  defaultValue={firmas.entrega}
-                  onSave={b64 => setFirmas(p => ({ ...p, entrega: b64 }))}
-                  onClear={() => setFirmas(p => ({ ...p, entrega: "" }))}
-                />
-                <SignaturePad
-                  label={`Firma Bionordi: ${recibidoPor || "Recibe"}`}
-                  defaultValue={firmas.recibe}
-                  onSave={b64 => setFirmas(p => ({ ...p, recibe: b64 }))}
-                  onClear={() => setFirmas(p => ({ ...p, recibe: "" }))}
-                />
-              </div>
-            )}
-          </div>
-
-        </div>
-      </div>
-
-      {/* ════════════ PREVISUALIZADOR LIVE DERECHO (HOJA DE PAPEL DIGITAL) ════════════ */}
+      {/* ════════════ PREVISUALIZADOR LIVE (HOJA DE PAPEL DIGITAL) ════════════ */}
       <div style={{ flex: 1, height: "100%", display: "flex", flexDirection: "column", background: "#D8DDE4", overflow: "hidden" }}>
         
         {/* Action Top Bar */}
@@ -1968,19 +1539,12 @@ function RecepcionPage() {
           zIndex: 100,
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
         }}>
-          {/* Volver / Sidebar */}
+          {/* Volver */}
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <button onClick={() => router.push("/taller")} 
               style={{ padding: "8px 12px", display: "flex", alignItems: "center", gap: "6px", borderRadius: "8px", border: "1px solid #E2E8F0", background: "#FFFFFF", color: "#64748B", cursor: "pointer", transition: "all 0.2s", fontSize: "11px", fontWeight: 700 }} 
             >
               <ArrowLeft size={14} /> Volver a Taller
-            </button>
-
-            <button onClick={() => setSidebarCollapsed(p => !p)} 
-              style={{ padding: "8px 12px", display: "flex", alignItems: "center", gap: "6px", borderRadius: "8px", border: "1px solid #E2E8F0", background: sidebarCollapsed ? "#FFFFFF" : "#F1F5F9", color: "#64748B", cursor: "pointer", transition: "all 0.2s", fontSize: "11px", fontWeight: 700 }} 
-            >
-              {sidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-              {sidebarCollapsed ? "Mostrar Ajustes" : "Ocultar Ajustes"}
             </button>
           </div>
 
@@ -2048,24 +1612,34 @@ function RecepcionPage() {
               <div style={{ width: `${fillPct}%`, height: "100%", background: fillPct === 100 ? "#10B981" : "#4E60A9", borderRadius: "99px", transition: "width 0.3s ease" }} />
             </div>
             <span style={{ fontSize: "10px", fontWeight: 800, color: fillPct === 100 ? "#10B981" : "#4E60A9", minWidth: "32px" }}>{fillPct}%</span>
-            {fillChecklist.map(item => (
-              <button
-                key={item.id}
-                onClick={() => { setSidebarCollapsed(false); expandCardOnly(item.card); }}
-                title={item.done ? `${item.label}: completo` : `${item.label}: pendiente — click para abrir su sección`}
-                style={{
-                  display: "flex", alignItems: "center", gap: "4px",
-                  fontSize: "9.5px", fontWeight: 700,
-                  padding: "3px 8px", borderRadius: "99px", border: "1px solid",
-                  cursor: "pointer", transition: "all 0.15s ease",
-                  background: item.done ? "#ECFDF5" : "#FFFFFF",
-                  borderColor: item.done ? "#A7F3D0" : "#E2E8F0",
-                  color: item.done ? "#065F46" : "#94A3B8"
-                }}>
-                {item.done ? <CheckCircle2 size={10} /> : <AlertCircle size={10} />}
-                {item.label}
-              </button>
-            ))}
+            {fillChecklist.map(item => {
+              const cardToPage = {
+                cliente: page1Ref,
+                equipo: page1Ref,
+                estado: page1Ref,
+                recepcion: page1Ref,
+                clausulas: page2Ref,
+                firmas: page2Ref,
+              };
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToPage(cardToPage[item.card])}
+                  title={item.done ? `${item.label}: completo` : `${item.label}: pendiente — click para ir a su sección`}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "4px",
+                    fontSize: "9.5px", fontWeight: 700,
+                    padding: "3px 8px", borderRadius: "99px", border: "1px solid",
+                    cursor: "pointer", transition: "all 0.15s ease",
+                    background: item.done ? "#ECFDF5" : "#FFFFFF",
+                    borderColor: item.done ? "#A7F3D0" : "#E2E8F0",
+                    color: item.done ? "#065F46" : "#94A3B8"
+                  }}>
+                  {item.done ? <CheckCircle2 size={10} /> : <AlertCircle size={10} />}
+                  {item.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Navegación de páginas */}
@@ -2142,10 +1716,39 @@ function RecepcionPage() {
                   
                   {/* Datos Cliente */}
                   <div 
-                    onClick={() => expandCardOnly("cliente")}
-                    style={{ flex: 1, background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "8px 12px", cursor: "pointer" }}
+                    style={{ flex: 1, background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "8px 12px" }}
                   >
-                    <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px", borderBottom: "1.5px solid #E2E8F0", paddingBottom: "3px" }}>Datos del Cliente</div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px solid #E2E8F0", paddingBottom: "3px", marginBottom: "6px" }}>
+                      <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px" }}>Datos del Cliente</div>
+                      {leadId ? (
+                        <span style={{ fontSize: "8.5px", color: "#38AD64", fontWeight: 700, display: "flex", alignItems: "center", gap: "3px" }}>
+                          ✓ Vinculado al CRM
+                          <button onClick={(e) => { e.stopPropagation(); setLeadId(null); setLeadSearch(""); }} style={{ fontSize: "8.5px", color: "#EF4444", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0, textDecoration: "underline" }}>(Desvincular)</button>
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {!leadId && (
+                      <div style={{ position: "relative", marginBottom: "8px" }} onClick={e => e.stopPropagation()}>
+                        <input
+                          value={leadSearch}
+                          onChange={e => setLeadSearch(e.target.value)}
+                          placeholder="🔍 Buscar cliente en CRM..."
+                          style={{ width: "100%", fontSize: "9px", border: "1px dashed #4E60A9", borderRadius: "6px", padding: "4px 8px", outline: "none", background: "#FFFFFF", color: "#1E293B" }}
+                        />
+                        {leadsMatches.length > 0 && (
+                          <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "8px", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", zIndex: 110, overflow: "hidden", marginTop: "4px" }}>
+                            {leadsMatches.map(l => (
+                              <button key={l.id} onClick={() => seleccionarLead(l)}
+                                style={{ width: "100%", textAlign: "left", padding: "6px 10px", background: "none", border: "none", borderBottom: "1px solid #F1F5F9", cursor: "pointer", fontSize: "9.5px", color: "#1E293B", display: "block" }}>
+                                <div style={{ fontWeight: 700 }}>{l.nombre}</div>
+                                {l.ciudad && <div style={{ fontSize: "8px", color: "#64748B" }}>{l.ciudad}</div>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                     
                     <div style={{ display: "flex", marginBottom: "3px", fontSize: "10px" }}>
                       <div style={{ width: "75px", color: "#64748B", fontWeight: 700 }}>Institución</div>
@@ -2175,14 +1778,24 @@ function RecepcionPage() {
 
                   {/* Datos de Recepción */}
                   <div 
-                    onClick={() => expandCardOnly("firmas")}
-                    style={{ flex: 1, background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "8px 12px", cursor: "pointer" }}
+                    style={{ flex: 1, background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "8px 12px" }}
                   >
                     <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px", borderBottom: "1.5px solid #E2E8F0", paddingBottom: "3px" }}>Información de Recepción</div>
                     
                     <div style={{ display: "flex", marginBottom: "3px", fontSize: "10px" }}>
                       <div style={{ width: "75px", color: "#64748B", fontWeight: 700 }}>Recepción</div>
-                      <div style={{ flex: 1 }}><F value={recibidoPor} onChange={setRecibidoPor} placeholder="Nombre de quien recibe" style={{ borderBottom: "1px dashed rgba(78,96,169,0.15)" }} /></div>
+                      <div style={{ flex: 1 }} onClick={e => e.stopPropagation()}>
+                        <select 
+                          value={String(firmaUserId)} 
+                          onChange={e => handleFirmaUserChange(e.target.value)} 
+                          style={{ background: "transparent", border: "none", borderBottom: "1.5px dashed rgba(78,96,169,0.25)", outline: "none", fontSize: "10px", fontWeight: 600, color: "#1E293B", width: "100%", cursor: "pointer", fontFamily: "inherit" }}
+                        >
+                          <option value="bionordi">{session?.user?.name || "Representante Bionordi"}</option>
+                          {usuariosList.map(u => (
+                            <option key={u.id} value={String(u.id)}>{u.nombre} — {u.cargo || "Ejecutivo"}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
 
                     <div style={{ display: "flex", marginBottom: "3px", fontSize: "10px" }}>
@@ -2196,12 +1809,7 @@ function RecepcionPage() {
                     </div>
                   </div>
                 </div>
-
-                {/* Especificaciones Equipo */}
-                <div 
-                  onClick={() => expandCardOnly("equipo")}
-                  style={{ background: "#fff", border: "1px solid #D5DBEA", borderRadius: "10px", padding: "8px 12px", marginBottom: "8px", cursor: "pointer" }}
-                >
+                <div style={{ background: "#fff", border: "1px solid #D5DBEA", borderRadius: "10px", padding: "8px 12px", marginBottom: "8px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
                     <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px" }}>Especificaciones del Equipo</div>
                     {/* Selector rápido Catálogo / Manual */}
@@ -2218,6 +1826,28 @@ function RecepcionPage() {
                     </div>
                   </div>
                   
+                  {equipoMode === "catalogo" && (
+                    <div style={{ position: "relative", marginBottom: "8px" }} onClick={e => e.stopPropagation()}>
+                      <input
+                        value={catalogoSearch}
+                        onChange={e => setCatalogoSearch(e.target.value)}
+                        placeholder="🔍 Buscar modelo en Catálogo de Equipos..."
+                        style={{ width: "100%", fontSize: "9px", border: "1px dashed #4E60A9", borderRadius: "6px", padding: "4px 8px", outline: "none", background: "#FFFFFF", color: "#1E293B" }}
+                      />
+                      {catalogoMatches.length > 0 && (
+                        <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "8px", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", zIndex: 110, overflow: "hidden", marginTop: "4px" }}>
+                          {catalogoMatches.map(c => (
+                            <button key={c.id} onClick={() => seleccionarDelCatalogo(c)}
+                              style={{ width: "100%", textAlign: "left", padding: "6px 10px", background: "none", border: "none", borderBottom: "1px solid #F1F5F9", cursor: "pointer", fontSize: "9.5px", color: "#1E293B", display: "block" }}>
+                              <div style={{ fontWeight: 700 }}>{c.marca} {c.modelo}</div>
+                              <div style={{ fontSize: "8px", color: "#64748B" }}>{c.tipo}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px 12px" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: "2px" }} onClick={e => e.stopPropagation()}>
                       <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase" }}>Equipo / Sonda</div>
@@ -2279,10 +1909,37 @@ function RecepcionPage() {
                       <div><F value={eqTecnico} onChange={setEqTecnico} placeholder="Técnico" style={{ fontSize: "10px", fontWeight: 600, color: "#0F172A", borderBottom: "1.5px dashed rgba(78,96,169,0.25)" }} /></div>
                     </div>
                     
-                    <div style={{ gridColumn: "span 4", background: "#F8FAFC", padding: "6px 10px", borderRadius: "6px", border: "1px solid #E4E7F1", marginTop: "3px" }}>
-                      <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase" }}>Accesorios Recibidos / Checklist</div>
-                      <div style={{ fontSize: "10px", fontWeight: 500, color: "#0F172A", marginTop: "1px" }}>
-                        {getAccesoriosString() || "— (Ninguno seleccionado. Edítalos en el panel de control o checklist)"}
+                    <div style={{ gridColumn: "span 4", background: "#F8FAFC", padding: "8px 10px", borderRadius: "6px", border: "1px solid #E4E7F1", marginTop: "3px" }} onClick={e => e.stopPropagation()}>
+                      <div style={{ fontSize: "8px", color: "#64748B", fontWeight: 800, textTransform: "uppercase", marginBottom: "6px" }}>Accesorios Recibidos / Checklist</div>
+                      
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "6px 10px", marginBottom: "8px" }}>
+                        {ACCESORIOS_PRESET.map(acc => {
+                          const isSelected = eqAccesorios.includes(acc);
+                          return (
+                            <label key={acc} style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "9.5px", color: "#0F172A", cursor: "pointer", userSelect: "none" }}>
+                              <input 
+                                type="checkbox" 
+                                checked={isSelected} 
+                                onChange={() => toggleAccesorio(acc)} 
+                                style={{ width: "12px", height: "12px", cursor: "pointer" }} 
+                              />
+                              <span>{acc}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                      
+                      {/* Campo manual */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", borderTop: "1px dashed #CBD5E1", paddingTop: "6px", marginTop: "4px" }}>
+                        <span style={{ fontSize: "8.5px", color: "#64748B", fontWeight: 700 }}>Otros:</span>
+                        <div style={{ flex: 1 }}>
+                          <F 
+                            value={eqAccesoriosManual} 
+                            onChange={setEqAccesoriosManual} 
+                            placeholder="Escribe otros accesorios separados por comas..." 
+                            style={{ fontSize: "9.5px", borderBottom: "1px dashed rgba(78,96,169,0.25)" }} 
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2290,14 +1947,12 @@ function RecepcionPage() {
 
                 {/* 3. Diagnóstico y Estado (Paper View) */}
                 <div
-                  onClick={() => expandCardOnly("estado")}
                   style={{
                     background: "#F8FAFC",
                     border: "1px solid #E2E8F0",
                     borderRadius: "10px",
                     padding: "8px 12px",
-                    marginBottom: "8px",
-                    cursor: "pointer"
+                    marginBottom: "8px"
                   }}
                 >
                   <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px", borderBottom: "1.5px solid #E2E8F0", paddingBottom: "3px" }}>
@@ -2325,7 +1980,7 @@ function RecepcionPage() {
                           return (
                             <div
                               key={opt.id}
-                              onClick={(e) => { e.stopPropagation(); toggleConector(opt.id); expandCardOnly("estado"); }}
+                              onClick={(e) => { e.stopPropagation(); toggleConector(opt.id); }}
                               style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -2397,7 +2052,7 @@ function RecepcionPage() {
                           return (
                             <div
                               key={opt.id}
-                              onClick={(e) => { e.stopPropagation(); toggleCarcasa(opt.id); expandCardOnly("estado"); }}
+                              onClick={(e) => { e.stopPropagation(); toggleCarcasa(opt.id); }}
                               style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -2469,7 +2124,7 @@ function RecepcionPage() {
                           return (
                             <div
                               key={opt.id}
-                              onClick={(e) => { e.stopPropagation(); toggleCable(opt.id); expandCardOnly("estado"); }}
+                              onClick={(e) => { e.stopPropagation(); toggleCable(opt.id); }}
                               style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -2542,7 +2197,7 @@ function RecepcionPage() {
                           return (
                             <div
                               key={opt.id}
-                              onClick={(e) => { e.stopPropagation(); toggleCristales(opt.id); expandCardOnly("estado"); }}
+                              onClick={(e) => { e.stopPropagation(); toggleCristales(opt.id); }}
                               style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -2615,14 +2270,12 @@ function RecepcionPage() {
 
                 {/* MOTIVO DE INGRESO Y ACCESORIOS (Paper View) */}
                 <div
-                  onClick={() => expandCardOnly("estado")}
                   style={{
                     background: "#F8FAFC",
                     border: "1px solid #E2E8F0",
                     borderRadius: "10px",
                     padding: "8px 12px",
-                    marginBottom: "8px",
-                    cursor: "pointer"
+                    marginBottom: "8px"
                   }}
                 >
                   <div style={{ display: "flex", gap: "20px" }}>
@@ -2643,7 +2296,7 @@ function RecepcionPage() {
                           return (
                             <div
                               key={opt.id}
-                              onClick={(e) => { e.stopPropagation(); setMotivoIngreso(opt.id as any); expandCardOnly("estado"); }}
+                              onClick={(e) => { e.stopPropagation(); setMotivoIngreso(opt.id as any); }}
                               style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -2693,7 +2346,16 @@ function RecepcionPage() {
                                 )}
                               </span>
                               {opt.label}
-                              {opt.id === "otro" && active && motivoOtro ? `: ${motivoOtro}` : ""}
+                              {opt.id === "otro" && active && (
+                                <span style={{ marginLeft: "4px" }} onClick={e => e.stopPropagation()}>
+                                  <F 
+                                    value={motivoOtro} 
+                                    onChange={setMotivoOtro} 
+                                    placeholder="especificar..." 
+                                    style={{ fontSize: "8px", borderBottom: "1px dashed rgba(78,96,169,0.25)", padding: 0, width: "70px", display: "inline-block" }} 
+                                  />
+                                </span>
+                              )}
                             </div>
                           );
                         })}
@@ -2736,7 +2398,6 @@ function RecepcionPage() {
                                   ? accesoriosEntregados.filter(x => x !== opt.id)
                                   : [...accesoriosEntregados, opt.id];
                                 setAccesoriosEntregados(next);
-                                expandCardOnly("estado");
                               }}
                               style={{
                                 display: "flex",
@@ -2787,7 +2448,16 @@ function RecepcionPage() {
                                 )}
                               </span>
                               {opt.label}
-                              {opt.id === "otro" && active && accesoriosOtro ? `: ${accesoriosOtro}` : ""}
+                              {opt.id === "otro" && active && (
+                                <span style={{ marginLeft: "4px" }} onClick={e => e.stopPropagation()}>
+                                  <F 
+                                    value={accesoriosOtro} 
+                                    onChange={setAccesoriosOtro} 
+                                    placeholder="especificar..." 
+                                    style={{ fontSize: "8px", borderBottom: "1px dashed rgba(78,96,169,0.25)", padding: 0, width: "70px", display: "inline-block" }} 
+                                  />
+                                </span>
+                              )}
                             </div>
                           );
                         })}
@@ -2808,8 +2478,7 @@ function RecepcionPage() {
 
                 {/* Evidencia Fotográfica (Editable inline) */}
                 <div 
-                  onClick={() => expandCardOnly("recepcion")}
-                  style={{ background: "#F8FAFC", border: "1px solid #FECACA", borderRadius: "10px", padding: "8px 12px", marginBottom: "8px", cursor: "pointer" }}
+                  style={{ background: "#F8FAFC", border: "1px solid #FECACA", borderRadius: "10px", padding: "8px 12px", marginBottom: "8px" }}
                 >
                   <div style={{ fontSize: "9px", fontWeight: 800, color: "#B91C1C", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Evidencia Fotográfica de Recepción</div>
                   <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "flex-start" }}>
@@ -2877,51 +2546,101 @@ function RecepcionPage() {
 
                 {/* Clausulas */}
                 <div
-                  onClick={() => expandCardOnly("clausulas")}
-                  style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "10px 14px", marginBottom: "10px", display: "flex", flexDirection: "column", cursor: "pointer" }}
+                  style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "10px 14px", marginBottom: "10px", display: "flex", flexDirection: "column" }}
                 >
-                  <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "8px", borderBottom: "2px solid #C7D6F5", paddingBottom: "4px" }}>Términos y Condiciones del Servicio de Reparación y Mantenimiento</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #C7D6F5", paddingBottom: "4px", marginBottom: "8px" }}>
+                    <div style={{ fontSize: "9px", fontWeight: 800, color: "#4E60A9", textTransform: "uppercase", letterSpacing: "0.8px" }}>Términos y Condiciones del Servicio de Reparación y Mantenimiento</div>
+                    <button 
+                      onClick={() => setEditingClausulas(p => !p)} 
+                      style={{ fontSize: "8.5px", color: "#4E60A9", fontWeight: 700, border: "1px solid #C7D6F5", background: "#FFFFFF", borderRadius: "4px", padding: "2px 6px", cursor: "pointer" }}
+                    >
+                      {editingClausulas ? "Listo" : "Editar Cláusulas"}
+                    </button>
+                  </div>
                   <p style={{ fontSize: "8px", color: "#475569", marginBottom: "8px", fontStyle: "italic", lineHeight: "1.35" }}>
                     Al firmar el presente documento, el cliente declara haber leído, comprendido y aceptado en su totalidad los siguientes términos y condiciones, los cuales regulan la relación de servicio entre el cliente y Bionordi S.A. de C.V.
                   </p>
-                  <ul style={{ listStyle: "none", padding: 0, fontSize: "7.8px", color: "#475569", display: "flex", flexDirection: "column", gap: "4px" }}>
-                    {clausulas.split('\n').filter(l => l.trim() !== '').map((line, idx) => (
-                      <li key={idx} style={{ position: "relative", paddingLeft: "12px", lineHeight: "1.35" }}>
-                        <span style={{ position: "absolute", left: 0, color: "#38AD64", fontWeight: "bold" }}>•</span>
-                        {line}
-                      </li>
-                    ))}
-                  </ul>
+                  
+                  {editingClausulas ? (
+                    <textarea
+                      value={clausulas}
+                      onChange={e => setClausulas(e.target.value)}
+                      onBlur={() => setEditingClausulas(false)}
+                      rows={12}
+                      style={{ width: "100%", fontSize: "8px", lineHeight: "1.4", border: "1px dashed #4E60A9", borderRadius: "6px", padding: "8px", outline: "none", background: "#FFFFFF", color: "#334155", resize: "vertical", fontFamily: "inherit" }}
+                      autoFocus
+                    />
+                  ) : (
+                    <ul style={{ listStyle: "none", padding: 0, fontSize: "7.8px", color: "#475569", display: "flex", flexDirection: "column", gap: "4px" }}>
+                      {clausulas.split('\n').filter(l => l.trim() !== '').map((line, idx) => (
+                        <li key={idx} style={{ position: "relative", paddingLeft: "12px", lineHeight: "1.35" }}>
+                          <span style={{ position: "absolute", left: 0, color: "#38AD64", fontWeight: "bold" }}>•</span>
+                          {line}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
 
                 {/* Firmas */}
                 <div
-                  onClick={() => expandCardOnly("firmas")}
-                  style={{ marginTop: "auto", paddingTop: "8px", borderTop: "1px solid #E2E8F0", cursor: "pointer" }}
+                  style={{ marginTop: "auto", paddingTop: "8px", borderTop: "1px solid #E2E8F0" }}
                 >
                   <p style={{ fontSize: "8.2px", color: "#475569", textAlign: "center", marginBottom: "8px", lineHeight: "1.3" }}>
                     <strong>FIRMAS DE CONFORMIDAD:</strong> El cliente declara haber leído y aceptado los términos anteriores, y confirma que el estado físico descrito corresponde al equipo entregado en esta fecha.
                   </p>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: "40px", marginBottom: "6px" }}>
-                    <div style={{ alignSelf: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      <div style={{ height: "80px", display: "flex", alignItems: "flex-end", justifyContent: "center", width: "100%" }}>
-                        {firmas.entrega && <img src={firmas.entrega} alt="Firma entrega" style={{ maxHeight: "78px", maxWidth: "220px", objectFit: "contain" }} />}
-                      </div>
-                      <div style={{ width: "100%", borderTop: "1.5px solid #CBD5E1", marginTop: "4px", paddingTop: "4px", textAlign: "center" }}>
-                        <div style={{ fontSize: "10px", fontWeight: 800, color: "#4E60A9" }}>{entregadoPor || "—"}</div>
-                        <div style={{ fontSize: "8px", fontWeight: 600, color: "#64748B", textTransform: "uppercase" }}>Entrega (Cliente / Representante)</div>
-                      </div>
+                    
+                    <div style={{ alignSelf: "center", flex: 1 }}>
+                      <SignaturePad
+                        label={`Firma Cliente: ${entregadoPor || "Entrega"}`}
+                        defaultValue={firmas.entrega}
+                        onSave={b64 => setFirmas(p => ({ ...p, entrega: b64 }))}
+                        onClear={() => setFirmas(p => ({ ...p, entrega: "" }))}
+                      >
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
+                          <div style={{ height: "80px", display: "flex", alignItems: "flex-end", justifyContent: "center", width: "100%", position: "relative" }}>
+                            {firmas.entrega ? (
+                              <img src={firmas.entrega} alt="Firma entrega" style={{ maxHeight: "78px", maxWidth: "220px", objectFit: "contain" }} />
+                            ) : (
+                              <div style={{ fontSize: "9px", color: "#94A3B8", border: "1px dashed #CBD5E1", borderRadius: "6px", padding: "4px 8px", background: "#F8FAFC", marginBottom: "10px" }}>
+                                Haga clic para firmar
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ width: "100%", borderTop: "1.5px solid #CBD5E1", marginTop: "4px", paddingTop: "4px", textAlign: "center" }}>
+                            <div style={{ fontSize: "10px", fontWeight: 800, color: "#4E60A9" }}>{entregadoPor || "—"}</div>
+                            <div style={{ fontSize: "8px", fontWeight: 600, color: "#64748B", textTransform: "uppercase" }}>Entrega (Cliente / Representante)</div>
+                          </div>
+                        </div>
+                      </SignaturePad>
                     </div>
 
-                    <div style={{ alignSelf: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      <div style={{ height: "80px", display: "flex", alignItems: "flex-end", justifyContent: "center", width: "100%" }}>
-                        {firmas.recibe && <img src={firmas.recibe} alt="Firma recibe" style={{ maxHeight: "78px", maxWidth: "220px", objectFit: "contain" }} />}
-                      </div>
-                      <div style={{ width: "100%", borderTop: "1.5px solid #CBD5E1", marginTop: "4px", paddingTop: "4px", textAlign: "center" }}>
-                        <div style={{ fontSize: "10px", fontWeight: 800, color: "#4E60A9" }}>{recibidoPor || "—"}</div>
-                        <div style={{ fontSize: "8px", fontWeight: 600, color: "#64748B", textTransform: "uppercase" }}>Recibe (Bionordi)</div>
-                      </div>
+                    <div style={{ alignSelf: "center", flex: 1 }}>
+                      <SignaturePad
+                        label={`Firma Bionordi: ${recibidoPor || "Recibe"}`}
+                        defaultValue={firmas.recibe}
+                        onSave={b64 => setFirmas(p => ({ ...p, recibe: b64 }))}
+                        onClear={() => setFirmas(p => ({ ...p, recibe: "" }))}
+                      >
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
+                          <div style={{ height: "80px", display: "flex", alignItems: "flex-end", justifyContent: "center", width: "100%", position: "relative" }}>
+                            {firmas.recibe ? (
+                              <img src={firmas.recibe} alt="Firma recibe" style={{ maxHeight: "78px", maxWidth: "220px", objectFit: "contain" }} />
+                            ) : (
+                              <div style={{ fontSize: "9px", color: "#94A3B8", border: "1px dashed #CBD5E1", borderRadius: "6px", padding: "4px 8px", background: "#F8FAFC", marginBottom: "10px" }}>
+                                Haga clic para firmar
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ width: "100%", borderTop: "1.5px solid #CBD5E1", marginTop: "4px", paddingTop: "4px", textAlign: "center" }}>
+                            <div style={{ fontSize: "10px", fontWeight: 800, color: "#4E60A9" }}>{recibidoPor || "—"}</div>
+                            <div style={{ fontSize: "8px", fontWeight: 600, color: "#64748B", textTransform: "uppercase" }}>Recibe (Bionordi)</div>
+                          </div>
+                        </div>
+                      </SignaturePad>
                     </div>
+
                   </div>
 
                   <div style={{ textAlign: "center", borderTop: "1px solid #E2E8F0", paddingTop: "6px", fontSize: "8px", color: "#94A3B8", lineHeight: "1.4" }}>

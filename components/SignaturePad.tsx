@@ -7,6 +7,7 @@ interface SignaturePadProps {
   defaultValue?: string;
   onSave: (b64: string) => void;
   onClear: () => void;
+  children?: React.ReactNode;
 }
 
 export default function SignaturePad({
@@ -14,6 +15,7 @@ export default function SignaturePad({
   defaultValue,
   onSave,
   onClear,
+  children,
 }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingRef = useRef(false);
@@ -241,46 +243,54 @@ export default function SignaturePad({
   };
 
   return (
-    <div className="flex flex-col gap-1.5 w-full">
-      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-        {label}
-      </span>
-
-      {/* Tarjeta de previsualización compacta */}
-      {!defaultValue ? (
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="w-full h-[75px] border-2 border-dashed border-gray-200 hover:border-[#4E60A9]/50 rounded-xl flex flex-col items-center justify-center gap-1 bg-slate-50/30 hover:bg-slate-50 transition-all group"
-        >
-          <Edit3 size={15} className="text-gray-400 group-hover:text-[#4E60A9] group-hover:scale-105 transition-all" />
-          <span className="text-[11px] font-bold text-gray-400 group-hover:text-[#4E60A9]/80 transition-colors">
-            Presione aquí para firmar
-          </span>
-        </button>
+    <div className="w-full">
+      {children ? (
+        <div onClick={() => setIsModalOpen(true)} className="cursor-pointer w-full">
+          {children}
+        </div>
       ) : (
-        <div 
-          onClick={() => setIsModalOpen(true)}
-          className="relative w-full h-[75px] border border-gray-200 hover:border-gray-300 rounded-xl overflow-hidden bg-white shadow-sm transition-all group flex items-center justify-center p-3 cursor-pointer hover:shadow-md"
-        >
-          <img 
-            src={defaultValue} 
-            alt="Firma" 
-            className="max-h-[55px] max-w-[90%] object-contain filter drop-shadow-sm transition-transform group-hover:scale-102" 
-          />
-          <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex flex-col gap-1.5 w-full">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+            {label}
+          </span>
+
+          {/* Tarjeta de previsualización compacta */}
+          {!defaultValue ? (
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                clearCanvas();
-              }}
-              className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg bg-white border border-gray-200 shadow-sm transition-colors"
-              title="Eliminar firma"
+              onClick={() => setIsModalOpen(true)}
+              className="w-full h-[75px] border-2 border-dashed border-gray-200 hover:border-[#4E60A9]/50 rounded-xl flex flex-col items-center justify-center gap-1 bg-slate-50/30 hover:bg-slate-50 transition-all group"
             >
-              <Trash2 size={11} />
+              <Edit3 size={15} className="text-gray-400 group-hover:text-[#4E60A9] group-hover:scale-105 transition-all" />
+              <span className="text-[11px] font-bold text-gray-400 group-hover:text-[#4E60A9]/80 transition-colors">
+                Presione aquí para firmar
+              </span>
             </button>
-          </div>
+          ) : (
+            <div 
+              onClick={() => setIsModalOpen(true)}
+              className="relative w-full h-[75px] border border-gray-200 hover:border-gray-300 rounded-xl overflow-hidden bg-white shadow-sm transition-all group flex items-center justify-center p-3 cursor-pointer hover:shadow-md"
+            >
+              <img 
+                src={defaultValue} 
+                alt="Firma" 
+                className="max-h-[55px] max-w-[90%] object-contain filter drop-shadow-sm transition-transform group-hover:scale-102" 
+              />
+              <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    clearCanvas();
+                  }}
+                  className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg bg-white border border-gray-200 shadow-sm transition-colors"
+                  title="Eliminar firma"
+                >
+                  <Trash2 size={11} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

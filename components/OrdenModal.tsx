@@ -735,7 +735,7 @@ ${falla || techNote ? `<!-- Notes -->
       {showRecepcionPdfPreview && (
         <DocumentViewerModal
           title={`Hoja de Recepción — ${orden.folio_recepcion || orden.folio}`}
-          url={`/api/pdf/recepcion?id=${orden.id}`}
+          url={`/api/pdf/recepcion?id=${orden.id}&t=${Date.now()}`}
           downloadName={`Recepcion_${orden.folio_recepcion || orden.folio}.pdf`}
           onClose={() => setShowRecepcionPdfPreview(false)}
         />

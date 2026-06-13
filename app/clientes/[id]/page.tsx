@@ -1301,7 +1301,7 @@ export default function ClientePerfilPage({ params }: { params: Promise<{ id: st
                       <td className="px-5 py-3 text-[11px] text-gray-400">{fmtDate(o.fecha_ingreso)}</td>
                       <td className="px-5 py-3" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <a href={`/api/pdf/recepcion?id=${o.id}`} download={`Recepcion_${o.folio_recepcion || o.folio}.pdf`} target="_blank" rel="noopener noreferrer"
+                          <a href={`/api/pdf/recepcion?id=${o.id}&t=${Date.now()}`} download={`Recepcion_${o.folio_recepcion || o.folio}.pdf`} target="_blank" rel="noopener noreferrer"
                             className="text-[#4E60A9] hover:text-[#3d4e8a] transition-colors" title="Descargar PDF"><FileDown size={14} /></a>
                           <button onClick={() => { router.push(`/taller/recepcion?id=${o.id}`); }}
                             className="text-gray-400 hover:text-[#4E60A9] transition-colors" title="Editar recepción">
